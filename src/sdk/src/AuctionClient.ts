@@ -13,7 +13,6 @@ export class AuctionClient
     public readonly suiClient: SuiClient;
     public readonly packageId: string;
     public readonly coinType: string;
-    public readonly itemType: string;
     public adminId: string | null;
     public readonly signTransaction: SignTransaction;
 
@@ -21,14 +20,12 @@ export class AuctionClient
         suiClient: SuiClient,
         packageId: string,
         coinType: string,
-        itemType: string,
         adminId: string | null,
         signTransaction: SignTransaction,
     ) {
         this.suiClient = suiClient;
         this.packageId = packageId;
         this.coinType = coinType;
-        this.itemType = itemType;
         this.adminId = adminId;
         this.signTransaction = signTransaction;
     }
@@ -91,10 +88,9 @@ export class AuctionClient
 
     public async new_auction(
         recipientAddr: string,
-        item: ObjectArg,
+        pay_addr: string,
         begin_time_ms: number,
         duration: number,
-        pay_addr: string,
         minimum_bid: number,
         minimum_increase_bps: number,
         extension_period_ms: number,
@@ -108,12 +104,10 @@ export class AuctionClient
             tx,
             this.packageId,
             this.coinType,
-            this.itemType,
             this.adminId,
-            item,
+            pay_addr,
             begin_time_ms,
             duration,
-            pay_addr,
             minimum_bid,
             minimum_increase_bps,
             extension_period_ms,
@@ -142,7 +136,6 @@ export class AuctionClient
             tx,
             this.packageId,
             this.coinType,
-            this.itemType,
             auction,
             pay_coin,
         );
@@ -162,7 +155,6 @@ export class AuctionClient
             tx,
             this.packageId,
             this.coinType,
-            this.itemType,
             auction,
         );
         tx.transferObjects([item], recipientAddr);
@@ -184,7 +176,6 @@ export class AuctionClient
             tx,
             this.packageId,
             this.coinType,
-            this.itemType,
             this.adminId,
             auction,
         );
@@ -206,7 +197,6 @@ export class AuctionClient
             tx,
             this.packageId,
             this.coinType,
-            this.itemType,
             this.adminId,
             auction,
         );
@@ -229,7 +219,6 @@ export class AuctionClient
             tx,
             this.packageId,
             this.coinType,
-            this.itemType,
             this.adminId,
             auction,
             pay_addr,
