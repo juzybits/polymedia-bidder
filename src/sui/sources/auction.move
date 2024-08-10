@@ -189,6 +189,7 @@ public fun admin_ends_auction_early<CoinType>(
     ctx: &mut TxContext,
 ) {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -205,6 +206,7 @@ public fun admin_cancels_auction<CoinType>(
     ctx: &mut TxContext,
 ) {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
