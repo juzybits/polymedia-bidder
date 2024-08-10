@@ -2,8 +2,9 @@ module auction::auction;
 
 // === Imports ===
 
-use sui::clock::Clock;
+use sui::bag::{Self, Bag};
 use sui::balance::{Self, Balance};
+use sui::clock::Clock;
 use sui::coin::{Self, Coin};
 
 // === Errors ===
@@ -12,14 +13,17 @@ const E_WRONG_TIME: u64 = 5000;
 const E_WRONG_ADMIN: u64 = 5001;
 const E_WRONG_ADDRESS: u64 = 5002;
 const E_WRONG_DURATION: u64 = 5003;
-const E_WRONG_COIN_VALUE: u64 = 5004;
-const E_WRONG_MINIMUM_BID: u64 = 5005;
-const E_WRONG_MINIMUM_INCREASE: u64 = 5006;
-const E_WRONG_EXTENSION_PERIOD: u64 = 5007;
+const E_TOO_MANY_ITEMS: u64 = 5004;
+const E_WRONG_COIN_VALUE: u64 = 5005;
+const E_WRONG_MINIMUM_BID: u64 = 5006;
+const E_WRONG_MINIMUM_INCREASE: u64 = 5007;
+const E_WRONG_EXTENSION_PERIOD: u64 = 5008;
 
 // === Constants ===
 
 const ZERO_ADDRESS: address = @0x0;
+const MAX_ITEMS: u64 = 250;
+// const MAX_DURATION: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days // TODO
 
 // === Structs ===
 
@@ -27,17 +31,29 @@ public struct AuctionAdmin has store, key {
     id: UID,
 }
 
-public struct Auction<phantom CoinType, ItemType: key+store> has store, key {
+public struct Auction<phantom CoinType> has store, key {
     id: UID,
-    item: ItemType,
-    begin_time_ms: u64,
-    end_time_ms: u64,
+    // addresses of the auctioned items
+    item_addrs: vector<address>,
+    // auctioned items are stored as dynamic fields in this bag
+    item_bag: Bag,
+    // address of the AuctionAdmin object that controls this auction
     admin_addr: address,
+    // address that will receive the funds of the winning bid
     pay_addr: address,
+    // address that submitted the highest bid so far
     lead_addr: address,
+    // value of the highest bid so far
     lead_bal: Balance<CoinType>,
+    // when the auction starts (timestamp in milliseconds)
+    begin_time_ms: u64,
+    // when the auction ends (timestamp in milliseconds)
+    end_time_ms: u64,
+    // minimum bid size; increases with every bid
     minimum_bid: u64,
+    // new bids must exceed the current highest bid by these many basis points
     minimum_increase_bps: u64,
+    // bids placed within this period before end_time_ms will extend end_time_ms by extension_period_ms
     extension_period_ms: u64,
 }
 
@@ -49,18 +65,17 @@ public fun new_admin(
     return AuctionAdmin { id: object::new(ctx) }
 }
 
-public fun new_auction<CoinType, ItemType: key+store>(
+public fun new_auction<CoinType>(
     admin: &AuctionAdmin,
-    item: ItemType,
+    pay_addr: address,
     begin_time_ms: u64,
     duration: u64,
-    pay_addr: address,
     minimum_bid: u64,
     minimum_increase_bps: u64,
     extension_period_ms: u64,
     clock: &Clock,
     ctx: &mut TxContext,
-): Auction<CoinType, ItemType>
+): Auction<CoinType>
 {
     let current_time = clock.timestamp_ms();
     let adjusted_begin_time_ms =
@@ -75,13 +90,14 @@ public fun new_auction<CoinType, ItemType: key+store>(
 
     let auction = Auction {
         id: object::new(ctx),
-        item,
-        begin_time_ms: adjusted_begin_time_ms,
-        end_time_ms: adjusted_begin_time_ms + duration,
+        item_addrs: vector::empty(),
+        item_bag: bag::new(ctx),
         admin_addr: object::id_address(admin),
         pay_addr,
         lead_addr: ZERO_ADDRESS,
         lead_bal: balance::zero(),
+        begin_time_ms: adjusted_begin_time_ms,
+        end_time_ms: adjusted_begin_time_ms + duration,
         minimum_bid,
         minimum_increase_bps,
         extension_period_ms,
@@ -90,8 +106,8 @@ public fun new_auction<CoinType, ItemType: key+store>(
 }
 
 /// Anyone can bid for an item, as long as the auction hasn't ended.
-public fun bid<CoinType, ItemType: key+store>(
-    auction: &mut Auction<CoinType, ItemType>,
+public fun bid<CoinType>(
+    auction: &mut Auction<CoinType>,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
@@ -132,8 +148,8 @@ public fun bid<CoinType, ItemType: key+store>(
 /// - auction is destroyed
 /// - balance is sent to pay_addr
 /// - item is given to the winner (tx sender)
-public fun claim<CoinType, ItemType: key+store>(
-    auction: Auction<CoinType, ItemType>,
+public fun claim<CoinType>(
+    auction: Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
 ): ItemType
@@ -161,13 +177,27 @@ public fun claim<CoinType, ItemType: key+store>(
 
 // === Admin Functions ===
 
+/// Admin can add items to the auction any time before the auction ends
+public fun add_item<CoinType, ItemType: key+store>(
+    admin: &AuctionAdmin,
+    auction: &mut Auction<CoinType>,
+    item: ItemType,
+    clock: &Clock,
+)
+{
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!(auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS);
+    assert!(clock.timestamp_ms() < auction.end_time_ms, E_WRONG_TIME);
+    auction.item_bag.add(object::id_address(&item), item);
+}
+
 /// Admin can end the auction ahead of time:
 /// - auction is destroyed
 /// - balance is sent to pay_addr (if any)
 /// - item is sent to the winner (if any), otherwise sent to the admin (tx sender)
-public fun admin_claim<CoinType, ItemType: key+store>(
+public fun admin_claim<CoinType>(
     admin: &AuctionAdmin,
-    auction: Auction<CoinType, ItemType>,
+    auction: Auction<CoinType>,
     ctx: &mut TxContext,
 )
 {
@@ -201,9 +231,9 @@ public fun admin_claim<CoinType, ItemType: key+store>(
 /// - auction is destroyed
 /// - balance is sent back to the leader
 /// - item is given to the admin (tx sender)
-public fun admin_cancel<CoinType, ItemType: key+store>(
+public fun admin_cancel<CoinType>(
     admin: &AuctionAdmin,
-    auction: Auction<CoinType, ItemType>,
+    auction: Auction<CoinType>,
     ctx: &mut TxContext,
 ): ItemType
 {
@@ -231,9 +261,9 @@ public fun admin_cancel<CoinType, ItemType: key+store>(
     return item
 }
 
-public fun admin_set_pay_addr<CoinType, ItemType: key+store>(
+public fun admin_set_pay_addr<CoinType>(
     admin: &AuctionAdmin,
-    auction: &mut Auction<CoinType, ItemType>,
+    auction: &mut Auction<CoinType>,
     pay_addr: address,
 )
 {
@@ -251,53 +281,53 @@ public fun admin_destroy(
 
 // === Public-View Functions ===
 
-public fun item<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
-): &ItemType {
-    &auction.item
+public fun item_addrs<CoinType>(
+    auction: &Auction<CoinType>,
+): &vector<address> {
+    &auction.item_addrs
 }
-public fun begin_time_ms<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
-): u64 {
-    auction.begin_time_ms
-}
-public fun end_time_ms<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
-): u64 {
-    auction.end_time_ms
-}
-public fun admin_addr<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun admin_addr<CoinType>(
+    auction: &Auction<CoinType>,
 ): address {
     auction.admin_addr
 }
-public fun pay_addr<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun pay_addr<CoinType>(
+    auction: &Auction<CoinType>,
 ): address {
     auction.pay_addr
 }
-public fun lead_addr<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun lead_addr<CoinType>(
+    auction: &Auction<CoinType>,
 ): address {
     auction.lead_addr
 }
-public fun lead_value<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun lead_value<CoinType>(
+    auction: &Auction<CoinType>,
 ): u64 {
     auction.lead_bal.value()
 }
-public fun minimum_bid<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun begin_time_ms<CoinType>(
+    auction: &Auction<CoinType>,
+): u64 {
+    auction.begin_time_ms
+}
+public fun end_time_ms<CoinType>(
+    auction: &Auction<CoinType>,
+): u64 {
+    auction.end_time_ms
+}
+public fun minimum_bid<CoinType>(
+    auction: &Auction<CoinType>,
 ): u64 {
     auction.minimum_bid
 }
-public fun minimum_increase_bps<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun minimum_increase_bps<CoinType>(
+    auction: &Auction<CoinType>,
 ): u64 {
     auction.minimum_increase_bps
 }
-public fun extension_period_ms<CoinType, ItemType: key+store>(
-    auction: &Auction<CoinType, ItemType>,
+public fun extension_period_ms<CoinType>(
+    auction: &Auction<CoinType>,
 ): u64 {
     auction.extension_period_ms
 }
