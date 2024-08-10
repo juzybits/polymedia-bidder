@@ -112,9 +112,9 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
     item: ItemType,
     clock: &Clock,
 ) {
+    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS);
-    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
     auction.item_bag.add(object::id_address(&item), item);
 }
 
@@ -162,8 +162,8 @@ public fun winner_takes_item<CoinType, ItemType: key+store>(
     ctx: &mut TxContext,
 ): ItemType
 {
-    assert!(ctx.sender() == auction.lead_addr, E_WRONG_ADDRESS);
     assert!(auction.has_ended(clock), E_WRONG_TIME);
+    assert!(ctx.sender() == auction.lead_addr, E_WRONG_ADDRESS);
 
     // send funds to winner (if any)
     auction.anyone_pays_funds(clock, ctx);
@@ -171,6 +171,23 @@ public fun winner_takes_item<CoinType, ItemType: key+store>(
     // give the item to the sender
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
+}
+
+/// Anyone can transfer the items to the winner of the auction after it ends.
+public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
+    auction: &mut Auction<CoinType>,
+    item_addr: address,
+    clock: &Clock,
+    ctx: &mut TxContext,
+) {
+    assert!(auction.has_ended(clock), E_WRONG_TIME);
+    assert!(auction.has_leader(), E_WRONG_ADDRESS);
+
+    // send funds to winner (if any)
+    auction.anyone_pays_funds(clock, ctx);
+
+    let item = auction.item_bag.remove<address, ItemType>(item_addr);
+    transfer::public_transfer(item, auction.lead_addr);
 }
 
 /// Transfer the funds to auction.pay_addr after the auction ends.
@@ -193,8 +210,8 @@ public fun admin_ends_auction_early<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -210,8 +227,8 @@ public fun admin_cancels_auction<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -234,8 +251,8 @@ public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     clock: &Clock,
 ): ItemType
 {
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.has_ended(clock), E_WRONG_TIME);
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.has_leader() == false, E_WRONG_ADDRESS);
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
