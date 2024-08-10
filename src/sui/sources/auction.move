@@ -57,15 +57,15 @@ public struct Auction<phantom CoinType> has store, key {
     extension_period_ms: u64,
 }
 
-// === public-mutative functions ===
+// === mutative functions ===
 
-public fun new_admin(
+public fun anyone_creates_admin(
     ctx: &mut TxContext,
 ): AuctionAdmin {
     return AuctionAdmin { id: object::new(ctx) }
 }
 
-public fun new_auction<CoinType>(
+public fun admin_creates_auction<CoinType>(
     admin: &AuctionAdmin,
     pay_addr: address,
     begin_time_ms: u64,
@@ -105,8 +105,21 @@ public fun new_auction<CoinType>(
     return auction
 }
 
+/// Admin can add items to the auction any time before the auction ends
+public fun admin_adds_item<CoinType, ItemType: key+store>(
+    admin: &AuctionAdmin,
+    auction: &mut Auction<CoinType>,
+    item: ItemType,
+    clock: &Clock,
+) {
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!(auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS);
+    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
+    auction.item_bag.add(object::id_address(&item), item);
+}
+
 /// Anyone can bid for an item, as long as the auction hasn't ended.
-public fun bid<CoinType>(
+public fun anyone_bids<CoinType>(
     auction: &mut Auction<CoinType>,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
@@ -141,20 +154,8 @@ public fun bid<CoinType>(
     };
 }
 
-/// Transfer the funds to auction.pay_addr after the auction ends.
-public fun anyone_pay_funds<CoinType>(
-    auction: &mut Auction<CoinType>,
-    clock: &Clock,
-    ctx: &mut TxContext,
-) {
-    assert!(auction.has_ended(clock), E_WRONG_TIME);
-    if (auction.lead_value() > 0) {
-        let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
-        transfer::public_transfer(lead_coin, auction.pay_addr);
-    }
-}
-
-public fun winner_take_item<CoinType, ItemType: key+store>(
+/// The winner of the auction can take the items after the auction ends.
+public fun winner_takes_item<CoinType, ItemType: key+store>(
     auction: &mut Auction<CoinType>,
     item_addr: address,
     clock: &Clock,
@@ -167,38 +168,21 @@ public fun winner_take_item<CoinType, ItemType: key+store>(
     return item
 }
 
-// === admin functions ===
-
-/// Admin can add items to the auction any time before the auction ends
-public fun admin_add_item<CoinType, ItemType: key+store>(
-    admin: &AuctionAdmin,
+/// Transfer the funds to auction.pay_addr after the auction ends.
+public fun anyone_pays_funds<CoinType>(
     auction: &mut Auction<CoinType>,
-    item: ItemType,
     clock: &Clock,
+    ctx: &mut TxContext,
 ) {
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
-    assert!(auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS);
-    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
-    auction.item_bag.add(object::id_address(&item), item);
-}
-
-/// Admin can reclaim items if the auction was cancelled or nobody bid
-public fun admin_reclaim_item<CoinType, ItemType: key+store>(
-    admin: &AuctionAdmin,
-    auction: &mut Auction<CoinType>,
-    item_addr: address,
-    clock: &Clock,
-): ItemType
-{
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.has_ended(clock), E_WRONG_TIME);
-    assert!(auction.has_leader() == false, E_WRONG_ADDRESS);
-    let item = auction.item_bag.remove<address, ItemType>(item_addr);
-    return item
+    if (auction.lead_value() > 0) {
+        let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
+        transfer::public_transfer(lead_coin, auction.pay_addr);
+    }
 }
 
 /// Admin can end the auction ahead of time and send the funds to the winner (if any).
-public fun admin_claim<CoinType>(
+public fun admin_ends_auction_early<CoinType>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     clock: &Clock,
@@ -210,11 +194,11 @@ public fun admin_claim<CoinType>(
     auction.end_time_ms = clock.timestamp_ms();
 
     // send funds to winner (if any)
-    auction.anyone_pay_funds(clock, ctx);
+    auction.anyone_pays_funds(clock, ctx);
 }
 
-/// Admin can cancel the auction at any time and return the funds to the leader (if any)
-public fun admin_cancel<CoinType>(
+/// Admin can cancel the auction at any time and return the funds to the leader (if any).
+public fun admin_cancels_auction<CoinType>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     clock: &Clock,
@@ -234,7 +218,22 @@ public fun admin_cancel<CoinType>(
     };
 }
 
-public fun admin_set_pay_addr<CoinType>(
+/// Admin can reclaim the items if the auction was cancelled or nobody bid.
+public fun admin_reclaims_item<CoinType, ItemType: key+store>(
+    admin: &AuctionAdmin,
+    auction: &mut Auction<CoinType>,
+    item_addr: address,
+    clock: &Clock,
+): ItemType
+{
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!(auction.has_ended(clock), E_WRONG_TIME);
+    assert!(auction.has_leader() == false, E_WRONG_ADDRESS);
+    let item = auction.item_bag.remove<address, ItemType>(item_addr);
+    return item
+}
+
+public fun admin_sets_pay_addr<CoinType>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     pay_addr: address,
@@ -243,14 +242,14 @@ public fun admin_set_pay_addr<CoinType>(
     auction.pay_addr = pay_addr;
 }
 
-public fun admin_destroy(
+public fun admin_destroys_admin(
     admin: AuctionAdmin,
 ) {
     let AuctionAdmin { id } = admin;
     id.delete();
 }
 
-// === public auction helpers ===
+// === public status helpers ===
 
 public fun has_ended<CoinType>(
     auction: &Auction<CoinType>,
