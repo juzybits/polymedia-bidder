@@ -22,7 +22,7 @@ const E_WRONG_EXTENSION_PERIOD: u64 = 5008;
 // === Constants ===
 
 const ZERO_ADDRESS: address = @0x0;
-const MAX_ITEMS: u64 = 250;
+const MAX_ITEMS: u64 = 50;
 // const MAX_DURATION: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days // TODO
 
 // === Structs ===
@@ -119,7 +119,7 @@ public fun bid<CoinType>(
     assert!(pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE);
 
     // send the auction balance to the previous leader, who has just been outbid
-    if (auction.lead_bal.value() > 0) {
+    if (auction.lead_value() > 0) {
         let prev_lead_bal = balance::withdraw_all(&mut auction.lead_bal);
         let prev_lead_coin = coin::from_balance(prev_lead_bal, ctx);
         transfer::public_transfer(prev_lead_coin, auction.lead_addr);
@@ -130,7 +130,7 @@ public fun bid<CoinType>(
     auction.lead_bal.join(pay_coin.into_balance());
 
     // update minimum_bid
-    let lead_value_u256 = auction.lead_bal.value() as u256;
+    let lead_value_u256 = auction.lead_value() as u256;
     let min_increase_u256 = auction.minimum_increase_bps as u256;
     let mut new_minimum_bid = ((lead_value_u256 * (10000 + min_increase_u256)) / 10000) as u64;
     if (new_minimum_bid == auction.minimum_bid) { // can happen for tiny values due to truncation
@@ -144,41 +144,37 @@ public fun bid<CoinType>(
     };
 }
 
-/// The winner of the auction can call this function, after the auction ends.
-/// - auction is destroyed
-/// - balance is sent to pay_addr
-/// - item is given to the winner (tx sender)
-public fun claim<CoinType>(
-    auction: Auction<CoinType>,
+/// Transfer the funds to auction.pay_addr after the auction ends.
+public fun anyone_pay_funds<CoinType>(
+    auction: &mut Auction<CoinType>,
+    clock: &Clock,
+    ctx: &mut TxContext,
+)
+{
+    assert!(clock.timestamp_ms() >= auction.end_time_ms, E_WRONG_TIME);
+    if (auction.lead_value() > 0) {
+        let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
+        transfer::public_transfer(lead_coin, auction.pay_addr);
+    }
+}
+
+public fun winner_take_item<CoinType, ItemType: key+store>(
+    auction: &mut Auction<CoinType>,
+    item_addr: address,
     clock: &Clock,
     ctx: &mut TxContext,
 ): ItemType
 {
     assert!(ctx.sender() == auction.lead_addr, E_WRONG_ADDRESS);
     assert!(clock.timestamp_ms() >= auction.end_time_ms, E_WRONG_TIME);
-
-    // destroy the auction object
-    let Auction {
-        id,
-        item,
-        pay_addr,
-        lead_bal,
-        ..
-    } = auction;
-    id.delete();
-
-    // transfer balance to pay_addr
-    let lead_coin = coin::from_balance(lead_bal, ctx);
-    transfer::public_transfer(lead_coin, pay_addr);
-
-    // give the item to the winner of the auction
+    let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
 
 // === Admin Functions ===
 
 /// Admin can add items to the auction any time before the auction ends
-public fun add_item<CoinType, ItemType: key+store>(
+public fun admin_add_item<CoinType, ItemType: key+store>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     item: ItemType,
@@ -191,74 +187,52 @@ public fun add_item<CoinType, ItemType: key+store>(
     auction.item_bag.add(object::id_address(&item), item);
 }
 
-/// Admin can end the auction ahead of time:
-/// - auction is destroyed
-/// - balance is sent to pay_addr (if any)
-/// - item is sent to the winner (if any), otherwise sent to the admin (tx sender)
+/// Admin can reclaim items if the auction was cancelled or nobody bid
+public fun admin_reclaim_item<CoinType, ItemType: key+store>(
+    admin: &AuctionAdmin,
+    auction: &mut Auction<CoinType>,
+    item_addr: address,
+    clock: &Clock,
+): ItemType
+{
+    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!(clock.timestamp_ms() >= auction.end_time_ms, E_WRONG_TIME);
+    assert!(auction.lead_addr == ZERO_ADDRESS, E_WRONG_ADDRESS);
+    let item = auction.item_bag.remove<address, ItemType>(item_addr);
+    return item
+}
+
+/// Admin can end the auction ahead of time and send the balance to pay_addr (if any).
 public fun admin_claim<CoinType>(
     admin: &AuctionAdmin,
-    auction: Auction<CoinType>,
+    auction: &mut Auction<CoinType>,
+    clock: &Clock,
     ctx: &mut TxContext,
 )
 {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
 
-    // destroy the auction object
-    let Auction {
-        id,
-        item,
-        lead_addr,
-        pay_addr,
-        lead_bal,
-        ..
-    } = auction;
-    id.delete();
-
-    if (lead_bal.value() > 0) {
-        // send balance to pay_addr
-        let lead_coin = coin::from_balance(lead_bal, ctx);
-        transfer::public_transfer(lead_coin, pay_addr);
-        // send item to the winner
-        transfer::public_transfer(item, lead_addr);
-    } else {
-        lead_bal.destroy_zero();
-        // send item to the admin
-        transfer::public_transfer(item, ctx.sender())
-    };
+    auction.end_time_ms = clock.timestamp_ms();
+    auction.anyone_pay_funds(clock, ctx);
 }
 
-/// Admin can cancel the auction at any time:
-/// - auction is destroyed
-/// - balance is sent back to the leader
-/// - item is given to the admin (tx sender)
+/// Admin can cancel the auction at any time and return the funds to the leader
 public fun admin_cancel<CoinType>(
     admin: &AuctionAdmin,
-    auction: Auction<CoinType>,
+    auction: &mut Auction<CoinType>,
+    clock: &Clock,
     ctx: &mut TxContext,
-): ItemType
+)
 {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
 
-    // destroy the auction object
-    let Auction {
-        id,
-        item,
-        lead_bal,
-        lead_addr,
-        ..
-    } = auction;
-    id.delete();
+    auction.end_time_ms = clock.timestamp_ms();
 
-    // transfer balance back to the leader
-    if (lead_bal.value() > 0) {
-        let lead_coin = coin::from_balance(lead_bal, ctx);
-        transfer::public_transfer(lead_coin, lead_addr);
-    } else {
-        balance::destroy_zero(lead_bal);
+    if (auction.lead_value() > 0) {
+        let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
+        transfer::public_transfer(lead_coin, auction.lead_addr);
+        auction.lead_addr = ZERO_ADDRESS;
     };
-
-    // give the item to the admin
-    return item
 }
 
 public fun admin_set_pay_addr<CoinType>(
@@ -304,7 +278,7 @@ public fun lead_addr<CoinType>(
 public fun lead_value<CoinType>(
     auction: &Auction<CoinType>,
 ): u64 {
-    auction.lead_bal.value()
+    auction.lead_value()
 }
 public fun begin_time_ms<CoinType>(
     auction: &Auction<CoinType>,
