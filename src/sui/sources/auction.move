@@ -82,11 +82,11 @@ public fun admin_creates_auction<CoinType>(
         if (begin_time_ms == 0) { current_time }
         else { begin_time_ms };
 
-    assert!(adjusted_begin_time_ms >= current_time, E_WRONG_TIME);
-    assert!(duration > 0, E_WRONG_DURATION);
-    assert!(minimum_bid > 0, E_WRONG_MINIMUM_BID);
-    assert!(minimum_increase_bps > 0, E_WRONG_MINIMUM_INCREASE);
-    assert!(extension_period_ms > 0, E_WRONG_EXTENSION_PERIOD);
+    assert!( adjusted_begin_time_ms >= current_time, E_WRONG_TIME );
+    assert!( duration > 0, E_WRONG_DURATION );
+    assert!( minimum_bid > 0, E_WRONG_MINIMUM_BID );
+    assert!( minimum_increase_bps > 0, E_WRONG_MINIMUM_INCREASE );
+    assert!( extension_period_ms > 0, E_WRONG_EXTENSION_PERIOD );
 
     let auction = Auction {
         id: object::new(ctx),
@@ -112,9 +112,9 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
     item: ItemType,
     clock: &Clock,
 ) {
-    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
-    assert!(auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS);
+    assert!( !auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
+    assert!( auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS );
     auction.item_bag.add(object::id_address(&item), item);
 }
 
@@ -125,8 +125,8 @@ public fun anyone_bids<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(auction.is_live(clock), E_WRONG_TIME);
-    assert!(pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE);
+    assert!( auction.is_live(clock), E_WRONG_TIME );
+    assert!( auction.minimum_bid <= pay_coin.value(), E_WRONG_COIN_VALUE );
 
     // send the auction balance to the previous leader, who has just been outbid
     if (auction.lead_value() > 0) {
@@ -162,8 +162,8 @@ public fun winner_takes_item<CoinType, ItemType: key+store>(
     ctx: &mut TxContext,
 ): ItemType
 {
-    assert!(auction.has_ended(clock), E_WRONG_TIME);
-    assert!(ctx.sender() == auction.lead_addr, E_WRONG_ADDRESS);
+    assert!( auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.lead_addr == ctx.sender(), E_WRONG_ADDRESS );
 
     // send funds to winner (if any)
     auction.anyone_pays_funds(clock, ctx);
@@ -180,8 +180,8 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(auction.has_ended(clock), E_WRONG_TIME);
-    assert!(auction.has_leader(), E_WRONG_ADDRESS);
+    assert!( auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.has_leader(), E_WRONG_ADDRESS );
 
     // send funds to winner (if any)
     auction.anyone_pays_funds(clock, ctx);
@@ -196,7 +196,8 @@ public fun anyone_pays_funds<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(auction.has_ended(clock), E_WRONG_TIME);
+    assert!( auction.has_ended(clock), E_WRONG_TIME );
+
     if (auction.lead_value() > 0) {
         let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
         transfer::public_transfer(lead_coin, auction.pay_addr);
@@ -210,8 +211,8 @@ public fun admin_ends_auction_early<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!( !auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -227,8 +228,8 @@ public fun admin_cancels_auction<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!( !auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -251,9 +252,9 @@ public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     clock: &Clock,
 ): ItemType
 {
-    assert!(auction.has_ended(clock), E_WRONG_TIME);
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
-    assert!(auction.has_leader() == false, E_WRONG_ADDRESS);
+    assert!( auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
+    assert!( !auction.has_leader(), E_WRONG_ADDRESS );
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
@@ -263,7 +264,7 @@ public fun admin_sets_pay_addr<CoinType>(
     auction: &mut Auction<CoinType>,
     pay_addr: address,
 ) {
-    assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
+    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
     auction.pay_addr = pay_addr;
 }
 
