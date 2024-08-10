@@ -164,6 +164,11 @@ public fun winner_takes_item<CoinType, ItemType: key+store>(
 {
     assert!(ctx.sender() == auction.lead_addr, E_WRONG_ADDRESS);
     assert!(auction.has_ended(clock), E_WRONG_TIME);
+
+    // send funds to winner (if any)
+    auction.anyone_pays_funds(clock, ctx);
+
+    // give the item to the sender
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
@@ -220,7 +225,8 @@ public fun admin_cancels_auction<CoinType>(
     };
 }
 
-/// Admin can reclaim the items if the auction was cancelled or nobody bid.
+/// Admin can reclaim the items if the auction ended without a leader,
+/// either because it was cancelled or because nobody bid.
 public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
