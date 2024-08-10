@@ -1,13 +1,13 @@
 module auction::auction;
 
-// === Imports ===
+// === imports ===
 
 use sui::bag::{Self, Bag};
 use sui::balance::{Self, Balance};
 use sui::clock::Clock;
 use sui::coin::{Self, Coin};
 
-// === Errors ===
+// === errors ===
 
 const E_WRONG_TIME: u64 = 5000;
 const E_WRONG_ADMIN: u64 = 5001;
@@ -19,13 +19,13 @@ const E_WRONG_MINIMUM_BID: u64 = 5006;
 const E_WRONG_MINIMUM_INCREASE: u64 = 5007;
 const E_WRONG_EXTENSION_PERIOD: u64 = 5008;
 
-// === Constants ===
+// === constants ===
 
 const ZERO_ADDRESS: address = @0x0;
 const MAX_ITEMS: u64 = 50;
 // const MAX_DURATION: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days // TODO
 
-// === Structs ===
+// === structs ===
 
 public struct AuctionAdmin has store, key {
     id: UID,
@@ -57,7 +57,7 @@ public struct Auction<phantom CoinType> has store, key {
     extension_period_ms: u64,
 }
 
-// === Public-Mutative Functions ===
+// === public-mutative functions ===
 
 public fun new_admin(
     ctx: &mut TxContext,
@@ -111,11 +111,8 @@ public fun bid<CoinType>(
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
-)
-{
-    let current_time = clock.timestamp_ms();
-    assert!(current_time >= auction.begin_time_ms, E_WRONG_TIME);
-    assert!(current_time < auction.end_time_ms, E_WRONG_TIME);
+) {
+    assert!(auction.is_live(clock), E_WRONG_TIME);
     assert!(pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE);
 
     // send the auction balance to the previous leader, who has just been outbid
@@ -139,7 +136,7 @@ public fun bid<CoinType>(
     auction.minimum_bid = new_minimum_bid;
 
     // extend auction end time if within the extension period
-    if (current_time >= auction.end_time_ms - auction.extension_period_ms) {
+    if (clock.timestamp_ms() >= auction.end_time_ms - auction.extension_period_ms) {
         auction.end_time_ms = auction.end_time_ms + auction.extension_period_ms;
     };
 }
@@ -149,9 +146,8 @@ public fun anyone_pay_funds<CoinType>(
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
-)
-{
-    assert!(clock.timestamp_ms() >= auction.end_time_ms, E_WRONG_TIME);
+) {
+    assert!(auction.has_ended(clock), E_WRONG_TIME);
     if (auction.lead_value() > 0) {
         let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
         transfer::public_transfer(lead_coin, auction.pay_addr);
@@ -166,12 +162,12 @@ public fun winner_take_item<CoinType, ItemType: key+store>(
 ): ItemType
 {
     assert!(ctx.sender() == auction.lead_addr, E_WRONG_ADDRESS);
-    assert!(clock.timestamp_ms() >= auction.end_time_ms, E_WRONG_TIME);
+    assert!(auction.has_ended(clock), E_WRONG_TIME);
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
 
-// === Admin Functions ===
+// === admin functions ===
 
 /// Admin can add items to the auction any time before the auction ends
 public fun admin_add_item<CoinType, ItemType: key+store>(
@@ -179,11 +175,10 @@ public fun admin_add_item<CoinType, ItemType: key+store>(
     auction: &mut Auction<CoinType>,
     item: ItemType,
     clock: &Clock,
-)
-{
+) {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     assert!(auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS);
-    assert!(clock.timestamp_ms() < auction.end_time_ms, E_WRONG_TIME);
+    assert!(auction.has_ended(clock) == false, E_WRONG_TIME);
     auction.item_bag.add(object::id_address(&item), item);
 }
 
@@ -196,41 +191,45 @@ public fun admin_reclaim_item<CoinType, ItemType: key+store>(
 ): ItemType
 {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
-    assert!(clock.timestamp_ms() >= auction.end_time_ms, E_WRONG_TIME);
-    assert!(auction.lead_addr == ZERO_ADDRESS, E_WRONG_ADDRESS);
+    assert!(auction.has_ended(clock), E_WRONG_TIME);
+    assert!(auction.has_leader() == false, E_WRONG_ADDRESS);
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
 
-/// Admin can end the auction ahead of time and send the balance to pay_addr (if any).
+/// Admin can end the auction ahead of time and send the funds to the winner (if any).
 public fun admin_claim<CoinType>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
-)
-{
+) {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
 
+    // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
+
+    // send funds to winner (if any)
     auction.anyone_pay_funds(clock, ctx);
 }
 
-/// Admin can cancel the auction at any time and return the funds to the leader
+/// Admin can cancel the auction at any time and return the funds to the leader (if any)
 public fun admin_cancel<CoinType>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
-)
-{
+) {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
 
+    // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
 
     if (auction.lead_value() > 0) {
+        // return funds to leader
         let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
         transfer::public_transfer(lead_coin, auction.lead_addr);
+        // nobody wins the auction
         auction.lead_addr = ZERO_ADDRESS;
     };
 }
@@ -239,21 +238,41 @@ public fun admin_set_pay_addr<CoinType>(
     admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     pay_addr: address,
-)
-{
+) {
     assert!(object::id_address(admin) == auction.admin_addr, E_WRONG_ADMIN);
     auction.pay_addr = pay_addr;
 }
 
 public fun admin_destroy(
     admin: AuctionAdmin,
-)
-{
+) {
     let AuctionAdmin { id } = admin;
     id.delete();
 }
 
-// === Public-View Functions ===
+// === public auction helpers ===
+
+public fun has_ended<CoinType>(
+    auction: &Auction<CoinType>,
+    clock: &Clock,
+): bool {
+    return clock.timestamp_ms() >= auction.end_time_ms
+}
+
+public fun is_live<CoinType>(
+    auction: &Auction<CoinType>,
+    clock: &Clock,
+): bool {
+    return clock.timestamp_ms() >= auction.begin_time_ms && !auction.has_ended(clock)
+}
+
+public fun has_leader<CoinType>(
+    auction: &Auction<CoinType>,
+): bool {
+    return auction.lead_addr != ZERO_ADDRESS
+}
+
+// === public accessors ===
 
 public fun item_addrs<CoinType>(
     auction: &Auction<CoinType>,
@@ -306,8 +325,8 @@ public fun extension_period_ms<CoinType>(
     auction.extension_period_ms
 }
 
-// === Public-Package Functions ===
+// === public-package functions ===
 
-// === Private Functions ===
+// === private functions ===
 
-// === Test Functions ===
+// === test functions ===
