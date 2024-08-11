@@ -1,8 +1,7 @@
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { SignatureWithBytes } from "@mysten/sui/cryptography";
 import { Transaction } from "@mysten/sui/transactions";
-import { getCoinOfValue, getSuiObjectResponseFields, ObjectArg, SignTransaction } from "@polymedia/suitcase-core";
-import { AuctionModule } from "./AuctionModule.js";
+import { SignTransaction, suiObjResToFields, suiObjResToId } from "@polymedia/suitcase-core";
 import { AuctionObject } from "./types.js";
 
 /**
@@ -12,7 +11,7 @@ export class AuctionClient
 {
     public readonly suiClient: SuiClient;
     public readonly packageId: string;
-    public readonly coinType: string;
+    public coinType: string;
     public adminId: string | null;
     public readonly signTransaction: SignTransaction;
 
@@ -36,9 +35,24 @@ export class AuctionClient
         this.adminId = adminId;
     }
 
+    public setCoinType(coinType: string): void {
+        this.coinType = coinType;
+    }
+
     // === data fetching ===
 
-    public async getAuctions(
+    public async fetchAdminIds(
+        ownerAddr: string,
+    ): Promise<string[]>
+    {
+        const resp = await this.suiClient.getOwnedObjects({
+            owner: ownerAddr,
+            filter: { StructType: `${this.packageId}::auction::AuctionAdmin` },
+        });
+        return resp.data.map(suiObjRes => suiObjResToId(suiObjRes));
+    }
+
+    public async fetchAuctions(
         auctionIds: string[],
     ): Promise<AuctionObject[]>
     {
@@ -46,15 +60,15 @@ export class AuctionClient
             ids: auctionIds,
             options: { showContent: true }
         });
-        const auctions = pagObjRes.map(objRes => this.parseAuction(objRes));
+        const auctions = pagObjRes.map(objRes => AuctionClient.parseAuction(objRes));
         return auctions;
     }
 
     /* eslint-disable */
-    protected parseAuction( // TODO
+    public static parseAuction(
         objRes: SuiObjectResponse,
     ): AuctionObject {
-        const fields = getSuiObjectResponseFields(objRes);
+        const fields = suiObjResToFields(objRes);
         return {
             id: fields.id.id,
             item_id: fields.item.fields.id.id,
@@ -71,185 +85,7 @@ export class AuctionClient
     }
     /* eslint-enable */
 
-    // === auction module calls ===
-
-    public async new_admin(
-        recipientAddr: string,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        const tx = new Transaction();
-        const [auctionAdmin] = AuctionModule.new_admin(tx, this.packageId);
-        tx.transferObjects([auctionAdmin], recipientAddr);
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async new_auction(
-        recipientAddr: string,
-        pay_addr: string,
-        begin_time_ms: number,
-        duration: number,
-        minimum_bid: number,
-        minimum_increase_bps: number,
-        extension_period_ms: number,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        if (this.adminId === null) {
-            throw new Error("[AuctionClient.new_auction] this.adminId is null");
-        }
-        const tx = new Transaction();
-        const [auctionObj] = AuctionModule.new_auction(
-            tx,
-            this.packageId,
-            this.coinType,
-            this.adminId,
-            pay_addr,
-            begin_time_ms,
-            duration,
-            minimum_bid,
-            minimum_increase_bps,
-            extension_period_ms,
-        );
-
-        tx.transferObjects([auctionObj], recipientAddr);
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async bid(
-        auction: ObjectArg,
-        bid_amount: bigint,
-        recipientAddr: string,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        const tx = new Transaction();
-
-        const [pay_coin] = await getCoinOfValue(
-            this.suiClient, tx, recipientAddr, this.coinType, bid_amount
-        );
-
-        AuctionModule.bid(
-            tx,
-            this.packageId,
-            this.coinType,
-            auction,
-            pay_coin,
-        );
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async claim(
-        auction: ObjectArg,
-        recipientAddr: string,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        const tx = new Transaction();
-        const [item] = AuctionModule.claim(
-            tx,
-            this.packageId,
-            this.coinType,
-            auction,
-        );
-        tx.transferObjects([item], recipientAddr);
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async admin_claim(
-        auction: ObjectArg,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        if (this.adminId === null) {
-            throw new Error("[AuctionClient.new_auction] this.adminId is null");
-        }
-        const tx = new Transaction();
-        AuctionModule.admin_claim(
-            tx,
-            this.packageId,
-            this.coinType,
-            this.adminId,
-            auction,
-        );
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async admin_cancel(
-        auction: ObjectArg,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        if (this.adminId === null) {
-            throw new Error("[AuctionClient.new_auction] this.adminId is null");
-        }
-        const tx = new Transaction();
-        AuctionModule.admin_cancel(
-            tx,
-            this.packageId,
-            this.coinType,
-            this.adminId,
-            auction,
-        );
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async admin_set_pay_addr(
-        auction: ObjectArg,
-        pay_addr: string,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        if (this.adminId === null) {
-            throw new Error("[AuctionClient.new_auction] this.adminId is null");
-        }
-        const tx = new Transaction();
-        AuctionModule.admin_set_pay_addr(
-            tx,
-            this.packageId,
-            this.coinType,
-            this.adminId,
-            auction,
-            pay_addr,
-        );
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    public async admin_destroy(
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        if (this.adminId === null) {
-            throw new Error("[AuctionClient.new_auction] this.adminId is null");
-        }
-        const tx = new Transaction();
-        AuctionModule.admin_destroy(
-            tx,
-            this.packageId,
-            this.adminId,
-        );
-
-        const signedTx = await this.signTransaction(tx);
-
-        return this.executeTransaction(signedTx);
-    }
-
-    // === helpers ===
-
-    protected async executeTransaction(
+    public async executeTransaction(
         signedTx: SignatureWithBytes,
     ): Promise<SuiTransactionBlockResponse>
     {
@@ -259,5 +95,13 @@ export class AuctionClient
             signature: signedTx.signature,
             options: { showEffects: true },
         });
+    }
+
+    public async signAndExecuteTransaction(
+        tx: Transaction,
+    ): Promise<SuiTransactionBlockResponse>
+    {
+        const signedTx = await this.signTransaction(tx);
+        return this.executeTransaction(signedTx);
     }
 }
