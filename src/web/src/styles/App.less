@@ -1,0 +1,140 @@
+// === imports ===
+
+@import "../../node_modules/normalize.css/normalize.css";
+
+// === constants ===
+
+@border-gray: 1px solid #555;
+@border-radius: 4px;
+@color-text: #eee;
+@font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+@font-system: system-ui;
+@screen-small: 700px;
+
+// === resets ===
+
+* {
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+    font-family: @font-mono;
+    color: @color-text;
+    text-decoration: none;
+}
+
+body {
+    background-color: black;
+}
+
+h1, h2, h3, h4, h5, button, input {
+    padding: 0;
+    margin: 0;
+}
+
+// === elements ===
+
+@btn-dark: rgb(0, 121, 155);
+@btn-light: white;
+
+.btn {
+    &, * { color: @btn-light; }
+    background-color: @btn-dark;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-weight: 600;
+    &:hover {
+        &, * { color: @btn-dark; }
+        background-color: @btn-light;
+    }
+    &:disabled, &.disabled {
+        cursor: default;
+        &, * { color: #ddd; }
+        background-color: grey;
+    }
+}
+
+input {
+    color: black;
+    padding: 0.5em 1em;
+}
+
+// === utility classes ===
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+// === components ===
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    @media (max-width: @screen-small) {
+        justify-content: center;
+    }
+    flex-wrap: wrap;
+    gap: 1em 2em;
+    padding: 2em 0 3em;
+    user-select: none;
+    .header-item {
+        &:first-child {
+            flex-grow: 1;
+            font-size: 1.5em;
+            font-weight: bold;
+            @media (max-width: @screen-small) {
+                flex-grow: 0;
+                font-size: 1em;
+        }
+        }
+        background: none;
+        display: inline-block;
+        text-decoration: none;
+        &:hover {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    }
+}
+
+footer {
+    padding: 3em 0 2em;
+    display: flex;
+    justify-content: space-between;
+}
+
+// #btn-connect {
+    // display: none;
+// }
+
+#btn-network {
+    // display: none;
+    padding: 0;
+    text-transform: uppercase;
+    .network-option {
+        .text {
+            display: block;
+            // padding: 0.5em 1em;
+        }
+        &:not(.selected) {
+            .text {
+                &:hover {
+                    color: @btn-light;
+                    // background-color: @btn-dark;
+                }
+            }
+        }
+    }
+    .network-options {
+        position: absolute;
+        // background-color: @btn-light;
+    }
+}
+
+.page-regular {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+
+// === pages ===

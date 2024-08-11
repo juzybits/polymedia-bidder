@@ -1,0 +1,49 @@
+{
+    "private": true,
+    "version": "0.0.0",
+    "name": "@polymedia/auction-web",
+    "author": "@juzybits (https://polymedia.app)",
+    "homepage": "https://auction.polymedia.app",
+    "description": "Sui's auction house",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/juzybits/polymedia-auction"
+    },
+    "keywords": [],
+    "scripts": {
+        "build": "vite build",
+        "clean": "rm -rf dist/ node_modules/ .turbo/ .wrangler/",
+        "deploy-dev": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-auction --branch dev",
+        "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-auction --branch main",
+        "dev": "vite",
+        "lint": "eslint src/ --report-unused-disable-directives --max-warnings 0",
+        "preview": "pnpm build && vite preview",
+        "tunnel": "lt --port 1234",
+        "typecheck": "tsc -b"
+    },
+    "dependencies": {
+        "@mysten/dapp-kit": "^0.14.15",
+        "@mysten/sui": "^1.5.0",
+        "@polymedia/auction-sdk": "workspace:*",
+        "@polymedia/suitcase-core": "^0.0.13",
+        "@polymedia/suitcase-react": "^0.0.13",
+        "@tanstack/react-query": "^5.51.23",
+        "normalize.css": "^8.0.1",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-router-dom": "^6.26.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "@vitejs/plugin-react-swc": "^3.7.0",
+        "less": "^4.2.0",
+        "localtunnel": "^2.0.2",
+        "typescript": "^5.5.4",
+        "vite": "^5.4.0",
+        "wrangler": "^3.69.1"
+    },
+    "type": "module",
+    "sideEffects": false
+}
