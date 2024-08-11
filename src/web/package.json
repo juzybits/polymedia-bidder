@@ -26,8 +26,8 @@
         "@mysten/dapp-kit": "^0.14.15",
         "@mysten/sui": "^1.5.0",
         "@polymedia/auction-sdk": "workspace:*",
-        "@polymedia/suitcase-core": "^0.0.13",
-        "@polymedia/suitcase-react": "^0.0.13",
+        "@polymedia/suitcase-core": "^0.0.15",
+        "@polymedia/suitcase-react": "^0.0.15",
         "@tanstack/react-query": "^5.51.23",
         "normalize.css": "^8.0.1",
         "react": "^18.3.1",
@@ -42,7 +42,7 @@
         "localtunnel": "^2.0.2",
         "typescript": "^5.5.4",
         "vite": "^5.4.0",
-        "wrangler": "^3.69.1"
+        "wrangler": "^3.70.0"
     },
     "type": "module",
     "sideEffects": false
