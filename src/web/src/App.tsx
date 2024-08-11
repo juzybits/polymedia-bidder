@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { PageHome } from "./PageHome";
+import { PageNew } from "./PageNew";
 import { PageNotFound } from "./PageNotFound";
 import "./styles/App.less";
 
@@ -29,6 +30,7 @@ export const AppRouter: React.FC = () => {
             <Route path="/" element={<AppSuiProviders />} >
                 <Route index element={<PageHome />} />
                 <Route path="*" element={<PageNotFound />} />
+                <Route path="/new" element={<PageNew />} />
             </Route>
         </Routes>
     </BrowserRouter>
