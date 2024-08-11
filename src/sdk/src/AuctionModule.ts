@@ -7,18 +7,17 @@ import { ObjectArg, objectArg } from "@polymedia/suitcase-core";
  */
 export const AuctionModule =
 {
-    new_admin: (
+    anyone_creates_admin: (
         tx: Transaction,
         packageId: string,
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::new_admin`,
-            arguments: [],
+            target: `${packageId}::auction::anyone_creates_admin`,
         });
     },
 
-    new_auction: (
+    admin_creates_auction: (
         tx: Transaction,
         packageId: string,
         coinType: string,
@@ -32,7 +31,7 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::new_auction`,
+            target: `${packageId}::auction::admin_creates_auction`,
             typeArguments: [ coinType ],
             arguments: [
                 objectArg(tx, admin),
@@ -47,7 +46,29 @@ export const AuctionModule =
         });
     },
 
-    bid: (
+    admin_adds_item: (
+        tx: Transaction,
+        packageId: string,
+        coinType: string,
+        itemType: string,
+        admin: ObjectArg,
+        auction: ObjectArg,
+        item: ObjectArg,
+    ): TransactionResult =>
+    {
+        return tx.moveCall({
+            target: `${packageId}::auction::admin_adds_item`,
+            typeArguments: [ coinType, itemType ],
+            arguments: [
+                objectArg(tx, admin),
+                objectArg(tx, auction),
+                objectArg(tx, item),
+                tx.object(SUI_CLOCK_OBJECT_ID),
+            ],
+        });
+    },
+
+    anyone_bids: (
         tx: Transaction,
         packageId: string,
         coinType: string,
@@ -56,7 +77,7 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::bid`,
+            target: `${packageId}::auction::anyone_bids`,
             typeArguments: [ coinType ],
             arguments: [
                 objectArg(tx, auction),
@@ -66,7 +87,45 @@ export const AuctionModule =
         });
     },
 
-    claim: (
+    winner_takes_item: (
+        tx: Transaction,
+        packageId: string,
+        coinType: string,
+        auction: ObjectArg,
+        item_addr: string,
+    ): TransactionResult =>
+    {
+        return tx.moveCall({
+            target: `${packageId}::auction::winner_takes_item`,
+            typeArguments: [ coinType ],
+            arguments: [
+                objectArg(tx, auction),
+                tx.pure.address(item_addr),
+                tx.object(SUI_CLOCK_OBJECT_ID),
+            ],
+        });
+    },
+
+    anyone_sends_item_to_winner: (
+        tx: Transaction,
+        packageId: string,
+        coinType: string,
+        auction: ObjectArg,
+        item_addr: string,
+    ): TransactionResult =>
+    {
+        return tx.moveCall({
+            target: `${packageId}::auction::anyone_sends_item_to_winner`,
+            typeArguments: [ coinType ],
+            arguments: [
+                objectArg(tx, auction),
+                tx.pure.address(item_addr),
+                tx.object(SUI_CLOCK_OBJECT_ID),
+            ],
+        });
+    },
+
+    anyone_pays_funds: (
         tx: Transaction,
         packageId: string,
         coinType: string,
@@ -74,7 +133,7 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::claim`,
+            target: `${packageId}::auction::anyone_pays_funds`,
             typeArguments: [ coinType ],
             arguments: [
                 objectArg(tx, auction),
@@ -83,7 +142,7 @@ export const AuctionModule =
         });
     },
 
-    admin_claim: (
+    admin_ends_auction_early: (
         tx: Transaction,
         packageId: string,
         coinType: string,
@@ -92,16 +151,17 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::admin_claim`,
+            target: `${packageId}::auction::admin_ends_auction_early`,
             typeArguments: [ coinType ],
             arguments: [
                 objectArg(tx, admin),
                 objectArg(tx, auction),
+                tx.object(SUI_CLOCK_OBJECT_ID),
             ],
         });
     },
 
-    admin_cancel: (
+    admin_cancels_auction: (
         tx: Transaction,
         packageId: string,
         coinType: string,
@@ -110,16 +170,38 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::admin_cancel`,
+            target: `${packageId}::auction::admin_cancels_auction`,
             typeArguments: [ coinType ],
             arguments: [
                 objectArg(tx, admin),
                 objectArg(tx, auction),
+                tx.object(SUI_CLOCK_OBJECT_ID),
             ],
         });
     },
 
-    admin_set_pay_addr: (
+    admin_reclaims_item: (
+        tx: Transaction,
+        packageId: string,
+        coinType: string,
+        admin: ObjectArg,
+        auction: ObjectArg,
+        item_addr: string,
+    ): TransactionResult =>
+    {
+        return tx.moveCall({
+            target: `${packageId}::auction::admin_reclaims_item`,
+            typeArguments: [ coinType ],
+            arguments: [
+                objectArg(tx, admin),
+                objectArg(tx, auction),
+                tx.pure.address(item_addr),
+                tx.object(SUI_CLOCK_OBJECT_ID),
+            ],
+        });
+    },
+
+    admin_sets_pay_addr: (
         tx: Transaction,
         packageId: string,
         coinType: string,
@@ -129,7 +211,7 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::admin_set_pay_addr`,
+            target: `${packageId}::auction::admin_sets_pay_addr`,
             typeArguments: [ coinType ],
             arguments: [
                 objectArg(tx, admin),
@@ -139,14 +221,14 @@ export const AuctionModule =
         });
     },
 
-    admin_destroy: (
+    admin_destroys_admin: (
         tx: Transaction,
         packageId: string,
         admin: ObjectArg,
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::admin_destroy`,
+            target: `${packageId}::auction::admin_destroys_admin`,
             typeArguments: [],
             arguments: [
                 objectArg(tx, admin),
