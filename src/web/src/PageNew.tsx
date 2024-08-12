@@ -29,29 +29,38 @@ export const PageNew: React.FC = () =>
     // === effects ===
 
     useEffect(() => {
-        if (currAcct) {
-            // fetchOwnedObjects(auctionClient.suiClient, currAcct.address);
-            fetchOwnedObjects(auctionClient.suiClient, "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b");
-        }
+        fetchOwnedObjects(null);
     }, [auctionClient, currAcct])
 
     // === functions ===
 
     async function fetchOwnedObjects(
-        suiClient: SuiClient,
-        currAddr: string,
+        cursor: string | null | undefined,
     ): Promise<void>
     {
+        if (!currAcct) { return; }
+
+        setOwnedObjs(undefined);
         try {
-            const pagObjRes = await suiClient.getOwnedObjects({
-                owner: currAddr,
+            const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
+                // owner: currAcct.address,
+                owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
                 filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
+                cursor,
             });
             setOwnedObjs(pagObjRes);
         } catch (err) {
             console.warn("[fetchOwnedObjects]", err);
         }
+    }
+
+    async function fetchNextPage()
+    {
+        if (!ownedObjs) { return; }
+
+        fetchOwnedObjects(ownedObjs.nextCursor);
+        window.scrollTo(0, 0);
     }
 
     async function createAuction(): Promise<void> {
@@ -89,6 +98,14 @@ export const PageNew: React.FC = () =>
                 </div>
                 );
             })}
+
+            {ownedObjs.hasNextPage &&
+            <div className="next-page">
+                <button className="btn" onClick={fetchNextPage}>
+                    NEXT PAGE
+                </button>
+            </div>
+            }
         </div>
         );
     }
