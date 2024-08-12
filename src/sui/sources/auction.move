@@ -28,6 +28,8 @@ const MAX_ITEMS: u64 = 50;
 
 // === structs ===
 
+// TODO: add name, description
+// TODO: keep track of winning bid after balance has been sent
 public struct Auction<phantom CoinType> has store, key {
     id: UID,
     // addresses of the auctioned items

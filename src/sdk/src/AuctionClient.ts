@@ -1,7 +1,7 @@
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { SignatureWithBytes } from "@mysten/sui/cryptography";
 import { Transaction } from "@mysten/sui/transactions";
-import { SignTransaction, suiObjResToFields, suiObjResToId } from "@polymedia/suitcase-core";
+import { SignTransaction, objResToFields, objResToId } from "@polymedia/suitcase-core";
 import { AuctionObject } from "./types.js";
 
 /**
@@ -33,7 +33,7 @@ export class AuctionClient
             owner: ownerAddr,
             filter: { StructType: `${this.packageId}::auction::AuctionAdmin` },
         });
-        return resp.data.map(suiObjRes => suiObjResToId(suiObjRes));
+        return resp.data.map(suiObjRes => objResToId(suiObjRes));
     }
 
     public async fetchAuctions(
@@ -52,7 +52,7 @@ export class AuctionClient
     public static parseAuction(
         objRes: SuiObjectResponse,
     ): AuctionObject {
-        const fields = suiObjResToFields(objRes);
+        const fields = objResToFields(objRes);
         return {
             id: fields.id.id,
             item_id: fields.item.fields.id.id,
