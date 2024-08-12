@@ -18,6 +18,7 @@ const E_WRONG_COIN_VALUE: u64 = 5005;
 const E_WRONG_MINIMUM_BID: u64 = 5006;
 const E_WRONG_MINIMUM_INCREASE: u64 = 5007;
 const E_WRONG_EXTENSION_PERIOD: u64 = 5008;
+const E_CANT_RECLAIM_WITH_BIDS: u64 = 5009;
 
 // === constants ===
 
@@ -27,19 +28,15 @@ const MAX_ITEMS: u64 = 50;
 
 // === structs ===
 
-public struct AuctionAdmin has store, key {
-    id: UID,
-}
-
 public struct Auction<phantom CoinType> has store, key {
     id: UID,
     // addresses of the auctioned items
     item_addrs: vector<address>,
     // auctioned items are stored as dynamic fields in this bag
     item_bag: Bag,
-    // address of the AuctionAdmin object that controls this auction
+    // auction creator and manager
     admin_addr: address,
-    // address that will receive the funds of the winning bid
+    // recipient of the winning bid funds
     pay_addr: address,
     // address that submitted the highest bid so far
     lead_addr: address,
@@ -59,14 +56,7 @@ public struct Auction<phantom CoinType> has store, key {
 
 // === mutative functions ===
 
-public fun anyone_creates_admin(
-    ctx: &mut TxContext,
-): AuctionAdmin {
-    return AuctionAdmin { id: object::new(ctx) }
-}
-
 public fun admin_creates_auction<CoinType>(
-    admin: &AuctionAdmin,
     pay_addr: address,
     begin_time_ms: u64,
     duration: u64,
@@ -92,7 +82,7 @@ public fun admin_creates_auction<CoinType>(
         id: object::new(ctx),
         item_addrs: vector::empty(),
         item_bag: bag::new(ctx),
-        admin_addr: object::id_address(admin),
+        admin_addr: ctx.sender(),
         pay_addr,
         lead_addr: ZERO_ADDRESS,
         lead_bal: balance::zero(),
@@ -107,13 +97,13 @@ public fun admin_creates_auction<CoinType>(
 
 /// Admin can add items to the auction any time before the auction ends
 public fun admin_adds_item<CoinType, ItemType: key+store>(
-    admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     item: ItemType,
     clock: &Clock,
+    ctx: &mut TxContext,
 ) {
     assert!( !auction.has_ended(clock), E_WRONG_TIME );
-    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
+    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     assert!( auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS );
     auction.item_bag.add(object::id_address(&item), item);
 }
@@ -206,13 +196,12 @@ public fun anyone_pays_funds<CoinType>(
 
 /// Admin can end the auction ahead of time and send the funds to the winner (if any).
 public fun admin_ends_auction_early<CoinType>(
-    admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
     assert!( !auction.has_ended(clock), E_WRONG_TIME );
-    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
+    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -223,13 +212,12 @@ public fun admin_ends_auction_early<CoinType>(
 
 /// Admin can cancel the auction at any time and return the funds to the leader (if any).
 public fun admin_cancels_auction<CoinType>(
-    admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
     assert!( !auction.has_ended(clock), E_WRONG_TIME );
-    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
+    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
 
     // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
@@ -246,33 +234,26 @@ public fun admin_cancels_auction<CoinType>(
 /// Admin can reclaim the items if the auction ended without a leader,
 /// either because it was cancelled or because nobody bid.
 public fun admin_reclaims_item<CoinType, ItemType: key+store>(
-    admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     item_addr: address,
     clock: &Clock,
+    ctx: &mut TxContext,
 ): ItemType
 {
     assert!( auction.has_ended(clock), E_WRONG_TIME );
-    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
-    assert!( !auction.has_leader(), E_WRONG_ADDRESS );
+    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( !auction.has_leader(), E_CANT_RECLAIM_WITH_BIDS );
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
 
 public fun admin_sets_pay_addr<CoinType>(
-    admin: &AuctionAdmin,
     auction: &mut Auction<CoinType>,
     pay_addr: address,
+    ctx: &mut TxContext,
 ) {
-    assert!( auction.admin_addr == object::id_address(admin), E_WRONG_ADMIN );
+    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     auction.pay_addr = pay_addr;
-}
-
-public fun admin_destroys_admin(
-    admin: AuctionAdmin,
-) {
-    let AuctionAdmin { id } = admin;
-    id.delete();
 }
 
 // === public status helpers ===
