@@ -21,7 +21,6 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         coinType: string,
-        admin: ObjectArg,
         pay_addr: string,
         begin_time_ms: number,
         duration: number,
@@ -34,7 +33,6 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_creates_auction`,
             typeArguments: [ coinType ],
             arguments: [
-                objectArg(tx, admin),
                 tx.pure.address(pay_addr),
                 tx.pure.u64(begin_time_ms),
                 tx.pure.u64(duration),
@@ -51,7 +49,6 @@ export const AuctionModule =
         packageId: string,
         coinType: string,
         itemType: string,
-        admin: ObjectArg,
         auction: ObjectArg,
         item: ObjectArg,
     ): TransactionResult =>
@@ -60,7 +57,6 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_adds_item`,
             typeArguments: [ coinType, itemType ],
             arguments: [
-                objectArg(tx, admin),
                 objectArg(tx, auction),
                 objectArg(tx, item),
                 tx.object(SUI_CLOCK_OBJECT_ID),
@@ -146,7 +142,6 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         coinType: string,
-        admin: ObjectArg,
         auction: ObjectArg,
     ): TransactionResult =>
     {
@@ -154,7 +149,6 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_ends_auction_early`,
             typeArguments: [ coinType ],
             arguments: [
-                objectArg(tx, admin),
                 objectArg(tx, auction),
                 tx.object(SUI_CLOCK_OBJECT_ID),
             ],
@@ -165,7 +159,6 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         coinType: string,
-        admin: ObjectArg,
         auction: ObjectArg,
     ): TransactionResult =>
     {
@@ -173,7 +166,6 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_cancels_auction`,
             typeArguments: [ coinType ],
             arguments: [
-                objectArg(tx, admin),
                 objectArg(tx, auction),
                 tx.object(SUI_CLOCK_OBJECT_ID),
             ],
@@ -184,7 +176,6 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         coinType: string,
-        admin: ObjectArg,
         auction: ObjectArg,
         item_addr: string,
     ): TransactionResult =>
@@ -193,7 +184,6 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_reclaims_item`,
             typeArguments: [ coinType ],
             arguments: [
-                objectArg(tx, admin),
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
                 tx.object(SUI_CLOCK_OBJECT_ID),
@@ -205,7 +195,6 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         coinType: string,
-        admin: ObjectArg,
         auction: ObjectArg,
         pay_addr: string,
     ): TransactionResult =>
@@ -214,7 +203,6 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_sets_pay_addr`,
             typeArguments: [ coinType ],
             arguments: [
-                objectArg(tx, admin),
                 objectArg(tx, auction),
                 tx.pure.address(pay_addr),
             ],
@@ -224,14 +212,12 @@ export const AuctionModule =
     admin_destroys_admin: (
         tx: Transaction,
         packageId: string,
-        admin: ObjectArg,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_destroys_admin`,
             typeArguments: [],
             arguments: [
-                objectArg(tx, admin),
             ],
         });
     },

@@ -95,7 +95,6 @@ const App: React.FC<{
             suiClient,
             packageId,
             "0x2::sui::SUI", // coinType
-            null, // adminId
             (tx) => walletSignTx({ transaction: tx }),
         );
     }, [suiClient, packageId, walletSignTx]);

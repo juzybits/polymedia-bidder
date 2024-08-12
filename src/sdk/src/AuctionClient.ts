@@ -12,28 +12,21 @@ export class AuctionClient
     public readonly suiClient: SuiClient;
     public readonly packageId: string;
     public coinType: string;
-    public adminId: string | null;
     public readonly signTransaction: SignTransaction;
 
     constructor(
         suiClient: SuiClient,
         packageId: string,
         coinType: string,
-        adminId: string | null,
         signTransaction: SignTransaction,
     ) {
         this.suiClient = suiClient;
         this.packageId = packageId;
         this.coinType = coinType;
-        this.adminId = adminId;
         this.signTransaction = signTransaction;
     }
 
     // === setters ===
-
-    public setAdminId(adminId: string|null): void {
-        this.adminId = adminId;
-    }
 
     public setCoinType(coinType: string): void {
         this.coinType = coinType;
