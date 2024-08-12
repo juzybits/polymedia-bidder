@@ -90,9 +90,9 @@ export const PageNew: React.FC = () =>
                             <img src={display.image_url ?? svgNoImage} alt="object image" />
                         </div>
                         <div className="obj-info">
-                            <div className="info-line">{shortenAddress(objId)} ({shortenAddress(type)})</div>
-                            {name && <div className="info-line">{name}</div>}
-                            {desc && <div className="info-line">{desc}</div>}
+                            <div className="info-line break-all">{shortenAddress(objId)} ({shortenAddress(type)})</div>
+                            {name && <div className="info-line break-word">{name}</div>}
+                            {desc && <div className="info-line break-word">{desc}</div>}
                         </div>
                     </div>
                 </div>

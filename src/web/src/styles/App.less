@@ -64,6 +64,14 @@ input {
     cursor: pointer;
 }
 
+.break-word {
+    overflow-wrap: anywhere;
+}
+
+.break-all {
+    word-break: break-all;
+}
+
 // === components ===
 
 header {
@@ -169,9 +177,6 @@ footer {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
-                .info-line {
-                    word-break: break-all;
-                }
             }
         }
     }
