@@ -45,6 +45,7 @@ export const PageNew: React.FC = () =>
         try {
             const pagObjRes = await suiClient.getOwnedObjects({
                 owner: currAddr,
+                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
             });
             setOwnedObjs(pagObjRes);
