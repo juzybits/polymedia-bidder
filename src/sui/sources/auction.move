@@ -2,6 +2,7 @@ module auction::auction;
 
 // === imports ===
 
+use std::string::{String};
 use sui::bag::{Self, Bag};
 use sui::balance::{Self, Balance};
 use sui::clock::Clock;
@@ -28,10 +29,10 @@ const MAX_ITEMS: u64 = 50;
 
 // === structs ===
 
-// TODO: add name, description
-// TODO: keep track of winning bid after balance has been sent
 public struct Auction<phantom CoinType> has store, key {
     id: UID,
+    name: String,
+    description: String,
     // addresses of the auctioned items
     item_addrs: vector<address>,
     // auctioned items are stored as dynamic fields in this bag
@@ -59,6 +60,8 @@ public struct Auction<phantom CoinType> has store, key {
 // === mutative functions ===
 
 public fun admin_creates_auction<CoinType>(
+    name: vector<u8>,
+    description: vector<u8>,
     pay_addr: address,
     begin_time_ms: u64,
     duration: u64,
@@ -81,6 +84,8 @@ public fun admin_creates_auction<CoinType>(
     assert!( extension_period_ms > 0, E_WRONG_EXTENSION_PERIOD );
 
     let auction = Auction {
+        name: name.to_string(),
+        description: description.to_string(),
         id: object::new(ctx),
         item_addrs: vector::empty(),
         item_bag: bag::new(ctx),
@@ -305,7 +310,7 @@ public fun lead_addr<CoinType>(
 public fun lead_value<CoinType>(
     auction: &Auction<CoinType>,
 ): u64 {
-    auction.lead_value()
+    auction.lead_bal.value()
 }
 public fun begin_time_ms<CoinType>(
     auction: &Auction<CoinType>,

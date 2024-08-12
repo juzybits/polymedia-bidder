@@ -21,6 +21,8 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         coinType: string,
+        name: string,
+        description: string,
         pay_addr: string,
         begin_time_ms: number,
         duration: number,
@@ -33,6 +35,8 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_creates_auction`,
             typeArguments: [ coinType ],
             arguments: [
+                tx.pure.string(name),
+                tx.pure.string(description),
                 tx.pure.address(pay_addr),
                 tx.pure.u64(begin_time_ms),
                 tx.pure.u64(duration),
