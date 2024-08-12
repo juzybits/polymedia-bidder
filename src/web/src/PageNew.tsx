@@ -1,6 +1,12 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { PaginatedObjectsResponse, SuiClient } from "@mysten/sui/client";
-import { objResToDisplay, objResToFields, objResToId, shortenAddress } from "@polymedia/suitcase-core";
+import {
+    objResToDisplay,
+    objResToFields,
+    objResToId,
+    objResToType,
+    shortenAddress,
+} from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
@@ -39,7 +45,7 @@ export const PageNew: React.FC = () =>
         try {
             const pagObjRes = await suiClient.getOwnedObjects({
                 owner: currAddr,
-                options: { showContent: true, showDisplay: true },
+                options: { showContent: true, showDisplay: true, showType: true },
             });
             setOwnedObjs(pagObjRes);
         } catch (err) {
@@ -52,25 +58,32 @@ export const PageNew: React.FC = () =>
 
     // === components ===
 
-    const OwnedObjGrid: React.FC = () =>
+    const ObjectGrid: React.FC = () =>
     {
         if (!ownedObjs) {
             return <span>Loading...</span>
         }
         return (
         <div className="grid">
-            {ownedObjs.data.map((suiObjRes) =>
+            {ownedObjs.data.map((objRes) =>
             {
-                const objId = objResToId(suiObjRes);
-                const display = objResToDisplay(suiObjRes);
-                const displayImg = JSON.stringify(display);
-                const fields = objResToFields(suiObjRes);
+                const objId = objResToId(objRes);
+                const type = objResToType(objRes);
+                const display = objResToDisplay(objRes);
+                const fields = objResToFields(objRes);
+                const name = display.name ?? fields.name ?? null;
+                const desc = display.description ?? fields.description ?? null;
                 return (
                 <div className="grid-item" key={objId}>
                     <div className="sui-obj">
-                        <div className="obj-img">Display: {displayImg}</div>
-                        <div className="obj-fields">{JSON.stringify(fields)}</div>
-                        <div className="obj-addr">{shortenAddress(objId)}</div>
+                        <div className="obj-img">
+                            <img src={display.image_url ?? svgNoImage} alt="object image" />
+                        </div>
+                        <div className="obj-info">
+                            <div className="info-line">{shortenAddress(objId)} ({shortenAddress(type)})</div>
+                            {name && <div className="info-line">{name}</div>}
+                            {desc && <div className="info-line">{desc}</div>}
+                        </div>
                     </div>
                 </div>
                 );
@@ -89,14 +102,14 @@ export const PageNew: React.FC = () =>
         <div>
             <h1>CREATE AUCTION</h1>
 
-            <button className="btn">
+            {/* <button className="btn">
                 CREATE
-            </button>
+            </button> */}
 
             <div>
-                <h2>OWNED OBJECTS</h2>
+                <h2>YOUR OBJECTS</h2>
                 <div>
-                    <OwnedObjGrid />
+                    <ObjectGrid />
                 </div>
             </div>
         </div>
@@ -104,3 +117,5 @@ export const PageNew: React.FC = () =>
     </div>
     );
 };
+
+const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');

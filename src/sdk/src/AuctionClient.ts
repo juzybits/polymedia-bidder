@@ -33,7 +33,7 @@ export class AuctionClient
             owner: ownerAddr,
             filter: { StructType: `${this.packageId}::auction::AuctionAdmin` },
         });
-        return resp.data.map(suiObjRes => objResToId(suiObjRes));
+        return resp.data.map(objRes => objResToId(objRes));
     }
 
     public async fetchAuctions(
