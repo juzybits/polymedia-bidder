@@ -94,7 +94,6 @@ const App: React.FC<{
         return new sdk.AuctionClient(
             suiClient,
             packageId,
-            "0x2::sui::SUI", // coinType
             (tx) => walletSignTx({ transaction: tx }),
         );
     }, [suiClient, packageId, walletSignTx]);

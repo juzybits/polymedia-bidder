@@ -11,25 +11,16 @@ export class AuctionClient
 {
     public readonly suiClient: SuiClient;
     public readonly packageId: string;
-    public coinType: string;
     public readonly signTransaction: SignTransaction;
 
     constructor(
         suiClient: SuiClient,
         packageId: string,
-        coinType: string,
         signTransaction: SignTransaction,
     ) {
         this.suiClient = suiClient;
         this.packageId = packageId;
-        this.coinType = coinType;
         this.signTransaction = signTransaction;
-    }
-
-    // === setters ===
-
-    public setCoinType(coinType: string): void {
-        this.coinType = coinType;
     }
 
     // === data fetching ===
