@@ -77,13 +77,15 @@ export const PageNew: React.FC = () =>
         if (!ownedObjs) {
             return <span>Loading...</span>;
         }
-        return <div className="grid-wrap">
+        return <>
         <div className="grid">
             {ownedObjs.data.map((objRes) =>
             {
                 const obj = objResToSuiObject(objRes);
                 return (
-                <div className="grid-item" key={obj.id} onClick={() => { addOrRemoveItem(obj); }}>
+                <div className="grid-item card" key={obj.id}
+                    onClick={() => { addOrRemoveItem(obj); }}
+                >
                     <div className="sui-obj">
                         <div className="obj-img">
                             <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
@@ -106,7 +108,7 @@ export const PageNew: React.FC = () =>
             </button>
         </div>}
 
-        </div>;
+        </>;
     };
 
     // === html ===
@@ -140,13 +142,13 @@ export const PageNew: React.FC = () =>
             </div>}
 
             <div className="page-section">
-                {/* <h2 className="section-title">YOUR OBJECTS</h2> */}
                 <div className="section-description">
-                    Click the items you want to auction.
+                    Click on the items you want to auction.
                 </div>
-                <div>
-                    <ObjectGrid />
-                </div>
+            </div>
+
+            <div className="page-section">
+                <ObjectGrid />
             </div>
 
             {/* {chosenObjs.length > 0 &&
