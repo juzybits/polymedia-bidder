@@ -1,141 +1,181 @@
- // TODO: move to @polymedia/suitcase-react
+import React, { useState } from "react";
 
-import { useState } from "react";
-
-export const InputUnsignedInt: React.FC<{
-    valStr: string;
-    setValStr: React.Dispatch<React.SetStateAction<string>>;
-    minValue?: number;
-    maxValue?: number;
-    disabled?: boolean;
+export const BaseInput: React.FC<{
+    inputType: React.HTMLInputTypeAttribute;
+    inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+    val: string;
+    setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
-    placeholder?: string;
-    msgTooSmall?: string;
-    msgTooLarge?: string;
-}> = ({
-    valStr,
-    setValStr,
-    minValue = undefined,
-    maxValue = undefined,
-    disabled = false,
-    onSubmit = undefined,
-    placeholder = "enter amount",
-    msgTooSmall,
-    msgTooLarge,
-}) => {
-    const valErr = (() => {
-        if (valStr.trim() === "") {
-            return "";
-        }
-        const valInt = parseInt(valStr);
-        if (minValue !== undefined && valInt < minValue) {
-            return msgTooSmall ?? `Minimum value is ${minValue}`;
-        }
-        if (maxValue !== undefined && valInt > maxValue) {
-            return msgTooLarge ?? `Maximum value is ${maxValue}`;
-        }
-        return "";
-    })();
-
-    const disableSubmit = valStr.trim() === "" || valErr !== "" || !onSubmit;
-
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        if (e.target.validity.valid) {
-            setValStr(e.target.value);
-        }
-    };
-
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (!disableSubmit && onSubmit && e.key === "Enter") {
-            onSubmit();
-        }
-    };
-
-    return (
-    <div className="poly-input">
-        <input
-            className="input-number"
-            type="text"
-            inputMode="numeric"
-            pattern={"^[0-9]*$"}
-            value={valStr}
-            disabled={disabled}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            placeholder={placeholder}
-        />
-        {valErr && <div className="input-error">{valErr}</div>}
-    </div>
-    );
-};
-
-export const InputString: React.FC<{
-    valStr: string;
-    setValStr: React.Dispatch<React.SetStateAction<string>>;
+    validate?: (value: string) => string | undefined;
+    pattern?: string;
+    disabled?: boolean;
     required?: boolean;
     minLength?: number;
     maxLength?: number;
-    disabled?: boolean;
-    onSubmit?: () => void;
     placeholder?: string;
     msgRequired?: string;
     msgTooShort?: string;
     msgTooLong?: string;
 }> = ({
-    valStr,
-    setValStr,
+    inputType,
+    inputMode,
+    val,
+    setVal,
+    onSubmit = undefined,
+    validate = undefined,
+    pattern = undefined,
+    disabled = false,
     required = false,
     minLength = undefined,
     maxLength = undefined,
-    disabled = false,
-    onSubmit = undefined,
-    placeholder = "enter amount",
-    msgRequired = undefined,
-    msgTooShort = undefined,
-    msgTooLong = undefined,
-}) =>
-{
-    const [ err, setErr ] = useState<string>();
+    placeholder = "",
+    msgRequired = "Input is required",
+    msgTooShort = `Minimum length is ${minLength}`,
+    msgTooLong = `Maximum length is ${maxLength}`,
+}) => {
+    const [err, setErr] = useState<string>();
 
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
-    {
-        setValStr(e.target.value);
-        if (e.target.validity.valueMissing) {
-            setErr(msgRequired ?? `Input is required`);
-        }
-        else if (e.target.validity.tooShort) {
-            setErr(msgTooShort ?? `Minimum length is ${minLength}`);
-        }
-        else if (e.target.validity.tooLong) {
-            setErr(msgTooLong ?? `Maximum length is ${maxLength}`);
-        }
-        else  {
-            setErr(undefined);
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+        const val = e.target.value;
+        setVal(val);
+
+        if (validate) {
+            const validationError = validate(val);
+            setErr(validationError);
+        } else {
+            if (e.target.validity.valueMissing) {
+                setErr(msgRequired);
+            }
+            else if (e.target.validity.tooShort) {
+                setErr(msgTooShort);
+            }
+            else if (e.target.validity.tooLong) {
+                setErr(msgTooLong);
+            }
+            else {
+                setErr(undefined);
+            }
         }
     };
 
     const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (e.key === "Enter" && onSubmit && err === undefined) {
+        if (e.key === "Enter" && onSubmit && !err) {
             onSubmit();
         }
     };
 
     return (
-    <div className="poly-input">
-        <input
-            className="input-string"
-            type="text"
+        <div className="poly-input">
+            <input
+                className="input"
+                type={inputType}
+                inputMode={inputMode}
+                value={val}
+                required={required}
+                minLength={minLength}
+                maxLength={maxLength}
+                disabled={disabled}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                placeholder={placeholder}
+                pattern={pattern} // Apply the pattern to the input element
+            />
+            {err && <div className="input-error">{err}</div>}
+        </div>
+    );
+};
+
+export const InputString: React.FC<{
+    val: string;
+    setVal: React.Dispatch<React.SetStateAction<string>>;
+    onSubmit?: () => void;
+    disabled?: boolean;
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    placeholder?: string;
+    msgRequired?: string;
+    msgTooShort?: string;
+    msgTooLong?: string;
+}> = ({
+    val,
+    setVal,
+    disabled = false,
+    required = false,
+    minLength,
+    maxLength,
+    onSubmit,
+    placeholder = "",
+    msgRequired,
+    msgTooShort,
+    msgTooLong
+}) => {
+    return (
+        <BaseInput
+            inputType="text"
             inputMode="text"
-            value={valStr}
+            val={val}
+            setVal={setVal}
+            onSubmit={onSubmit}
+            disabled={disabled}
             required={required}
             minLength={minLength}
             maxLength={maxLength}
-            disabled={disabled}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
             placeholder={placeholder}
+            msgRequired={msgRequired}
+            msgTooShort={msgTooShort}
+            msgTooLong={msgTooLong}
         />
-        {err && <div className="input-error">{err}</div>}
-    </div>
+    );
+};
+
+export const InputUnsignedInt: React.FC<{
+    val: string;
+    setVal: React.Dispatch<React.SetStateAction<string>>;
+    onSubmit?: () => void;
+    disabled?: boolean;
+    required?: boolean;
+    min?: number;
+    max?: number;
+    placeholder?: string;
+    msgRequired?: string;
+    msgInvalid?: string;
+}> = ({
+    val,
+    setVal,
+    disabled = false,
+    required = false,
+    min,
+    max,
+    onSubmit,
+    placeholder = "",
+    msgRequired,
+    msgInvalid
+}) => {
+    const validateUnsignedInt = (value: string) => {
+        const numValue = Number(value);
+        if (isNaN(numValue) || numValue < 0
+            || (min !== undefined && numValue < min)
+            || (max !== undefined && numValue > max))
+        {
+            return msgInvalid ?? `Invalid number`;
+        }
+        return undefined;
+    };
+
+    return (
+        <BaseInput
+            inputType="text"
+            inputMode="numeric"
+            val={val}
+            setVal={setVal}
+            onSubmit={onSubmit}
+            validate={validateUnsignedInt}
+            pattern="^[0-9]*$"
+            disabled={disabled}
+            required={required}
+            placeholder={placeholder}
+            msgRequired={msgRequired}
+        />
     );
 };

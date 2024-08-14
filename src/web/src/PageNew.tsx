@@ -75,27 +75,56 @@ export const PageNew: React.FC = () =>
 
     const CreateAuctionForm: React.FC = () =>
     {
+        const currAcct = useCurrentAccount();
+
         const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
         const [ name, set_name ] = useState<string>("");
         const [ description, set_description ] = useState<string>("");
-        const [ pay_addr, set_pay_addr ] = useState<string>("");
-        const [ begin_time_ms, set_begin_time_ms ] = useState<string>("");
-        const [ duration, set_duration ] = useState<string>("");
-        const [ minimum_bid, set_minimum_bid ] = useState<string>("");
-        const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("");
-        const [ extension_period_ms, set_extension_period_ms ] = useState<string>("");
+        const [ pay_addr, set_pay_addr ] = useState<string>(currAcct?.address ?? "");
+        const [ begin_time_ms, set_begin_time_ms ] = useState<string>("0");
+        const [ duration, set_duration ] = useState<string>("86400000");
+        const [ minimum_bid, set_minimum_bid ] = useState<string>("100000000");
+        const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
+        const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
 
         return <>
         <div>
-            <InputString valStr={type_coin} setValStr={set_type_coin} />
-            <InputString valStr={name} setValStr={set_name} />
-            <InputString valStr={description} setValStr={set_description} />
-            <InputString valStr={pay_addr} setValStr={set_pay_addr} />
-            <InputUnsignedInt valStr={begin_time_ms} setValStr={set_begin_time_ms} />
-            <InputUnsignedInt valStr={duration} setValStr={set_duration} />
-            <InputUnsignedInt valStr={minimum_bid} setValStr={set_minimum_bid} />
-            <InputUnsignedInt valStr={minimum_increase_bps} setValStr={set_minimum_increase_bps} />
-            <InputUnsignedInt valStr={extension_period_ms} setValStr={set_extension_period_ms} />
+            <div>
+                <div>type_coin:</div>
+                <InputString val={type_coin} setVal={set_type_coin} required={true} />
+            </div>
+            <div>
+                <div>name:</div>
+                <InputString val={name} setVal={set_name} />
+            </div>
+            <div>
+                <div>description:</div>
+                <InputString val={description} setVal={set_description} />
+            </div>
+            <div>
+                <div>pay_addr:</div>
+                <InputString val={pay_addr} setVal={set_pay_addr} />
+            </div>
+            <div>
+                <div>begin_time_ms:</div>
+                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} />
+            </div>
+            <div>
+                <div>duration:</div>
+                <InputUnsignedInt val={duration} setVal={set_duration} />
+            </div>
+            <div>
+                <div>minimum_bid:</div>
+                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} />
+            </div>
+            <div>
+                <div>minimum_increase_bps:</div>
+                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} />
+            </div>
+            <div>
+                <div>extension_period_ms:</div>
+                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} />
+            </div>
         </div>
 
         <div className="object-list">
