@@ -12,6 +12,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import { InputString, InputUnsignedInt } from "./components/inputs";
+import { useFormErrors } from "./hooks/useFormErrors";
 
 export const PageNew: React.FC = () =>
 {
@@ -75,6 +76,8 @@ export const PageNew: React.FC = () =>
     {
         const currAcct = useCurrentAccount();
 
+        const { onError, hasErrors } = useFormErrors();
+
         const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
         const [ name, set_name ] = useState<string>("");
         const [ description, set_description ] = useState<string>("");
@@ -85,19 +88,8 @@ export const PageNew: React.FC = () =>
         const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
         const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
 
-        const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({});
-
-        const onError = (field: string) => (error: string | undefined) => {
-            setErrors((prevErrors) => ({
-                ...prevErrors,
-                [field]: error,
-            }));
-        };
-
-        const hasErrors = Object.values(errors).some(error => error !== undefined);
-
         const onSubmit = () => {
-            console.log("hasErrors:", hasErrors);
+            console.log("hasErrors:", hasErrors());
         };
 
         return <>
