@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export const BaseInput: React.FC<{
     inputType: React.HTMLInputTypeAttribute;
@@ -6,8 +6,8 @@ export const BaseInput: React.FC<{
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
-    validate?: (value: string) => string | undefined;
     onError?: (error: string | undefined) => void;
+    validate?: (value: string) => string | undefined;
     pattern?: string;
     disabled?: boolean;
     required?: boolean;
@@ -23,8 +23,8 @@ export const BaseInput: React.FC<{
     val,
     setVal,
     onSubmit = undefined,
-    validate = undefined,
     onError = undefined,
+    validate = undefined,
     pattern = undefined,
     disabled = false,
     required = false,
@@ -37,30 +37,36 @@ export const BaseInput: React.FC<{
 }) => {
     const [err, setErr] = useState<string | undefined>();
 
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        const val = e.target.value;
-        setVal(val);
-
+    const runValidation = (value: string) => {
         let validationError: string | undefined;
 
         if (validate) {
-            validationError = validate(val);
+            validationError = validate(value);
         } else {
-            if (e.target.validity.valueMissing) {
+            if (required && value.trim() === "") {
                 validationError = msgRequired;
-            } else if (e.target.validity.tooShort) {
+            } else if (minLength && value.length < minLength) {
                 validationError = msgTooShort;
-            } else if (e.target.validity.tooLong) {
+            } else if (maxLength && value.length > maxLength) {
                 validationError = msgTooLong;
+            } else if (pattern && !new RegExp(pattern).test(value)) {
+                validationError = "Invalid format";
             }
         }
 
-        if (validationError !== err) {
-            setErr(validationError);
-            if (onError) {
-                onError(validationError);
-            }
+        return validationError;
+    };
+
+    useEffect(() => {
+        const validationError = runValidation(val);
+        setErr(validationError);
+        if (onError) {
+            onError(validationError);
         }
+    }, [val]);
+
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+        setVal(e.target.value);
     };
 
     const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
