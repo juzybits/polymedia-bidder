@@ -10,6 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 
 export const PageNew: React.FC = () =>
 {
@@ -17,7 +18,7 @@ export const PageNew: React.FC = () =>
 
     const currAcct = useCurrentAccount();
 
-    const { auctionClient, header } = useOutletContext<AppContext>();
+    const { auctionClient, header, network } = useOutletContext<AppContext>();
 
     const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
@@ -117,7 +118,26 @@ export const PageNew: React.FC = () =>
 
         <div className="page-content">
 
-            <h1 className="page-title">CREATE AUCTION</h1>
+            <h1 className="page-title">NEW AUCTION</h1>
+
+            {chosenObjs.length > 0 &&
+            <div className="page-section card">
+
+                <div className="object-list">
+                    {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
+                    <div className="list-items">
+                    {chosenObjs.map(obj =>
+                        <div key={obj.id}>
+                            - <LinkToPolymedia addr={obj.id} kind="object" network={network} /> | {shortenAddress(obj.type)} | {obj.name}
+                        </div>
+                    )}
+                    </div>
+                </div>
+
+                <button className="btn">
+                    CREATE AUCTION
+                </button>
+            </div>}
 
             <div className="page-section">
                 {/* <h2 className="section-title">YOUR OBJECTS</h2> */}
