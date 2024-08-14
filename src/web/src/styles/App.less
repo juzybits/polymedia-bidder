@@ -142,7 +142,20 @@ footer {
 .page-regular {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 0 1em;
+    padding: 0 1rem 3rem;
+    .page-content {
+        .page-title {
+            padding-bottom: 2rem;
+        }
+        .section {
+            .section-title {
+                padding-bottom: 2rem;
+            }
+            .section-description {
+                padding-bottom: 2rem;
+            }
+        }
+    }
 }
 
 .grid {
@@ -156,6 +169,11 @@ footer {
         border: @border-gray;
         border-radius: @border-radius;
         padding: 1rem;
+        &:hover {
+            cursor: pointer;
+            background-color: rgb(40, 40, 40);
+            border-color: @color-text;
+        }
         .sui-obj {
             display: flex;
             flex-direction: row;
@@ -183,9 +201,3 @@ footer {
 }
 
 // === pages ===
-
-#page-new {
-    h2 {
-        padding: 1rem 0;
-    }
-}

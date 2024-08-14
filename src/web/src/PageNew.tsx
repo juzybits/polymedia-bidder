@@ -117,15 +117,18 @@ export const PageNew: React.FC = () =>
 
         {header}
 
-        <div>
-            <h1>CREATE AUCTION</h1>
+        <div className="page-content">
+            <h1 className="page-title">CREATE AUCTION</h1>
 
             {/* <button className="btn">
                 CREATE
             </button> */}
 
-            <div>
-                <h2>YOUR OBJECTS</h2>
+            <div className="section">
+                {/* <h2 className="section-title">YOUR OBJECTS</h2> */}
+                <div className="section-description">
+                    Click the items you want to auction.
+                </div>
                 <div>
                     <ObjectGrid />
                 </div>
