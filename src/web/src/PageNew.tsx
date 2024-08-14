@@ -29,38 +29,31 @@ export const PageNew: React.FC = () =>
     // === effects ===
 
     useEffect(() => {
-        fetchOwnedObjects(null);
+        fetchOwnedObjects();
     }, [auctionClient, currAcct])
 
     // === functions ===
 
-    async function fetchOwnedObjects(
-        cursor: string | null | undefined,
-    ): Promise<void>
+    async function fetchOwnedObjects(): Promise<void>
     {
         if (!currAcct) { return; }
 
-        setOwnedObjs(undefined);
         try {
             const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
                 // owner: currAcct.address,
                 owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
                 filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
-                cursor,
+                cursor: ownedObjs?.nextCursor,
             });
-            setOwnedObjs(pagObjRes);
+            setOwnedObjs((prevObjs) => ({
+                data: [...(prevObjs ? prevObjs.data : []), ...pagObjRes.data],
+                hasNextPage: pagObjRes.hasNextPage,
+                nextCursor: pagObjRes.nextCursor,
+            }));
         } catch (err) {
             console.warn("[fetchOwnedObjects]", err);
         }
-    }
-
-    async function fetchNextPage()
-    {
-        if (!ownedObjs) { return; }
-
-        fetchOwnedObjects(ownedObjs.nextCursor);
-        window.scrollTo(0, 0);
     }
 
     async function createAuction(): Promise<void> {
@@ -73,7 +66,7 @@ export const PageNew: React.FC = () =>
         if (!ownedObjs) {
             return <span>Loading...</span>
         }
-        return (
+        return <div className="grid-wrap">
         <div className="grid">
             {ownedObjs.data.map((objRes) =>
             {
@@ -98,16 +91,16 @@ export const PageNew: React.FC = () =>
                 </div>
                 );
             })}
-
-            {ownedObjs.hasNextPage &&
-            <div className="next-page">
-                <button className="btn" onClick={fetchNextPage}>
-                    NEXT PAGE
-                </button>
-            </div>
-            }
         </div>
-        );
+
+        {ownedObjs.hasNextPage &&
+        <div className="load-more">
+            <button className="btn" onClick={fetchOwnedObjects}>
+                LOAD MORE
+            </button>
+        </div>}
+
+        </div>;
     }
 
     // === html ===
