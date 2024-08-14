@@ -20,11 +20,9 @@ export const PageNew: React.FC = () =>
     const { auctionClient, header } = useOutletContext<AppContext>();
 
     const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
+    const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
 
-    const coinType = "0x2::sui::SUI"; // TODO dropdown
-    const itemIds = [ // TODO selector
-        "0x123"
-    ];
+    // const coinType = "0x2::sui::SUI"; // TODO dropdown
 
     // === effects ===
 
@@ -56,11 +54,20 @@ export const PageNew: React.FC = () =>
         }
     }
 
-    async function createAuction(): Promise<void> {
+    function addOrRemoveItem(obj: SuiObject): void
+    {
+        setChosenObjs(prev => {
+            const exists = prev.some(item => item.id === obj.id);
+            if (exists) {
+                return prev.filter(item => item.id !== obj.id);
+            } else {
+                return [...prev, obj];
+            }
+        });
     }
 
-    function addItem(obj: SuiObject): void {
-    }
+    // async function createAuction(): Promise<void> {
+    // }
 
     // === components ===
 
@@ -75,7 +82,7 @@ export const PageNew: React.FC = () =>
             {
                 const obj = objResToSuiObject(objRes);
                 return (
-                <div className="grid-item" key={obj.id} onClick={() => { addItem(obj); }}>
+                <div className="grid-item" key={obj.id} onClick={() => { addOrRemoveItem(obj); }}>
                     <div className="sui-obj">
                         <div className="obj-img">
                             <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
@@ -104,18 +111,15 @@ export const PageNew: React.FC = () =>
     // === html ===
 
     return (
-    <div id="page-new" className="page-regular">
+    <div className="page-regular" id="page-new">
 
         {header}
 
         <div className="page-content">
+
             <h1 className="page-title">CREATE AUCTION</h1>
 
-            {/* <button className="btn">
-                CREATE
-            </button> */}
-
-            <div className="section">
+            <div className="page-section">
                 {/* <h2 className="section-title">YOUR OBJECTS</h2> */}
                 <div className="section-description">
                     Click the items you want to auction.
@@ -124,6 +128,16 @@ export const PageNew: React.FC = () =>
                     <ObjectGrid />
                 </div>
             </div>
+
+            {/* {chosenObjs.length > 0 &&
+            <div id="dialog-create-auction">
+                <div className="object-count">
+                    {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected
+                </div>
+                <button className="btn">
+                    CREATE AUCTION
+                </button>
+            </div>} */}
         </div>
 
     </div>

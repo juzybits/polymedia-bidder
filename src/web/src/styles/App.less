@@ -6,6 +6,7 @@
 
 @border-gray: 1px solid #555;
 @border-radius: 4px;
+@color-bg: black;
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 @font-system: system-ui;
@@ -23,7 +24,7 @@
 }
 
 body {
-    background-color: black;
+    background-color: @color-bg;
 }
 
 h1, h2, h3, h4, h5, button, input {
@@ -54,7 +55,7 @@ h1, h2, h3, h4, h5, button, input {
 }
 
 input {
-    color: black;
+    color: @color-bg;
     padding: 0.5em 1em;
 }
 
@@ -142,12 +143,12 @@ footer {
 .page-regular {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 0 1rem 3rem;
+    padding: 0 1rem 8rem;
     .page-content {
         .page-title {
             padding-bottom: 2rem;
         }
-        .section {
+        .page-section {
             .section-title {
                 padding-bottom: 2rem;
             }
@@ -207,3 +208,15 @@ footer {
 }
 
 // === pages ===
+
+// #page-new {
+//     #dialog-create-auction {
+//         position: fixed;
+//         bottom: 1rem;
+//         right: 1rem;
+//         background-color: @color-bg;
+//         padding: 1rem;
+//         border-radius: @border-radius;
+//         border: @border-gray;
+//     }
+// }
