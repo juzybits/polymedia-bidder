@@ -7,6 +7,7 @@ export const BaseInput: React.FC<{
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
     validate?: (value: string) => string | undefined;
+    onError?: (error: string | undefined) => void;
     pattern?: string;
     disabled?: boolean;
     required?: boolean;
@@ -23,6 +24,7 @@ export const BaseInput: React.FC<{
     setVal,
     onSubmit = undefined,
     validate = undefined,
+    onError = undefined,
     pattern = undefined,
     disabled = false,
     required = false,
@@ -33,27 +35,30 @@ export const BaseInput: React.FC<{
     msgTooShort = `Minimum length is ${minLength}`,
     msgTooLong = `Maximum length is ${maxLength}`,
 }) => {
-    const [err, setErr] = useState<string>();
+    const [err, setErr] = useState<string | undefined>();
 
     const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         const val = e.target.value;
         setVal(val);
 
+        let validationError: string | undefined;
+
         if (validate) {
-            const validationError = validate(val);
-            setErr(validationError);
+            validationError = validate(val);
         } else {
             if (e.target.validity.valueMissing) {
-                setErr(msgRequired);
+                validationError = msgRequired;
+            } else if (e.target.validity.tooShort) {
+                validationError = msgTooShort;
+            } else if (e.target.validity.tooLong) {
+                validationError = msgTooLong;
             }
-            else if (e.target.validity.tooShort) {
-                setErr(msgTooShort);
-            }
-            else if (e.target.validity.tooLong) {
-                setErr(msgTooLong);
-            }
-            else {
-                setErr(undefined);
+        }
+
+        if (validationError !== err) {
+            setErr(validationError);
+            if (onError) {
+                onError(validationError);
             }
         }
     };
@@ -78,7 +83,7 @@ export const BaseInput: React.FC<{
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder={placeholder}
-                pattern={pattern} // Apply the pattern to the input element
+                pattern={pattern}
             />
             {err && <div className="input-error">{err}</div>}
         </div>
@@ -89,6 +94,7 @@ export const InputString: React.FC<{
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
+    onError?: (error: string | undefined) => void;
     disabled?: boolean;
     required?: boolean;
     minLength?: number;
@@ -105,10 +111,11 @@ export const InputString: React.FC<{
     minLength,
     maxLength,
     onSubmit,
+    onError,
     placeholder = "",
     msgRequired,
     msgTooShort,
-    msgTooLong
+    msgTooLong,
 }) => {
     return (
         <BaseInput
@@ -117,6 +124,7 @@ export const InputString: React.FC<{
             val={val}
             setVal={setVal}
             onSubmit={onSubmit}
+            onError={onError}
             disabled={disabled}
             required={required}
             minLength={minLength}
@@ -133,6 +141,7 @@ export const InputUnsignedInt: React.FC<{
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
+    onError?: (error: string | undefined) => void;
     disabled?: boolean;
     required?: boolean;
     min?: number;
@@ -143,14 +152,15 @@ export const InputUnsignedInt: React.FC<{
 }> = ({
     val,
     setVal,
+    onSubmit,
+    onError,
     disabled = false,
     required = false,
     min,
     max,
-    onSubmit,
     placeholder = "",
     msgRequired,
-    msgInvalid
+    msgInvalid,
 }) => {
     const validateUnsignedInt = (value: string) => {
         const numValue = Number(value);
@@ -171,6 +181,7 @@ export const InputUnsignedInt: React.FC<{
             setVal={setVal}
             onSubmit={onSubmit}
             validate={validateUnsignedInt}
+            onError={onError}
             pattern="^[0-9]*$"
             disabled={disabled}
             required={required}

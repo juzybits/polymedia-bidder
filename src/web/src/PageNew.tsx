@@ -24,8 +24,6 @@ export const PageNew: React.FC = () =>
     const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
 
-    // const coinType = "0x2::sui::SUI"; // TODO dropdown
-
     // === effects ===
 
     useEffect(() => {
@@ -87,43 +85,58 @@ export const PageNew: React.FC = () =>
         const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
         const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
 
+        const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({});
+
+        const onError = (field: string) => (error: string | undefined) => {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                [field]: error,
+            }));
+        };
+
+        const hasErrors = Object.values(errors).some(error => error !== undefined);
+
+        const onSubmit = () => {
+            console.log("hasErrors:", hasErrors);
+        };
+
         return <>
         <div>
             <div>
                 <div>type_coin:</div>
-                <InputString val={type_coin} setVal={set_type_coin} required={true} />
+                <InputString val={type_coin} setVal={set_type_coin} onError={onError("set_type_coin")} required={true} />
             </div>
             <div>
                 <div>name:</div>
-                <InputString val={name} setVal={set_name} />
+                <InputString val={name} setVal={set_name} onError={onError("set_name")} />
             </div>
             <div>
                 <div>description:</div>
-                <InputString val={description} setVal={set_description} />
+                <InputString val={description} setVal={set_description} onError={onError("set_description")} />
             </div>
             <div>
                 <div>pay_addr:</div>
-                <InputString val={pay_addr} setVal={set_pay_addr} />
+                <InputString val={pay_addr} setVal={set_pay_addr} onError={onError("set_pay_addr")} />
             </div>
             <div>
                 <div>begin_time_ms:</div>
-                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} />
+                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onError={onError("set_begin_time_ms")} />
             </div>
             <div>
                 <div>duration:</div>
-                <InputUnsignedInt val={duration} setVal={set_duration} />
+                <InputUnsignedInt val={duration} setVal={set_duration} onError={onError("set_duration")} />
             </div>
             <div>
                 <div>minimum_bid:</div>
-                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} />
+                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} onError={onError("set_minimum_bid")} />
             </div>
             <div>
                 <div>minimum_increase_bps:</div>
-                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} />
+                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onError={onError("set_minimum_increase_bps")} />
             </div>
             <div>
                 <div>extension_period_ms:</div>
-                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} />
+                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onError={onError("set_extension_period_ms")} />
             </div>
         </div>
 
@@ -138,7 +151,7 @@ export const PageNew: React.FC = () =>
             </div>
         </div>
 
-        <button className="btn">
+        <button className="btn" onClick={onSubmit}>
             CREATE AUCTION
         </button>
         </>;
