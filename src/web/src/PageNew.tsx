@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { InputString, InputUnsignedInt } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
 {
@@ -72,6 +73,48 @@ export const PageNew: React.FC = () =>
 
     // === components ===
 
+    const CreateAuctionForm: React.FC = () =>
+    {
+        const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
+        const [ name, set_name ] = useState<string>("");
+        const [ description, set_description ] = useState<string>("");
+        const [ pay_addr, set_pay_addr ] = useState<string>("");
+        const [ begin_time_ms, set_begin_time_ms ] = useState<string>("");
+        const [ duration, set_duration ] = useState<string>("");
+        const [ minimum_bid, set_minimum_bid ] = useState<string>("");
+        const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("");
+        const [ extension_period_ms, set_extension_period_ms ] = useState<string>("");
+
+        return <>
+        <div>
+            <InputString valStr={type_coin} setValStr={set_type_coin} />
+            <InputString valStr={name} setValStr={set_name} />
+            <InputString valStr={description} setValStr={set_description} />
+            <InputString valStr={pay_addr} setValStr={set_pay_addr} />
+            <InputUnsignedInt valStr={begin_time_ms} setValStr={set_begin_time_ms} />
+            <InputUnsignedInt valStr={duration} setValStr={set_duration} />
+            <InputUnsignedInt valStr={minimum_bid} setValStr={set_minimum_bid} />
+            <InputUnsignedInt valStr={minimum_increase_bps} setValStr={set_minimum_increase_bps} />
+            <InputUnsignedInt valStr={extension_period_ms} setValStr={set_extension_period_ms} />
+        </div>
+
+        <div className="object-list">
+            {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
+            <div className="list-items">
+            {chosenObjs.map(obj =>
+                <div key={obj.id}>
+                    - <LinkToPolymedia addr={obj.id} kind="object" network={network} /> | {shortenAddress(obj.type)} | {obj.name}
+                </div>
+            )}
+            </div>
+        </div>
+
+        <button className="btn">
+            CREATE AUCTION
+        </button>
+        </>;
+    }
+
     const ObjectGrid: React.FC = () =>
     {
         if (!ownedObjs) {
@@ -124,21 +167,7 @@ export const PageNew: React.FC = () =>
 
             {chosenObjs.length > 0 &&
             <div className="page-section card">
-
-                <div className="object-list">
-                    {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
-                    <div className="list-items">
-                    {chosenObjs.map(obj =>
-                        <div key={obj.id}>
-                            - <LinkToPolymedia addr={obj.id} kind="object" network={network} /> | {shortenAddress(obj.type)} | {obj.name}
-                        </div>
-                    )}
-                    </div>
-                </div>
-
-                <button className="btn">
-                    CREATE AUCTION
-                </button>
+                <CreateAuctionForm />
             </div>}
 
             <div className="page-section">

@@ -20,7 +20,7 @@ export const AuctionModule =
     admin_creates_auction: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         name: string,
         description: string,
         pay_addr: string,
@@ -33,7 +33,7 @@ export const AuctionModule =
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_creates_auction`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 tx.pure.string(name),
                 tx.pure.string(description),
@@ -51,7 +51,7 @@ export const AuctionModule =
     admin_adds_item: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         itemType: string,
         auction: ObjectArg,
         item: ObjectArg,
@@ -59,7 +59,7 @@ export const AuctionModule =
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_adds_item`,
-            typeArguments: [ coinType, itemType ],
+            typeArguments: [ type_coin, itemType ],
             arguments: [
                 objectArg(tx, auction),
                 objectArg(tx, item),
@@ -71,14 +71,14 @@ export const AuctionModule =
     anyone_bids: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
         pay_coin: ObjectArg,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::anyone_bids`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 objectArg(tx, pay_coin),
@@ -90,14 +90,14 @@ export const AuctionModule =
     winner_takes_item: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
         item_addr: string,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::winner_takes_item`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
@@ -109,14 +109,14 @@ export const AuctionModule =
     anyone_sends_item_to_winner: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
         item_addr: string,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::anyone_sends_item_to_winner`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
@@ -128,13 +128,13 @@ export const AuctionModule =
     anyone_pays_funds: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::anyone_pays_funds`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.object(SUI_CLOCK_OBJECT_ID),
@@ -145,13 +145,13 @@ export const AuctionModule =
     admin_ends_auction_early: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_ends_auction_early`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.object(SUI_CLOCK_OBJECT_ID),
@@ -162,13 +162,13 @@ export const AuctionModule =
     admin_cancels_auction: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_cancels_auction`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.object(SUI_CLOCK_OBJECT_ID),
@@ -179,14 +179,14 @@ export const AuctionModule =
     admin_reclaims_item: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
         item_addr: string,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_reclaims_item`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
@@ -198,14 +198,14 @@ export const AuctionModule =
     admin_sets_pay_addr: (
         tx: Transaction,
         packageId: string,
-        coinType: string,
+        type_coin: string,
         auction: ObjectArg,
         pay_addr: string,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_sets_pay_addr`,
-            typeArguments: [ coinType ],
+            typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(pay_addr),
