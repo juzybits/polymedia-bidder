@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { PaginatedObjectsResponse, SuiClient } from "@mysten/sui/client";
+import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client";
 import {
     objResToDisplay,
     objResToFields,
@@ -30,7 +30,7 @@ export const PageNew: React.FC = () =>
 
     useEffect(() => {
         fetchOwnedObjects();
-    }, [auctionClient, currAcct])
+    }, [auctionClient, currAcct]);
 
     // === functions ===
 
@@ -59,33 +59,31 @@ export const PageNew: React.FC = () =>
     async function createAuction(): Promise<void> {
     }
 
+    function addItem(obj: SuiObject): void {
+    }
+
     // === components ===
 
     const ObjectGrid: React.FC = () =>
     {
         if (!ownedObjs) {
-            return <span>Loading...</span>
+            return <span>Loading...</span>;
         }
         return <div className="grid-wrap">
         <div className="grid">
             {ownedObjs.data.map((objRes) =>
             {
-                const objId = objResToId(objRes);
-                const type = objResToType(objRes);
-                const display = objResToDisplay(objRes);
-                const fields = objResToFields(objRes);
-                const name = display.name ?? fields.name ?? null;
-                const desc = display.description ?? fields.description ?? null;
+                const obj = objResToSuiObject(objRes);
                 return (
-                <div className="grid-item" key={objId}>
+                <div className="grid-item" key={obj.id} onClick={() => { addItem(obj); }}>
                     <div className="sui-obj">
                         <div className="obj-img">
-                            <img src={display.image_url ?? svgNoImage} alt="object image" />
+                            <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
                         </div>
                         <div className="obj-info">
-                            <div className="info-line break-all">{shortenAddress(objId)} ({shortenAddress(type)})</div>
-                            {name && <div className="info-line break-word">{name}</div>}
-                            {desc && <div className="info-line break-word">{desc}</div>}
+                            <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>
+                            {obj.name && <div className="info-line break-word">{obj.name}</div>}
+                            {obj.desc && <div className="info-line break-word">{obj.desc}</div>}
                         </div>
                     </div>
                 </div>
@@ -101,7 +99,7 @@ export const PageNew: React.FC = () =>
         </div>}
 
         </div>;
-    }
+    };
 
     // === html ===
 
@@ -133,3 +131,25 @@ export const PageNew: React.FC = () =>
 };
 
 const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');
+
+type SuiObject = {
+    id: ReturnType<typeof objResToId>;
+    type: ReturnType<typeof objResToType>;
+    display: ReturnType<typeof objResToDisplay>;
+    fields: ReturnType<typeof objResToFields>;
+    name: string;
+    desc: string;
+};
+
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
+{
+    const id = objResToId(objRes);
+    const type = objResToType(objRes);
+    const display = objResToDisplay(objRes);
+    const fields = objResToFields(objRes);
+    const name = display.name ?? fields.name ?? null;
+    const desc = display.description ?? fields.description ?? null;
+    return { id, type, display, fields, name, desc };
+}
+/* eslint-enable @typescript-eslint/no-unsafe-assignment */
