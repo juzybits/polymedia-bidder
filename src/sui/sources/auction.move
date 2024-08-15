@@ -115,7 +115,10 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
     assert!( !auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     assert!( auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS );
-    auction.item_bag.add(object::id_address(&item), item);
+
+    let item_addr = object::id_address(&item);
+    auction.item_addrs.push_back(item_addr);
+    auction.item_bag.add(item_addr, item);
 }
 
 /// Anyone can bid for an item, as long as the auction hasn't ended.
@@ -253,6 +256,11 @@ public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     assert!( !auction.has_leader(), E_CANT_RECLAIM_WITH_BIDS );
+
+    let (item_exists, item_idx) = auction.item_addrs.index_of(&item_addr);
+    assert!( item_exists, E_WRONG_ADDRESS ); // should never happen
+
+    auction.item_addrs.remove(item_idx);
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item
 }
