@@ -26,7 +26,7 @@ export const AuctionModule =
         pay_addr: string,
         begin_time_ms: number,
         duration_ms: number,
-        minimum_bid: number,
+        minimum_bid: bigint,
         minimum_increase_bps: number,
         extension_period_ms: number,
     ): TransactionResult =>

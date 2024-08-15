@@ -1,11 +1,14 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { AuctionModule } from "@polymedia/auction-sdk";
 import {
     objResToDisplay,
     objResToFields,
     objResToId,
     objResToType,
     shortenAddress,
+    stringToBalance,
 } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
@@ -39,8 +42,8 @@ export const PageNew: React.FC = () =>
 
         try {
             const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
-                // owner: currAcct.address,
-                owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
+                owner: currAcct.address,
+                // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
                 filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
                 cursor: ownedObjs?.nextCursor,
@@ -78,19 +81,59 @@ export const PageNew: React.FC = () =>
 
         const { hasErrors, onValidate } = useInputValidation();
 
-        const coinDecimals = 9;
+        const coinDecimals = 9; // TODO: @polymedia/coinmeta
         const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
         const [ name, set_name ] = useState<string>("");
         const [ description, set_description ] = useState<string>("");
         const [ pay_addr, set_pay_addr ] = useState<string>(currAcct?.address ?? "");
         const [ begin_time_ms, set_begin_time_ms ] = useState<string>("0");
-        const [ duration, set_duration ] = useState<string>("86400000");
+        const [ duration_ms, set_duration_ms ] = useState<string>("86400000");
         const [ minimum_bid, set_minimum_bid ] = useState<string>("1");
         const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
         const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
 
-        const onSubmit = () => {
-            console.log("hasErrors:", hasErrors());
+        const disableSubmit = chosenObjs.length === 0 || hasErrors() || !currAcct;
+
+        const onSubmit = async () =>
+        {
+            if (disableSubmit) {
+                return;
+            }
+            try {
+                const tx = new Transaction();
+
+                const [auctionObj] = AuctionModule.admin_creates_auction(
+                    tx,
+                    auctionClient.packageId,
+                    type_coin,
+                    name,
+                    description,
+                    pay_addr,
+                    parseInt(begin_time_ms),
+                    parseInt(duration_ms),
+                    stringToBalance(minimum_bid, coinDecimals),
+                    parseInt(minimum_increase_bps),
+                    parseInt(extension_period_ms),
+                );
+
+                for (const obj of chosenObjs) {
+                    AuctionModule.admin_adds_item(
+                        tx,
+                        auctionClient.packageId,
+                        type_coin,
+                        obj.type,
+                        auctionObj,
+                        obj.id,
+                    );
+                }
+
+                tx.transferObjects([auctionObj], currAcct.address);
+
+                const resp = await auctionClient.signAndExecuteTransaction(tx);
+                console.debug("resp:", resp);
+            } catch (err) {
+                console.warn(err);
+            }
         };
 
         return <>
@@ -120,7 +163,7 @@ export const PageNew: React.FC = () =>
             </div>
             <div>
                 <div>Duration</div>
-                <InputUnsignedInt val={duration} setVal={set_duration} onValidate={onValidate("duration")}
+                <InputUnsignedInt val={duration_ms} setVal={set_duration_ms} onValidate={onValidate("duration")}
                     required={true} />
             </div>
             <div>
@@ -155,7 +198,7 @@ export const PageNew: React.FC = () =>
 
         </div>}
 
-        <Button onClick={onSubmit} disabled={chosenObjs.length === 0}>
+        <Button onClick={onSubmit} disabled={disableSubmit}>
             CREATE AUCTION
         </Button>
 
