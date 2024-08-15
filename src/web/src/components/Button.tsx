@@ -1,6 +1,6 @@
 // TODO: move to @polymedia/suitcase-core
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 export const Button: React.FC<{
     children: React.ReactNode;

@@ -132,8 +132,11 @@ export const PageNew: React.FC = () =>
             </div>
         </div>
 
+        {chosenObjs.length > 0 &&
         <div className="object-list">
+
             {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
+
             <div className="list-items">
             {chosenObjs.map(obj =>
                 <div key={obj.id}>
@@ -141,14 +144,15 @@ export const PageNew: React.FC = () =>
                 </div>
             )}
             </div>
-        </div>
+
+        </div>}
 
         <Button onClick={onSubmit} disabled={chosenObjs.length === 0}>
             CREATE AUCTION
         </Button>
 
         </>;
-    }
+    };
 
     const ObjectGrid: React.FC = () =>
     {

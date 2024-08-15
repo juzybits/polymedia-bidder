@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 
 export type InputError = string | undefined;
 
-export type InputErrors = { [inputName: string]: InputError };
+export type InputErrors = Record<string, InputError>;
 
 export const useInputValidation = () =>
 {
@@ -40,7 +40,7 @@ export type CommonInputProps = {
     disabled?: boolean;
     required?: boolean;
     msgRequired?: string;
-}
+};
 
 export const BaseInput: React.FC<CommonInputProps & {
     inputType: React.HTMLInputTypeAttribute;
@@ -172,7 +172,7 @@ export const InputUnsignedInt: React.FC<CommonInputProps & {
             || (props.min !== undefined && numValue < props.min)
             || (props.max !== undefined && numValue > props.max))
         {
-            return props.msgInvalid ?? `Invalid number`;
+            return props.msgInvalid ?? "Invalid number";
         }
         return undefined;
     }
