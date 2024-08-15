@@ -25,7 +25,9 @@ const E_CANT_RECLAIM_WITH_BIDS: u64 = 5009;
 
 const ZERO_ADDRESS: address = @0x0;
 const MAX_ITEMS: u64 = 50;
-// const MAX_DURATION: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days // TODO
+const MAX_DURATION_MS: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days
+const MAX_INCREASE_BPS: u64 = 1000_00; // 1000% (10x)
+const MAX_EXTENSION_PERIOD_MS: u64 = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 // === structs ===
 
@@ -64,7 +66,7 @@ public fun admin_creates_auction<CoinType>(
     description: vector<u8>,
     pay_addr: address,
     begin_time_ms: u64,
-    duration: u64,
+    duration_ms: u64,
     minimum_bid: u64,
     minimum_increase_bps: u64,
     extension_period_ms: u64,
@@ -77,11 +79,12 @@ public fun admin_creates_auction<CoinType>(
         if (begin_time_ms == 0) { current_time }
         else { begin_time_ms };
 
+    assert!( pay_addr != ZERO_ADDRESS, E_WRONG_ADDRESS );
     assert!( adjusted_begin_time_ms >= current_time, E_WRONG_TIME );
-    assert!( duration > 0, E_WRONG_DURATION );
+    assert!( duration_ms > 0 && duration_ms <= MAX_DURATION_MS, E_WRONG_DURATION );
     assert!( minimum_bid > 0, E_WRONG_MINIMUM_BID );
-    assert!( minimum_increase_bps > 0, E_WRONG_MINIMUM_INCREASE );
-    assert!( extension_period_ms > 0, E_WRONG_EXTENSION_PERIOD );
+    assert!( minimum_increase_bps > 0 && minimum_increase_bps <= MAX_INCREASE_BPS, E_WRONG_MINIMUM_INCREASE );
+    assert!( extension_period_ms > 0 && extension_period_ms <= MAX_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
 
     let auction = Auction {
         name: name.to_string(),
@@ -94,7 +97,7 @@ public fun admin_creates_auction<CoinType>(
         lead_addr: ZERO_ADDRESS,
         lead_bal: balance::zero(),
         begin_time_ms: adjusted_begin_time_ms,
-        end_time_ms: adjusted_begin_time_ms + duration,
+        end_time_ms: adjusted_begin_time_ms + duration_ms,
         minimum_bid,
         minimum_increase_bps,
         extension_period_ms,
