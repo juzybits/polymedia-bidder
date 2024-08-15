@@ -1,4 +1,36 @@
-import React, { useState, useEffect } from "react";
+// TODO: move to @polymedia/suitcase-core
+
+import React, { useState, useEffect, useCallback } from "react";
+
+export type InputError = string | undefined;
+
+export type InputErrors = { [inputName: string]: InputError };
+
+export const useInputValidation = () =>
+{
+    const [errors, setErrors] = useState<InputErrors>({});
+
+    const onValidate = useCallback(
+        (inputName: string) => (error: string | undefined) => {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                [inputName]: error,
+            }));
+        },
+        [],
+    );
+
+    const hasErrors = useCallback(() => {
+        return Object.values(errors).some((error) => error !== undefined);
+    }, [errors]);
+
+    return {
+        errors,
+        onValidate,
+        hasErrors,
+    };
+};
+
 
 export const BaseInput: React.FC<{
     inputType: React.HTMLInputTypeAttribute;
@@ -6,7 +38,7 @@ export const BaseInput: React.FC<{
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
-    onError?: (error: string | undefined) => void;
+    onValidate?: (error: string | undefined) => void;
     validate?: (value: string) => string | undefined;
     pattern?: string;
     disabled?: boolean;
@@ -23,7 +55,7 @@ export const BaseInput: React.FC<{
     val,
     setVal,
     onSubmit = undefined,
-    onError = undefined,
+    onValidate = undefined,
     validate = undefined,
     pattern = undefined,
     disabled = false,
@@ -60,8 +92,8 @@ export const BaseInput: React.FC<{
     useEffect(() => {
         const validationError = runValidation(val);
         setErr(validationError);
-        if (onError) {
-            onError(validationError);
+        if (onValidate) {
+            onValidate(validationError);
         }
     }, [val]);
 
@@ -100,7 +132,7 @@ export const InputString: React.FC<{
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
-    onError?: (error: string | undefined) => void;
+    onValidate?: (error: string | undefined) => void;
     disabled?: boolean;
     required?: boolean;
     minLength?: number;
@@ -117,7 +149,7 @@ export const InputString: React.FC<{
     minLength,
     maxLength,
     onSubmit,
-    onError,
+    onValidate,
     placeholder = "",
     msgRequired,
     msgTooShort,
@@ -130,7 +162,7 @@ export const InputString: React.FC<{
             val={val}
             setVal={setVal}
             onSubmit={onSubmit}
-            onError={onError}
+            onValidate={onValidate}
             disabled={disabled}
             required={required}
             minLength={minLength}
@@ -147,7 +179,7 @@ export const InputUnsignedInt: React.FC<{
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
-    onError?: (error: string | undefined) => void;
+    onValidate?: (error: string | undefined) => void;
     disabled?: boolean;
     required?: boolean;
     min?: number;
@@ -159,7 +191,7 @@ export const InputUnsignedInt: React.FC<{
     val,
     setVal,
     onSubmit,
-    onError,
+    onValidate,
     disabled = false,
     required = false,
     min,
@@ -187,7 +219,7 @@ export const InputUnsignedInt: React.FC<{
             setVal={setVal}
             onSubmit={onSubmit}
             validate={validateUnsignedInt}
-            onError={onError}
+            onValidate={onValidate}
             pattern="^[0-9]*$"
             disabled={disabled}
             required={required}

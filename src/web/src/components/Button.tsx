@@ -1,3 +1,5 @@
+// TODO: move to @polymedia/suitcase-core
+
 import React, { useState, useEffect } from "react";
 
 export const Button: React.FC<{

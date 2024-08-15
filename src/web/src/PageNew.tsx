@@ -7,13 +7,12 @@ import {
     objResToType,
     shortenAddress,
 } from "@polymedia/suitcase-core";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
-import { InputString, InputUnsignedInt } from "./components/inputs";
-import { useInputErrors } from "./hooks/useInputErrors";
 import { Button } from "./components/Button";
+import { InputString, InputUnsignedInt, useInputValidation } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
 {
@@ -77,7 +76,7 @@ export const PageNew: React.FC = () =>
     {
         const currAcct = useCurrentAccount();
 
-        const { onError, hasErrors } = useInputErrors();
+        const { hasErrors, onValidate } = useInputValidation();
 
         const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
         const [ name, set_name ] = useState<string>("");
@@ -96,40 +95,40 @@ export const PageNew: React.FC = () =>
         return <>
         <div>
             <div>
-                <div>type_coin</div>
-                <InputString val={type_coin} setVal={set_type_coin} onError={onError("type_coin")} required={true} />
+                <div>Name (optional)</div>
+                <InputString val={name} setVal={set_name} onValidate={onValidate("name")} />
             </div>
             <div>
-                <div>name (optional)</div>
-                <InputString val={name} setVal={set_name} onError={onError("name")} />
+                <div>Description (optional)</div>
+                <InputString val={description} setVal={set_description} onValidate={onValidate("description")} />
             </div>
             <div>
-                <div>description (optional)</div>
-                <InputString val={description} setVal={set_description} onError={onError("description")} />
+                <div>Coin type</div>
+                <InputString val={type_coin} setVal={set_type_coin} onValidate={onValidate("type_coin")} required={true} />
             </div>
             <div>
-                <div>pay_addr</div>
-                <InputString val={pay_addr} setVal={set_pay_addr} onError={onError("pay_addr")} required={true} />
+                <div>Payment address</div>
+                <InputString val={pay_addr} setVal={set_pay_addr} onValidate={onValidate("pay_addr")} required={true} />
             </div>
             <div>
-                <div>begin_time_ms</div>
-                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onError={onError("begin_time_ms")} required={true} />
+                <div>Begin time</div>
+                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onValidate={onValidate("begin_time_ms")} required={true} />
             </div>
             <div>
-                <div>duration</div>
-                <InputUnsignedInt val={duration} setVal={set_duration} onError={onError("duration")} required={true} />
+                <div>Duration</div>
+                <InputUnsignedInt val={duration} setVal={set_duration} onValidate={onValidate("duration")} required={true} />
             </div>
             <div>
-                <div>minimum_bid</div>
-                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} onError={onError("minimum_bid")} required={true} />
+                <div>Minimum bid</div>
+                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} onValidate={onValidate("minimum_bid")} required={true} />
             </div>
             <div>
-                <div>minimum_increase_bps</div>
-                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onError={onError("minimum_increase_bps")} required={true} />
+                <div>Minimum bid increase</div>
+                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onValidate={onValidate("minimum_increase_bps")} required={true} />
             </div>
             <div>
-                <div>extension_period_ms</div>
-                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onError={onError("extension_period_ms")} required={true} />
+                <div>Extension period</div>
+                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onValidate={onValidate("extension_period_ms")} required={true} />
             </div>
         </div>
 
