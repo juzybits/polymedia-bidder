@@ -3,10 +3,10 @@ module auction::auction;
 // === imports ===
 
 use std::string::{String};
-use sui::bag::{Self, Bag};
 use sui::balance::{Self, Balance};
 use sui::clock::Clock;
 use sui::coin::{Self, Coin};
+use sui::object_bag::{Self, ObjectBag};
 
 // === errors ===
 
@@ -38,7 +38,7 @@ public struct Auction<phantom CoinType> has store, key {
     // addresses of the auctioned items
     item_addrs: vector<address>,
     // auctioned items are stored as dynamic fields in this bag
-    item_bag: Bag,
+    item_bag: ObjectBag,
     // auction creator and manager
     admin_addr: address,
     // recipient of the winning bid funds
@@ -91,7 +91,7 @@ public fun admin_creates_auction<CoinType>(
         description: description.to_string(),
         id: object::new(ctx),
         item_addrs: vector::empty(),
-        item_bag: bag::new(ctx),
+        item_bag: object_bag::new(ctx),
         admin_addr: ctx.sender(),
         pay_addr,
         lead_addr: ZERO_ADDRESS,
