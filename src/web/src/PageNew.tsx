@@ -13,6 +13,7 @@ import { AppContext } from "./App";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import { InputString, InputUnsignedInt } from "./components/inputs";
 import { useInputErrors } from "./hooks/useInputErrors";
+import { Button } from "./components/Button";
 
 export const PageNew: React.FC = () =>
 {
@@ -143,9 +144,9 @@ export const PageNew: React.FC = () =>
             </div>
         </div>
 
-        <button className="btn" onClick={onSubmit}>
+        <Button onClick={onSubmit} disabled={chosenObjs.length === 0}>
             CREATE AUCTION
-        </button>
+        </Button>
 
         </>;
     }
@@ -200,7 +201,7 @@ export const PageNew: React.FC = () =>
 
             <h1 className="page-title">NEW AUCTION</h1>
 
-            {chosenObjs.length > 0 &&
+            {currAcct &&
             <div className="page-section card">
                 <CreateAuctionForm />
             </div>}
