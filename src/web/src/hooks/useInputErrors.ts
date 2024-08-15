@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react";
 
-export type FormErrors = { [key: string]: string | undefined };
+export type InputErrors = { [key: string]: string | undefined };
 
-export const useFormErrors = () =>
+export const useInputErrors = () =>
 {
-    const [errors, setErrors] = useState<FormErrors>({});
+    const [errors, setErrors] = useState<InputErrors>({});
 
     const onError = useCallback(
         (field: string) => (error: string | undefined) => {

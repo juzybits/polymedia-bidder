@@ -12,7 +12,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import { InputString, InputUnsignedInt } from "./components/inputs";
-import { useFormErrors } from "./hooks/useFormErrors";
+import { useInputErrors } from "./hooks/useInputErrors";
 
 export const PageNew: React.FC = () =>
 {
@@ -76,7 +76,7 @@ export const PageNew: React.FC = () =>
     {
         const currAcct = useCurrentAccount();
 
-        const { onError, hasErrors } = useFormErrors();
+        const { onError, hasErrors } = useInputErrors();
 
         const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
         const [ name, set_name ] = useState<string>("");
@@ -95,40 +95,40 @@ export const PageNew: React.FC = () =>
         return <>
         <div>
             <div>
-                <div>type_coin:</div>
-                <InputString val={type_coin} setVal={set_type_coin} onError={onError("set_type_coin")} required={true} />
+                <div>type_coin</div>
+                <InputString val={type_coin} setVal={set_type_coin} onError={onError("type_coin")} required={true} />
             </div>
             <div>
-                <div>name:</div>
-                <InputString val={name} setVal={set_name} onError={onError("set_name")} />
+                <div>name (optional)</div>
+                <InputString val={name} setVal={set_name} onError={onError("name")} />
             </div>
             <div>
-                <div>description:</div>
-                <InputString val={description} setVal={set_description} onError={onError("set_description")} />
+                <div>description (optional)</div>
+                <InputString val={description} setVal={set_description} onError={onError("description")} />
             </div>
             <div>
-                <div>pay_addr:</div>
-                <InputString val={pay_addr} setVal={set_pay_addr} onError={onError("set_pay_addr")} />
+                <div>pay_addr</div>
+                <InputString val={pay_addr} setVal={set_pay_addr} onError={onError("pay_addr")} required={true} />
             </div>
             <div>
-                <div>begin_time_ms:</div>
-                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onError={onError("set_begin_time_ms")} />
+                <div>begin_time_ms</div>
+                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onError={onError("begin_time_ms")} required={true} />
             </div>
             <div>
-                <div>duration:</div>
-                <InputUnsignedInt val={duration} setVal={set_duration} onError={onError("set_duration")} />
+                <div>duration</div>
+                <InputUnsignedInt val={duration} setVal={set_duration} onError={onError("duration")} required={true} />
             </div>
             <div>
-                <div>minimum_bid:</div>
-                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} onError={onError("set_minimum_bid")} />
+                <div>minimum_bid</div>
+                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} onError={onError("minimum_bid")} required={true} />
             </div>
             <div>
-                <div>minimum_increase_bps:</div>
-                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onError={onError("set_minimum_increase_bps")} />
+                <div>minimum_increase_bps</div>
+                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onError={onError("minimum_increase_bps")} required={true} />
             </div>
             <div>
-                <div>extension_period_ms:</div>
-                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onError={onError("set_extension_period_ms")} />
+                <div>extension_period_ms</div>
+                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onError={onError("extension_period_ms")} required={true} />
             </div>
         </div>
 
@@ -146,6 +146,7 @@ export const PageNew: React.FC = () =>
         <button className="btn" onClick={onSubmit}>
             CREATE AUCTION
         </button>
+
         </>;
     }
 
