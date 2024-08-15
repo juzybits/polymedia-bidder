@@ -50,13 +50,14 @@ export const BaseInput: React.FC<CommonInputProps & {
 }> = ({
     inputType,
     inputMode,
+    validate = undefined,
+    pattern = undefined,
+    // Common props
     val,
     setVal,
     onSubmit = undefined,
     onValidate = undefined,
-    validate = undefined,
-    pattern = undefined,
-    placeholder = "",
+    placeholder = undefined,
     disabled = false,
     required = false,
     msgRequired = "Input is required",
@@ -64,15 +65,12 @@ export const BaseInput: React.FC<CommonInputProps & {
 {
     const [err, setErr] = useState<string | undefined>();
 
-    function runValidation(value: string)
+    const runValidation = (value: string) =>
     {
         let validationError: string | undefined;
 
         if (required && value.trim() === "") {
             validationError = msgRequired;
-        }
-        else if (pattern && !new RegExp(pattern).test(value)) {
-            validationError = "Invalid format";
         }
         else if (validate !== undefined) {
             validationError = validate(value);
@@ -89,11 +87,17 @@ export const BaseInput: React.FC<CommonInputProps & {
         }
     }, [val]);
 
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        setVal(e.target.value);
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
+    {
+        if (pattern && !new RegExp(pattern).test(e.target.value)) {
+            return;
+        } else {
+            setVal(e.target.value);
+        }
     };
 
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
+    {
         if (e.key === "Enter" && onSubmit && !err) {
             onSubmit();
         }
