@@ -1,6 +1,7 @@
 // TODO: move to @polymedia/suitcase-core
 
-import React, { useState, useEffect, useCallback } from "react";
+import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
+import React, { useCallback, useEffect, useState } from "react";
 
 export type InputError = string | undefined;
 
@@ -164,9 +165,11 @@ export const InputUnsignedInt: React.FC<CommonInputProps & {
     props,
 ) =>
 {
-    const validate = (value: string): string | undefined =>
+    const pattern = "^[0-9]*$";
+
+    const validate = (val: string): string | undefined =>
     {
-        const numValue = Number(value);
+        const numValue = Number(val);
 
         if (isNaN(numValue) || numValue < 0) {
             return "Invalid number";
@@ -187,7 +190,55 @@ export const InputUnsignedInt: React.FC<CommonInputProps & {
             inputType="text"
             inputMode="numeric"
             validate={validate}
-            pattern="^[0-9]*$"
+            pattern={pattern}
+            // Common props
+            val={props.val}
+            setVal={props.setVal}
+            onSubmit={props.onSubmit}
+            onValidate={props.onValidate}
+            placeholder={props.placeholder}
+            disabled={props.disabled}
+            required={props.required}
+            msgRequired={props.msgRequired}
+        />
+    );
+};
+
+export const InputUnsignedBalance: React.FC<CommonInputProps & {
+    decimals: number;
+    min?: bigint;
+    max?: bigint;
+    msgTooSmall?: string;
+    msgTooLarge?: string;
+}> = (
+    props,
+) =>
+{
+    const pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
+
+    const validate = (value: string): string | undefined =>
+    {
+        if (value === "" || value === ".") {
+            return undefined;
+        }
+
+        const bigValue = stringToBalance(value, props.decimals);
+
+        if (props.min !== undefined && bigValue < props.min) {
+            return props.msgTooSmall ?? `Minimum value is ${balanceToString(props.min, props.decimals)}`;
+        }
+        if (props.max !== undefined && bigValue > props.max) {
+            return props.msgTooLarge ?? `Maximum value is ${balanceToString(props.max, props.decimals)}`;
+        }
+
+        return undefined;
+    };
+    return (
+        <BaseInput
+            inputType="text"
+            inputMode="decimal"
+            validate={validate}
+            pattern={pattern}
             // Common props
             val={props.val}
             setVal={props.setVal}

@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Button } from "./components/Button";
-import { InputString, InputUnsignedInt, useInputValidation } from "./components/inputs";
+import { InputString, InputUnsignedBalance, InputUnsignedInt, useInputValidation } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
 {
@@ -78,13 +78,14 @@ export const PageNew: React.FC = () =>
 
         const { hasErrors, onValidate } = useInputValidation();
 
+        const coinDecimals = 9;
         const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
         const [ name, set_name ] = useState<string>("");
         const [ description, set_description ] = useState<string>("");
         const [ pay_addr, set_pay_addr ] = useState<string>(currAcct?.address ?? "");
         const [ begin_time_ms, set_begin_time_ms ] = useState<string>("0");
         const [ duration, set_duration ] = useState<string>("86400000");
-        const [ minimum_bid, set_minimum_bid ] = useState<string>("100000000");
+        const [ minimum_bid, set_minimum_bid ] = useState<string>("1");
         const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
         const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
 
@@ -104,31 +105,38 @@ export const PageNew: React.FC = () =>
             </div>
             <div>
                 <div>Coin type</div>
-                <InputString val={type_coin} setVal={set_type_coin} onValidate={onValidate("type_coin")} required={true} />
+                <InputString val={type_coin} setVal={set_type_coin} onValidate={onValidate("type_coin")}
+                    required={true} />
             </div>
             <div>
                 <div>Payment address</div>
-                <InputString val={pay_addr} setVal={set_pay_addr} onValidate={onValidate("pay_addr")} required={true} />
+                <InputString val={pay_addr} setVal={set_pay_addr} onValidate={onValidate("pay_addr")}
+                    required={true} />
             </div>
             <div>
                 <div>Begin time</div>
-                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onValidate={onValidate("begin_time_ms")} required={true} />
+                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onValidate={onValidate("begin_time_ms")}
+                    required={true} />
             </div>
             <div>
                 <div>Duration</div>
-                <InputUnsignedInt val={duration} setVal={set_duration} onValidate={onValidate("duration")} required={true} />
+                <InputUnsignedInt val={duration} setVal={set_duration} onValidate={onValidate("duration")}
+                    required={true} />
             </div>
             <div>
                 <div>Minimum bid</div>
-                <InputUnsignedInt val={minimum_bid} setVal={set_minimum_bid} onValidate={onValidate("minimum_bid")} required={true} />
+                <InputUnsignedBalance val={minimum_bid} setVal={set_minimum_bid} onValidate={onValidate("minimum_bid")}
+                    required={true} decimals={coinDecimals} />
             </div>
             <div>
                 <div>Minimum bid increase</div>
-                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onValidate={onValidate("minimum_increase_bps")} required={true} />
+                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onValidate={onValidate("minimum_increase_bps")}
+                    required={true} />
             </div>
             <div>
                 <div>Extension period</div>
-                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onValidate={onValidate("extension_period_ms")} required={true} />
+                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onValidate={onValidate("extension_period_ms")}
+                    required={true} />
             </div>
         </div>
 
