@@ -31,22 +31,26 @@ export const useInputValidation = () =>
     };
 };
 
-
-export const BaseInput: React.FC<{
-    inputType: React.HTMLInputTypeAttribute;
-    inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+export type CommonInputProps = {
     val: string;
     setVal: React.Dispatch<React.SetStateAction<string>>;
     onSubmit?: () => void;
     onValidate?: (error: string | undefined) => void;
-    validate?: (value: string) => string | undefined;
-    pattern?: string;
+    placeholder?: string;
     disabled?: boolean;
     required?: boolean;
+    msgRequired?: string;
+}
+
+export const BaseInput: React.FC<CommonInputProps & {
+    inputType: React.HTMLInputTypeAttribute;
+    inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+
+    validate?: (value: string) => string | undefined;
+    pattern?: string;
+
     minLength?: number;
     maxLength?: number;
-    placeholder?: string;
-    msgRequired?: string;
     msgTooShort?: string;
     msgTooLong?: string;
 }> = ({
@@ -58,12 +62,13 @@ export const BaseInput: React.FC<{
     onValidate = undefined,
     validate = undefined,
     pattern = undefined,
+    placeholder = "",
     disabled = false,
     required = false,
+    msgRequired = "Input is required",
+
     minLength = undefined,
     maxLength = undefined,
-    placeholder = "",
-    msgRequired = "Input is required",
     msgTooShort = `Minimum length is ${minLength}`,
     msgTooLong = `Maximum length is ${maxLength}`,
 }) => {
@@ -128,103 +133,68 @@ export const BaseInput: React.FC<{
     );
 };
 
-export const InputString: React.FC<{
-    val: string;
-    setVal: React.Dispatch<React.SetStateAction<string>>;
-    onSubmit?: () => void;
-    onValidate?: (error: string | undefined) => void;
-    disabled?: boolean;
-    required?: boolean;
+export const InputString: React.FC<CommonInputProps & {
     minLength?: number;
     maxLength?: number;
-    placeholder?: string;
-    msgRequired?: string;
     msgTooShort?: string;
     msgTooLong?: string;
-}> = ({
-    val,
-    setVal,
-    disabled = false,
-    required = false,
-    minLength,
-    maxLength,
-    onSubmit,
-    onValidate,
-    placeholder = "",
-    msgRequired,
-    msgTooShort,
-    msgTooLong,
-}) => {
+}> = (
+    props,
+) => {
     return (
         <BaseInput
             inputType="text"
             inputMode="text"
-            val={val}
-            setVal={setVal}
-            onSubmit={onSubmit}
-            onValidate={onValidate}
-            disabled={disabled}
-            required={required}
-            minLength={minLength}
-            maxLength={maxLength}
-            placeholder={placeholder}
-            msgRequired={msgRequired}
-            msgTooShort={msgTooShort}
-            msgTooLong={msgTooLong}
+            // Common props
+            val={props.val}
+            setVal={props.setVal}
+            onSubmit={props.onSubmit}
+            onValidate={props.onValidate}
+            placeholder={props.placeholder}
+            disabled={props.disabled}
+            required={props.required}
+            msgRequired={props.msgRequired}
+            // Specific props
+            minLength={props.minLength}
+            maxLength={props.maxLength}
+            msgTooShort={props.msgTooShort}
+            msgTooLong={props.msgTooLong}
         />
     );
 };
 
-export const InputUnsignedInt: React.FC<{
-    val: string;
-    setVal: React.Dispatch<React.SetStateAction<string>>;
-    onSubmit?: () => void;
-    onValidate?: (error: string | undefined) => void;
-    disabled?: boolean;
-    required?: boolean;
+export const InputUnsignedInt: React.FC<CommonInputProps & {
     min?: number;
     max?: number;
-    placeholder?: string;
-    msgRequired?: string;
     msgInvalid?: string;
-}> = ({
-    val,
-    setVal,
-    onSubmit,
-    onValidate,
-    disabled = false,
-    required = false,
-    min,
-    max,
-    placeholder = "",
-    msgRequired,
-    msgInvalid,
-}) => {
+}> = (
+    props,
+) => {
     const validateUnsignedInt = (value: string) => {
         const numValue = Number(value);
         if (isNaN(numValue) || numValue < 0
-            || (min !== undefined && numValue < min)
-            || (max !== undefined && numValue > max))
+            || (props.min !== undefined && numValue < props.min)
+            || (props.max !== undefined && numValue > props.max))
         {
-            return msgInvalid ?? `Invalid number`;
+            return props.msgInvalid ?? `Invalid number`;
         }
         return undefined;
     };
-
     return (
         <BaseInput
             inputType="text"
             inputMode="numeric"
-            val={val}
-            setVal={setVal}
-            onSubmit={onSubmit}
             validate={validateUnsignedInt}
-            onValidate={onValidate}
             pattern="^[0-9]*$"
-            disabled={disabled}
-            required={required}
-            placeholder={placeholder}
-            msgRequired={msgRequired}
+            // Common props
+            val={props.val}
+            setVal={props.setVal}
+            onSubmit={props.onSubmit}
+            onValidate={props.onValidate}
+            placeholder={props.placeholder}
+            disabled={props.disabled}
+            required={props.required}
+            msgRequired={props.msgRequired}
         />
     );
 };
