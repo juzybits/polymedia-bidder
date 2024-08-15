@@ -65,18 +65,15 @@ export const BaseInput: React.FC<CommonInputProps & {
 {
     const [err, setErr] = useState<string | undefined>();
 
-    const runValidation = (value: string) =>
+    const runValidation = (val: string): string | undefined =>
     {
-        let validationError: string | undefined;
-
-        if (required && value.trim() === "") {
-            validationError = msgRequired;
+        if (required && val.trim() === "") {
+            return msgRequired;
         }
-        else if (validate !== undefined) {
-            validationError = validate(value);
+        if (validate !== undefined) {
+            return validate(val);
         }
-
-        return validationError;
+        return undefined;
     };
 
     useEffect(() => {
@@ -130,19 +127,16 @@ export const InputString: React.FC<CommonInputProps & {
 }> = (
     props,
 ) => {
-    function validate(value: string): string | undefined
+    const validate = (val: string): string | undefined =>
     {
-        let validationError: string | undefined;
-
-        if (props.minLength && value.length < props.minLength) {
-            validationError = props.msgTooShort ?? `Minimum length is ${props.minLength}`;
+        if (props.minLength && val.length < props.minLength) {
+            return props.msgTooShort ?? `Minimum length is ${props.minLength}`;
         }
-        else if (props.maxLength && value.length > props.maxLength) {
-            validationError = props.msgTooLong ?? `Maximum length is ${props.maxLength}`;
+        if (props.maxLength && val.length > props.maxLength) {
+            return props.msgTooLong ?? `Maximum length is ${props.maxLength}`;
         }
-
-        return validationError;
-    }
+        return undefined;
+    };
     return (
         <BaseInput
             inputType="text"
@@ -164,22 +158,30 @@ export const InputString: React.FC<CommonInputProps & {
 export const InputUnsignedInt: React.FC<CommonInputProps & {
     min?: number;
     max?: number;
-    msgInvalid?: string;
+    msgTooSmall?: string;
+    msgTooLarge?: string;
 }> = (
     props,
 ) =>
 {
-    function validate(value: string): string | undefined
+    const validate = (value: string): string | undefined =>
     {
         const numValue = Number(value);
-        if (isNaN(numValue) || numValue < 0
-            || (props.min !== undefined && numValue < props.min)
-            || (props.max !== undefined && numValue > props.max))
-        {
-            return props.msgInvalid ?? "Invalid number";
+
+        if (isNaN(numValue) || numValue < 0) {
+            return "Invalid number";
+        }
+        if (props.min !== undefined && numValue < props.min) {
+            return props.msgTooSmall ?? `Minimum value is ${props.min}`;
+        }
+        if (props.max !== undefined && numValue > props.max) {
+            return props.msgTooLarge ?? `Maximum value is ${props.max}`;
+        }
+        if (numValue > Number.MAX_SAFE_INTEGER) {
+            return "Number is too large";
         }
         return undefined;
-    }
+    };
     return (
         <BaseInput
             inputType="text"
