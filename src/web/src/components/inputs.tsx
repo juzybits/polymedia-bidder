@@ -45,14 +45,8 @@ export type CommonInputProps = {
 export const BaseInput: React.FC<CommonInputProps & {
     inputType: React.HTMLInputTypeAttribute;
     inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
-
     validate?: (value: string) => string | undefined;
     pattern?: string;
-
-    minLength?: number;
-    maxLength?: number;
-    msgTooShort?: string;
-    msgTooLong?: string;
 }> = ({
     inputType,
     inputMode,
@@ -66,28 +60,21 @@ export const BaseInput: React.FC<CommonInputProps & {
     disabled = false,
     required = false,
     msgRequired = "Input is required",
-
-    minLength = undefined,
-    maxLength = undefined,
-    msgTooShort = `Minimum length is ${minLength}`,
-    msgTooLong = `Maximum length is ${maxLength}`,
 }) =>
 {
     const [err, setErr] = useState<string | undefined>();
 
-    function runValidation (value: string)
+    function runValidation(value: string)
     {
         let validationError: string | undefined;
 
         if (required && value.trim() === "") {
             validationError = msgRequired;
-        } else if (minLength && value.length < minLength) {
-            validationError = msgTooShort;
-        } else if (maxLength && value.length > maxLength) {
-            validationError = msgTooLong;
-        } else if (pattern && !new RegExp(pattern).test(value)) {
+        }
+        else if (pattern && !new RegExp(pattern).test(value)) {
             validationError = "Invalid format";
-        } else if (validate !== undefined) {
+        }
+        else if (validate !== undefined) {
             validationError = validate(value);
         }
 
@@ -120,8 +107,6 @@ export const BaseInput: React.FC<CommonInputProps & {
                 inputMode={inputMode}
                 value={val}
                 required={required}
-                minLength={minLength}
-                maxLength={maxLength}
                 disabled={disabled}
                 onChange={onChange}
                 onKeyDown={onKeyDown}
@@ -141,10 +126,24 @@ export const InputString: React.FC<CommonInputProps & {
 }> = (
     props,
 ) => {
+    function validate(value: string): string | undefined
+    {
+        let validationError: string | undefined;
+
+        if (props.minLength && value.length < props.minLength) {
+            validationError = props.msgTooShort ?? `Minimum length is ${props.minLength}`;
+        }
+        else if (props.maxLength && value.length > props.maxLength) {
+            validationError = props.msgTooLong ?? `Maximum length is ${props.maxLength}`;
+        }
+
+        return validationError;
+    }
     return (
         <BaseInput
             inputType="text"
             inputMode="text"
+            validate={validate}
             // Common props
             val={props.val}
             setVal={props.setVal}
@@ -154,11 +153,6 @@ export const InputString: React.FC<CommonInputProps & {
             disabled={props.disabled}
             required={props.required}
             msgRequired={props.msgRequired}
-            // Specific props
-            minLength={props.minLength}
-            maxLength={props.maxLength}
-            msgTooShort={props.msgTooShort}
-            msgTooLong={props.msgTooLong}
         />
     );
 };
@@ -169,8 +163,10 @@ export const InputUnsignedInt: React.FC<CommonInputProps & {
     msgInvalid?: string;
 }> = (
     props,
-) => {
-    const validateUnsignedInt = (value: string) => {
+) =>
+{
+    function validate(value: string): string | undefined
+    {
         const numValue = Number(value);
         if (isNaN(numValue) || numValue < 0
             || (props.min !== undefined && numValue < props.min)
@@ -179,12 +175,12 @@ export const InputUnsignedInt: React.FC<CommonInputProps & {
             return props.msgInvalid ?? `Invalid number`;
         }
         return undefined;
-    };
+    }
     return (
         <BaseInput
             inputType="text"
             inputMode="numeric"
-            validate={validateUnsignedInt}
+            validate={validate}
             pattern="^[0-9]*$"
             // Common props
             val={props.val}
