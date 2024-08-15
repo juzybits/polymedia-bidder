@@ -71,24 +71,24 @@ export const BaseInput: React.FC<CommonInputProps & {
     maxLength = undefined,
     msgTooShort = `Minimum length is ${minLength}`,
     msgTooLong = `Maximum length is ${maxLength}`,
-}) => {
+}) =>
+{
     const [err, setErr] = useState<string | undefined>();
 
-    const runValidation = (value: string) => {
+    function runValidation (value: string)
+    {
         let validationError: string | undefined;
 
-        if (validate) {
+        if (required && value.trim() === "") {
+            validationError = msgRequired;
+        } else if (minLength && value.length < minLength) {
+            validationError = msgTooShort;
+        } else if (maxLength && value.length > maxLength) {
+            validationError = msgTooLong;
+        } else if (pattern && !new RegExp(pattern).test(value)) {
+            validationError = "Invalid format";
+        } else if (validate !== undefined) {
             validationError = validate(value);
-        } else {
-            if (required && value.trim() === "") {
-                validationError = msgRequired;
-            } else if (minLength && value.length < minLength) {
-                validationError = msgTooShort;
-            } else if (maxLength && value.length > maxLength) {
-                validationError = msgTooLong;
-            } else if (pattern && !new RegExp(pattern).test(value)) {
-                validationError = "Invalid format";
-            }
         }
 
         return validationError;
