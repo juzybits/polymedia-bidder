@@ -143,15 +143,7 @@ export const InputString: React.FC<CommonInputProps & {
             inputType="text"
             inputMode="text"
             validate={validate}
-            // Common props
-            val={props.val}
-            setVal={props.setVal}
-            onSubmit={props.onSubmit}
-            onValidate={props.onValidate}
-            placeholder={props.placeholder}
-            disabled={props.disabled}
-            required={props.required}
-            msgRequired={props.msgRequired}
+            {...props}
         />
     );
 };
@@ -191,15 +183,7 @@ export const InputUnsignedInt: React.FC<CommonInputProps & {
             inputMode="numeric"
             validate={validate}
             pattern={pattern}
-            // Common props
-            val={props.val}
-            setVal={props.setVal}
-            onSubmit={props.onSubmit}
-            onValidate={props.onValidate}
-            placeholder={props.placeholder}
-            disabled={props.disabled}
-            required={props.required}
-            msgRequired={props.msgRequired}
+            {...props}
         />
     );
 };
@@ -230,7 +214,6 @@ export const InputUnsignedBalance: React.FC<CommonInputProps & {
         if (props.max !== undefined && bigValue > props.max) {
             return props.msgTooLarge ?? `Maximum value is ${balanceToString(props.max, props.decimals)}`;
         }
-
         return undefined;
     };
     return (
@@ -239,15 +222,7 @@ export const InputUnsignedBalance: React.FC<CommonInputProps & {
             inputMode="decimal"
             validate={validate}
             pattern={pattern}
-            // Common props
-            val={props.val}
-            setVal={props.setVal}
-            onSubmit={props.onSubmit}
-            onValidate={props.onValidate}
-            placeholder={props.placeholder}
-            disabled={props.disabled}
-            required={props.required}
-            msgRequired={props.msgRequired}
+            {...props}
         />
     );
 };
