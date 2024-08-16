@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Button } from "./components/Button";
-import { InputString, InputUnsignedBalance, InputUnsignedInt, useInputUnsignedBalance, useInputValidation } from "./components/inputs";
+import { useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
 {
@@ -79,27 +79,35 @@ export const PageNew: React.FC = () =>
     {
         const currAcct = useCurrentAccount();
 
-        const { hasErrors, onValidate } = useInputValidation();
+        const decimals = 9; // TODO: @polymedia/coinmeta
 
-        const coinDecimals = 9; // TODO: @polymedia/coinmeta
-        const [ type_coin, set_type_coin ] = useState<string>("0x2::sui::SUI");
-        const [ name, set_name ] = useState<string>("");
-        const [ description, set_description ] = useState<string>("");
-        const [ pay_addr, set_pay_addr ] = useState<string>(currAcct?.address ?? "");
-        const [ begin_time_ms, set_begin_time_ms ] = useState<string>("0");
-        const [ duration_ms, set_duration_ms ] = useState<string>("86400000");
-        const [ minimum_bid, set_minimum_bid ] = useState<string>("1");
-        const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
-        const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
+        const name = useInputString({ label: "Name (optional)", initValue: "" });
+        const description = useInputString({ label: "Description (optional)", initValue: "" });
+        const type_coin = useInputString({ label: "Coin type", initValue: "0x2::sui::SUI", required: true });
+        const pay_addr = useInputString({ label: "Payment address", initValue: currAcct?.address ?? "", required: true });
+        const begin_time_ms = useInputUnsignedInt({ label: "Begin time", initValue: "0", required: true });
+        const duration_ms = useInputUnsignedInt({ label: "Duration", initValue: "86400000", required: true });
+        const minimum_bid = useInputUnsignedBalance({ label: "Minimum bid", decimals, initValue: "1", required: true });
+        const minimum_increase_bps = useInputUnsignedInt({ label: "Minimum bid increase", initValue: "500", required: true });
+        const extension_period_ms = useInputUnsignedInt({ label: "Extension period", initValue: "900000", required: true });
 
-        const { input: input_minimum_bid } = useInputUnsignedBalance({
-            required: true,
-            decimals: coinDecimals,
-        });
+        function hasErrors(): boolean {
+            return (
+                name.err !== undefined ||
+                description.err !== undefined ||
+                type_coin.err !== undefined ||
+                pay_addr.err !== undefined ||
+                begin_time_ms.err !== undefined ||
+                duration_ms.err !== undefined ||
+                minimum_bid.err !== undefined ||
+                minimum_increase_bps.err !== undefined ||
+                extension_period_ms.err !== undefined
+            );
+        }
 
         const disableSubmit = chosenObjs.length === 0 || hasErrors() || !currAcct;
 
-        const onSubmit = async () =>
+        const onSubmit = async () => // TODO: move to AuctionClient
         {
             if (disableSubmit) {
                 return;
@@ -110,29 +118,29 @@ export const PageNew: React.FC = () =>
                 const [auctionObj] = AuctionModule.admin_creates_auction(
                     tx,
                     auctionClient.packageId,
-                    type_coin,
-                    name,
-                    description,
-                    pay_addr,
-                    parseInt(begin_time_ms),
-                    parseInt(duration_ms),
-                    stringToBalance(minimum_bid, coinDecimals),
-                    parseInt(minimum_increase_bps),
-                    parseInt(extension_period_ms),
+                    type_coin.val ?? "",
+                    name.val ?? "",
+                    description.val!,
+                    pay_addr.val!,
+                    begin_time_ms.val!,
+                    duration_ms.val!,
+                    minimum_bid.val!,
+                    minimum_increase_bps.val!,
+                    extension_period_ms.val!,
                 );
 
                 for (const obj of chosenObjs) {
                     AuctionModule.admin_adds_item(
                         tx,
                         auctionClient.packageId,
-                        type_coin,
+                        type_coin.val!,
                         obj.type,
                         auctionObj,
                         obj.id,
                     );
                 }
 
-                tx.transferObjects([auctionObj], currAcct.address);
+                tx.transferObjects([auctionObj], currAcct.address); // TODO: share object
 
                 const resp = await auctionClient.signAndExecuteTransaction(tx);
                 console.debug("resp:", resp);
@@ -143,53 +151,15 @@ export const PageNew: React.FC = () =>
 
         return <>
         <div>
-            <div>
-                <div>Name (optional)</div>
-                <InputString val={name} setVal={set_name} onValidate={onValidate("name")} />
-            </div>
-            <div>
-                <div>Description (optional)</div>
-                <InputString val={description} setVal={set_description} onValidate={onValidate("description")} />
-            </div>
-            <div>
-                <div>Coin type</div>
-                <InputString val={type_coin} setVal={set_type_coin} onValidate={onValidate("type_coin")}
-                    required={true} />
-            </div>
-            <div>
-                <div>Payment address</div>
-                <InputString val={pay_addr} setVal={set_pay_addr} onValidate={onValidate("pay_addr")}
-                    required={true} />
-            </div>
-            <div>
-                <div>Begin time</div>
-                <InputUnsignedInt val={begin_time_ms} setVal={set_begin_time_ms} onValidate={onValidate("begin_time_ms")}
-                    required={true} />
-            </div>
-            <div>
-                <div>Duration</div>
-                <InputUnsignedInt val={duration_ms} setVal={set_duration_ms} onValidate={onValidate("duration")}
-                    required={true} />
-            </div>
-            <div>
-                <div>Minimum bid</div>
-                <InputUnsignedBalance val={minimum_bid} setVal={set_minimum_bid} onValidate={onValidate("minimum_bid")}
-                    required={true} decimals={coinDecimals} />
-            </div>
-            <div>
-                <div>Minimum bid 2</div>
-                {input_minimum_bid}
-            </div>
-            <div>
-                <div>Minimum bid increase</div>
-                <InputUnsignedInt val={minimum_increase_bps} setVal={set_minimum_increase_bps} onValidate={onValidate("minimum_increase_bps")}
-                    required={true} />
-            </div>
-            <div>
-                <div>Extension period</div>
-                <InputUnsignedInt val={extension_period_ms} setVal={set_extension_period_ms} onValidate={onValidate("extension_period_ms")}
-                    required={true} />
-            </div>
+            {name.input}
+            {description.input}
+            {type_coin.input}
+            {pay_addr.input}
+            {begin_time_ms.input}
+            {duration_ms.input}
+            {minimum_bid.input}
+            {minimum_increase_bps.input}
+            {extension_period_ms.input}
         </div>
 
         {chosenObjs.length > 0 &&

@@ -16,7 +16,7 @@ export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
         packageId: "",
     },
     devnet: {
-        packageId: "",
+        packageId: "0xe5c53617f9e2e64b665c936ab54d2534a48289dd73bdecc9d11e04343cd7bf2b",
     },
     localnet: {
         packageId: "",

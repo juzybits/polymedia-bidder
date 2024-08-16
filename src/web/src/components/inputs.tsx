@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 export const useInputString = (props : {
     // Common
+    label?: string;
     initValue?: string;
     onSubmit?: () => void;
     placeholder?: string;
@@ -62,7 +63,11 @@ export const useInputString = (props : {
 
     const input =
         <div className="poly-input">
-            <input
+
+            {props.label &&
+            <div className="input-label">{props.label}</div>}
+
+            <input className="input"
                 type="text"
                 inputMode="text"
                 value={str}
@@ -72,7 +77,9 @@ export const useInputString = (props : {
                 disabled={props.disabled}
                 required={props.required}
             />
-            {err && <div className="input-error">{err}</div>}
+
+            {err &&
+            <div className="input-error">{err}</div>}
         </div>;
 
         return { str, val, err, input };
@@ -80,6 +87,7 @@ export const useInputString = (props : {
 
 export const useInputUnsignedInt = (props : {
     // Common
+    label?: string;
     initValue?: string;
     onSubmit?: () => void;
     placeholder?: string;
@@ -150,7 +158,11 @@ export const useInputUnsignedInt = (props : {
 
     const input =
         <div className="poly-input">
-            <input
+
+            {props.label &&
+            <div className="input-label">{props.label}</div>}
+
+            <input className="input"
                 type="text"
                 inputMode="numeric"
                 value={str}
@@ -161,7 +173,9 @@ export const useInputUnsignedInt = (props : {
                 disabled={props.disabled}
                 required={props.required}
             />
-            {err && <div className="input-error">{err}</div>}
+
+            {err &&
+            <div className="input-error">{err}</div>}
         </div>;
 
         return { str, val, err, input };
@@ -169,6 +183,7 @@ export const useInputUnsignedInt = (props : {
 
 export const useInputUnsignedBalance = (props : {
     // Common
+    label?: string;
     initValue?: string;
     onSubmit?: () => void;
     placeholder?: string;
@@ -238,7 +253,11 @@ export const useInputUnsignedBalance = (props : {
 
     const input =
         <div className="poly-input">
-            <input
+
+            {props.label &&
+            <div className="input-label">{props.label}</div>}
+
+            <input className="input"
                 type="text"
                 inputMode="decimal"
                 value={str}
@@ -249,7 +268,9 @@ export const useInputUnsignedBalance = (props : {
                 disabled={props.disabled}
                 required={props.required}
             />
-            {err && <div className="input-error">{err}</div>}
+
+            {err &&
+            <div className="input-error">{err}</div>}
         </div>;
 
         return { str, val, err, input };
