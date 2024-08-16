@@ -9,7 +9,7 @@ import {
     objResToType,
     shortenAddress,
 } from "@polymedia/suitcase-core";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
@@ -26,6 +26,65 @@ export const PageNew: React.FC = () =>
 
     const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
+
+    // === html ===
+
+    return (
+    <div className="page-regular" id="page-new">
+
+        {header}
+
+        <div className="page-content">
+
+            <h1 className="page-title">NEW AUCTION</h1>
+
+            {currAcct &&
+            <div className="page-section card">
+                <FormCreateAuction chosenObjs={chosenObjs} />
+            </div>}
+
+            <div className="page-section">
+                <div className="section-description">
+                    Click on the items you want to auction.
+                </div>
+            </div>
+
+            <div className="page-section">
+                <ObjectGridSelector ownedObjs={ownedObjs} setOwnedObjs={setOwnedObjs} setChosenObjs={setChosenObjs} />
+            </div>
+
+            {/* {chosenObjs.length > 0 &&
+            <div id="dialog-create-auction">
+                <div className="object-count">
+                    {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected
+                </div>
+                <button className="btn">
+                    CREATE AUCTION
+                </button>
+            </div>} */}
+        </div>
+
+    </div>
+    );
+};
+
+// === components ===
+
+const ObjectGridSelector: React.FC<{
+    ownedObjs: PaginatedObjectsResponse | undefined,
+    setOwnedObjs: ReactSetter<PaginatedObjectsResponse | undefined>,
+    setChosenObjs: ReactSetter<SuiObject[]>,
+}> = ({
+    ownedObjs,
+    setOwnedObjs,
+    setChosenObjs,
+}) =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+
+    const { auctionClient } = useOutletContext<AppContext>();
 
     // === effects ===
 
@@ -69,87 +128,44 @@ export const PageNew: React.FC = () =>
         });
     }
 
-    const ObjectGrid: React.FC = () =>
-    {
-        if (!ownedObjs) {
-            return <span>Loading...</span>;
-        }
-        return <>
-        <div className="grid">
-            {ownedObjs.data.map((objRes) =>
-            {
-                const obj = objResToSuiObject(objRes);
-                return (
-                <div className="grid-item card" key={obj.id}
-                    onClick={() => { addOrRemoveItem(obj); }}
-                >
-                    <div className="sui-obj">
-                        <div className="obj-img">
-                            <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
-                        </div>
-                        <div className="obj-info">
-                            <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>
-                            {obj.name && <div className="info-line break-word">{obj.name}</div>}
-                            {obj.desc && <div className="info-line break-word">{obj.desc}</div>}
-                        </div>
-                    </div>
-                </div>
-                );
-            })}
-        </div>
-
-        {ownedObjs.hasNextPage &&
-        <div className="load-more">
-            <button className="btn" onClick={fetchOwnedObjects}>
-                LOAD MORE
-            </button>
-        </div>}
-
-        </>;
-    };
-
     // === html ===
 
-    return (
-    <div className="page-regular" id="page-new">
+    if (!ownedObjs) {
+        return <span>Loading...</span>;
+    }
 
-        {header}
-
-        <div className="page-content">
-
-            <h1 className="page-title">NEW AUCTION</h1>
-
-            {currAcct &&
-            <div className="page-section card">
-                <FormCreateAuction chosenObjs={chosenObjs} />
-            </div>}
-
-            <div className="page-section">
-                <div className="section-description">
-                    Click on the items you want to auction.
+    return <>
+    <div className="grid">
+        {ownedObjs.data.map((objRes) =>
+        {
+            const obj = objResToSuiObject(objRes);
+            return (
+            <div className="grid-item card" key={obj.id}
+                onClick={() => { addOrRemoveItem(obj); }}
+            >
+                <div className="sui-obj">
+                    <div className="obj-img">
+                        <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
+                    </div>
+                    <div className="obj-info">
+                        <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>
+                        {obj.name && <div className="info-line break-word">{obj.name}</div>}
+                        {obj.desc && <div className="info-line break-word">{obj.desc}</div>}
+                    </div>
                 </div>
             </div>
-
-            <div className="page-section">
-                <ObjectGrid />
-            </div>
-
-            {/* {chosenObjs.length > 0 &&
-            <div id="dialog-create-auction">
-                <div className="object-count">
-                    {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected
-                </div>
-                <button className="btn">
-                    CREATE AUCTION
-                </button>
-            </div>} */}
-        </div>
-
+            );
+        })}
     </div>
-    );
-};
 
-// === components ===
+    {ownedObjs.hasNextPage &&
+    <div className="load-more">
+        <button className="btn" onClick={fetchOwnedObjects}>
+            LOAD MORE
+        </button>
+    </div>}
+    </>;
+};
 
 const FormCreateAuction: React.FC<{
     chosenObjs: SuiObject[];
