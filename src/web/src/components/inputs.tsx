@@ -1,11 +1,11 @@
 // TODO: move to @polymedia/suitcase-core
 
 import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export type CommonInputProps = {
     label?: string;
-    initValue?: string;
+    initVal?: string;
     onSubmit?: () => void;
     placeholder?: string;
     disabled?: boolean;
@@ -13,14 +13,21 @@ export type CommonInputProps = {
     msgRequired?: string;
 }
 
+export type InputReturn<T> = {
+    str: string;
+    val: T | undefined;
+    err: string | undefined;
+    input: JSX.Element;
+};
+
 export const useInputBase = <T,>(props: CommonInputProps & {
     type: React.HTMLInputTypeAttribute;
     inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
     pattern?: string;
     validate: (input: string) => { err: string|undefined, val: T|undefined };
-}) =>
+}): InputReturn<T> =>
 {
-    const [str, setStr] = useState<string>(props.initValue ?? "");
+    const [str, setStr] = useState<string>(props.initVal ?? "");
     const [val, setVal] = useState<T | undefined>();
     const [err, setErr] = useState<string | undefined>();
 
@@ -77,7 +84,7 @@ export const useInputString = (props : CommonInputProps & {
     maxLength?: number;
     msgTooShort?: string;
     msgTooLong?: string;
-}) =>
+}): InputReturn<string> =>
 {
     const pattern = undefined;
 
@@ -115,7 +122,7 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
     max?: number;
     msgTooSmall?: string;
     msgTooLarge?: string;
-}) =>
+}): InputReturn<number> =>
 {
     const pattern = "^[0-9]*$";
 
@@ -161,7 +168,7 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
     max?: bigint;
     msgTooSmall?: string;
     msgTooLarge?: string;
-}) =>
+}): InputReturn<bigint> =>
 {
     const pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
 
@@ -176,7 +183,7 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
         }
 
         if (input === "" || input === ".") {
-            return { err: undefined, val: undefined };
+            return { err: undefined, val: 0n };
         }
 
         const bigInput = stringToBalance(input, props.decimals);

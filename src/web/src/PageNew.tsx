@@ -8,7 +8,6 @@ import {
     objResToId,
     objResToType,
     shortenAddress,
-    stringToBalance,
 } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
@@ -81,31 +80,21 @@ export const PageNew: React.FC = () =>
 
         const decimals = 9; // TODO: @polymedia/coinmeta
 
-        const name = useInputString({ label: "Name (optional)", initValue: "" });
-        const description = useInputString({ label: "Description (optional)", initValue: "" });
-        const type_coin = useInputString({ label: "Coin type", initValue: "0x2::sui::SUI", required: true });
-        const pay_addr = useInputString({ label: "Payment address", initValue: currAcct?.address ?? "", required: true });
-        const begin_time_ms = useInputUnsignedInt({ label: "Begin time", initValue: "0", required: true });
-        const duration_ms = useInputUnsignedInt({ label: "Duration", initValue: "86400000", required: true });
-        const minimum_bid = useInputUnsignedBalance({ label: "Minimum bid", decimals, initValue: "1", required: true });
-        const minimum_increase_bps = useInputUnsignedInt({ label: "Minimum bid increase", initValue: "500", required: true });
-        const extension_period_ms = useInputUnsignedInt({ label: "Extension period", initValue: "900000", required: true });
+        const form = {
+            name: useInputString({ label: "Name (optional)", initVal: "" }),
+            description: useInputString({ label: "Description (optional)", initVal: "" }),
+            type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
+            pay_addr: useInputString({ label: "Payment address", initVal: currAcct?.address ?? "", required: true }),
+            begin_time_ms: useInputUnsignedInt({ label: "Begin time", initVal: "0", required: true }),
+            duration_ms: useInputUnsignedInt({ label: "Duration", initVal: "86400000", required: true }),
+            minimum_bid: useInputUnsignedBalance({ label: "Minimum bid", decimals, initVal: "1", required: true }),
+            minimum_increase_bps: useInputUnsignedInt({ label: "Minimum bid increase", initVal: "500", required: true }),
+            extension_period_ms: useInputUnsignedInt({ label: "Extension period", initVal: "900000", required: true }),
+        };
 
-        function hasErrors(): boolean {
-            return (
-                name.err !== undefined ||
-                description.err !== undefined ||
-                type_coin.err !== undefined ||
-                pay_addr.err !== undefined ||
-                begin_time_ms.err !== undefined ||
-                duration_ms.err !== undefined ||
-                minimum_bid.err !== undefined ||
-                minimum_increase_bps.err !== undefined ||
-                extension_period_ms.err !== undefined
-            );
-        }
+        const hasErrors = Object.values(form).some(input => input.err !== undefined);
 
-        const disableSubmit = chosenObjs.length === 0 || hasErrors() || !currAcct;
+        const disableSubmit = chosenObjs.length === 0 || !currAcct || hasErrors;
 
         const onSubmit = async () => // TODO: move to AuctionClient
         {
@@ -118,22 +107,22 @@ export const PageNew: React.FC = () =>
                 const [auctionObj] = AuctionModule.admin_creates_auction(
                     tx,
                     auctionClient.packageId,
-                    type_coin.val ?? "",
-                    name.val ?? "",
-                    description.val!,
-                    pay_addr.val!,
-                    begin_time_ms.val!,
-                    duration_ms.val!,
-                    minimum_bid.val!,
-                    minimum_increase_bps.val!,
-                    extension_period_ms.val!,
+                    form.type_coin.val!,
+                    form.name.val!,
+                    form.description.val!,
+                    form.pay_addr.val!,
+                    form.begin_time_ms.val!,
+                    form.duration_ms.val!,
+                    form.minimum_bid.val!,
+                    form.minimum_increase_bps.val!,
+                    form.extension_period_ms.val!,
                 );
 
                 for (const obj of chosenObjs) {
                     AuctionModule.admin_adds_item(
                         tx,
                         auctionClient.packageId,
-                        type_coin.val!,
+                        form.type_coin.val!,
                         obj.type,
                         auctionObj,
                         obj.id,
@@ -151,15 +140,11 @@ export const PageNew: React.FC = () =>
 
         return <>
         <div>
-            {name.input}
-            {description.input}
-            {type_coin.input}
-            {pay_addr.input}
-            {begin_time_ms.input}
-            {duration_ms.input}
-            {minimum_bid.input}
-            {minimum_increase_bps.input}
-            {extension_period_ms.input}
+            {Object.entries(form).map(([name, input]) => (
+                <React.Fragment key={name}>
+                    {input.input}
+                </React.Fragment>
+            ))}
         </div>
 
         {chosenObjs.length > 0 &&
