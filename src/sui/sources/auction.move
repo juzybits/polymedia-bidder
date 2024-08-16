@@ -163,17 +163,22 @@ public fun winner_takes_item<CoinType, ItemType: key+store>(
     item_addr: address,
     clock: &Clock,
     ctx: &mut TxContext,
-): ItemType
+): Option<ItemType>
 {
     assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.lead_addr == ctx.sender(), E_WRONG_ADDRESS );
 
-    // send funds to winner (if any)
+    // send funds to pay_addr (if any)
     auction.anyone_pays_funds(clock, ctx);
 
     // give the item to the sender
-    let item = auction.item_bag.remove<address, ItemType>(item_addr);
-    return item
+    // (but keep the item address in auction.item_addrs)
+    if (auction.item_bag.contains(item_addr)) {
+        let item = auction.item_bag.remove<address, ItemType>(item_addr);
+        return option::some(item)
+    } else {
+        return option::none()
+    }
 }
 
 /// Anyone can transfer the items to the winner of the auction after it ends.
@@ -186,11 +191,15 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
     assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.has_leader(), E_WRONG_ADDRESS );
 
-    // send funds to winner (if any)
+    // send funds to pay_addr (if any)
     auction.anyone_pays_funds(clock, ctx);
 
-    let item = auction.item_bag.remove<address, ItemType>(item_addr);
-    transfer::public_transfer(item, auction.lead_addr);
+    // send the item to the winner
+    // (but keep the item address in auction.item_addrs)
+    if (auction.item_bag.contains(item_addr)) {
+        let item = auction.item_bag.remove<address, ItemType>(item_addr);
+        transfer::public_transfer(item, auction.lead_addr);
+    };
 }
 
 /// Transfer the funds to auction.pay_addr after the auction ends.
