@@ -22,7 +22,7 @@ export const PageNew: React.FC = () =>
 
     const currAcct = useCurrentAccount();
 
-    const { auctionClient, header } = useOutletContext<AppContext>();
+    const { header } = useOutletContext<AppContext>();
 
     const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
@@ -71,9 +71,9 @@ export const PageNew: React.FC = () =>
 // === components ===
 
 const ObjectGridSelector: React.FC<{
-    ownedObjs: PaginatedObjectsResponse | undefined,
-    setOwnedObjs: ReactSetter<PaginatedObjectsResponse | undefined>,
-    setChosenObjs: ReactSetter<SuiObject[]>,
+    ownedObjs: PaginatedObjectsResponse | undefined;
+    setOwnedObjs: ReactSetter<PaginatedObjectsResponse | undefined>;
+    setChosenObjs: ReactSetter<SuiObject[]>;
 }> = ({
     ownedObjs,
     setOwnedObjs,

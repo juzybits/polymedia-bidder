@@ -11,7 +11,7 @@ export type CommonInputProps = {
     disabled?: boolean;
     required?: boolean;
     msgRequired?: string;
-}
+};
 
 export type InputReturn<T> = {
     str: string;
@@ -24,7 +24,7 @@ export const useInputBase = <T,>(props: CommonInputProps & {
     type: React.HTMLInputTypeAttribute;
     inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
     pattern?: string;
-    validate: (input: string) => { err: string|undefined, val: T|undefined };
+    validate: (input: string) => { err: string|undefined; val: T|undefined };
 }): InputReturn<T> =>
 {
     const [str, setStr] = useState<string>(props.initVal ?? "");
@@ -90,7 +90,7 @@ export const useInputString = (props : CommonInputProps & {
 
     const validate = (
         input: string,
-    ): { err: string | undefined, val: string | undefined } =>
+    ): { err: string | undefined; val: string | undefined } =>
     {
         input = input.trim();
 
@@ -128,7 +128,7 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
 
     const validate = (
         input: string,
-    ): { err: string | undefined, val: number | undefined } =>
+    ): { err: string | undefined; val: number | undefined } =>
     {
         input = input.trim();
 
@@ -174,7 +174,7 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
 
     const validate = (
         input: string,
-    ): { err: string | undefined, val: bigint | undefined } =>
+    ): { err: string | undefined; val: bigint | undefined } =>
     {
         input = input.trim();
 
