@@ -3,8 +3,7 @@
 import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
 import React, { useCallback, useEffect, useState } from "react";
 
-export const useInputString = (props : {
-    // Common
+export type CommonInputProps = {
     label?: string;
     initValue?: string;
     onSubmit?: () => void;
@@ -12,7 +11,9 @@ export const useInputString = (props : {
     disabled?: boolean;
     required?: boolean;
     msgRequired?: string;
-    // Specific
+}
+
+export const useInputString = (props : CommonInputProps & {
     minLength?: number;
     maxLength?: number;
     msgTooShort?: string;
@@ -85,16 +86,7 @@ export const useInputString = (props : {
         return { str, val, err, input };
 };
 
-export const useInputUnsignedInt = (props : {
-    // Common
-    label?: string;
-    initValue?: string;
-    onSubmit?: () => void;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    msgRequired?: string;
-    // Specific
+export const useInputUnsignedInt = (props : CommonInputProps & {
     min?: number;
     max?: number;
     msgTooSmall?: string;
@@ -181,16 +173,7 @@ export const useInputUnsignedInt = (props : {
         return { str, val, err, input };
 };
 
-export const useInputUnsignedBalance = (props : {
-    // Common
-    label?: string;
-    initValue?: string;
-    onSubmit?: () => void;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    msgRequired?: string;
-    // Specific
+export const useInputUnsignedBalance = (props : CommonInputProps & {
     decimals: number;
     min?: bigint;
     max?: bigint;
