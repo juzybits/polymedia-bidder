@@ -22,7 +22,7 @@ export const PageNew: React.FC = () =>
 
     const currAcct = useCurrentAccount();
 
-    const { auctionClient, header, network } = useOutletContext<AppContext>();
+    const { auctionClient, header } = useOutletContext<AppContext>();
 
     const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
@@ -68,106 +68,6 @@ export const PageNew: React.FC = () =>
             }
         });
     }
-
-    // async function createAuction(): Promise<void> {
-    // }
-
-    // === components ===
-
-    const CreateAuctionForm: React.FC = () =>
-    {
-        const currAcct = useCurrentAccount();
-
-        const decimals = 9; // TODO: @polymedia/coinmeta
-
-        const form = {
-            name: useInputString({ label: "Name (optional)", initVal: "" }),
-            description: useInputString({ label: "Description (optional)", initVal: "" }),
-            type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
-            pay_addr: useInputString({ label: "Payment address", initVal: currAcct?.address ?? "", required: true }),
-            begin_time_ms: useInputUnsignedInt({ label: "Begin time", initVal: "0", required: true }),
-            duration_ms: useInputUnsignedInt({ label: "Duration", initVal: "86400000", required: true }),
-            minimum_bid: useInputUnsignedBalance({ label: "Minimum bid", decimals, initVal: "1", required: true }),
-            minimum_increase_bps: useInputUnsignedInt({ label: "Minimum bid increase", initVal: "500", required: true }),
-            extension_period_ms: useInputUnsignedInt({ label: "Extension period", initVal: "900000", required: true }),
-        };
-
-        const hasErrors = Object.values(form).some(input => input.err !== undefined);
-
-        const disableSubmit = chosenObjs.length === 0 || !currAcct || hasErrors;
-
-        const onSubmit = async () => // TODO: move to AuctionClient
-        {
-            if (disableSubmit) {
-                return;
-            }
-            try {
-                const tx = new Transaction();
-
-                const [auctionObj] = AuctionModule.admin_creates_auction(
-                    tx,
-                    auctionClient.packageId,
-                    form.type_coin.val!,
-                    form.name.val!,
-                    form.description.val!,
-                    form.pay_addr.val!,
-                    form.begin_time_ms.val!,
-                    form.duration_ms.val!,
-                    form.minimum_bid.val!,
-                    form.minimum_increase_bps.val!,
-                    form.extension_period_ms.val!,
-                );
-
-                for (const obj of chosenObjs) {
-                    AuctionModule.admin_adds_item(
-                        tx,
-                        auctionClient.packageId,
-                        form.type_coin.val!,
-                        obj.type,
-                        auctionObj,
-                        obj.id,
-                    );
-                }
-
-                tx.transferObjects([auctionObj], currAcct.address); // TODO: share object
-
-                const resp = await auctionClient.signAndExecuteTransaction(tx);
-                console.debug("resp:", resp);
-            } catch (err) {
-                console.warn(err);
-            }
-        };
-
-        return <>
-        <div>
-            {Object.entries(form).map(([name, input]) => (
-                <React.Fragment key={name}>
-                    {input.input}
-                </React.Fragment>
-            ))}
-        </div>
-
-        {chosenObjs.length > 0 &&
-        <div className="object-list">
-
-            {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
-
-            <div className="list-items">
-            {chosenObjs.map(obj =>
-                <div key={obj.id}>
-                    - <LinkToPolymedia addr={obj.id} kind="object" network={network} /> | {shortenAddress(obj.type)} | {obj.name}
-                </div>
-            )}
-            </div>
-
-        </div>}
-
-        <Button onClick={onSubmit} disabled={disableSubmit}>
-            CREATE AUCTION
-        </Button>
-
-        </>;
-    };
 
     const ObjectGrid: React.FC = () =>
     {
@@ -221,7 +121,7 @@ export const PageNew: React.FC = () =>
 
             {currAcct &&
             <div className="page-section card">
-                <CreateAuctionForm />
+                <FormCreateAuction chosenObjs={chosenObjs} />
             </div>}
 
             <div className="page-section">
@@ -249,7 +149,117 @@ export const PageNew: React.FC = () =>
     );
 };
 
+// === components ===
+
+const FormCreateAuction: React.FC<{
+    chosenObjs: SuiObject[];
+}> = ({
+    chosenObjs,
+}) =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+
+    const { auctionClient, network } = useOutletContext<AppContext>();
+
+    const decimals = 9; // TODO: @polymedia/coinmeta
+
+    const form = {
+        name: useInputString({ label: "Name (optional)", initVal: "" }),
+        description: useInputString({ label: "Description (optional)", initVal: "" }),
+        type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
+        pay_addr: useInputString({ label: "Payment address", initVal: currAcct?.address ?? "", required: true }),
+        begin_time_ms: useInputUnsignedInt({ label: "Begin time", initVal: "0", required: true }),
+        duration_ms: useInputUnsignedInt({ label: "Duration", initVal: "86400000", required: true }),
+        minimum_bid: useInputUnsignedBalance({ label: "Minimum bid", decimals, initVal: "1", required: true }),
+        minimum_increase_bps: useInputUnsignedInt({ label: "Minimum bid increase", initVal: "500", required: true }),
+        extension_period_ms: useInputUnsignedInt({ label: "Extension period", initVal: "900000", required: true }),
+    };
+
+    const hasErrors = Object.values(form).some(input => input.err !== undefined);
+
+    const disableSubmit = chosenObjs.length === 0 || !currAcct || hasErrors;
+
+    // === functions ===
+
+    const onSubmit = async () => // TODO: move to AuctionClient
+    {
+        if (disableSubmit) {
+            return;
+        }
+        try {
+            const tx = new Transaction();
+
+            const [auctionObj] = AuctionModule.admin_creates_auction(
+                tx,
+                auctionClient.packageId,
+                form.type_coin.val!,
+                form.name.val!,
+                form.description.val!,
+                form.pay_addr.val!,
+                form.begin_time_ms.val!,
+                form.duration_ms.val!,
+                form.minimum_bid.val!,
+                form.minimum_increase_bps.val!,
+                form.extension_period_ms.val!,
+            );
+
+            for (const obj of chosenObjs) {
+                AuctionModule.admin_adds_item(
+                    tx,
+                    auctionClient.packageId,
+                    form.type_coin.val!,
+                    obj.type,
+                    auctionObj,
+                    obj.id,
+                );
+            }
+
+            tx.transferObjects([auctionObj], currAcct.address); // TODO: share object
+
+            const resp = await auctionClient.signAndExecuteTransaction(tx);
+            console.debug("resp:", resp);
+        } catch (err) {
+            console.warn(err);
+        }
+    };
+
+    // === html ===
+
+    return <>
+    <div>
+        {Object.entries(form).map(([name, input]) => (
+            <React.Fragment key={name}>
+                {input.input}
+            </React.Fragment>
+        ))}
+    </div>
+
+    {chosenObjs.length > 0 &&
+    <div className="object-list">
+
+        {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
+
+        <div className="list-items">
+        {chosenObjs.map(obj =>
+            <div key={obj.id}>
+                - <LinkToPolymedia addr={obj.id} kind="object" network={network} /> | {shortenAddress(obj.type)} | {obj.name}
+            </div>
+        )}
+        </div>
+
+    </div>}
+
+    <Button onClick={onSubmit} disabled={disableSubmit}>
+        CREATE AUCTION
+    </Button>
+    </>;
+};
+
 const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');
+
+// === helpers ===
 
 type SuiObject = {
     id: ReturnType<typeof objResToId>;
