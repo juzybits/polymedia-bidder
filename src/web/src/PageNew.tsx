@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Button } from "./components/Button";
-import { InputString, InputUnsignedBalance, InputUnsignedInt, useInputValidation } from "./components/inputs";
+import { InputString, InputUnsignedBalance, InputUnsignedInt, useInputUnsignedBalance, useInputValidation } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
 {
@@ -91,6 +91,11 @@ export const PageNew: React.FC = () =>
         const [ minimum_bid, set_minimum_bid ] = useState<string>("1");
         const [ minimum_increase_bps, set_minimum_increase_bps ] = useState<string>("500");
         const [ extension_period_ms, set_extension_period_ms ] = useState<string>("900000");
+
+        const { input: input_minimum_bid } = useInputUnsignedBalance({
+            required: true,
+            decimals: coinDecimals,
+        });
 
         const disableSubmit = chosenObjs.length === 0 || hasErrors() || !currAcct;
 
@@ -170,6 +175,10 @@ export const PageNew: React.FC = () =>
                 <div>Minimum bid</div>
                 <InputUnsignedBalance val={minimum_bid} setVal={set_minimum_bid} onValidate={onValidate("minimum_bid")}
                     required={true} decimals={coinDecimals} />
+            </div>
+            <div>
+                <div>Minimum bid 2</div>
+                {input_minimum_bid}
             </div>
             <div>
                 <div>Minimum bid increase</div>

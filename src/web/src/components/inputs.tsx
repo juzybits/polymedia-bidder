@@ -104,7 +104,6 @@ export const BaseInput: React.FC<CommonInputProps & {
     return (
         <div className="poly-input">
             <input
-                className="input"
                 type={inputType}
                 inputMode={inputMode}
                 value={val}
@@ -225,4 +224,92 @@ export const InputUnsignedBalance: React.FC<CommonInputProps & {
             {...props}
         />
     );
+};
+
+export const useInputUnsignedBalance = (props : {
+    // Common
+    initValue?: string;
+    onSubmit?: () => void;
+    placeholder?: string;
+    disabled?: boolean;
+    required?: boolean;
+    msgRequired?: string;
+    // Specific
+    decimals: number;
+    min?: bigint;
+    max?: bigint;
+    msgTooSmall?: string;
+    msgTooLarge?: string;
+}) =>
+{
+    const [str, setStr] = useState<string>(props.initValue ?? "");
+    const [val, setVal] = useState<bigint | undefined>();
+    const [err, setErr] = useState<string | undefined>();
+
+    const pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
+
+    const validate = (
+        input: string,
+    ): { err: string | undefined, val: bigint | undefined } =>
+    {
+        input = input.trim();
+
+        if (props.required && input === "") {
+            return { err: props.msgRequired ?? "Input is required", val: undefined };
+        }
+
+        if (input === "" || input === ".") {
+            return { err: undefined, val: undefined };
+        }
+
+        const bigInput = stringToBalance(input, props.decimals);
+
+        if (props.min !== undefined && bigInput < props.min) {
+            return { err: props.msgTooSmall ?? `Minimum value is ${balanceToString(props.min, props.decimals)}`, val: undefined };
+        }
+        if (props.max !== undefined && bigInput > props.max) {
+            return { err: props.msgTooLarge ?? `Maximum value is ${balanceToString(props.max, props.decimals)}`, val: undefined };
+        }
+        return { err: undefined, val: bigInput };
+    };
+
+    useEffect(() => {
+        const validation = validate(str);
+        setErr(validation.err);
+        setVal(validation.val);
+    }, [str]);
+
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
+    {
+        if (pattern && !new RegExp(pattern).test(e.target.value)) {
+            return;
+        } else {
+            setStr(e.target.value);
+        }
+    };
+
+    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
+    {
+        if (e.key === "Enter" && props.onSubmit && !err) {
+            props.onSubmit();
+        }
+    };
+
+    const input =
+        <div className="poly-input">
+            <input
+                type="text"
+                inputMode="decimal"
+                value={str}
+                pattern={pattern}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                placeholder={props.placeholder}
+                disabled={props.disabled}
+                required={props.required}
+            />
+            {err && <div className="input-error">{err}</div>}
+        </div>;
+
+        return { str, val, err, input };
 };
