@@ -13,6 +13,65 @@ export type CommonInputProps = {
     msgRequired?: string;
 }
 
+export const useInputBase = <T,>(props: CommonInputProps & {
+    type: React.HTMLInputTypeAttribute;
+    inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+    pattern?: string;
+    validate: (input: string) => { err: string|undefined, val: T|undefined };
+}) =>
+{
+    const [str, setStr] = useState<string>(props.initValue ?? "");
+    const [val, setVal] = useState<T | undefined>();
+    const [err, setErr] = useState<string | undefined>();
+
+    useEffect(() => {
+        const validation = props.validate(str);
+        setErr(validation.err);
+        setVal(validation.val);
+    }, [str]);
+
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
+    {
+        if (props.pattern && !new RegExp(props.pattern).test(e.target.value)) {
+            return;
+        }
+        setStr(e.target.value);
+    };
+
+    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
+    {
+        if (e.key === "Enter" && props.onSubmit && !err) {
+            props.onSubmit();
+        }
+    };
+
+    const input = (
+        <div className="poly-input">
+
+            {props.label &&
+            <div className="input-label">{props.label}</div>}
+
+            <input className="input"
+                type={props.type}
+                inputMode={props.inputMode}
+                pattern={props.pattern}
+                value={str}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                placeholder={props.placeholder}
+                disabled={props.disabled}
+                required={props.required}
+            />
+
+            {err &&
+            <div className="input-error">{err}</div>}
+
+        </div>
+    );
+
+    return { str, val, err, input };
+};
+
 export const useInputString = (props : CommonInputProps & {
     minLength?: number;
     maxLength?: number;
@@ -20,9 +79,7 @@ export const useInputString = (props : CommonInputProps & {
     msgTooLong?: string;
 }) =>
 {
-    const [str, setStr] = useState<string>(props.initValue ?? "");
-    const [val, setVal] = useState<string | undefined>();
-    const [err, setErr] = useState<string | undefined>();
+    const pattern = undefined;
 
     const validate = (
         input: string,
@@ -44,46 +101,13 @@ export const useInputString = (props : CommonInputProps & {
         return { err: undefined, val: input };
     };
 
-    useEffect(() => {
-        const validation = validate(str);
-        setErr(validation.err);
-        setVal(validation.val);
-    }, [str]);
-
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
-    {
-        setStr(e.target.value);
-    };
-
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (e.key === "Enter" && props.onSubmit && !err) {
-            props.onSubmit();
-        }
-    };
-
-    const input =
-        <div className="poly-input">
-
-            {props.label &&
-            <div className="input-label">{props.label}</div>}
-
-            <input className="input"
-                type="text"
-                inputMode="text"
-                value={str}
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
-                required={props.required}
-            />
-
-            {err &&
-            <div className="input-error">{err}</div>}
-        </div>;
-
-        return { str, val, err, input };
+    return useInputBase<string>({
+        type: "text",
+        inputMode: "text",
+        pattern,
+        validate,
+        ...props,
+    });
 };
 
 export const useInputUnsignedInt = (props : CommonInputProps & {
@@ -93,10 +117,6 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
     msgTooLarge?: string;
 }) =>
 {
-    const [str, setStr] = useState<string>(props.initValue ?? "");
-    const [val, setVal] = useState<number | undefined>();
-    const [err, setErr] = useState<string | undefined>();
-
     const pattern = "^[0-9]*$";
 
     const validate = (
@@ -126,51 +146,13 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
         return { err: undefined, val: numValue };
     };
 
-    useEffect(() => {
-        const validation = validate(str);
-        setErr(validation.err);
-        setVal(validation.val);
-    }, [str]);
-
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (pattern && !new RegExp(pattern).test(e.target.value)) {
-            return;
-        } else {
-            setStr(e.target.value);
-        }
-    };
-
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (e.key === "Enter" && props.onSubmit && !err) {
-            props.onSubmit();
-        }
-    };
-
-    const input =
-        <div className="poly-input">
-
-            {props.label &&
-            <div className="input-label">{props.label}</div>}
-
-            <input className="input"
-                type="text"
-                inputMode="numeric"
-                value={str}
-                pattern={pattern}
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
-                required={props.required}
-            />
-
-            {err &&
-            <div className="input-error">{err}</div>}
-        </div>;
-
-        return { str, val, err, input };
+    return useInputBase<number>({
+        type: "text",
+        inputMode: "numeric",
+        pattern,
+        validate,
+        ...props,
+    });
 };
 
 export const useInputUnsignedBalance = (props : CommonInputProps & {
@@ -181,10 +163,6 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
     msgTooLarge?: string;
 }) =>
 {
-    const [str, setStr] = useState<string>(props.initValue ?? "");
-    const [val, setVal] = useState<bigint | undefined>();
-    const [err, setErr] = useState<string | undefined>();
-
     const pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
 
     const validate = (
@@ -212,49 +190,11 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
         return { err: undefined, val: bigInput };
     };
 
-    useEffect(() => {
-        const validation = validate(str);
-        setErr(validation.err);
-        setVal(validation.val);
-    }, [str]);
-
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (pattern && !new RegExp(pattern).test(e.target.value)) {
-            return;
-        } else {
-            setStr(e.target.value);
-        }
-    };
-
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (e.key === "Enter" && props.onSubmit && !err) {
-            props.onSubmit();
-        }
-    };
-
-    const input =
-        <div className="poly-input">
-
-            {props.label &&
-            <div className="input-label">{props.label}</div>}
-
-            <input className="input"
-                type="text"
-                inputMode="decimal"
-                value={str}
-                pattern={pattern}
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
-                required={props.required}
-            />
-
-            {err &&
-            <div className="input-error">{err}</div>}
-        </div>;
-
-        return { str, val, err, input };
+    return useInputBase<bigint>({
+        type: "text",
+        inputMode: "decimal",
+        pattern,
+        validate,
+        ...props,
+    });
 };
