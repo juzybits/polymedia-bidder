@@ -24,7 +24,6 @@ export const PageNew: React.FC = () =>
 
     const { header } = useOutletContext<AppContext>();
 
-    const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
 
     // === html ===
@@ -38,20 +37,30 @@ export const PageNew: React.FC = () =>
 
             <h1 className="page-title">NEW AUCTION</h1>
 
-            {currAcct &&
-            <div className="page-section card">
-                <FormCreateAuction chosenObjs={chosenObjs} />
-            </div>}
-
-            <div className="page-section">
-                <div className="section-description">
-                    Click on the items you want to auction.
+            {!currAcct
+            ? <>
+                <div className="page-section card">
+                    <div className="section-description">
+                        Connect your Sui wallet to get started.
+                    </div>
+                    <button className="btn">CONNECT (TODO)</button>
                 </div>
-            </div>
+            </>
+            : <>
+                <div className="page-section card">
+                    <FormCreateAuction chosenObjs={chosenObjs} />
+                </div>
 
-            <div className="page-section">
-                <ObjectGridSelector ownedObjs={ownedObjs} setOwnedObjs={setOwnedObjs} setChosenObjs={setChosenObjs} />
-            </div>
+                <div className="page-section">
+                    <div className="section-description">
+                        Click on the items you want to auction.
+                    </div>
+                </div>
+
+                <div className="page-section">
+                    <ObjectGridSelector setChosenObjs={setChosenObjs} />
+                </div>
+            </>}
 
             {/* {chosenObjs.length > 0 &&
             <div id="dialog-create-auction">
@@ -70,103 +79,6 @@ export const PageNew: React.FC = () =>
 
 // === components ===
 
-const ObjectGridSelector: React.FC<{
-    ownedObjs: PaginatedObjectsResponse | undefined;
-    setOwnedObjs: ReactSetter<PaginatedObjectsResponse | undefined>;
-    setChosenObjs: ReactSetter<SuiObject[]>;
-}> = ({
-    ownedObjs,
-    setOwnedObjs,
-    setChosenObjs,
-}) =>
-{
-    // === state ===
-
-    const currAcct = useCurrentAccount();
-
-    const { auctionClient } = useOutletContext<AppContext>();
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchOwnedObjects();
-    }, [auctionClient, currAcct]);
-
-    // === functions ===
-
-    async function fetchOwnedObjects(): Promise<void>
-    {
-        if (!currAcct) { return; }
-
-        try {
-            const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
-                owner: currAcct.address,
-                // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
-                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
-                options: { showContent: true, showDisplay: true, showType: true },
-                cursor: ownedObjs?.nextCursor,
-            });
-            setOwnedObjs((prevObjs) => ({
-                data: [...(prevObjs ? prevObjs.data : []), ...pagObjRes.data],
-                hasNextPage: pagObjRes.hasNextPage,
-                nextCursor: pagObjRes.nextCursor,
-            }));
-        } catch (err) {
-            console.warn("[fetchOwnedObjects]", err);
-        }
-    }
-
-    function addOrRemoveItem(obj: SuiObject): void
-    {
-        setChosenObjs(prev => {
-            const exists = prev.some(item => item.id === obj.id);
-            if (exists) {
-                return prev.filter(item => item.id !== obj.id);
-            } else {
-                return [...prev, obj];
-            }
-        });
-    }
-
-    // === html ===
-
-    if (!ownedObjs) {
-        return <span>Loading...</span>;
-    }
-
-    return <>
-    <div className="grid">
-        {ownedObjs.data.map((objRes) =>
-        {
-            const obj = objResToSuiObject(objRes);
-            return (
-            <div className="grid-item card" key={obj.id}
-                onClick={() => { addOrRemoveItem(obj); }}
-            >
-                <div className="sui-obj">
-                    <div className="obj-img">
-                        <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
-                    </div>
-                    <div className="obj-info">
-                        <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>
-                        {obj.name && <div className="info-line break-word">{obj.name}</div>}
-                        {obj.desc && <div className="info-line break-word">{obj.desc}</div>}
-                    </div>
-                </div>
-            </div>
-            );
-        })}
-    </div>
-
-    {ownedObjs.hasNextPage &&
-    <div className="load-more">
-        <button className="btn" onClick={fetchOwnedObjects}>
-            LOAD MORE
-        </button>
-    </div>}
-    </>;
-};
-
 const FormCreateAuction: React.FC<{
     chosenObjs: SuiObject[];
 }> = ({
@@ -176,6 +88,7 @@ const FormCreateAuction: React.FC<{
     // === state ===
 
     const currAcct = useCurrentAccount();
+    if (!currAcct) { return; }
 
     const { auctionClient, network } = useOutletContext<AppContext>();
 
@@ -185,7 +98,7 @@ const FormCreateAuction: React.FC<{
         name: useInputString({ label: "Name (optional)", initVal: "" }),
         description: useInputString({ label: "Description (optional)", initVal: "" }),
         type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
-        pay_addr: useInputString({ label: "Payment address", initVal: currAcct?.address ?? "", required: true }),
+        pay_addr: useInputString({ label: "Payment address", initVal: currAcct.address ?? "", required: true }),
         begin_time_ms: useInputUnsignedInt({ label: "Begin time", initVal: "0", required: true }),
         duration_ms: useInputUnsignedInt({ label: "Duration", initVal: "86400000", required: true }),
         minimum_bid: useInputUnsignedBalance({ label: "Minimum bid", decimals, initVal: "1", required: true }),
@@ -194,8 +107,7 @@ const FormCreateAuction: React.FC<{
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-
-    const disableSubmit = chosenObjs.length === 0 || !currAcct || hasErrors;
+    const disableSubmit = chosenObjs.length === 0 || hasErrors;
 
     // === functions ===
 
@@ -270,6 +182,100 @@ const FormCreateAuction: React.FC<{
     <Button onClick={onSubmit} disabled={disableSubmit}>
         CREATE AUCTION
     </Button>
+    </>;
+};
+
+const ObjectGridSelector: React.FC<{
+    setChosenObjs: ReactSetter<SuiObject[]>;
+}> = ({
+    setChosenObjs,
+}) =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+    if (!currAcct) { return; }
+
+    const { auctionClient } = useOutletContext<AppContext>();
+
+    const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchOwnedObjects();
+    }, [auctionClient, currAcct]);
+
+    // === functions ===
+
+    const fetchOwnedObjects = async (): Promise<void> =>
+    {
+        try {
+            const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
+                owner: currAcct.address,
+                // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
+                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
+                options: { showContent: true, showDisplay: true, showType: true },
+                cursor: ownedObjs?.nextCursor,
+            });
+            setOwnedObjs((prevObjs) => ({
+                data: [...(prevObjs ? prevObjs.data : []), ...pagObjRes.data],
+                hasNextPage: pagObjRes.hasNextPage,
+                nextCursor: pagObjRes.nextCursor,
+            }));
+        } catch (err) {
+            console.warn("[fetchOwnedObjects]", err);
+        }
+    }
+
+    const addOrRemoveItem = (obj: SuiObject): void =>
+    {
+        setChosenObjs(prev => {
+            const exists = prev.some(item => item.id === obj.id);
+            if (exists) {
+                return prev.filter(item => item.id !== obj.id);
+            } else {
+                return [...prev, obj];
+            }
+        });
+    }
+
+    // === html ===
+
+    if (!ownedObjs) {
+        return <span>Loading...</span>;
+    }
+
+    return <>
+    <div className="grid">
+        {ownedObjs.data.map((objRes) =>
+        {
+            const obj = objResToSuiObject(objRes);
+            return (
+            <div className="grid-item card" key={obj.id}
+                onClick={() => { addOrRemoveItem(obj); }}
+            >
+                <div className="sui-obj">
+                    <div className="obj-img">
+                        <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
+                    </div>
+                    <div className="obj-info">
+                        <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>
+                        {obj.name && <div className="info-line break-word">{obj.name}</div>}
+                        {obj.desc && <div className="info-line break-word">{obj.desc}</div>}
+                    </div>
+                </div>
+            </div>
+            );
+        })}
+    </div>
+
+    {ownedObjs.hasNextPage &&
+    <div className="load-more">
+        <button className="btn" onClick={fetchOwnedObjects}>
+            LOAD MORE
+        </button>
+    </div>}
     </>;
 };
 
