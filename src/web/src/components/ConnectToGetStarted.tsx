@@ -1,5 +1,3 @@
-// TODO: move to @polymedia/suitcase-core
-
 import React from "react";
 import { BtnConnect } from "./BtnConnect";
 import { useOutletContext } from "react-router-dom";

@@ -1,6 +1,6 @@
-import { ObjectOwner, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { SignTransaction, SuiClientBase, TransferModule, objResToFields } from "@polymedia/suitcase-core";
+import { SignTransaction, SuiClientBase, TransferModule, isOwnerShared, objResToFields } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AuctionObject } from "./types.js";
 
@@ -73,7 +73,7 @@ export class AuctionClient extends SuiClientBase
                 continue;
             }
 
-            const createdObjRef = resp.effects.created?.find(o => isSharedOwner(o.owner));
+            const createdObjRef = resp.effects.created?.find(o => isOwnerShared(o.owner));
             if (!createdObjRef) {
                 continue;
             }
@@ -177,33 +177,3 @@ export type TxCreateAuction = {
     auctionName: string;
     auctionDescription: string;
 };
-
-// === helpers === TODO: move to @polymedia/suitcase-code
-
-/**
- * Type guard to check if an object is owned by a single address.
- */
-export function isAddressOwner(owner: ObjectOwner): owner is { AddressOwner: string } {
-    return typeof owner === 'object' && owner !== null && 'AddressOwner' in owner;
-}
-
-/**
- * Type guard to check if an object is owned by a single object.
- */
-export function isObjectOwner(owner: ObjectOwner): owner is { ObjectOwner: string } {
-    return typeof owner === 'object' && owner !== null && 'ObjectOwner' in owner;
-}
-
-/**
- * Type guard to check if an object can be used by any address.
- */
-export function isSharedOwner(owner: ObjectOwner): owner is { Shared: { initial_shared_version: string; } } {
-    return typeof owner === 'object' && owner !== null && 'Shared' in owner;
-}
-
-/**
- * Type guard to check if an object is immutable.
- */
-export function isImmutableOwner(owner: ObjectOwner): owner is 'Immutable' {
-    return owner === 'Immutable';
-}

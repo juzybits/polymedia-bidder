@@ -1,4 +1,4 @@
-// TODO: move to @polymedia/suitcase-core
+// TODO: move to @polymedia/suitcase-react
 
 import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
