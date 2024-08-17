@@ -32,31 +32,31 @@ export const PageHome: React.FC = () =>
 };
 
 const SectionRecentAuctions: React.FC = () =>
-    {
-        // === state ===
+{
+    // === state ===
 
-        const { auctionClient } = useOutletContext<AppContext>();
+    const { auctionClient } = useOutletContext<AppContext>();
 
-        const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsCreateAuction"]>>>();
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsCreateAuction"]>>>();
 
-        // === functions ===
+    // === functions ===
 
-        const fetchUserAuctions = async () => {
-            const txs = await auctionClient.fetchTxsCreateAuction(null);
-            setTxs(txs);
-        };
-
-        useEffect(() => {
-            fetchUserAuctions();
-        }, []);
-
-        // === html ===
-
-        return <>
-        {txs?.data.map(tx => (
-           <div key={tx.txDigest} style={{ whiteSpace: 'pre-wrap' }} className="break-all">
-                {JSON.stringify(tx, null, 2)}
-           </div>
-        ))}
-        </>;
+    const fetchRecentAuctions = async () => {
+        const txs = await auctionClient.fetchTxsCreateAuction(null);
+        setTxs(txs);
     };
+
+    useEffect(() => {
+        fetchRecentAuctions();
+    }, []);
+
+    // === html ===
+
+    return <>
+    {txs?.data.map(tx => (
+        <div key={tx.txDigest} style={{ whiteSpace: 'pre-wrap' }} className="break-all">
+            {JSON.stringify(tx, null, 2)}
+        </div>
+    ))}
+    </>;
+};

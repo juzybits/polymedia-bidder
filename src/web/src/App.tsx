@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { BtnConnect } from "./components/BtnConnect";
+import { PageAuction } from "./PageAuction";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
 import { PageNotFound } from "./PageNotFound";
@@ -31,6 +32,7 @@ export const AppRouter: React.FC = () => {
                 <Route path="*" element={<PageNotFound />} />
                 <Route path="/new" element={<PageNew />} />
                 <Route path="/user" element={<PageUser />} />
+                <Route path="/auction/:auctionId" element={<PageAuction />} />
             </Route>
         </Routes>
     </BrowserRouter>
