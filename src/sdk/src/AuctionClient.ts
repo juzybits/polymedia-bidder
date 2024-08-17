@@ -22,15 +22,29 @@ export class AuctionClient extends SuiClientBase
 
     // === data fetching ===
 
+    public async fetchAuction(
+        auctionId: string,
+    ): Promise<AuctionObject | null>
+    {
+        const auctions = await this.fetchAuctions([auctionId]);
+        return auctions[0];
+    }
+
     public async fetchAuctions(
         auctionIds: string[],
-    ): Promise<AuctionObject[]>
+    ): Promise<(AuctionObject | null)[]>
     {
         const pagObjRes = await this.suiClient.multiGetObjects({
             ids: auctionIds,
             options: { showContent: true }
         });
-        const auctions = pagObjRes.map(objRes => AuctionClient.parseAuction(objRes));
+        const auctions = pagObjRes.map(objRes => {
+            try {
+                return AuctionClient.parseAuction(objRes);
+            } catch (err) {
+                return null;
+            }
+        });
         return auctions;
     }
 
@@ -66,10 +80,10 @@ export class AuctionClient extends SuiClientBase
             if (resp.transaction?.data.transaction.kind !== "ProgrammableTransaction") {
                 continue;
             }
-            if (resp.transaction?.data.transaction.inputs[0].type !== "pure") { // auction name
+            if (resp.transaction.data.transaction.inputs[0].type !== "pure") { // auction name
                 continue;
             }
-            if (resp.transaction?.data.transaction.inputs[1].type !== "pure") { // auction description
+            if (resp.transaction.data.transaction.inputs[1].type !== "pure") { // auction description
                 continue;
             }
 
@@ -101,13 +115,19 @@ export class AuctionClient extends SuiClientBase
         const fields = objResToFields(objRes);
         return {
             id: fields.id.id,
-            item_id: fields.item.fields.id.id,
-            begin_time_ms: Number(fields.begin_time_ms),
-            end_time_ms: Number(fields.end_time_ms),
+            name: fields.name,
+            description: fields.description,
+            item_addrs: fields.item_addrs,
+            item_bag: {
+                id: fields.item_bag.fields.id.id,
+                size: fields.item_bag.fields.size,
+            },
             admin_addr: fields.admin_addr,
             pay_addr: fields.pay_addr,
             lead_addr: fields.lead_addr,
             lead_value: BigInt(fields.lead_bal),
+            begin_time_ms: Number(fields.begin_time_ms),
+            end_time_ms: Number(fields.end_time_ms),
             minimum_bid: BigInt(fields.minimum_bid),
             minimum_increase_bps: Number(fields.minimum_increase_bps),
             extension_period_ms: Number(fields.extension_period_ms),
