@@ -1,4 +1,4 @@
-import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { ObjectOwner, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { SignTransaction, SuiClientBase, TransferModule, objResToFields } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
@@ -32,6 +32,64 @@ export class AuctionClient extends SuiClientBase
         });
         const auctions = pagObjRes.map(objRes => AuctionClient.parseAuction(objRes));
         return auctions;
+    }
+
+    public async fetchTxsCreateAuction(
+        cursor: string | null | undefined,
+    ) {
+        const pagTxResp = await this.suiClient.queryTransactionBlocks({
+            filter: {
+                MoveFunction: {
+                    package: this.packageId,
+                    module: "auction",
+                    function: "admin_creates_auction",
+                },
+            },
+            options: {
+                showEffects: true,
+                showInput: true,
+            },
+            cursor,
+            order: "descending",
+        });
+
+        const result = {
+            cursor: pagTxResp.nextCursor,
+            hasNextPage: pagTxResp.hasNextPage,
+            data: [] as TxCreateAuction[],
+        };
+        for (const resp of pagTxResp.data)
+        {
+            if (resp.effects?.status.status !== "success") {
+                continue;
+            }
+            if (resp.transaction?.data.transaction.kind !== "ProgrammableTransaction") {
+                continue;
+            }
+            if (resp.transaction?.data.transaction.inputs[0].type !== "pure") { // auction name
+                continue;
+            }
+            if (resp.transaction?.data.transaction.inputs[1].type !== "pure") { // auction description
+                continue;
+            }
+
+            const createdObjRef = resp.effects.created?.find(o => isSharedOwner(o.owner));
+            if (!createdObjRef) {
+                continue;
+            }
+
+            const tx = {
+                txDigest: resp.digest,
+                timestamp: resp.timestampMs!,
+                auctionId: createdObjRef.reference.objectId,
+                auctionName: resp.transaction.data.transaction.inputs[0].value as string,
+                auctionDescription: resp.transaction.data.transaction.inputs[1].value as string,
+            };
+
+            result.data.push(tx);
+        }
+
+        return result;
     }
 
     // === data parsing ===
@@ -108,4 +166,44 @@ export class AuctionClient extends SuiClientBase
         const resp = await this.signAndExecuteTransaction(tx);
         return resp;
     }
+}
+
+// === types ===
+
+export type TxCreateAuction = {
+    txDigest: string;
+    timestamp: string;
+    auctionId: string;
+    auctionName: string;
+    auctionDescription: string;
+};
+
+// === helpers === TODO: move to @polymedia/suitcase-code
+
+/**
+ * Type guard to check if an object is owned by a single address.
+ */
+export function isAddressOwner(owner: ObjectOwner): owner is { AddressOwner: string } {
+    return typeof owner === 'object' && owner !== null && 'AddressOwner' in owner;
+}
+
+/**
+ * Type guard to check if an object is owned by a single object.
+ */
+export function isObjectOwner(owner: ObjectOwner): owner is { ObjectOwner: string } {
+    return typeof owner === 'object' && owner !== null && 'ObjectOwner' in owner;
+}
+
+/**
+ * Type guard to check if an object can be used by any address.
+ */
+export function isSharedOwner(owner: ObjectOwner): owner is { Shared: { initial_shared_version: string; } } {
+    return typeof owner === 'object' && owner !== null && 'Shared' in owner;
+}
+
+/**
+ * Type guard to check if an object is immutable.
+ */
+export function isImmutableOwner(owner: ObjectOwner): owner is 'Immutable' {
+    return owner === 'Immutable';
 }
