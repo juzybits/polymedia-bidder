@@ -19,6 +19,7 @@ import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
 import { PageNotFound } from "./PageNotFound";
+import { PageUser } from "./PageUser";
 import "./styles/App.less";
 
 /* App router */
@@ -31,6 +32,7 @@ export const AppRouter: React.FC = () => {
                 <Route index element={<PageHome />} />
                 <Route path="*" element={<PageNotFound />} />
                 <Route path="/new" element={<PageNew />} />
+                <Route path="/user" element={<PageUser />} />
             </Route>
         </Routes>
     </BrowserRouter>

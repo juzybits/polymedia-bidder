@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Button } from "./components/Button";
+import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
@@ -36,14 +37,7 @@ export const PageNew: React.FC = () =>
             <h1 className="page-title">NEW AUCTION</h1>
 
             {!currAcct
-            ? <>
-                <div className="page-section card">
-                    <div className="section-description">
-                        Connect your Sui wallet to get started.
-                    </div>
-                    <button className="btn">CONNECT (TODO)</button>
-                </div>
-            </>
+            ? <ConnectToGetStarted />
             : <>
                 <div className="page-section card">
                     <FormCreateAuction chosenObjs={chosenObjs} />
