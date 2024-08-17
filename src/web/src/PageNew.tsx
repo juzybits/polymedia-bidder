@@ -11,7 +11,7 @@ import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { Button } from "./components/Button";
+import { Btn } from "./components/Btn";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
@@ -153,9 +153,9 @@ const FormCreateAuction: React.FC<{
 
     </div>}
 
-    <Button onClick={onSubmit} disabled={disableSubmit}>
+    <Btn onClick={onSubmit} disabled={disableSubmit}>
         CREATE AUCTION
-    </Button>
+    </Btn>
     </>;
 };
 

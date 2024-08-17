@@ -17,7 +17,8 @@ export const ConnectToGetStarted: React.FC = () =>
             <BtnConnect
                 openConnectModal={openConnectModal}
                 setShowMobileNav={setShowMobileNav}
-                inProgress={inProgress}
+                disabled={inProgress}
+                className="btn"
             />
         </div>
     );

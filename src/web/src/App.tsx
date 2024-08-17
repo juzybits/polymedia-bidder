@@ -175,11 +175,13 @@ const Header: React.FC<{
             setShowMobileNav={setShowMobileNav}
             network={network}
             inProgress={inProgress}
+            className="header-item"
         />}
         <BtnConnect
             openConnectModal={openConnectModal}
             setShowMobileNav={setShowMobileNav}
-            inProgress={inProgress}
+            disabled={inProgress}
+            className="header-item"
         />
     </header>;
 };
@@ -189,11 +191,13 @@ const BtnNetwork: React.FC<{
     setShowMobileNav: ReactSetter<boolean>;
     network: NetworkName;
     inProgress: boolean;
+    className?: string;
 }> = ({
     setNetwork,
     setShowMobileNav,
     network,
     inProgress,
+    className = undefined,
 }) =>
 {
     const onSwitchNetwork = (newNet: NetworkName) => {
@@ -205,7 +209,7 @@ const BtnNetwork: React.FC<{
         supportedNetworks={supportedNetworks}
         onSwitch={onSwitchNetwork}
         disabled={inProgress}
-        className="header-item"
+        className={className}
         id="btn-network"
     />;
 };

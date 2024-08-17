@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export const Button: React.FC<{
+export const Btn: React.FC<{
     children: React.ReactNode;
     id?: string;
     className?: string;
@@ -19,8 +19,8 @@ export const Button: React.FC<{
     <button
         id={id}
         className={className}
-        onClick={() => { !disabled && onClick && onClick(); }}
         disabled={disabled}
+        onClick={() => { !disabled && onClick && onClick(); }}
     >
         {children}
     </button>
