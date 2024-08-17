@@ -10,7 +10,6 @@ export const PageUser: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { mutate: disconnect } = useDisconnectWallet();
 
     const { header } = useOutletContext<AppContext>();
 
@@ -29,17 +28,81 @@ export const PageUser: React.FC = () =>
             ? <ConnectToGetStarted />
             : <>
                 <div className="page-section card">
-                    <div>You are connected with wallet:</div>
-                    <div className="address">{currAcct.address}</div>
-                    <div>
-                        <Btn onClick={disconnect}>
-                            DISCONNECT
-                        </Btn>
+                    <div className="section-description">
+                        <h2>Wallet</h2>
                     </div>
+                    <SectionConnection />
+                </div>
+
+                <div className="page-section card">
+                    <div className="section-description">
+                        <h2>Your auctions</h2>
+                    </div>
+                    <SectionAuctions />
+                </div>
+
+                <div className="page-section card">
+                    <div className="section-description">
+                        <h2>Your bids</h2>
+                    </div>
+                    <SectionBids />
                 </div>
             </>}
         </div>
 
     </div>
     );
+};
+
+const SectionConnection: React.FC = () =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+    if (!currAcct) { return; }
+    const { mutate: disconnect } = useDisconnectWallet();
+
+    // === html ===
+
+    return <>
+        <div>You are connected with address:</div>
+        <div className="address">{currAcct.address}</div>
+        <div>
+            <Btn onClick={disconnect}>
+                DISCONNECT
+            </Btn>
+        </div>
+    </>;
+};
+
+const SectionAuctions: React.FC = () =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+    if (!currAcct) { return; }
+
+    // === html ===
+
+    return <>
+        <div>lorem</div>
+        <div>ipsum</div>
+        <div>dolor</div>
+    </>;
+};
+
+const SectionBids: React.FC = () =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+    if (!currAcct) { return; }
+
+    // === html ===
+
+    return <>
+        <div>lorem</div>
+        <div>ipsum</div>
+        <div>dolor</div>
+    </>;
 };
