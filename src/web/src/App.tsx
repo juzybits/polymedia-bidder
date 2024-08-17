@@ -177,6 +177,9 @@ const Header: React.FC<{
             inProgress={inProgress}
             className="header-item"
         />}
+        <Link to="/new" className="header-item">
+            NEW
+        </Link>
         <BtnConnect
             openConnectModal={openConnectModal}
             setShowMobileNav={setShowMobileNav}

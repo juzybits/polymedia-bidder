@@ -1,14 +1,16 @@
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import React from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { Btn } from "./components/Btn";
 
 export const PageUser: React.FC = () =>
 {
     // === state ===
 
     const currAcct = useCurrentAccount();
+    const { mutate: disconnect } = useDisconnectWallet();
 
     const { header } = useOutletContext<AppContext>();
 
@@ -27,7 +29,13 @@ export const PageUser: React.FC = () =>
             ? <ConnectToGetStarted />
             : <>
                 <div className="page-section card">
-                    TODO
+                    <div>You are connected with wallet:</div>
+                    <div className="address">{currAcct.address}</div>
+                    <div>
+                        <Btn onClick={disconnect}>
+                            DISCONNECT
+                        </Btn>
+                    </div>
                 </div>
             </>}
         </div>
