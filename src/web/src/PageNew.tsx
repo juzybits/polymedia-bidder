@@ -226,7 +226,7 @@ const ObjectGridSelector: React.FC<{
         } catch (err) {
             console.warn("[fetchOwnedObjects]", err);
         }
-    }
+    };
 
     const addOrRemoveItem = (obj: SuiObject): void =>
     {
@@ -238,7 +238,7 @@ const ObjectGridSelector: React.FC<{
                 return [...prev, obj];
             }
         });
-    }
+    };
 
     // === html ===
 

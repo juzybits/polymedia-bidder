@@ -23,16 +23,16 @@
         "typecheck": "tsc -b"
     },
     "dependencies": {
-        "@mysten/dapp-kit": "^0.14.15",
-        "@mysten/sui": "^1.5.0",
+        "@mysten/dapp-kit": "^0.14.16",
+        "@mysten/sui": "^1.6.0",
         "@polymedia/auction-sdk": "workspace:*",
-        "@polymedia/suitcase-core": "^0.0.16",
-        "@polymedia/suitcase-react": "^0.0.16",
+        "@polymedia/suitcase-core": "^0.0.19",
+        "@polymedia/suitcase-react": "^0.0.19",
         "@tanstack/react-query": "^5.51.23",
         "normalize.css": "^8.0.1",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-router-dom": "^6.26.0"
+        "react-router-dom": "^6.26.1"
     },
     "devDependencies": {
         "@types/react": "^18.3.3",
@@ -41,8 +41,8 @@
         "less": "^4.2.0",
         "localtunnel": "^2.0.2",
         "typescript": "^5.5.4",
-        "vite": "^5.4.0",
-        "wrangler": "^3.70.0"
+        "vite": "^5.4.1",
+        "wrangler": "^3.72.0"
     },
     "type": "module",
     "sideEffects": false
