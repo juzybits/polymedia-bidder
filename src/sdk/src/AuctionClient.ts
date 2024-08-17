@@ -1,26 +1,21 @@
-import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { SignatureWithBytes } from "@mysten/sui/cryptography";
-import { Transaction } from "@mysten/sui/transactions";
-import { SignTransaction, objResToFields, objResToId } from "@polymedia/suitcase-core";
+import { SuiClient, SuiObjectResponse } from "@mysten/sui/client";
+import { SignTransaction, SuiClientBase, objResToFields, objResToId } from "@polymedia/suitcase-core";
 import { AuctionObject } from "./types.js";
 
 /**
  * Execute transactions on the auction::auction Sui module.
  */
-export class AuctionClient
+export class AuctionClient extends SuiClientBase
 {
-    public readonly suiClient: SuiClient;
     public readonly packageId: string;
-    public readonly signTransaction: SignTransaction;
 
     constructor(
         suiClient: SuiClient,
-        packageId: string,
         signTransaction: SignTransaction,
+        packageId: string,
     ) {
-        this.suiClient = suiClient;
+        super(suiClient, signTransaction);
         this.packageId = packageId;
-        this.signTransaction = signTransaction;
     }
 
     // === data fetching ===
@@ -68,24 +63,4 @@ export class AuctionClient
         };
     }
     /* eslint-enable */
-
-    public async executeTransaction(
-        signedTx: SignatureWithBytes,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        // console.debug("[AuctionClient] executing transaction");
-        return await this.suiClient.executeTransactionBlock({
-            transactionBlock: signedTx.bytes,
-            signature: signedTx.signature,
-            options: { showEffects: true },
-        });
-    }
-
-    public async signAndExecuteTransaction(
-        tx: Transaction,
-    ): Promise<SuiTransactionBlockResponse>
-    {
-        const signedTx = await this.signTransaction(tx);
-        return this.executeTransaction(signedTx);
-    }
 }

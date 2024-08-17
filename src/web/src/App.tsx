@@ -93,8 +93,8 @@ const App: React.FC<{
     const auctionClient = useMemo(() => {
         return new sdk.AuctionClient(
             suiClient,
-            packageId,
             (tx) => walletSignTx({ transaction: tx }),
+            packageId,
         );
     }, [suiClient, packageId, walletSignTx]);
 
