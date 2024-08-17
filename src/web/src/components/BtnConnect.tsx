@@ -1,8 +1,8 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { shortenAddress } from "@polymedia/suitcase-core";
 import { ReactSetter } from "@polymedia/suitcase-react";
 import React from "react";
 import { Btn } from "./Btn";
+import { useNavigate } from "react-router-dom";
 
 export const BtnConnect: React.FC<{
     id?: string;
@@ -18,22 +18,29 @@ export const BtnConnect: React.FC<{
     setShowMobileNav,
 }) =>
 {
+    const navigate = useNavigate();
+
     const currAcct = useCurrentAccount();
     const { mutate: disconnect } = useDisconnectWallet();
 
-    const onClick = () => {
+    const connectWallet = () => {
         currAcct ? disconnect() : openConnectModal();
         setShowMobileNav(false);
     };
 
-    const text = currAcct ? shortenAddress(currAcct.address, 3, 3) : "CONNECT";
+    const navigateToUserPage = () => {
+        navigate("/user");
+    }
+
+    const text = currAcct ? "USER" : "CONNECT";
+    const action = currAcct ? navigateToUserPage : connectWallet;
 
     return (
         <Btn
             id={id}
             className={className}
             disabled={disabled}
-            onClick={onClick}
+            onClick={action}
         >
             {text}
         </Btn>
