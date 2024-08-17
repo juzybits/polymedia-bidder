@@ -1,7 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client";
-import { Transaction } from "@mysten/sui/transactions";
-import { AuctionModule } from "@polymedia/auction-sdk";
 import {
     objResToDisplay,
     objResToFields,
@@ -111,17 +109,13 @@ const FormCreateAuction: React.FC<{
 
     // === functions ===
 
-    const onSubmit = async () => // TODO: move to AuctionClient
+    const onSubmit = async () =>
     {
         if (disableSubmit) {
             return;
         }
         try {
-            const tx = new Transaction();
-
-            const [auctionObj] = AuctionModule.admin_creates_auction(
-                tx,
-                auctionClient.packageId,
+            const resp = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 form.name.val!,
                 form.description.val!,
@@ -131,22 +125,8 @@ const FormCreateAuction: React.FC<{
                 form.minimum_bid.val!,
                 form.minimum_increase_bps.val!,
                 form.extension_period_ms.val!,
+                chosenObjs,
             );
-
-            for (const obj of chosenObjs) {
-                AuctionModule.admin_adds_item(
-                    tx,
-                    auctionClient.packageId,
-                    form.type_coin.val!,
-                    obj.type,
-                    auctionObj,
-                    obj.id,
-                );
-            }
-
-            tx.transferObjects([auctionObj], currAcct.address); // TODO: share object
-
-            const resp = await auctionClient.signAndExecuteTransaction(tx);
             console.debug("resp:", resp);
         } catch (err) {
             console.warn(err);

@@ -1,5 +1,7 @@
-import { SuiClient, SuiObjectResponse } from "@mysten/sui/client";
-import { SignTransaction, SuiClientBase, objResToFields, objResToId } from "@polymedia/suitcase-core";
+import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { SignTransaction, SuiClientBase, TransferModule, objResToFields } from "@polymedia/suitcase-core";
+import { AuctionModule } from "./AuctionModule.js";
 import { AuctionObject } from "./types.js";
 
 /**
@@ -20,17 +22,6 @@ export class AuctionClient extends SuiClientBase
 
     // === data fetching ===
 
-    public async fetchAdminIds(
-        ownerAddr: string,
-    ): Promise<string[]>
-    {
-        const resp = await this.suiClient.getOwnedObjects({
-            owner: ownerAddr,
-            filter: { StructType: `${this.packageId}::auction::AuctionAdmin` },
-        });
-        return resp.data.map(objRes => objResToId(objRes));
-    }
-
     public async fetchAuctions(
         auctionIds: string[],
     ): Promise<AuctionObject[]>
@@ -42,6 +33,8 @@ export class AuctionClient extends SuiClientBase
         const auctions = pagObjRes.map(objRes => AuctionClient.parseAuction(objRes));
         return auctions;
     }
+
+    // === data parsing ===
 
     /* eslint-disable */
     public static parseAuction(
@@ -63,4 +56,56 @@ export class AuctionClient extends SuiClientBase
         };
     }
     /* eslint-enable */
+
+    // === module interactions ===
+
+    public async createAndShareAuction(
+        type_coin: string,
+        name: string,
+        description: string,
+        pay_addr: string,
+        begin_time_ms: number,
+        duration_ms: number,
+        minimum_bid: bigint,
+        minimum_increase_bps: number,
+        extension_period_ms: number,
+        itemsToAuction: { id: string; type: string }[],
+    ): Promise<SuiTransactionBlockResponse>
+    {
+        const tx = new Transaction();
+
+        const [auctionObj] = AuctionModule.admin_creates_auction(
+            tx,
+            this.packageId,
+            type_coin,
+            name,
+            description,
+            pay_addr,
+            begin_time_ms,
+            duration_ms,
+            minimum_bid,
+            minimum_increase_bps,
+            extension_period_ms,
+        );
+
+        for (const item of itemsToAuction) {
+            AuctionModule.admin_adds_item(
+                tx,
+                this.packageId,
+                type_coin,
+                item.type,
+                auctionObj,
+                item.id,
+            );
+        }
+
+        TransferModule.public_share_object(
+            tx,
+            `${this.packageId}::auction::Auction<${type_coin}>`,
+            auctionObj,
+        );
+
+        const resp = await this.signAndExecuteTransaction(tx);
+        return resp;
+    }
 }
