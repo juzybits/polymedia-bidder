@@ -1,8 +1,8 @@
-import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { SignTransaction, SuiClientBase, TransferModule, isOwnerShared, objResToFields } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
-import { AuctionObject } from "./types.js";
+import { AuctionObject, TxAdminCreatesAuction } from "./types.js";
 
 /**
  * Execute transactions on the auction::auction Sui module.
@@ -51,7 +51,7 @@ export class AuctionClient extends SuiClientBase
     public async fetchTxsCreateAuction(
         cursor: string | null | undefined,
     ) {
-        const pagTxResp = await this.suiClient.queryTransactionBlocks({
+        const pagTxRes = await this.suiClient.queryTransactionBlocks({
             filter: {
                 MoveFunction: {
                     package: this.packageId,
@@ -59,51 +59,20 @@ export class AuctionClient extends SuiClientBase
                     function: "admin_creates_auction",
                 },
             },
-            options: {
-                showEffects: true,
-                showInput: true,
-            },
+            options: { showEffects: true, showInput: true, },
             cursor,
             order: "descending",
         });
 
-        const result = {
-            cursor: pagTxResp.nextCursor,
-            hasNextPage: pagTxResp.hasNextPage,
-            data: [] as TxCreateAuction[],
+        const results = {
+            cursor: pagTxRes.nextCursor,
+            hasNextPage: pagTxRes.hasNextPage,
+            data: pagTxRes.data
+                .map(txRes => AuctionClient.parseTxAdminCreatesAuction(txRes))
+                .filter(result => result !== null),
         };
-        for (const resp of pagTxResp.data)
-        {
-            if (resp.effects?.status.status !== "success") {
-                continue;
-            }
-            if (resp.transaction?.data.transaction.kind !== "ProgrammableTransaction") {
-                continue;
-            }
-            if (resp.transaction.data.transaction.inputs[0].type !== "pure") { // auction name
-                continue;
-            }
-            if (resp.transaction.data.transaction.inputs[1].type !== "pure") { // auction description
-                continue;
-            }
 
-            const createdObjRef = resp.effects.created?.find(o => isOwnerShared(o.owner));
-            if (!createdObjRef) {
-                continue;
-            }
-
-            const tx = {
-                txDigest: resp.digest,
-                timestamp: resp.timestampMs!,
-                auctionId: createdObjRef.reference.objectId,
-                auctionName: resp.transaction.data.transaction.inputs[0].value as string,
-                auctionDescription: resp.transaction.data.transaction.inputs[1].value as string,
-            };
-
-            result.data.push(tx);
-        }
-
-        return result;
+        return results;
     }
 
     // === data parsing ===
@@ -134,6 +103,43 @@ export class AuctionClient extends SuiClientBase
         };
     }
     /* eslint-enable */
+
+    public static parseTxAdminCreatesAuction(
+        txRes: SuiTransactionBlockResponse,
+    ): TxAdminCreatesAuction | null
+    {
+        if (txRes.effects?.status.status !== "success") {
+            return null;
+        }
+        if (txRes.transaction?.data.transaction.kind !== "ProgrammableTransaction") {
+            return null;
+        }
+        const createdObjRef = txRes.effects.created?.find(o => isOwnerShared(o.owner));
+        if (!createdObjRef) {
+            return null;
+        }
+
+        const inputs = txRes.transaction.data.transaction.inputs;
+
+        return {
+            digest: txRes.digest,
+            timestamp: txRes.timestampMs!,
+            sender: txRes.transaction.data.sender,
+            auctionId: createdObjRef.reference.objectId,
+            inputs: {
+                name: getArgVal(inputs[0]) as string,
+                description: getArgVal(inputs[1]) as string,
+                pay_addr: getArgVal(inputs[2]) as string,
+                begin_time_ms: getArgVal(inputs[3]) as number,
+                duration_ms: getArgVal(inputs[4]) as number,
+                minimum_bid: getArgVal(inputs[5]) as bigint,
+                minimum_increase_bps: getArgVal(inputs[6]) as number,
+                extension_period_ms: getArgVal(inputs[7]) as number,
+                // clock: getArgVal(inputs[8]) as string,
+                item_addrs: inputs.slice(9).map(input => getArgVal(input) as string),
+            },
+        };
+    }
 
     // === module interactions ===
 
@@ -188,12 +194,9 @@ export class AuctionClient extends SuiClientBase
     }
 }
 
-// === types ===
-
-export type TxCreateAuction = {
-    txDigest: string;
-    timestamp: string;
-    auctionId: string;
-    auctionName: string;
-    auctionDescription: string;
-};
+function getArgVal(arg: SuiCallArg): unknown { // TODO move to @polymedia/suitcase-core
+    if (arg.type === "pure") {
+        return arg.value;
+    }
+    return arg.objectId;
+}
