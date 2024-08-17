@@ -28,7 +28,7 @@ export const PageNew: React.FC = () =>
     // === html ===
 
     return (
-    <div className="page-regular" id="page-new">
+    <div id="page-new" className="page-regular">
 
         {header}
 

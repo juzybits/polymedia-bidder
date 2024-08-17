@@ -16,7 +16,7 @@ export const PageUser: React.FC = () =>
     // === html ===
 
     return (
-    <div className="page-regular" id="page-user">
+    <div id="page-user" className="page-regular">
 
         {header}
 

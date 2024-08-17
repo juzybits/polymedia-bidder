@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { AuctionObject } from "@polymedia/auction-sdk";
+import { FullScreenMsg } from "./components/FullScreenMsg";
 import { PageNotFound } from "./PageNotFound";
 
 export const PageAuction: React.FC = () =>
@@ -9,9 +10,37 @@ export const PageAuction: React.FC = () =>
     // === state ===
 
     const { auctionId } = useParams();
-    if (!auctionId) { return <PageNotFound />; }
+    if (!auctionId) { return <PageNotFound /> };
 
-    const { auctionClient, header } = useOutletContext<AppContext>();
+    const { header } = useOutletContext<AppContext>();
+
+    // === html ===
+
+    return (
+    <div id="page-auction" className="page-regular">
+
+        {header}
+
+        <div className="page-content">
+
+            <div className="page-section">
+                <SectionAuction auctionId={auctionId} />
+            </div>
+        </div>
+
+    </div>
+    );
+};
+
+const SectionAuction: React.FC<{
+    auctionId: string,
+}> = ({
+    auctionId,
+}) =>
+{
+    // === state ===
+
+    const { auctionClient } = useOutletContext<AppContext>();
 
     const [ auction, setAuction ] = useState<AuctionObject|null>();
 
@@ -28,45 +57,20 @@ export const PageAuction: React.FC = () =>
 
     useEffect(() => {
         fetchAuction();
-    }, []);
+    }, [auctionId]);
 
     // === html ===
 
+    if (auction === undefined) {
+        return <FullScreenMsg>LOADING…</FullScreenMsg>;
+    }
     if (auction === null) {
-        return <PageNotFound />;
+        return <FullScreenMsg>AUCTION NOT FOUND</FullScreenMsg>;
     }
 
-    return (
-    <div id="page-home" className="page-auction">
-
-        {header}
-
-        <div className="page-content">
-
-            <div className="page-section">
-                <h1>Auction</h1>
-            </div>
-
-            <div className="page-section card">
-                <div className="section-description">
-                    <h2>Details</h2>
-                </div>
-
-                <div>
-
-                </div>
-                {auction === undefined
-                ? <>Loading...</>
-                : <>
-                    <div style={{ whiteSpace: 'pre-wrap' }} className="break-all">
-                        {JSON.stringify(auction, null, 2)}
-                    </div>
-                </>}
-
-            </div>
-
-        </div>
-
+    return <>
+    <div style={{ whiteSpace: 'pre-wrap' }} className="break-all">
+        {JSON.stringify(auction, null, 2)}
     </div>
-    );
+    </>;
 };
