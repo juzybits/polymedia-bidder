@@ -3,19 +3,17 @@ import {
     SuiClientProvider,
     WalletProvider,
     createNetworkConfig,
-    useCurrentAccount,
-    useDisconnectWallet,
     useSignTransaction,
     useSuiClient,
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
 import { getFullnodeUrl } from "@mysten/sui/client";
 import * as sdk from "@polymedia/auction-sdk";
-import { shortenAddress } from "@polymedia/suitcase-core";
 import { NetworkSelector, ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
+import { BtnConnect } from "./components/BtnConnect";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
 import { PageNotFound } from "./PageNotFound";
@@ -73,6 +71,7 @@ export type AppContext = {
     network: NetworkName;
     inProgress: boolean; setInProgress: ReactSetter<boolean>;
     showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
+    openConnectModal: () => void;
     header: React.ReactNode;
     auctionClient: sdk.AuctionClient;
     // setModalContent: ReactSetter<ReactNode>;
@@ -105,14 +104,19 @@ const App: React.FC<{
     const [ showConnectModal, setShowConnectModal ] = useState(false);
     // const [ modalContent, setModalContent ] = useState<ReactNode>(null);
 
+    const openConnectModal = () => {
+        setShowConnectModal(true);
+    };
+
     const appContext: AppContext = {
         network,
         inProgress, setInProgress,
         showMobileNav, setShowMobileNav,
+        openConnectModal: openConnectModal,
         header: <Header
             setNetwork={setNetwork}
             setShowMobileNav={setShowMobileNav}
-            setShowConnectModal={setShowConnectModal}
+            openConnectModal={openConnectModal}
             network={network}
             inProgress={inProgress}
         />,
@@ -150,13 +154,13 @@ const App: React.FC<{
 const Header: React.FC<{
     setNetwork: ReactSetter<NetworkName>;
     setShowMobileNav: ReactSetter<boolean>;
-    setShowConnectModal: ReactSetter<boolean>;
+    openConnectModal: () => void,
     network: NetworkName;
     inProgress: boolean;
 }> = ({
     setNetwork,
     setShowMobileNav,
-    setShowConnectModal,
+    openConnectModal,
     network,
     inProgress,
 }) =>
@@ -173,7 +177,7 @@ const Header: React.FC<{
             inProgress={inProgress}
         />}
         <BtnConnect
-            openConnectModal={() => { setShowConnectModal(true); }}
+            openConnectModal={openConnectModal}
             setShowMobileNav={setShowMobileNav}
             inProgress={inProgress}
         />
@@ -204,34 +208,4 @@ const BtnNetwork: React.FC<{
         className="header-item"
         id="btn-network"
     />;
-};
-
-const BtnConnect: React.FC<{
-    openConnectModal: () => void;
-    setShowMobileNav: ReactSetter<boolean>;
-    inProgress: boolean;
-}> = ({
-    openConnectModal,
-    setShowMobileNav,
-    inProgress,
-}) =>
-{
-    const currAcct = useCurrentAccount();
-    const { mutate: disconnect } = useDisconnectWallet();
-
-    function onClick() {
-        currAcct ? disconnect() : openConnectModal();
-        setShowMobileNav(false);
-    }
-
-    const text = currAcct ? shortenAddress(currAcct.address, 3, 3) : "CONNECT";
-
-    return <button
-        id="btn-connect"
-        className="header-item"
-        disabled={inProgress}
-        onClick={onClick}
-    >
-        {text}
-    </button>;
 };
