@@ -38,13 +38,9 @@ export class AuctionClient extends SuiClientBase
             ids: auctionIds,
             options: { showContent: true }
         });
-        const auctions = pagObjRes.map(objRes => {
-            try {
-                return AuctionClient.parseAuction(objRes);
-            } catch (err) {
-                return null;
-            }
-        });
+        const auctions = pagObjRes.map(
+            objRes => AuctionClient.parseAuction(objRes)
+        );
         return auctions;
     }
 
@@ -80,8 +76,14 @@ export class AuctionClient extends SuiClientBase
     /* eslint-disable */
     public static parseAuction(
         objRes: SuiObjectResponse,
-    ): AuctionObject {
-        const fields = objResToFields(objRes);
+    ): AuctionObject | null
+    {
+        let fields: Record<string, any>;
+        try {
+            fields = objResToFields(objRes);
+        } catch (err) {
+            return null;
+        }
         return {
             id: fields.id.id,
             name: fields.name,
