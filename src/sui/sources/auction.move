@@ -87,9 +87,9 @@ public fun admin_creates_auction<CoinType>(
     assert!( extension_period_ms > 0 && extension_period_ms <= MAX_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
 
     let auction = Auction {
+        id: object::new(ctx),
         name: name.to_string(),
         description: description.to_string(),
-        id: object::new(ctx),
         item_addrs: vector::empty(),
         item_bag: object_bag::new(ctx),
         admin_addr: ctx.sender(),

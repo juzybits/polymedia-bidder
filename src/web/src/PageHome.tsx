@@ -52,11 +52,13 @@ const SectionRecentAuctions: React.FC = () =>
 
     // === html ===
 
-    return <>
-    {txs?.data.map(tx => (
-        <div key={tx.digest} style={{ whiteSpace: 'pre-wrap' }} className="break-all">
-            {JSON.stringify(tx, null, 2)}
-        </div>
-    ))}
-    </>;
+    return (
+    <div>
+        {txs?.data.map(tx => (
+            <div key={tx.digest} style={{ whiteSpace: 'pre-wrap' }} className="break-all">
+                {JSON.stringify(tx, null, 2)}
+            </div>
+        ))}
+    </div>
+    );
 };
