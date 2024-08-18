@@ -3,8 +3,9 @@ module auction::history;
 // === imports ===
 
 use std::string::{utf8};
-use sui::display;
-use sui::package;
+use std::u64::{Self};
+use sui::display::{Self};
+use sui::package::{Self};
 use sui::table_vec::{Self, TableVec};
 use sui::table::{Self, Table};
 
@@ -32,19 +33,87 @@ public struct Creator has store {
 
 // === public-view functions ===
 
-public fun creator_auctions(
+public fun get_auctions(
     history: &History,
     creator_addr: address,
-    _order: u8,
-    _cursor: u64,
-    _limit: u64,
-): vector<address>
+    ascending: bool,
+    cursor: u64,
+    limit: u64,
+): (vector<address>, bool, u64)
 {
+    // if the creator doesn't exist in the history, return an empty result
     if (!history.creators.contains(creator_addr)) {
-        return vector[]
+        return (vector[], false, 0)
     };
-    // let auctions = history.creators.borrow(creator_addr).auctions(); // TODO
-    return vector[]
+
+    // get the list of auctions for the creator
+    let auctions = history.creators.borrow(creator_addr).auctions();
+    let length = auctions.length();
+
+    // determine the start index
+    let start =
+    if (ascending) {
+        cursor
+    } else {
+        if (cursor < length) {
+            cursor
+        } else {
+            0
+        }
+    };
+
+    // determine the end index
+    let end =
+    if (ascending) {
+        u64::min(length, cursor + limit)
+    } else {
+        if (cursor < length) {
+            if (cursor > limit) {
+                cursor - limit
+            } else {
+                0
+            }
+        } else {
+            0
+        }
+    };
+
+    // initialize the result vector
+    let mut data = vector<address>[];
+    let mut i = start;
+
+    // collect the auctions from the determined range
+    while (if (ascending) { i < end } else { i > end })
+    {
+        vector::push_back(&mut data, *auctions.borrow(i));
+        if (ascending) {
+            i = i + 1;
+        } else {
+            i = i - 1;
+        }
+    };
+
+    // check if there are more auctions to paginate through
+    let has_more =
+    if (ascending) {
+        end < length
+    } else {
+        end > 0
+    };
+
+    // set the next cursor position for pagination
+    let next_cursor =
+    if (ascending) {
+        end
+    } else {
+        if (end > 0) {
+            end
+        } else {
+            0
+        }
+    };
+
+    return (data, has_more, next_cursor)
 }
 
 // === public accessors ===
@@ -86,6 +155,7 @@ public(package) fun add(
 
     let creator = history.creators.borrow_mut(creator_addr);
     creator.auctions.push_back(auction_addr);
+    history.total_auctions = history.total_auctions + 1;
 }
 
 // === private functions ===
@@ -146,3 +216,8 @@ fun init(otw: HISTORY, ctx: &mut TxContext)
 }
 
 // === test functions ===
+
+#[test_only]
+public fun new_history_for_testing(ctx: &mut TxContext): History {
+    return new_history(ctx)
+}
