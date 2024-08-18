@@ -54,10 +54,69 @@ fun test_get_auctions()
 
     assert_eq(runner.history.total_auctions(), 10);
 
-    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 0, 5);
-    assert_eq(auctions.length(), 5);
+    // ascending, first 4 items (0-3)
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 0, 4);
+    assert_eq(auctions.length(), 4);
     assert_eq(has_more, true);
-    assert_eq(next_cursor, 5);
+    assert_eq(next_cursor, 4);
+    assert_eq(*auctions.borrow(0), @0xa00);
+    assert_eq(*auctions.borrow(3), @0xa03);
+
+    // ascending, middle of the list (3-7)
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 3, 4);
+    assert_eq(auctions.length(), 4);
+    assert_eq(has_more, true);
+    assert_eq(next_cursor, 7);
+    assert_eq(*auctions.borrow(0), @0xa03);
+    assert_eq(*auctions.borrow(3), @0xa06);
+
+    // ascending, last 4 items (6-9)
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 6, 4);
+    assert_eq(auctions.length(), 4);
+    assert_eq(has_more, false);
+    assert_eq(next_cursor, 10);
+    assert_eq(*auctions.borrow(0), @0xa06);
+    assert_eq(*auctions.borrow(3), @0xa09);
+
+    // ascending, last 4 items (6-9), limit > amount
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 6, 10);
+    assert_eq(auctions.length(), 4);
+    assert_eq(has_more, false);
+    assert_eq(next_cursor, 10);
+    assert_eq(*auctions.borrow(0), @0xa06);
+    assert_eq(*auctions.borrow(3), @0xa09);
+
+    // ascending, cursor > length (out of range)
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 15, 3);
+    assert_eq(auctions.length(), 0);
+    assert_eq(has_more, false);
+    assert_eq(next_cursor, 10);
+
+    // ascending, limit = 0
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 3, 0);
+    assert_eq(auctions.length(), 0);
+    assert_eq(has_more, true);
+    assert_eq(next_cursor, 3);
+
+    // ascending, cursor at last item
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 9, 1);
+    assert_eq(auctions.length(), 1);
+    assert_eq(has_more, false);
+    assert_eq(next_cursor, 10);
+    assert_eq(*auctions.borrow(0), @0xa09);
+
+    // ascending, cursor at last item, limit > 1
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(CREATOR, true, 9, 5);
+    assert_eq(auctions.length(), 1);
+    assert_eq(has_more, false);
+    assert_eq(next_cursor, 10);
+    assert_eq(*auctions.borrow(0), @0xa09);
+
+    // ascending, empty list
+    let (auctions, has_more, next_cursor) = runner.history.get_auctions(@0x999, true, 0, 5);
+    assert_eq(auctions.length(), 0);
+    assert_eq(has_more, false);
+    assert_eq(next_cursor, 0);
 
     test_utils::destroy(runner);
 }
