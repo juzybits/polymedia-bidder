@@ -1,6 +1,6 @@
 import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { SignTransaction, SuiClientBase, TransferModule, isOwnerShared, objResToFields } from "@polymedia/suitcase-core";
+import { SignTransaction, SuiClientBase, TransferModule, isOwnerShared, objResToFields, txResToData } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AuctionObject, TxAdminCreatesAuction } from "./types.js";
 
@@ -110,35 +110,30 @@ export class AuctionClient extends SuiClientBase
         txRes: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | null
     {
-        if (txRes.effects?.status.status !== "success") {
-            return null;
-        }
-        if (txRes.transaction?.data.transaction.kind !== "ProgrammableTransaction") {
-            return null;
-        }
-        const createdObjRef = txRes.effects.created?.find(o => isOwnerShared(o.owner));
-        if (!createdObjRef) {
-            return null;
-        }
+        const createdObjRef = txRes.effects?.created?.find(o => isOwnerShared(o.owner));
+        if (!createdObjRef) { return null; }
 
-        const inputs = txRes.transaction.data.transaction.inputs;
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(txRes); }
+        catch (err) { return null; }
+        const input = txData.inputs;
 
         return {
             digest: txRes.digest,
             timestamp: txRes.timestampMs!,
-            sender: txRes.transaction.data.sender,
+            sender: txData.sender,
             auctionId: createdObjRef.reference.objectId,
             inputs: {
-                name: getArgVal(inputs[0]) as string,
-                description: getArgVal(inputs[1]) as string,
-                pay_addr: getArgVal(inputs[2]) as string,
-                begin_time_ms: getArgVal(inputs[3]) as number,
-                duration_ms: getArgVal(inputs[4]) as number,
-                minimum_bid: getArgVal(inputs[5]) as bigint,
-                minimum_increase_bps: getArgVal(inputs[6]) as number,
-                extension_period_ms: getArgVal(inputs[7]) as number,
+                name: getArgVal(input[0]) as string,
+                description: getArgVal(input[1]) as string,
+                pay_addr: getArgVal(input[2]) as string,
+                begin_time_ms: getArgVal(input[3]) as number,
+                duration_ms: getArgVal(input[4]) as number,
+                minimum_bid: getArgVal(input[5]) as bigint,
+                minimum_increase_bps: getArgVal(input[6]) as number,
+                extension_period_ms: getArgVal(input[7]) as number,
                 // clock: getArgVal(inputs[8]) as string,
-                item_addrs: inputs.slice(9).map(input => getArgVal(input) as string),
+                item_addrs: input.slice(9).map(input => getArgVal(input) as string),
             },
         };
     }
