@@ -10,16 +10,16 @@ use sui::object_bag::{Self, ObjectBag};
 
 // === errors ===
 
-const E_WRONG_TIME: u64 = 5000;
-const E_WRONG_ADMIN: u64 = 5001;
-const E_WRONG_ADDRESS: u64 = 5002;
-const E_WRONG_DURATION: u64 = 5003;
-const E_TOO_MANY_ITEMS: u64 = 5004;
-const E_WRONG_COIN_VALUE: u64 = 5005;
-const E_WRONG_MINIMUM_BID: u64 = 5006;
-const E_WRONG_MINIMUM_INCREASE: u64 = 5007;
-const E_WRONG_EXTENSION_PERIOD: u64 = 5008;
-const E_CANT_RECLAIM_WITH_BIDS: u64 = 5009;
+#[error] const E_WRONG_TIME: vector<u8> = b"E_WRONG_TIME";
+#[error] const E_WRONG_ADMIN: vector<u8> = b"E_WRONG_ADMIN";
+#[error] const E_WRONG_ADDRESS: vector<u8> = b"E_WRONG_ADDRESS";
+#[error] const E_WRONG_DURATION: vector<u8> = b"E_WRONG_DURATION";
+#[error] const E_TOO_MANY_ITEMS: vector<u8> = b"E_TOO_MANY_ITEMS";
+#[error] const E_WRONG_COIN_VALUE: vector<u8> = b"E_WRONG_COIN_VALUE";
+#[error] const E_WRONG_MINIMUM_BID: vector<u8> = b"E_WRONG_MINIMUM_BID";
+#[error] const E_WRONG_MINIMUM_INCREASE: vector<u8> = b"E_WRONG_MINIMUM_INCREASE";
+#[error] const E_WRONG_EXTENSION_PERIOD: vector<u8> = b"E_WRONG_EXTENSION_PERIOD";
+#[error] const E_CANT_RECLAIM_WITH_BIDS: vector<u8> = b"E_CANT_RECLAIM_WITH_BIDS";
 
 // === constants ===
 
