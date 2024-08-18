@@ -10,6 +10,8 @@ use sui::display;
 use sui::object_bag::{Self, ObjectBag};
 use sui::package;
 
+use auction::history::{History};
+
 // === errors ===
 
 const E_WRONG_TIME: u64 = 5000;
@@ -66,6 +68,7 @@ public struct Auction<phantom CoinType> has store, key {
 // === mutative functions ===
 
 public fun admin_creates_auction<CoinType>(
+    history: &mut History,
     name: vector<u8>,
     description: vector<u8>,
     pay_addr: address,
@@ -106,6 +109,9 @@ public fun admin_creates_auction<CoinType>(
         minimum_increase_bps,
         extension_period_ms,
     };
+
+    history.add(auction.admin_addr, auction.id.to_address(), ctx);
+
     return auction
 }
 
@@ -376,7 +382,7 @@ fun init(otw: AUCTION, ctx: &mut TxContext)
 
     // Display for Auction<SUI>
 
-    let display = display::new<Auction<sui::sui::SUI>>(&publisher, ctx);
+    let mut display = display::new<Auction<sui::sui::SUI>>(&publisher, ctx);
     display.add(utf8(b"name"), utf8(b"Auction: {name}"));
     display.add(utf8(b"description"), utf8(b"{description}"));
     display.add(utf8(b"link"), utf8(b"https://auction.polymedia.app/auction/{id}"));
