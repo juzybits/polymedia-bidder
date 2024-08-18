@@ -58,7 +58,7 @@ public fun get_auctions(
         if (cursor < length) {
             cursor
         } else {
-            0
+            length - 1  // start at the last item if cursor is out of range
         }
     };
 
@@ -67,14 +67,10 @@ public fun get_auctions(
     if (ascending) {
         u64::min(length, cursor + limit)
     } else {
-        if (cursor < length) {
-            if (cursor > limit) {
-                cursor - limit
-            } else {
-                0
-            }
-        } else {
+        if (cursor < limit) {
             0
+        } else {
+            cursor - limit + 1  // ensure that the end index includes the limit number of items
         }
     };
 
@@ -83,14 +79,15 @@ public fun get_auctions(
     let mut i = start;
 
     // collect the auctions from the determined range
-    while (if (ascending) { i < end } else { i > end })
+    while (if (ascending) { i < end } else { i >= end })
     {
         vector::push_back(&mut data, *auctions.borrow(i));
         if (ascending) {
             i = i + 1;
         } else {
-            i = i - 1;
-        }
+            if (i == 0) { break }  // prevent underflow
+            else { i = i - 1; }
+        };
     };
 
     // check if there are more auctions to paginate through
@@ -98,7 +95,7 @@ public fun get_auctions(
     if (ascending) {
         end < length
     } else {
-        end > 0
+        start > 0 && cursor < length && end > 0
     };
 
     // set the next cursor position for pagination
@@ -106,8 +103,10 @@ public fun get_auctions(
     if (ascending) {
         end
     } else {
-        if (end > 0) {
-            end
+        if (cursor >= length) {
+            length  // if cursor is out of range, next_cursor should be the length of the list
+        } else if (end > 0) {
+            end - 1  // the last item fetched in descending order
         } else {
             0
         }
