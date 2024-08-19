@@ -178,7 +178,18 @@ public fun anyone_sends_item_to_winner(
     );
 }
 
-// public fun anyone_pays_funds // TODO
+public fun anyone_pays_funds(
+    runner: &mut TestRunner,
+    sender: address,
+    auction: &mut Auction<SUI>,
+) {
+    runner.scen.next_tx(sender);
+    auction::anyone_pays_funds<SUI>(
+        auction,
+        &runner.clock,
+        runner.scen.ctx(),
+    );
+}
 
 // public fun admin_ends_auction_early // TODO
 
@@ -640,6 +651,54 @@ fun test_anyone_sends_item_to_winner_e_wrong_address()
     // RANDO tries to send item to the winner, but nobody placed a bid so there's no winner
     runner.clock.set_for_testing(auction.end_time_ms());
     runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+// === tests: anyone_pays_funds ===
+
+#[test]
+fun test_anyone_pays_funds_ok_with_funds()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // BIDDER_1 bids
+    let bid_value = 1000;
+    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+
+    // RANDO sends the funds to pay_addr
+    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.anyone_pays_funds(RANDO, &mut auction);
+
+    // PAYEE gets the money
+    runner.assert_owns_sui(PAYEE, bid_value);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+fun test_anyone_pays_funds_ok_without_funds()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // RANDO tries to send the funds to pay_addr, but nobody placed a bid so there's no funds
+    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.anyone_pays_funds(RANDO, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_anyone_pays_funds_e_wrong_time()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // RANDO tries to send the funds before the auction ends
+    runner.anyone_pays_funds(RANDO, &mut auction);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
