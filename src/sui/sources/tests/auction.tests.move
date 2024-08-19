@@ -33,8 +33,7 @@ const ADMIN: address = @0x777;
 const PAYEE: address = @0x888;
 const BIDDER_1: address = @0xb1;
 const BIDDER_2: address = @0xb2;
-const RANDO: address = @0xaaabbbccc123;
-const ITEM_ADDR: address = @0x123456789; // TODO
+const RANDO: address = @0xbabe;
 
 // === default auction args ===
 
@@ -586,27 +585,24 @@ fun test_anyone_bids_e_wrong_coin_value_tiny_amounts()
     test_utils::destroy(auction);
 }
 
-// === tests: winner_takes_item ===
-
-// fun test_winner_takes_item_ok()
-// {
-
-// }
-
-// =====
+// === tests: anyone_sends_item_to_winner ===
 
 #[test]
-fun test_claim_ok()
+fun test_anyone_sends_item_to_winner_ok()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
 
     // BIDDER_1 bids
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
-    // BIDDER_1 claims the moment the auction ends
+    // RANDO send item to BIDDER_1 the moment the auction ends
     runner.clock.set_for_testing(auction.end_time_ms());
-    runner.anyone_sends_item_to_winner(BIDDER_1, &mut auction, ITEM_ADDR);
+    runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
+
+    // BIDDER_1 gets the item
+    runner.assert_owns_item(BIDDER_1);
 
     // PAYEE gets the money
     runner.assert_owns_sui(PAYEE, bid_value);
@@ -616,36 +612,19 @@ fun test_claim_ok()
 }
 
 #[test]
-#[expected_failure(abort_code = auction::E_WRONG_ADDRESS)]
-fun test_claim_e_wrong_address()
-{
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-
-    // BIDDER_1 bids
-    let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
-
-    // BIDDER_2 tries to claim
-    runner.clock.set_for_testing(auction.end_time_ms() );
-    runner.anyone_sends_item_to_winner(BIDDER_2, &mut auction, ITEM_ADDR);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_claim_e_wrong_time()
+fun test_anyone_sends_item_to_winner_e_wrong_time()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
 
     // BIDDER_1 bids
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
-    // BIDDER_1 tries to claim 1 millisecond before the auction ends
+    // RANDO tries to send item to BIDDER_1 1 millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
-    runner.anyone_sends_item_to_winner(BIDDER_1, &mut auction, ITEM_ADDR);
+    runner.anyone_sends_item_to_winner(BIDDER_1, &mut auction, item_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -657,13 +636,14 @@ fun test_claim_e_wrong_time()
 fun test_admin_claim_ok_with_winner()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
 
     // BIDDER_1 bids
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
     // ADMIN ends the auction early
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, ITEM_ADDR);
+    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
 
     // BIDDER_1 gets the item because they won
     runner.assert_owns_item(BIDDER_1);
@@ -680,9 +660,10 @@ fun test_admin_claim_ok_with_winner()
 fun test_admin_claim_ok_without_winner()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
 
     // ADMIN ends the auction early
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, ITEM_ADDR);
+    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
 
     // ADMIN gets the item because there's no bids
     runner.assert_owns_item(ADMIN);
@@ -697,9 +678,10 @@ fun test_admin_claim_ok_without_winner()
 fun test_admin_claim_e_wrong_admin()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
 
     // RANDO tries to end the auction early
-    let item = runner.admin_reclaims_item(RANDO, &mut auction, ITEM_ADDR);
+    let item = runner.admin_reclaims_item(RANDO, &mut auction, item_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
