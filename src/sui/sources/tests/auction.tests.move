@@ -74,7 +74,9 @@ public fun begin(): TestRunner
     let mut scen = test_scenario::begin(ADMIN);
     let mut clock = clock::create_for_testing(scen.ctx());
     let history = history::new_history_for_testing(scen.ctx());
+
     clock.set_for_testing(24*3600*1000);
+
     return TestRunner {
         scen,
         clock,
@@ -102,7 +104,6 @@ public fun admin_creates_auction(
 ): Auction<SUI>
 {
     runner.scen.next_tx(sender);
-
     let mut auction = auction::admin_creates_auction<SUI>(
         &mut runner.history,
         args.name,
@@ -128,7 +129,6 @@ public fun admin_adds_item(
     auction: &mut Auction<SUI>,
 ) {
     runner.scen.next_tx(sender);
-
     let item = runner.new_item();
     auction.admin_adds_item(
         item,
@@ -239,7 +239,7 @@ public fun assert_owns_sui(
 ) {
     runner.scen.next_tx(owner);
     let paid_coin = runner.scen.take_from_sender<Coin<SUI>>();
-    assert_eq(paid_coin.value(), sui_value);
+    assert_eq( paid_coin.value(), sui_value );
     transfer::public_transfer(paid_coin, owner);
 }
 
@@ -423,25 +423,25 @@ fun test_bid_ok()
     // check assumptions
     let end_time_1 = auction.end_time_ms();
     let minimum_bid_1 = auction.minimum_bid();
-    assert_eq(minimum_bid_1, 1000);
-    assert_eq(auction.begin_time_ms(), runner.clock.timestamp_ms());
+    assert_eq( minimum_bid_1, 1000 );
+    assert_eq( auction.begin_time_ms(), runner.clock.timestamp_ms() );
     // bid
     runner.anyone_bids(BIDDER_1, &mut auction, minimum_bid_1);
     // check outcome
-    assert_eq(auction.lead_addr(), BIDDER_1);
-    assert_eq(auction.lead_value(), minimum_bid_1);
+    assert_eq( auction.lead_addr(), BIDDER_1 );
+    assert_eq( auction.lead_value(), minimum_bid_1 );
     let minimum_bid_2 = auction.minimum_bid();
-    assert_eq(minimum_bid_2, 1010); // 1% higher
+    assert_eq( minimum_bid_2, 1010 ); // 1% higher
 
     // BIDDER_2 bids a millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
     // bid
     runner.anyone_bids(BIDDER_2, &mut auction, minimum_bid_2);
     // check outcome
-    assert_eq(auction.lead_addr(), BIDDER_2);
-    assert_eq(auction.lead_value(), minimum_bid_2);
+    assert_eq( auction.lead_addr(), BIDDER_2 );
+    assert_eq( auction.lead_value(), minimum_bid_2 );
     runner.assert_owns_sui(BIDDER_1, minimum_bid_1); // got their money back
-    assert_eq(auction.end_time_ms(), end_time_1 + auction.extension_period_ms()); // extended end time
+    assert_eq( auction.end_time_ms(), end_time_1 + auction.extension_period_ms() ); // extended end time
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -719,7 +719,7 @@ fun test_admin_set_pay_addr_ok()
     runner.admin_sets_pay_addr(ADMIN, &mut auction, new_pay_addr);
 
     // new_pay_addr will get the money when the auction is over
-    assert_eq(auction.pay_addr(), new_pay_addr);
+    assert_eq( auction.pay_addr(), new_pay_addr );
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
