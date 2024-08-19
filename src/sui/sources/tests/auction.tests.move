@@ -94,6 +94,21 @@ public fun begin_with_auction(
     return (runner, auction)
 }
 
+public fun set_clock_to_auction_end_time(
+    runner: &mut TestRunner,
+    auction: &mut Auction<SUI>,
+) {
+    runner.clock.set_for_testing(auction.end_time_ms());
+}
+
+public fun set_clock_1ms_before_auction_ends(
+    runner: &mut TestRunner,
+    auction: &mut Auction<SUI>,
+) {
+    let current_time = auction.end_time_ms() - 1;
+    runner.clock.set_for_testing(current_time);
+}
+
 // === helpers for sui modules ===
 
 public fun mint_sui(runner: &mut TestRunner, value: u64): Coin<SUI> {
@@ -454,7 +469,7 @@ fun test_admin_adds_item_e_wrong_time()
 {
     // ADMIN tries to add an item after the auction has ended
     let (mut runner, mut auction) = begin_with_auction(auction_args());
-    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.admin_adds_item(ADMIN, &mut auction);
 
     test_utils::destroy(runner);
@@ -546,7 +561,7 @@ fun test_anyone_bids_e_wrong_time_too_late()
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
     // BIDDER_1 tries to bid the moment the auction ends
-    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.anyone_bids(BIDDER_1, &mut auction, 1000);
 
     test_utils::destroy(runner);
@@ -620,7 +635,7 @@ fun test_anyone_sends_item_to_winner_ok()
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
     // RANDO sends item to BIDDER_1 the moment the auction ends
-    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
 
     // BIDDER_1 gets the item
@@ -660,7 +675,7 @@ fun test_anyone_sends_item_to_winner_e_wrong_address()
     let item_addr = auction.item_addrs()[0];
 
     // RANDO tries to send item to the winner, but nobody placed a bid so there's no winner
-    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
 
     test_utils::destroy(runner);
@@ -679,7 +694,7 @@ fun test_anyone_pays_funds_ok_with_bids()
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
     // RANDO sends the funds to pay_addr
-    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.anyone_pays_funds(RANDO, &mut auction);
 
     // PAYEE gets the money
@@ -695,7 +710,7 @@ fun test_anyone_pays_funds_ok_without_bids()
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
     // RANDO tries to send the funds to pay_addr, but nobody placed a bid so there's no funds
-    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.anyone_pays_funds(RANDO, &mut auction);
 
     test_utils::destroy(runner);
@@ -727,12 +742,8 @@ fun test_admin_ends_auction_early_ok_with_bids()
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
-    // it's 10 minutes before the auction ends
-    let ten_minutes = 10 * 60 * 1000;
-    let current_time = auction.end_time_ms() - ten_minutes;
-    runner.clock.set_for_testing(current_time);
-
-    // but ADMIN ends the auction early
+    // ADMIN ends the auction early
+    runner.set_clock_1ms_before_auction_ends(&mut auction);
     runner.admin_ends_auction_early(ADMIN, &mut auction);
 
     // auction has ended
@@ -756,12 +767,8 @@ fun test_admin_ends_auction_early_ok_without_bids()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
-    // it's 10 minutes before the auction ends
-    let ten_minutes = 10 * 60 * 1000;
-    let current_time = auction.end_time_ms() - ten_minutes;
-    runner.clock.set_for_testing(current_time);
-
-    // but ADMIN ends the auction early
+    // ADMIN ends the auction early
+    runner.set_clock_1ms_before_auction_ends(&mut auction);
     runner.admin_ends_auction_early(ADMIN, &mut auction);
 
     // auction has ended
@@ -777,12 +784,8 @@ fun test_admin_ends_auction_early_e_wrong_time()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
-    // it's 5 minutes after the auction ended
-    let five_minutes = 5 * 60 * 1000;
-    let current_time = auction.end_time_ms() + five_minutes;
-    runner.clock.set_for_testing(current_time);
-
     // ADMIN tries to the auction early
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.admin_ends_auction_early(ADMIN, &mut auction);
 
     test_utils::destroy(runner);
@@ -871,12 +874,8 @@ fun test_admin_cancels_auction_ok_with_bids()
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
-    // it's 10 minutes before the auction ends
-    let ten_minutes = 10 * 60 * 1000;
-    let current_time = auction.end_time_ms() - ten_minutes;
-    runner.clock.set_for_testing(current_time);
-
     // ADMIN cancels the auction
+    runner.set_clock_1ms_before_auction_ends(&mut auction);
     runner.admin_cancels_auction(ADMIN, &mut auction);
 
     // BIDDER_1 gets their money back
@@ -911,12 +910,8 @@ fun test_admin_cancels_auction_e_wrong_time()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
-    // it's 5 minutes after the auction ended
-    let five_minutes = 5 * 60 * 1000;
-    let current_time = auction.end_time_ms() + five_minutes;
-    runner.clock.set_for_testing(current_time);
-
     // ADMIN tries to cancel the auction
+    runner.set_clock_to_auction_end_time(&mut auction);
     runner.admin_cancels_auction(ADMIN, &mut auction);
 
     test_utils::destroy(runner);
