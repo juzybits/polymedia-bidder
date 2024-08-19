@@ -3,11 +3,12 @@ module auction::history;
 // === imports ===
 
 use std::string::{utf8};
-use std::u64::{Self};
 use sui::display::{Self};
 use sui::package::{Self};
 use sui::table_vec::{Self, TableVec};
 use sui::table::{Self, Table};
+
+use auction::paginator;
 
 // === errors ===
 
@@ -46,74 +47,7 @@ public fun get_auctions(
     };
 
     let auctions = history.creators.borrow(creator_addr).auctions();
-
-    if (ascending) {
-        get_auctions_ascending(auctions, cursor, limit)
-    } else {
-        get_auctions_descending(auctions, cursor, limit)
-    }
-}
-
-fun get_auctions_ascending(
-    auctions: &TableVec<address>,
-    cursor: u64,
-    limit: u64,
-): (vector<address>, bool, u64)
-{
-    let length = auctions.length();
-
-    let start = cursor;
-    let end = u64::min(length, cursor + limit);
-
-    let mut data = vector<address>[];
-    let mut i = start;
-    while (i < end) {
-        vector::push_back(&mut data, *auctions.borrow(i));
-        i = i + 1;
-    };
-
-    let has_more = end < length;
-    let next_cursor = end;
-
-    return (data, has_more, next_cursor)
-}
-
-fun get_auctions_descending(
-    auctions: &TableVec<address>,
-    cursor: u64,
-    limit: u64,
-): (vector<address>, bool, u64)
-{
-    let length = auctions.length();
-
-    let start =
-        if (cursor < length) { cursor }
-        else { length - 1 }; // start at last item
-
-    let end =
-        if (limit > cursor) { 0 } // end at first item
-        else { cursor - limit + 1 };
-
-    let mut data = vector<address>[];
-    let mut i = start;
-    while (i >= end) {
-        vector::push_back(&mut data, *auctions.borrow(i));
-        if (i == 0) { break }  // prevent underflow
-        else { i = i - 1; }
-    };
-
-    let has_more = start > 0 && cursor < length && end > 0;
-
-    let next_cursor =
-        if (cursor >= length) {
-            length  // if cursor is out of range, next_cursor should be the length of the list
-        } else if (end > 0) {
-            end - 1  // the last item fetched in descending order
-        } else {
-            0
-        };
-
-    return (data, has_more, next_cursor)
+    return paginator::get_page(auctions, ascending, cursor, limit)
 }
 
 // === public accessors ===
