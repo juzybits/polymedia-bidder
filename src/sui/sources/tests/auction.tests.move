@@ -588,11 +588,13 @@ fun test_anyone_bids_e_wrong_coin_value_tiny_amounts()
     let mut runner = begin();
     let mut args = auction_args();
     args.minimum_bid = 1;
-    args.minimum_increase_bps = 1;
+    args.minimum_increase_bps = 10;
     let mut auction = runner.admin_creates_auction(ADMIN, args);
 
     // BIDDER_1 bids
     runner.anyone_bids(BIDDER_1, &mut auction, 1);
+
+    assert_eq( auction.minimum_bid(), 2 );
 
     // BIDDER_2 bids
     runner.anyone_bids(BIDDER_2, &mut auction, 1);
