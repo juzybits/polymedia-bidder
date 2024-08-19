@@ -12,13 +12,21 @@ use sui::test_utils::{Self, assert_eq};
 use auction::auction::{Self, Auction};
 use auction::history::{Self, History};
 
-/// Object to be auctioned
+// === dummy object to be auctioned ===
+
 public struct Item has key, store {
     id: UID,
     name: String,
 }
 
-// === default args ===
+public fun new_item(runner: &mut TestRunner): Item {
+    return Item {
+        id: object::new(runner.scen.ctx()),
+        name: b"foo".to_string(),
+    }
+}
+
+// === addresses ===
 
 const ADMIN: address = @0x777;
 const PAYEE: address = @0x888;
@@ -26,6 +34,8 @@ const BIDDER_1: address = @0xb1;
 const BIDDER_2: address = @0xb2;
 const RANDO: address = @0xaaabbbccc123;
 const ITEM_ADDR: address = @0x123456789; // TODO
+
+// === default auction args ===
 
 public struct AuctionArgs has drop {
     name: vector<u8>,
@@ -85,19 +95,14 @@ public fun take_auction(runner: &mut TestRunner): Auction<SUI> {
 
 // === helpers for our modules ===
 
-public fun item_new(runner: &mut TestRunner): Item {
-    return Item {
-        id: object::new(runner.scen.ctx()),
-        name: b"foo".to_string(),
-    }
-}
-
 public fun admin_creates_auction(
     runner: &mut TestRunner,
     args: AuctionArgs,
-): Auction<SUI> {
+): Auction<SUI>
+{
     runner.scen.next_tx(ADMIN);
-    let mut auction_obj = auction::admin_creates_auction<SUI>(
+
+    let mut auction = auction::admin_creates_auction<SUI>(
         &mut runner.history,
         args.name,
         args.description,
@@ -111,17 +116,24 @@ public fun admin_creates_auction(
         runner.scen.ctx(),
     );
 
-    let item_obj = runner.item_new();
-    auction_obj.admin_adds_item(
-        item_obj,
+    runner.admin_adds_item(&mut auction);
+
+    return auction
+}
+
+public fun admin_adds_item(
+    runner: &mut TestRunner,
+    auction: &mut Auction<SUI>,
+) {
+    runner.scen.next_tx(ADMIN);
+
+    let item = runner.new_item();
+    auction.admin_adds_item(
+        item,
         &runner.clock,
         runner.scen.ctx(),
     );
-
-    return auction_obj
 }
-
-// public fun admin_adds_item( // TODO
 
 public fun anyone_bids(
     runner: &mut TestRunner,
