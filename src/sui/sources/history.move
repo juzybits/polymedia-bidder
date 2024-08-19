@@ -41,76 +41,77 @@ public fun get_auctions(
     limit: u64,
 ): (vector<address>, bool, u64)
 {
-    // if the creator doesn't exist in the history, return an empty result
     if (!history.creators.contains(creator_addr)) {
         return (vector[], false, 0)
     };
 
-    // get the list of auctions for the creator
     let auctions = history.creators.borrow(creator_addr).auctions();
+
+    if (ascending) {
+        get_auctions_ascending(auctions, cursor, limit)
+    } else {
+        get_auctions_descending(auctions, cursor, limit)
+    }
+}
+
+fun get_auctions_ascending(
+    auctions: &TableVec<address>,
+    cursor: u64,
+    limit: u64,
+): (vector<address>, bool, u64)
+{
     let length = auctions.length();
 
-    // determine the start index
-    let start =
-    if (ascending) {
-        cursor
-    } else {
-        if (cursor < length) {
-            cursor
-        } else {
-            length - 1  // start at the last item if cursor is out of range
-        }
-    };
+    let start = cursor;
+    let end = u64::min(length, cursor + limit);
 
-    // determine the end index
-    let end =
-    if (ascending) {
-        u64::min(length, cursor + limit)
-    } else {
-        if (cursor < limit) {
-            0
-        } else {
-            cursor - limit + 1  // ensure that the end index includes the limit number of items
-        }
-    };
-
-    // initialize the result vector
     let mut data = vector<address>[];
     let mut i = start;
-
-    // collect the auctions from the determined range
-    while (if (ascending) { i < end } else { i >= end })
-    {
+    while (i < end) {
         vector::push_back(&mut data, *auctions.borrow(i));
-        if (ascending) {
-            i = i + 1;
-        } else {
-            if (i == 0) { break }  // prevent underflow
-            else { i = i - 1; }
-        };
+        i = i + 1;
     };
 
-    // check if there are more auctions to paginate through
-    let has_more =
-    if (ascending) {
-        end < length
-    } else {
-        start > 0 && cursor < length && end > 0
+    let has_more = end < length;
+    let next_cursor = end;
+
+    return (data, has_more, next_cursor)
+}
+
+fun get_auctions_descending(
+    auctions: &TableVec<address>,
+    cursor: u64,
+    limit: u64,
+): (vector<address>, bool, u64)
+{
+    let length = auctions.length();
+
+    let start =
+        if (cursor < length) { cursor }
+        else { length - 1 }; // start at last item
+
+    let end =
+        if (limit > cursor) { 0 } // end at first item
+        else { cursor - limit + 1 };
+
+    let mut data = vector<address>[];
+    let mut i = start;
+    while (i >= end) {
+        vector::push_back(&mut data, *auctions.borrow(i));
+        if (i == 0) { break }  // prevent underflow
+        else { i = i - 1; }
     };
 
-    // set the next cursor position for pagination
+    let has_more = start > 0 && cursor < length && end > 0;
+
     let next_cursor =
-    if (ascending) {
-        end
-    } else {
         if (cursor >= length) {
             length  // if cursor is out of range, next_cursor should be the length of the list
         } else if (end > 0) {
             end - 1  // the last item fetched in descending order
         } else {
             0
-        }
-    };
+        };
 
     return (data, has_more, next_cursor)
 }
