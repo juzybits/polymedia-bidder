@@ -905,6 +905,24 @@ fun test_admin_cancels_auction_e_wrong_admin()
     test_utils::destroy(auction);
 }
 
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_admin_cancels_auction_e_wrong_time()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // it's 5 minutes after the auction ended
+    let five_minutes = 5 * 60 * 1000;
+    let current_time = auction.end_time_ms() + five_minutes;
+    runner.clock.set_for_testing(current_time);
+
+    // ADMIN tries to cancel the auction
+    runner.admin_cancels_auction(ADMIN, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
 // =====
 
 #[test]
