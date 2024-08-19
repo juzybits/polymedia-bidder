@@ -10,10 +10,6 @@ use sui::table::{Self, Table};
 
 use auction::paginator;
 
-// === errors ===
-
-// === constants ===
-
 // === structs ===
 
 public struct HISTORY has drop {}
@@ -27,10 +23,6 @@ public struct History has key, store {
 public struct Creator has store {
     auctions: TableVec<address>,
 }
-
-// === method aliases ===
-
-// === public-mutative functions ===
 
 // === public-view functions ===
 
@@ -69,8 +61,6 @@ public fun auctions(
 ): &TableVec<address> {
     &creator.auctions
 }
-
-// === admin functions ===
 
 // === public-package functions ===
 

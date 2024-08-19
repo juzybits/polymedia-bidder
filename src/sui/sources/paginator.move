@@ -52,12 +52,12 @@ fun get_page_descending<T: store + copy>(
     let length = items.length();
 
     let start =
-        if (cursor < length) { cursor }
-        else { length - 1 }; // start at last item
+        if (cursor >= length) { length - 1 } // cursor is out of range, start at last item
+        else { cursor };
 
     let end =
-        if (limit > cursor) { 0 } // end at first item
-        else { cursor - limit + 1 };
+        if (limit > start) { 0 } // end at first item
+        else { start - limit + 1 };
 
     let mut data = vector<T>[];
     let mut i = start;
@@ -67,16 +67,12 @@ fun get_page_descending<T: store + copy>(
         else { i = i - 1; }
     };
 
-    let has_more = start > 0 && cursor < length && end > 0;
+    let has_more = start > 0 && end > 0;
 
     let next_cursor =
-        if (cursor >= length) {
-            length  // if cursor is out of range, next_cursor should be the length of the list
-        } else if (end > 0) {
-            end - 1  // the last item fetched in descending order
-        } else {
-            0
-        };
+        if (data.is_empty()) { start } // if no items are fetched, return start
+        else if ( end == 0 ) { end } // prevent underflow
+        else { end - 1 }; // otherwise, return the index just before the end index
 
     return (data, has_more, next_cursor)
 }
