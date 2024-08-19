@@ -2,6 +2,7 @@
 module auction::auction_tests;
 
 use std::string::{String};
+use std::u64::{Self};
 use sui::clock::{Self, Clock};
 use sui::coin::{Coin};
 use sui::coin::{Self};
@@ -452,6 +453,20 @@ fun test_admin_adds_item_e_wrong_admin()
 
     // RANDO tries to add an item to someone else's auction
     runner.admin_adds_item(RANDO, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_TOO_MANY_ITEMS)]
+fun test_admin_adds_item_e_too_many_items()
+{
+    let mut runner = begin();
+    let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
+
+    // ADMIN tries to add 100 items to the auction (limit is 50)
+    u64::do!(100, |_i| runner.admin_adds_item(ADMIN, &mut auction));
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
