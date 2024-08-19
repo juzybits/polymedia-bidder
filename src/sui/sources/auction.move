@@ -312,56 +312,19 @@ public fun has_leader<CoinType>(
 
 // === public accessors ===
 
-public fun item_addrs<CoinType>(
-    auction: &Auction<CoinType>,
-): &vector<address> {
-    &auction.item_addrs
-}
-public fun admin_addr<CoinType>(
-    auction: &Auction<CoinType>,
-): address {
-    auction.admin_addr
-}
-public fun pay_addr<CoinType>(
-    auction: &Auction<CoinType>,
-): address {
-    auction.pay_addr
-}
-public fun lead_addr<CoinType>(
-    auction: &Auction<CoinType>,
-): address {
-    auction.lead_addr
-}
-public fun lead_value<CoinType>(
-    auction: &Auction<CoinType>,
-): u64 {
-    auction.lead_bal.value()
-}
-public fun begin_time_ms<CoinType>(
-    auction: &Auction<CoinType>,
-): u64 {
-    auction.begin_time_ms
-}
-public fun end_time_ms<CoinType>(
-    auction: &Auction<CoinType>,
-): u64 {
-    auction.end_time_ms
-}
-public fun minimum_bid<CoinType>(
-    auction: &Auction<CoinType>,
-): u64 {
-    auction.minimum_bid
-}
-public fun minimum_increase_bps<CoinType>(
-    auction: &Auction<CoinType>,
-): u64 {
-    auction.minimum_increase_bps
-}
-public fun extension_period_ms<CoinType>(
-    auction: &Auction<CoinType>,
-): u64 {
-    auction.extension_period_ms
-}
+public fun name<T>(a: &Auction<T>): String                  { a.name }
+public fun description<T>(a: &Auction<T>): String           { a.description }
+public fun item_addrs<T>(a: &Auction<T>): &vector<address>  { &a.item_addrs }
+public fun item_bag<T>(a: &Auction<T>): &ObjectBag          { &a.item_bag }
+public fun admin_addr<T>(a: &Auction<T>): address           { a.admin_addr }
+public fun pay_addr<T>(a: &Auction<T>): address             { a.pay_addr }
+public fun lead_addr<T>(a: &Auction<T>): address            { a.lead_addr }
+public fun lead_value<T>(a: &Auction<T>): u64               { a.lead_bal.value() }
+public fun begin_time_ms<T>(a: &Auction<T>): u64            { a.begin_time_ms }
+public fun end_time_ms<T>(a: &Auction<T>): u64              { a.end_time_ms }
+public fun minimum_bid<T>(a: &Auction<T>): u64              { a.minimum_bid }
+public fun minimum_increase_bps<T>(a: &Auction<T>): u64     { a.minimum_increase_bps }
+public fun extension_period_ms<T>(a: &Auction<T>): u64      { a.extension_period_ms }
 
 // === public-package functions ===
 
