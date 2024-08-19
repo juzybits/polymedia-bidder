@@ -244,10 +244,10 @@ public fun assert_owns_sui(
     transfer::public_transfer(paid_coin, owner);
 }
 
-// === tests ===
+// === tests: admin_creates_auction ===
 
 #[test]
-fun test_new_auction_ok()
+fun test_admin_creates_auction_ok()
 {
     // ADMIN creates auction
     let mut runner = begin();
@@ -272,7 +272,7 @@ fun test_new_auction_ok()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_ADDRESS)]
-fun test_new_auction_e_wrong_address()
+fun test_admin_creates_auction_e_wrong_address()
 {
     // ADMIN tries to create an auction with pay_add = 0x0
     let mut runner = begin();
@@ -286,7 +286,7 @@ fun test_new_auction_e_wrong_address()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_MINIMUM_BID)]
-fun test_new_auction_e_wrong_minimum_bid()
+fun test_admin_creates_auction_e_wrong_minimum_bid()
 {
     // ADMIN tries to create an auction with 0 minimum bid
     let mut runner = begin();
@@ -300,7 +300,7 @@ fun test_new_auction_e_wrong_minimum_bid()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_new_auction_e_wrong_time_past()
+fun test_admin_creates_auction_e_wrong_time_past()
 {
     // ADMIN tries to create an auction that starts 1 millisecond ago
     let mut runner = begin();
@@ -314,7 +314,7 @@ fun test_new_auction_e_wrong_time_past()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_new_auction_e_wrong_time_future()
+fun test_admin_creates_auction_e_wrong_time_future()
 {
     // ADMIN tries to create an auction that starts too far in the future
     let mut runner = begin();
@@ -329,7 +329,7 @@ fun test_new_auction_e_wrong_time_future()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_DURATION)]
-fun test_new_auction_e_wrong_duration_too_short()
+fun test_admin_creates_auction_e_wrong_duration_too_short()
 {
     // ADMIN tries to create an auction that is too short
     let mut runner = begin();
@@ -343,7 +343,7 @@ fun test_new_auction_e_wrong_duration_too_short()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_DURATION)]
-fun test_new_auction_e_wrong_duration_too_long()
+fun test_admin_creates_auction_e_wrong_duration_too_long()
 {
     // ADMIN tries to create an auction that lasts too long
     let mut runner = begin();
@@ -357,7 +357,7 @@ fun test_new_auction_e_wrong_duration_too_long()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
-fun test_new_auction_e_wrong_minimum_increase_too_small()
+fun test_admin_creates_auction_e_wrong_minimum_increase_too_small()
 {
     // ADMIN tries to create an auction a very small minimum bid increase
     let mut runner = begin();
@@ -371,7 +371,7 @@ fun test_new_auction_e_wrong_minimum_increase_too_small()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
-fun test_new_auction_e_wrong_minimum_increase_too_large()
+fun test_admin_creates_auction_e_wrong_minimum_increase_too_large()
 {
     // ADMIN tries to create an auction with a very large minimum bid increase
     let mut runner = begin();
@@ -385,7 +385,7 @@ fun test_new_auction_e_wrong_minimum_increase_too_large()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_EXTENSION_PERIOD)]
-fun test_new_auction_e_wrong_extension_period_too_short()
+fun test_admin_creates_auction_e_wrong_extension_period_too_short()
 {
     // ADMIN tries to create an auction with a very short extension period
     let mut runner = begin();
@@ -399,7 +399,7 @@ fun test_new_auction_e_wrong_extension_period_too_short()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_EXTENSION_PERIOD)]
-fun test_new_auction_e_wrong_extension_period_too_long()
+fun test_admin_creates_auction_e_wrong_extension_period_too_long()
 {
     // ADMIN tries to create an auction with a very long extension period
     let mut runner = begin();
@@ -411,7 +411,7 @@ fun test_new_auction_e_wrong_extension_period_too_long()
     test_utils::destroy(auction);
 }
 
-// =====
+// === tests: admin_adds_item ===
 
 #[test]
 fun test_admin_adds_item_ok()
@@ -472,8 +472,10 @@ fun test_admin_adds_item_e_too_many_items()
     test_utils::destroy(auction);
 }
 
+// === tests: anyone_bids ===
+
 #[test]
-fun test_bid_ok()
+fun test_anyone_bids_ok()
 {
     // ADMIN creates auction
     let mut runner = begin();
@@ -509,7 +511,7 @@ fun test_bid_ok()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_bid_e_wrong_time_too_early()
+fun test_anyone_bids_e_wrong_time_too_early()
 {
     // ADMIN creates auction that starts 1 second from now
     let mut runner = begin();
@@ -527,8 +529,24 @@ fun test_bid_e_wrong_time_too_early()
 }
 
 #[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_anyone_bids_e_wrong_time_too_late()
+{
+    // ADMIN creates auction
+    let mut runner = begin();
+    let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
+
+    // BIDDER_1 tries to bid the moment the auction ends
+    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.anyone_bids(BIDDER_1, &mut auction, 1000);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
 #[expected_failure(abort_code = auction::E_WRONG_COIN_VALUE)]
-fun test_bid_e_wrong_coin_value_1st_bid()
+fun test_anyone_bids_e_wrong_coin_value_1st_bid()
 {
     // ADMIN creates auction
     let mut runner = begin();
@@ -544,7 +562,7 @@ fun test_bid_e_wrong_coin_value_1st_bid()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_COIN_VALUE)]
-fun test_bid_e_wrong_coin_value_2nd_bid()
+fun test_anyone_bids_e_wrong_coin_value_2nd_bid()
 {
     // ADMIN creates auction
     let mut runner = begin();
@@ -564,7 +582,7 @@ fun test_bid_e_wrong_coin_value_2nd_bid()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_COIN_VALUE)]
-fun test_bid_e_wrong_coin_value_tiny_amounts()
+fun test_anyone_bids_e_wrong_coin_value_tiny_amounts()
 {
     // ADMIN creates auction
     let mut runner = begin();
@@ -578,22 +596,6 @@ fun test_bid_e_wrong_coin_value_tiny_amounts()
 
     // BIDDER_2 bids
     runner.anyone_bids(BIDDER_2, &mut auction, 1);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-#[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_bid_e_wrong_time_too_late()
-{
-    // ADMIN creates auction
-    let mut runner = begin();
-    let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
-
-    // BIDDER_1 tries to bid the moment the auction ends
-    runner.clock.set_for_testing(auction.end_time_ms());
-    runner.anyone_bids(BIDDER_1, &mut auction, 1000);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
