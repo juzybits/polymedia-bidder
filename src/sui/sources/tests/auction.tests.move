@@ -299,12 +299,12 @@ fun test_new_auction_e_wrong_time()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_DURATION)]
-fun test_new_auction_e_wrong_duration_zero()
+fun test_new_auction_e_wrong_duration_too_short()
 {
-    // ADMIN tries to create an auction with 0 duration
+    // ADMIN tries to create an auction that is too short
     let mut runner = begin();
     let mut args = auction_args();
-    args.duration_ms = 0;
+    args.duration_ms = 500; // half a second
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
