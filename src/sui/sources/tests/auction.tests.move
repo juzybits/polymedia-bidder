@@ -265,7 +265,20 @@ fun test_new_auction_ok()
     assert_eq( auction.minimum_increase_bps(), args.minimum_increase_bps );
     assert_eq( auction.extension_period_ms(), args.extension_period_ms );
 
-    // clean up
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_ADDRESS)]
+fun test_new_auction_e_wrong_address()
+{
+    // ADMIN tries to create an auction with pay_add = 0x0
+    let mut runner = begin();
+    let mut args = auction_args();
+    args.pay_addr = @0x0;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -280,7 +293,6 @@ fun test_new_auction_e_wrong_time()
     args.begin_time_ms = runner.clock.timestamp_ms() - 1;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -295,7 +307,6 @@ fun test_new_auction_e_wrong_duration()
     args.duration_ms = 0;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -310,7 +321,6 @@ fun test_new_auction_e_wrong_minimum_increase()
     args.minimum_increase_bps = 0;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -325,7 +335,6 @@ fun test_new_auction_e_wrong_minimum_bid()
     args.minimum_bid = 0;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -340,7 +349,6 @@ fun test_new_auction_e_wrong_extension_period()
     args.extension_period_ms = 0;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -378,7 +386,6 @@ fun test_bid_ok()
     runner.assert_owns_sui(BIDDER_1, minimum_bid_1); // got their money back
     assert_eq(auction.end_time_ms(), end_time_1 + auction.extension_period_ms()); // extended end time
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -398,7 +405,6 @@ fun test_bid_e_wrong_time_too_early()
     runner.clock.set_for_testing(begin_time_ms - 1);
     runner.anyone_bids(BIDDER_1, &mut auction, 1000);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -415,7 +421,6 @@ fun test_bid_e_wrong_coin_value_1st_bid()
     let minimum_bid = auction.minimum_bid();
     runner.anyone_bids(BIDDER_1, &mut auction, minimum_bid - 1);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -436,7 +441,6 @@ fun test_bid_e_wrong_coin_value_2nd_bid()
     let min_second_bid = 1010; // 1% higher than the initial bid of 1000
     runner.anyone_bids(BIDDER_2, &mut auction, min_second_bid - 1);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -458,7 +462,6 @@ fun test_bid_e_wrong_coin_value_tiny_amounts()
     // BIDDER_2 bids
     runner.anyone_bids(BIDDER_2, &mut auction, 1);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -475,7 +478,6 @@ fun test_bid_e_wrong_time_too_late()
     runner.clock.set_for_testing(auction.end_time_ms());
     runner.anyone_bids(BIDDER_1, &mut auction, 1000);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -500,7 +502,6 @@ fun test_claim_ok()
     // PAYEE gets the money
     runner.assert_owns_sui(PAYEE, bid_value);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
     test_utils::destroy(item);
@@ -522,7 +523,6 @@ fun test_claim_e_wrong_address()
     runner.clock.set_for_testing(auction.end_time_ms() );
     let item = runner.winner_takes_item(BIDDER_2, &mut auction, ITEM_ADDR);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
     test_utils::destroy(item);
@@ -544,7 +544,6 @@ fun test_claim_e_wrong_time()
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
     let item = runner.winner_takes_item(BIDDER_1, &mut auction, ITEM_ADDR);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
     test_utils::destroy(item);
@@ -572,7 +571,6 @@ fun test_admin_claim_ok_with_winner()
     // PAYEE gets the money
     runner.assert_owns_sui(PAYEE, bid_value);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
     test_utils::destroy(item);
@@ -591,7 +589,6 @@ fun test_admin_claim_ok_without_winner()
     // ADMIN gets the item because there's no bids
     runner.assert_owns_item(ADMIN);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
     test_utils::destroy(item);
@@ -608,7 +605,6 @@ fun test_admin_claim_e_wrong_admin()
     // RANDO tries to end the auction early
     let item = runner.admin_reclaims_item(RANDO, &mut auction, ITEM_ADDR);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
     test_utils::destroy(item);
@@ -633,7 +629,6 @@ fun test_admin_cancel_ok()
     // BIDDER_1 gets their money back
     runner.assert_owns_sui(BIDDER_1, bid_value);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -649,7 +644,6 @@ fun test_admin_cancel_e_wrong_admin()
     // RANDO tries to cancel the auction
     runner.admin_cancels_auction(RANDO, &mut auction);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -670,7 +664,6 @@ fun test_admin_set_pay_addr_ok()
     // new_pay_addr will get the money when the auction is over
     assert_eq(auction.pay_addr(), new_pay_addr);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -687,7 +680,6 @@ fun test_admin_set_pay_addr_e_wrong_admin()
     let new_pay_addr = @0x123;
     runner.admin_sets_pay_addr(RANDO, &mut auction, new_pay_addr);
 
-    // clean up
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
