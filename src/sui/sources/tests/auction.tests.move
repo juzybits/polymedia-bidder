@@ -299,12 +299,27 @@ fun test_new_auction_e_wrong_minimum_bid()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_new_auction_e_wrong_time()
+fun test_new_auction_e_wrong_time_past()
 {
     // ADMIN tries to create an auction that starts 1 millisecond ago
     let mut runner = begin();
     let mut args = auction_args();
     args.begin_time_ms = runner.clock.timestamp_ms() - 1;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_new_auction_e_wrong_time_future()
+{
+    // ADMIN tries to create an auction that starts too far in the future
+    let mut runner = begin();
+    let mut args = auction_args();
+    let three_years = 3 * 365 * 24 * 60 * 60 * 1000;
+    args.begin_time_ms = runner.clock.timestamp_ms() + three_years;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
