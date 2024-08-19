@@ -369,12 +369,26 @@ fun test_new_auction_e_wrong_minimum_increase_too_large()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_EXTENSION_PERIOD)]
-fun test_new_auction_e_wrong_extension_period()
+fun test_new_auction_e_wrong_extension_period_too_short()
 {
     // ADMIN tries to create an auction with 0 extension period
     let mut runner = begin();
     let mut args = auction_args();
     args.extension_period_ms = 0;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_EXTENSION_PERIOD)]
+fun test_new_auction_e_wrong_extension_period_too_long()
+{
+    // ADMIN tries to create an auction with 0 extension period
+    let mut runner = begin();
+    let mut args = auction_args();
+    args.extension_period_ms = 1 * 365 * 24 * 60 * 60 * 1000; // 1 year
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
