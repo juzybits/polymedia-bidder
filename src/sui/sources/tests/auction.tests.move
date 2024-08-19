@@ -358,10 +358,10 @@ fun test_new_auction_e_wrong_duration_too_long()
 #[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
 fun test_new_auction_e_wrong_minimum_increase_too_small()
 {
-    // ADMIN tries to create an auction with 0.00% minimum bid increase
+    // ADMIN tries to create an auction a very small minimum bid increase
     let mut runner = begin();
     let mut args = auction_args();
-    args.minimum_increase_bps = 0;
+    args.minimum_increase_bps = 5; // 0.05%
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
@@ -372,7 +372,7 @@ fun test_new_auction_e_wrong_minimum_increase_too_small()
 #[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
 fun test_new_auction_e_wrong_minimum_increase_too_large()
 {
-    // ADMIN tries to create an auction with 0.00% minimum bid increase
+    // ADMIN tries to create an auction with a very large minimum bid increase
     let mut runner = begin();
     let mut args = auction_args();
     args.minimum_increase_bps = 1_000_000 * 100; // 1 million %
