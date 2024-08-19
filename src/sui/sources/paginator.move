@@ -10,14 +10,16 @@ public fun get_page<T: store + copy>(
     limit: u64,
 ): (vector<T>, bool, u64)
 {
-    if (ascending) {
+    if (items.length() == 0) {
+        (vector::empty(), false, 0)
+    } else if (ascending) {
         get_page_ascending(items, cursor, limit)
     } else {
         get_page_descending(items, cursor, limit)
     }
 }
 
-public fun get_page_ascending<T: store + copy>(
+fun get_page_ascending<T: store + copy>(
     items: &TableVec<T>,
     cursor: u64,
     limit: u64,
@@ -41,7 +43,7 @@ public fun get_page_ascending<T: store + copy>(
     return (data, has_more, next_cursor)
 }
 
-public fun get_page_descending<T: store + copy>(
+fun get_page_descending<T: store + copy>(
     items: &TableVec<T>,
     cursor: u64,
     limit: u64,
