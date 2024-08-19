@@ -773,6 +773,37 @@ fun test_admin_ends_auction_early_ok_without_bids()
     test_utils::destroy(auction);
 }
 
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_admin_ends_auction_early_e_wrong_time()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // it's 5 minutes after the auction ended
+    let five_minutes = 5 * 60 * 1000;
+    let current_time = auction.end_time_ms() + five_minutes;
+    runner.clock.set_for_testing(current_time);
+
+    // ADMIN tries to the auction early
+    runner.admin_ends_auction_early(ADMIN, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
+fun test_admin_ends_auction_early_e_wrong_admin()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // RANDO tries to the auction early
+    runner.admin_ends_auction_early(RANDO, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
 // =====
 
 #[test]
