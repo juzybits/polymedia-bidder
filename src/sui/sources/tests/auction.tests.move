@@ -413,6 +413,23 @@ fun test_new_auction_e_wrong_extension_period_too_long()
 // =====
 
 #[test]
+fun test_admin_adds_item_ok()
+{
+    let mut runner = begin();
+
+    let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
+    assert_eq( auction.item_addrs().length(), 1 );
+
+    runner.admin_adds_item(ADMIN, &mut auction);
+    runner.admin_adds_item(ADMIN, &mut auction);
+    runner.admin_adds_item(ADMIN, &mut auction);
+    assert_eq( auction.item_addrs().length(), 4 );
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
 fun test_bid_ok()
 {
     // ADMIN creates auction
