@@ -164,22 +164,20 @@ public fun anyone_bids(
     );
 }
 
-public fun winner_takes_item(
+public fun anyone_sends_item_to_winner(
     runner: &mut TestRunner,
     sender: address,
     auction: &mut Auction<SUI>,
     item_addr: address,
-): Option<Item> {
+) {
     runner.scen.next_tx(sender);
-    return auction::winner_takes_item(
+    auction::anyone_sends_item_to_winner<SUI, Item>(
         auction,
         item_addr,
         &runner.clock,
         runner.scen.ctx(),
-    )
+    );
 }
-
-// public fun anyone_sends_item_to_winner // TODO
 
 // public fun anyone_pays_funds // TODO
 
@@ -608,14 +606,13 @@ fun test_claim_ok()
 
     // BIDDER_1 claims the moment the auction ends
     runner.clock.set_for_testing(auction.end_time_ms());
-    let item = runner.winner_takes_item(BIDDER_1, &mut auction, ITEM_ADDR);
+    runner.anyone_sends_item_to_winner(BIDDER_1, &mut auction, ITEM_ADDR);
 
     // PAYEE gets the money
     runner.assert_owns_sui(PAYEE, bid_value);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -630,11 +627,10 @@ fun test_claim_e_wrong_address()
 
     // BIDDER_2 tries to claim
     runner.clock.set_for_testing(auction.end_time_ms() );
-    let item = runner.winner_takes_item(BIDDER_2, &mut auction, ITEM_ADDR);
+    runner.anyone_sends_item_to_winner(BIDDER_2, &mut auction, ITEM_ADDR);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -649,11 +645,10 @@ fun test_claim_e_wrong_time()
 
     // BIDDER_1 tries to claim 1 millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
-    let item = runner.winner_takes_item(BIDDER_1, &mut auction, ITEM_ADDR);
+    runner.anyone_sends_item_to_winner(BIDDER_1, &mut auction, ITEM_ADDR);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 // =====
