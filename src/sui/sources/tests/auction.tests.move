@@ -622,9 +622,24 @@ fun test_anyone_sends_item_to_winner_e_wrong_time()
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
-    // RANDO tries to send item to BIDDER_1 1 millisecond before the auction ends
+    // RANDO tries to send item to BIDDER_1, 1 millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
-    runner.anyone_sends_item_to_winner(BIDDER_1, &mut auction, item_addr);
+    runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_ADDRESS)]
+fun test_anyone_sends_item_to_winner_e_wrong_address()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
+
+    // RANDO tries to send item to the winner, but nobody placed a bid so there's no winner
+    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
