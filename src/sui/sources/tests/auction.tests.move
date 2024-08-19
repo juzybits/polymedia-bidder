@@ -416,7 +416,6 @@ fun test_new_auction_e_wrong_extension_period_too_long()
 fun test_admin_adds_item_ok()
 {
     let mut runner = begin();
-
     let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
     assert_eq( auction.item_addrs().length(), 1 );
 
@@ -424,6 +423,21 @@ fun test_admin_adds_item_ok()
     runner.admin_adds_item(ADMIN, &mut auction);
     runner.admin_adds_item(ADMIN, &mut auction);
     assert_eq( auction.item_addrs().length(), 4 );
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_admin_adds_item_e_wrong_time()
+{
+    // ADMIN tries to add an item after the auction has ended
+    let mut runner = begin();
+    let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
+
+    runner.clock.set_for_testing(auction.end_time_ms());
+    runner.admin_adds_item(ADMIN, &mut auction);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
