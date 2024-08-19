@@ -299,12 +299,26 @@ fun test_new_auction_e_wrong_time()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_DURATION)]
-fun test_new_auction_e_wrong_duration()
+fun test_new_auction_e_wrong_duration_zero()
 {
     // ADMIN tries to create an auction with 0 duration
     let mut runner = begin();
     let mut args = auction_args();
     args.duration_ms = 0;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_DURATION)]
+fun test_new_auction_e_wrong_duration_too_long()
+{
+    // ADMIN tries to create an auction that lasts too long
+    let mut runner = begin();
+    let mut args = auction_args();
+    args.duration_ms = 365 * 24 * 60 * 60 * 1000; // 1 year
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
