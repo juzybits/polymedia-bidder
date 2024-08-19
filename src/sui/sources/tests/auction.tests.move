@@ -54,19 +54,19 @@ public fun auction_args(): AuctionArgs {
 // === test runner ===
 
 public struct TestRunner {
-    scenario: Scenario,
+    scen: Scenario,
     clock: Clock,
     history: History,
 }
 
 public fun begin(): TestRunner
 {
-    let mut scenario = test_scenario::begin(ADMIN);
-    let mut clock = clock::create_for_testing(scenario.ctx());
-    let history = history::new_history_for_testing(scenario.ctx());
+    let mut scen = test_scenario::begin(ADMIN);
+    let mut clock = clock::create_for_testing(scen.ctx());
+    let history = history::new_history_for_testing(scen.ctx());
     clock.set_for_testing(24*3600*1000);
     return TestRunner {
-        scenario,
+        scen,
         clock,
         history,
     }
@@ -75,19 +75,19 @@ public fun begin(): TestRunner
 // === helpers for sui modules ===
 
 public fun mint_sui(runner: &mut TestRunner, value: u64): Coin<SUI> {
-    coin::mint_for_testing<SUI>(value, runner.scenario.ctx())
+    coin::mint_for_testing<SUI>(value, runner.scen.ctx())
 }
 
 public fun take_auction(runner: &mut TestRunner): Auction<SUI> {
-    runner.scenario.next_tx(ADMIN);
-    runner.scenario.take_shared<Auction<SUI>>()
+    runner.scen.next_tx(ADMIN);
+    runner.scen.take_shared<Auction<SUI>>()
 }
 
 // === helpers for our modules ===
 
 public fun item_new(runner: &mut TestRunner): Item {
     return Item {
-        id: object::new(runner.scenario.ctx()),
+        id: object::new(runner.scen.ctx()),
         name: b"foo".to_string(),
     }
 }
@@ -107,14 +107,14 @@ public fun auction_new(
         args.minimum_increase_bps,
         args.extension_period_ms,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 
     let item_obj = runner.item_new();
     auction_obj.admin_adds_item(
         item_obj,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 
     return auction_obj
@@ -126,13 +126,13 @@ public fun auction_bid(
     bidder_addr: address,
     bid_value: u64,
 ) {
-    runner.scenario.next_tx(bidder_addr);
+    runner.scen.next_tx(bidder_addr);
     let bid_coin = runner.mint_sui(bid_value);
     auction::anyone_bids(
         auction,
         bid_coin,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 }
 
@@ -142,12 +142,12 @@ public fun auction_claim(
     claimer_addr: address,
     item_addr: address,
 ): Option<Item> {
-    runner.scenario.next_tx(claimer_addr);
+    runner.scen.next_tx(claimer_addr);
     return auction::winner_takes_item(
         auction,
         item_addr,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     )
 }
 
@@ -156,12 +156,12 @@ public fun auction_admin_claim(
     auction: &mut Auction<SUI>,
     item_addr: address,
 ): Item {
-    runner.scenario.next_tx(ADMIN);
+    runner.scen.next_tx(ADMIN);
     return auction::admin_reclaims_item(
         auction,
         item_addr,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     )
 }
 
@@ -169,11 +169,11 @@ public fun auction_admin_cancel(
     runner: &mut TestRunner,
     auction: &mut Auction<SUI>,
 ) {
-    runner.scenario.next_tx(ADMIN);
+    runner.scen.next_tx(ADMIN);
     auction::admin_cancels_auction(
         auction,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 }
 
@@ -182,11 +182,11 @@ public fun auction_admin_set_pay_addr(
     auction: &mut Auction<SUI>,
     new_pay_addr: address,
 ) {
-    runner.scenario.next_tx(ADMIN);
+    runner.scen.next_tx(ADMIN);
     auction::admin_sets_pay_addr(
         auction,
         new_pay_addr,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 }
 
@@ -196,8 +196,8 @@ public fun assert_owns_item(
     runner: &mut TestRunner,
     owner_addr: address,
 ) {
-    runner.scenario.next_tx(owner_addr);
-    assert!(runner.scenario.has_most_recent_for_sender<Item>());
+    runner.scen.next_tx(owner_addr);
+    assert!(runner.scen.has_most_recent_for_sender<Item>());
 }
 
 public fun assert_owns_sui(
@@ -205,8 +205,8 @@ public fun assert_owns_sui(
     owner_addr: address,
     sui_value: u64,
 ) {
-    runner.scenario.next_tx(owner_addr);
-    let paid_coin = runner.scenario.take_from_sender<Coin<SUI>>();
+    runner.scen.next_tx(owner_addr);
+    let paid_coin = runner.scen.take_from_sender<Coin<SUI>>();
     assert_eq(paid_coin.value(), sui_value);
     transfer::public_transfer(paid_coin, owner_addr);
 }
@@ -573,12 +573,12 @@ fun test_admin_claim_e_wrong_admin()
     let mut auction = runner.auction_new(auction_args());
 
     // RANDO tries to end the auction early
-    runner.scenario.next_tx(RANDO);
+    runner.scen.next_tx(RANDO);
     let item: Item = auction::admin_reclaims_item(
         &mut auction,
         ITEM_ADDR,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 
     // clean up
@@ -620,11 +620,11 @@ fun test_admin_cancel_e_wrong_admin()
     let mut auction = runner.auction_new(auction_args());
 
     // RANDO tries to cancel the auction
-    runner.scenario.next_tx(RANDO);
+    runner.scen.next_tx(RANDO);
     auction::admin_cancels_auction(
         &mut auction,
         &runner.clock,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 
     // clean up
@@ -662,12 +662,12 @@ fun test_admin_set_pay_addr_e_wrong_admin()
     let mut auction = runner.auction_new(auction_args());
 
     // RANDO tries to change pay_addr
-    runner.scenario.next_tx(RANDO);
+    runner.scen.next_tx(RANDO);
     let new_pay_addr = @0x123;
     auction::admin_sets_pay_addr(
         &mut auction,
         new_pay_addr,
-        runner.scenario.ctx(),
+        runner.scen.ctx(),
     );
 
     // clean up
