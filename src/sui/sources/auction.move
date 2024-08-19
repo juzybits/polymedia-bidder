@@ -29,9 +29,10 @@ const E_CANT_RECLAIM_WITH_BIDS: u64 = 5009;
 
 const ZERO_ADDRESS: address = @0x0;
 const MAX_ITEMS: u64 = 50;
+const MAX_BEGIN_TIME_MS: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days in the future
 const MIN_DURATION_MS: u64 = 10 * 1000; // 10 seconds
 const MAX_DURATION_MS: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days
-const MAX_INCREASE_BPS: u64 = 1000 * 100; // 1,000%
+const MAX_INCREASE_BPS: u64 = 1000 * 100; // 1,000% minimum bid increase
 const MAX_EXTENSION_PERIOD_MS: u64 = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 // === structs ===
@@ -88,11 +89,19 @@ public fun admin_creates_auction<CoinType>(
         else { begin_time_ms };
 
     assert!( pay_addr != ZERO_ADDRESS, E_WRONG_ADDRESS );
-    assert!( adjusted_begin_time_ms >= current_time, E_WRONG_TIME ); // TODO check that it's not too far in the future
-    assert!( duration_ms > MIN_DURATION_MS && duration_ms <= MAX_DURATION_MS, E_WRONG_DURATION );
     assert!( minimum_bid > 0, E_WRONG_MINIMUM_BID );
-    assert!( minimum_increase_bps > 0 && minimum_increase_bps <= MAX_INCREASE_BPS, E_WRONG_MINIMUM_INCREASE );
-    assert!( extension_period_ms > 0 && extension_period_ms <= MAX_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
+
+    assert!( adjusted_begin_time_ms >= current_time, E_WRONG_TIME );
+    assert!( adjusted_begin_time_ms <= current_time + MAX_BEGIN_TIME_MS, E_WRONG_TIME );
+
+    assert!( duration_ms >= MIN_DURATION_MS, E_WRONG_DURATION );
+    assert!( duration_ms <= MAX_DURATION_MS, E_WRONG_DURATION );
+
+    assert!( minimum_increase_bps > 0, E_WRONG_MINIMUM_INCREASE );
+    assert!( minimum_increase_bps <= MAX_INCREASE_BPS, E_WRONG_MINIMUM_INCREASE );
+
+    assert!( extension_period_ms > 0, E_WRONG_EXTENSION_PERIOD );
+    assert!( extension_period_ms <= MAX_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
 
     let auction = Auction {
         id: object::new(ctx),

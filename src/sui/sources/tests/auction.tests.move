@@ -284,6 +284,20 @@ fun test_new_auction_e_wrong_address()
 }
 
 #[test]
+#[expected_failure(abort_code = auction::E_WRONG_MINIMUM_BID)]
+fun test_new_auction_e_wrong_minimum_bid()
+{
+    // ADMIN tries to create an auction with 0 minimum bid
+    let mut runner = begin();
+    let mut args = auction_args();
+    args.minimum_bid = 0;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
 fun test_new_auction_e_wrong_time()
 {
@@ -319,20 +333,6 @@ fun test_new_auction_e_wrong_duration_too_long()
     let mut runner = begin();
     let mut args = auction_args();
     args.duration_ms = 10 * 365 * 24 * 60 * 60 * 1000; // 10 years
-    let auction = runner.admin_creates_auction(ADMIN, args);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-#[expected_failure(abort_code = auction::E_WRONG_MINIMUM_BID)]
-fun test_new_auction_e_wrong_minimum_bid()
-{
-    // ADMIN tries to create an auction with 0 minimum bid
-    let mut runner = begin();
-    let mut args = auction_args();
-    args.minimum_bid = 0;
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
