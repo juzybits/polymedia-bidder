@@ -254,15 +254,16 @@ fun test_new_auction_ok()
 
     // asserts
     let args = auction_args();
-    assert_eq(auction.begin_time_ms(), runner.clock.timestamp_ms());
-    assert_eq(auction.end_time_ms(), runner.clock.timestamp_ms() + args.duration_ms);
-    assert_eq(auction.admin_addr(), ADMIN);
-    assert_eq(auction.pay_addr(), args.pay_addr);
-    assert_eq(auction.lead_addr(), @0x0);
-    assert_eq(auction.lead_value(), 0);
-    assert_eq(auction.minimum_bid(), args.minimum_bid);
-    assert_eq(auction.minimum_increase_bps(), args.minimum_increase_bps);
-    assert_eq(auction.extension_period_ms(), args.extension_period_ms);
+    assert_eq( auction.item_addrs().length(), 1 );
+    assert_eq( auction.admin_addr(), ADMIN );
+    assert_eq( auction.pay_addr(), args.pay_addr );
+    assert_eq( auction.lead_addr(), @0x0 );
+    assert_eq( auction.lead_value(), 0 );
+    assert_eq( auction.begin_time_ms(), runner.clock.timestamp_ms() );
+    assert_eq( auction.end_time_ms(), runner.clock.timestamp_ms() + args.duration_ms );
+    assert_eq( auction.minimum_bid(), args.minimum_bid );
+    assert_eq( auction.minimum_increase_bps(), args.minimum_increase_bps );
+    assert_eq( auction.extension_period_ms(), args.extension_period_ms );
 
     // clean up
     test_utils::destroy(runner);
