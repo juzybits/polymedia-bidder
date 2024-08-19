@@ -432,12 +432,26 @@ fun test_admin_adds_item_ok()
 #[expected_failure(abort_code = auction::E_WRONG_TIME)]
 fun test_admin_adds_item_e_wrong_time()
 {
-    // ADMIN tries to add an item after the auction has ended
     let mut runner = begin();
     let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
 
+    // ADMIN tries to add an item after the auction has ended
     runner.clock.set_for_testing(auction.end_time_ms());
     runner.admin_adds_item(ADMIN, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
+fun test_admin_adds_item_e_wrong_admin()
+{
+    let mut runner = begin();
+    let mut auction = runner.admin_creates_auction(ADMIN, auction_args());
+
+    // RANDO tries to add an item to someone else's auction
+    runner.admin_adds_item(RANDO, &mut auction);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
