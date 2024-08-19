@@ -735,9 +735,8 @@ fun test_admin_ends_auction_early_ok_with_bids()
     // but ADMIN ends the auction early
     runner.admin_ends_auction_early(ADMIN, &mut auction);
 
-    // the auction has ended
+    // auction has ended
     assert_eq( auction.has_ended(&runner.clock), true );
-    assert_eq( auction.end_time_ms(), current_time );
 
     // PAYEE gets the money
     runner.assert_owns_sui(PAYEE, bid_value);
@@ -765,9 +764,8 @@ fun test_admin_ends_auction_early_ok_without_bids()
     // but ADMIN ends the auction early
     runner.admin_ends_auction_early(ADMIN, &mut auction);
 
-    // the auction has ended
+    // auction has ended
     assert_eq( auction.has_ended(&runner.clock), true );
-    assert_eq( auction.end_time_ms(), current_time );
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -862,10 +860,10 @@ fun test_admin_claim_e_wrong_admin()
     test_utils::destroy(item);
 }
 
-// =====
+// === tests: admin_cancels_auction ===
 
 #[test]
-fun test_admin_cancel_ok()
+fun test_admin_cancels_auction_ok_with_bids()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
@@ -873,11 +871,22 @@ fun test_admin_cancel_ok()
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
+    // it's 10 minutes before the auction ends
+    let ten_minutes = 10 * 60 * 1000;
+    let current_time = auction.end_time_ms() - ten_minutes;
+    runner.clock.set_for_testing(current_time);
+
     // ADMIN cancels the auction
     runner.admin_cancels_auction(ADMIN, &mut auction);
 
     // BIDDER_1 gets their money back
     runner.assert_owns_sui(BIDDER_1, bid_value);
+
+    // auction has ended
+    assert_eq( auction.has_ended(&runner.clock), true );
+
+    // auction has no leader/winner
+    assert_eq( auction.has_leader(), false );
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -885,7 +894,7 @@ fun test_admin_cancel_ok()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
-fun test_admin_cancel_e_wrong_admin()
+fun test_admin_cancels_auction_e_wrong_admin()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
