@@ -318,21 +318,7 @@ fun test_new_auction_e_wrong_duration_too_long()
     // ADMIN tries to create an auction that lasts too long
     let mut runner = begin();
     let mut args = auction_args();
-    args.duration_ms = 365 * 24 * 60 * 60 * 1000; // 1 year
-    let auction = runner.admin_creates_auction(ADMIN, args);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-#[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
-fun test_new_auction_e_wrong_minimum_increase()
-{
-    // ADMIN tries to create an auction with 0.00% minimum bid increase
-    let mut runner = begin();
-    let mut args = auction_args();
-    args.minimum_increase_bps = 0;
+    args.duration_ms = 10 * 365 * 24 * 60 * 60 * 1000; // 10 years
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
@@ -347,6 +333,34 @@ fun test_new_auction_e_wrong_minimum_bid()
     let mut runner = begin();
     let mut args = auction_args();
     args.minimum_bid = 0;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
+fun test_new_auction_e_wrong_minimum_increase_too_small()
+{
+    // ADMIN tries to create an auction with 0.00% minimum bid increase
+    let mut runner = begin();
+    let mut args = auction_args();
+    args.minimum_increase_bps = 0;
+    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_MINIMUM_INCREASE)]
+fun test_new_auction_e_wrong_minimum_increase_too_large()
+{
+    // ADMIN tries to create an auction with 0.00% minimum bid increase
+    let mut runner = begin();
+    let mut args = auction_args();
+    args.minimum_increase_bps = 1_000_000 * 100; // 1 million %
     let auction = runner.admin_creates_auction(ADMIN, args);
 
     test_utils::destroy(runner);
