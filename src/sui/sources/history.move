@@ -142,6 +142,11 @@ fun init(otw: HISTORY, ctx: &mut TxContext)
 // === test functions ===
 
 #[test_only]
+public fun init_for_testing(ctx: &mut TxContext) {
+    init(HISTORY {}, ctx)
+}
+
+#[test_only]
 public fun new_history_for_testing(ctx: &mut TxContext): History {
     return new_history(ctx)
 }

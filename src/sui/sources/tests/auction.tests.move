@@ -30,7 +30,8 @@ public fun new_item(runner: &mut TestRunner): Item {
 // === addresses ===
 
 const ADMIN: address = @0x777;
-const PAYEE: address = @0x888;
+const ADMIN_2: address = @0x888;
+const PAYEE: address = @0x999;
 const BIDDER_1: address = @0xb1;
 const BIDDER_2: address = @0xb2;
 const RANDO: address = @0xbabe;
@@ -253,12 +254,6 @@ public fun admin_sets_pay_addr(
     );
 }
 
-// public fun has_ended // TODO
-
-// public fun is_live // TODO
-
-// public fun has_leader // TODO
-
 // === asserts ===
 
 public fun assert_owns_item(
@@ -304,6 +299,43 @@ fun test_admin_creates_auction_ok()
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
+}
+
+#[test]
+fun test_history()
+{
+    let mut runner = begin();
+
+    let mut args = auction_args();
+    args.name = b"auction 1";
+    let auction1 = runner.admin_creates_auction(ADMIN, args);
+
+    assert_eq( runner.history.total_auctions(), 1 );
+    assert_eq( runner.history.creators().length(), 1 );
+    assert_eq( runner.history.creators().borrow(ADMIN).auctions().length(), 1 );
+
+    let mut args = auction_args();
+    args.name = b"auction 2";
+    let auction2 = runner.admin_creates_auction(ADMIN_2, args);
+
+    let mut args = auction_args();
+    args.name = b"auction 3";
+    let auction3 = runner.admin_creates_auction(ADMIN_2, args);
+
+    assert_eq( runner.history.total_auctions(), 3 );
+    assert_eq( runner.history.creators().length(), 2 );
+    assert_eq( runner.history.creators().borrow(ADMIN_2).auctions().length(), 2 );
+
+    let (auctions_admin_2, _, _) = runner.history.get_auctions(ADMIN_2, false, 999, 10);
+    assert_eq( auctions_admin_2.length(), 2 );
+
+    let (auctions_rando, _, _) = runner.history.get_auctions(RANDO, false, 999, 10);
+    assert_eq( auctions_rando.length(), 0 );
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction1);
+    test_utils::destroy(auction2);
+    test_utils::destroy(auction3);
 }
 
 #[test]
@@ -508,6 +540,7 @@ fun test_anyone_bids_ok()
     let minimum_bid_1 = auction.minimum_bid();
     assert_eq( minimum_bid_1, 1000 );
     assert_eq( auction.begin_time_ms(), runner.clock.timestamp_ms() );
+    assert_eq( auction.has_leader(), false );
     // bid
     runner.anyone_bids(BIDDER_1, &mut auction, minimum_bid_1);
     // check outcome
@@ -515,6 +548,7 @@ fun test_anyone_bids_ok()
     assert_eq( auction.lead_value(), minimum_bid_1 );
     let minimum_bid_2 = auction.minimum_bid();
     assert_eq( minimum_bid_2, 1010 ); // 1% higher
+    assert_eq( auction.has_leader(), true );
 
     // BIDDER_2 bids a millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
@@ -628,13 +662,21 @@ fun test_anyone_sends_item_to_winner_ok()
     // BIDDER_1 bids
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    assert_eq( auction.is_live(&runner.clock), true );
 
     // RANDO sends item to BIDDER_1 the moment the auction ends
     runner.set_clock_to_auction_end_time(&mut auction);
     runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
+    assert_eq( auction.is_live(&runner.clock), false );
 
     // BIDDER_1 gets the item
     runner.assert_owns_item(BIDDER_1);
+
+    // RANDO tries to send the item to BIDDER_1 again (nothing happens and no error is raised)
+    runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
+
+    // RANDO tries to send a made up item to BIDDER_1 (nothing happens and no error is raised)
+    runner.anyone_sends_item_to_winner(RANDO, &mut auction, @0xaaa111);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -800,6 +842,7 @@ fun test_admin_ends_auction_early_e_wrong_admin()
 fun test_admin_cancels_auction_ok_with_bids()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
 
     // BIDDER_1 bids
     let bid_value = 1000;
@@ -818,8 +861,32 @@ fun test_admin_cancels_auction_ok_with_bids()
     // auction has no leader/winner
     assert_eq( auction.has_leader(), false );
 
+    // ADMIN can recover the item
+    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+
     test_utils::destroy(runner);
     test_utils::destroy(auction);
+    test_utils::destroy(item);
+}
+
+#[test]
+fun test_admin_cancels_auction_ok_without_bids()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
+
+    // ADMIN cancels the auction
+    runner.admin_cancels_auction(ADMIN, &mut auction);
+
+    // auction has ended
+    assert_eq( auction.has_ended(&runner.clock), true );
+
+    // ADMIN can recover the item
+    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+    test_utils::destroy(item);
 }
 
 #[test]
@@ -849,7 +916,7 @@ fun test_admin_cancels_auction_e_wrong_time()
     test_utils::destroy(auction);
 }
 
-// === tests: admin_reclaims_item === TODO
+// === tests: admin_reclaims_item ===
 
 #[test]
 fun test_admin_reclaims_item_ok_without_bids()
@@ -977,4 +1044,20 @@ fun test_admin_set_pay_addr_e_wrong_admin()
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
+}
+
+#[test]
+fun test_init_auction()
+{
+    let mut runner = begin();
+    auction::init_for_testing(runner.scen.ctx());
+    test_utils::destroy(runner);
+}
+
+#[test]
+fun test_init_history()
+{
+    let mut runner = begin();
+    history::init_for_testing(runner.scen.ctx());
+    test_utils::destroy(runner);
 }
