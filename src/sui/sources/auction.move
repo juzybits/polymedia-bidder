@@ -190,13 +190,9 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
     auction: &mut Auction<CoinType>,
     item_addr: address,
     clock: &Clock,
-    ctx: &mut TxContext,
 ) {
     assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.has_leader(), E_WRONG_ADDRESS );
-
-    // send funds to pay_addr (if any)
-    auction.anyone_pays_funds(clock, ctx);
 
     // send the item to the winner (but keep the item address in auction.item_addrs)
     if (auction.item_bag.contains(item_addr)) {
@@ -228,11 +224,7 @@ public fun admin_ends_auction_early<CoinType>(
     assert!( !auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
 
-    // end auction immediately
     auction.end_time_ms = clock.timestamp_ms();
-
-    // send funds to winner (if any)
-    auction.anyone_pays_funds(clock, ctx);
 }
 
 /// Admin can cancel the auction at any time and return the funds to the leader (if any).
@@ -244,8 +236,7 @@ public fun admin_cancels_auction<CoinType>(
     assert!( !auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
 
-    // end auction immediately
-    auction.end_time_ms = clock.timestamp_ms();
+    auction.admin_ends_auction_early(clock, ctx);
 
     if (auction.lead_value() > 0) {
         // return funds to leader
@@ -269,9 +260,7 @@ public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     assert!( !auction.has_leader(), E_CANT_RECLAIM_WITH_BIDS );
 
-    let (item_exists, item_idx) = auction.item_addrs.index_of(&item_addr);
-    assert!( item_exists, E_WRONG_ADDRESS ); // should never happen
-
+    let (_item_exists, item_idx) = auction.item_addrs.index_of(&item_addr);
     auction.item_addrs.remove(item_idx);
     let item = auction.item_bag.remove<address, ItemType>(item_addr);
     return item

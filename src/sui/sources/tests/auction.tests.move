@@ -189,7 +189,6 @@ public fun anyone_sends_item_to_winner(
         auction,
         item_addr,
         &runner.clock,
-        runner.scen.ctx(),
     );
 }
 
@@ -641,9 +640,6 @@ fun test_anyone_sends_item_to_winner_ok()
     // BIDDER_1 gets the item
     runner.assert_owns_item(BIDDER_1);
 
-    // PAYEE gets the money
-    runner.assert_owns_sui(PAYEE, bid_value);
-
     test_utils::destroy(runner);
     test_utils::destroy(auction);
 }
@@ -748,9 +744,6 @@ fun test_admin_ends_auction_early_ok_with_bids()
 
     // auction has ended
     assert_eq( auction.has_ended(&runner.clock), true );
-
-    // PAYEE gets the money
-    runner.assert_owns_sui(PAYEE, bid_value);
 
     // RANDO sends item to BIDDER_1
     runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
