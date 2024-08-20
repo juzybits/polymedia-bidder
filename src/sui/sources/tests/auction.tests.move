@@ -288,7 +288,10 @@ fun test_admin_creates_auction_ok()
     let (runner, auction) = begin_with_auction(auction_args());
     let args = auction_args();
 
+    assert_eq( auction.name(), args.name.to_string() );
+    assert_eq( auction.description(), args.description.to_string() );
     assert_eq( auction.item_addrs().length(), 1 );
+    assert_eq( auction.item_bag().length(), 1 );
     assert_eq( auction.admin_addr(), ADMIN );
     assert_eq( auction.pay_addr(), args.pay_addr );
     assert_eq( auction.lead_addr(), @0x0 );
