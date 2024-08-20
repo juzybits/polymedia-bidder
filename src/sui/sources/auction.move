@@ -158,13 +158,12 @@ public fun anyone_bids<CoinType>(
     ctx: &mut TxContext,
 ) {
     assert!( auction.is_live(clock), E_WRONG_TIME );
-    assert!( auction.minimum_bid <= pay_coin.value(), E_WRONG_COIN_VALUE );
+    assert!( pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE );
 
     // send the auction balance to the previous leader, who has just been outbid
     if (auction.lead_value() > 0) {
-        let prev_lead_bal = balance::withdraw_all(&mut auction.lead_bal);
-        let prev_lead_coin = coin::from_balance(prev_lead_bal, ctx);
-        transfer::public_transfer(prev_lead_coin, auction.lead_addr);
+        let lead_addr = auction.lead_addr;
+        auction.withdraw_balance(lead_addr, ctx);
     };
 
     // update the leader and keep their coin balance
@@ -199,8 +198,7 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
     // send funds to pay_addr (if any)
     auction.anyone_pays_funds(clock, ctx);
 
-    // send the item to the winner
-    // (but keep the item address in auction.item_addrs)
+    // send the item to the winner (but keep the item address in auction.item_addrs)
     if (auction.item_bag.contains(item_addr)) {
         let item = auction.item_bag.remove<address, ItemType>(item_addr);
         transfer::public_transfer(item, auction.lead_addr);
@@ -216,8 +214,8 @@ public fun anyone_pays_funds<CoinType>(
     assert!( auction.has_ended(clock), E_WRONG_TIME );
 
     if (auction.lead_value() > 0) {
-        let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
-        transfer::public_transfer(lead_coin, auction.pay_addr);
+        let pay_addr = auction.pay_addr;
+        auction.withdraw_balance(pay_addr, ctx);
     }
 }
 
@@ -251,8 +249,8 @@ public fun admin_cancels_auction<CoinType>(
 
     if (auction.lead_value() > 0) {
         // return funds to leader
-        let lead_coin = auction.lead_bal.withdraw_all().into_coin(ctx);
-        transfer::public_transfer(lead_coin, auction.lead_addr);
+        let lead_addr = auction.lead_addr;
+        auction.withdraw_balance(lead_addr, ctx);
         // nobody wins the auction
         auction.lead_addr = ZERO_ADDRESS;
     };
@@ -329,6 +327,16 @@ public fun extension_period_ms<T>(a: &Auction<T>): u64      { a.extension_period
 // === public-package functions ===
 
 // === private functions ===
+
+fun withdraw_balance<CoinType>(
+    auction: &mut Auction<CoinType>,
+    recipient: address,
+    ctx: &mut TxContext,
+) {
+    let lead_bal = balance::withdraw_all(&mut auction.lead_bal);
+    let lead_coin = coin::from_balance(lead_bal, ctx);
+    transfer::public_transfer(lead_coin, recipient);
+}
 
 // === Initialization ===
 
