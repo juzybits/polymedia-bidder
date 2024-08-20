@@ -856,7 +856,24 @@ fun test_admin_cancels_auction_e_wrong_time()
 // === tests: admin_reclaims_item === TODO
 
 #[test]
-fun admin_reclaims_item_ok_with_bids()
+fun test_admin_reclaims_item_ok_without_bids()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
+
+    // auction ends without bids
+    runner.set_clock_to_auction_end_time(&mut auction);
+
+    // ADMIN recovers the item
+    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+    test_utils::destroy(item);
+}
+
+#[test]
+fun test_admin_reclaims_item_ok_with_bids_and_cancel()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
     let item_addr = auction.item_addrs()[0];
@@ -865,31 +882,14 @@ fun admin_reclaims_item_ok_with_bids()
     let bid_value = 1000;
     runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
 
-    // ADMIN ends the auction early
+    // ADMIN cancels the auction
+    runner.admin_cancels_auction(ADMIN, &mut auction);
+
+    // BIDDER_1 gets his money back
+    runner.assert_owns_sui(BIDDER_1, bid_value);
+
+    // ADMIN recovers the item
     let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
-
-    // BIDDER_1 gets the item because they won
-    runner.assert_owns_item(BIDDER_1);
-
-    // PAYEE gets the money
-    runner.assert_owns_sui(PAYEE, bid_value);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-    test_utils::destroy(item);
-}
-
-#[test]
-fun admin_reclaims_item_ok_without_winner()
-{
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-    let item_addr = auction.item_addrs()[0];
-
-    // ADMIN ends the auction early
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
-
-    // ADMIN gets the item because there's no bids
-    runner.assert_owns_item(ADMIN);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -898,12 +898,15 @@ fun admin_reclaims_item_ok_without_winner()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
-fun admin_reclaims_item_e_wrong_admin()
+fun test_admin_reclaims_item_e_wrong_admin()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
     let item_addr = auction.item_addrs()[0];
 
-    // RANDO tries to end the auction early
+    // auction ends without bids
+    runner.set_clock_to_auction_end_time(&mut auction);
+
+    // RANDO tries to steal the item
     let item = runner.admin_reclaims_item(RANDO, &mut auction, item_addr);
 
     test_utils::destroy(runner);
@@ -911,7 +914,44 @@ fun admin_reclaims_item_e_wrong_admin()
     test_utils::destroy(item);
 }
 
-// === tests: admin_sets_pay_addr === TODO
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_admin_reclaims_item_e_wrong_time()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
+
+    // ADMIN tries to recover the item before the auction ends
+    let item = runner.admin_reclaims_item(RANDO, &mut auction, item_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+    test_utils::destroy(item);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_CANT_RECLAIM_WITH_BIDS)]
+fun test_admin_reclaims_item_e_cant_reclaim_with_bids()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
+
+    // BIDDER_1 bids
+    let bid_value = 1000;
+    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+
+    // auction ends with bids
+    runner.set_clock_to_auction_end_time(&mut auction);
+
+    // ADMIN tries to recover the item
+    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+    test_utils::destroy(item);
+}
+
+// === tests: admin_sets_pay_addr ===
 
 #[test]
 fun test_admin_set_pay_addr_ok()
