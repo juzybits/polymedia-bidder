@@ -170,8 +170,7 @@ public fun anyone_bids(
 ) {
     runner.scen.next_tx(sender);
     let bid_coin = runner.mint_sui(bid_value);
-    auction::anyone_bids(
-        auction,
+    auction.anyone_bids(
         bid_coin,
         &runner.clock,
         runner.scen.ctx(),
@@ -185,8 +184,7 @@ public fun anyone_sends_item_to_winner(
     item_addr: address,
 ) {
     runner.scen.next_tx(sender);
-    auction::anyone_sends_item_to_winner<SUI, Item>(
-        auction,
+    auction.anyone_sends_item_to_winner<SUI, Item>(
         item_addr,
         &runner.clock,
     );
@@ -198,8 +196,7 @@ public fun anyone_pays_funds(
     auction: &mut Auction<SUI>,
 ) {
     runner.scen.next_tx(sender);
-    auction::anyone_pays_funds<SUI>(
-        auction,
+    auction.anyone_pays_funds<SUI>(
         &runner.clock,
         runner.scen.ctx(),
     );
@@ -211,8 +208,7 @@ public fun admin_ends_auction_early(
     auction: &mut Auction<SUI>,
 ) {
     runner.scen.next_tx(sender);
-    auction::admin_ends_auction_early<SUI>(
-        auction,
+    auction.admin_ends_auction_early<SUI>(
         &runner.clock,
         runner.scen.ctx(),
     );
@@ -224,8 +220,7 @@ public fun admin_cancels_auction(
     auction: &mut Auction<SUI>,
 ) {
     runner.scen.next_tx(sender);
-    auction::admin_cancels_auction(
-        auction,
+    auction.admin_cancels_auction(
         &runner.clock,
         runner.scen.ctx(),
     );
@@ -238,8 +233,7 @@ public fun admin_reclaims_item(
     item_addr: address,
 ): Item {
     runner.scen.next_tx(sender);
-    return auction::admin_reclaims_item(
-        auction,
+    return auction.admin_reclaims_item(
         item_addr,
         &runner.clock,
         runner.scen.ctx(),
@@ -253,8 +247,7 @@ public fun admin_sets_pay_addr(
     new_pay_addr: address,
 ) {
     runner.scen.next_tx(sender);
-    auction::admin_sets_pay_addr(
-        auction,
+    auction.admin_sets_pay_addr(
         new_pay_addr,
         runner.scen.ctx(),
     );
