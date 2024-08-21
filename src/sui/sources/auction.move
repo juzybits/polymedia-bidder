@@ -14,16 +14,18 @@ use auction::history::{History};
 
 // === errors ===
 
-const E_WRONG_TIME: u64 = 5000;
-const E_WRONG_ADMIN: u64 = 5001;
-const E_WRONG_ADDRESS: u64 = 5002;
-const E_WRONG_DURATION: u64 = 5003;
-const E_TOO_MANY_ITEMS: u64 = 5004;
+const E_WRONG_NAME: u64 = 5000;
+const E_WRONG_TIME: u64 = 5001;
+const E_WRONG_ADMIN: u64 = 5002;
+const E_WRONG_ADDRESS: u64 = 5003;
+const E_WRONG_DURATION: u64 = 5004;
+const E_TOO_MANY_ITEMS: u64 = 5005;
 const E_WRONG_COIN_VALUE: u64 = 5005;
-const E_WRONG_MINIMUM_BID: u64 = 5006;
-const E_WRONG_MINIMUM_INCREASE: u64 = 5007;
-const E_WRONG_EXTENSION_PERIOD: u64 = 5008;
-const E_CANT_RECLAIM_WITH_BIDS: u64 = 5009;
+const E_WRONG_DESCRIPTION: u64 = 5006;
+const E_WRONG_MINIMUM_BID: u64 = 5007;
+const E_WRONG_MINIMUM_INCREASE: u64 = 5008;
+const E_WRONG_EXTENSION_PERIOD: u64 = 5009;
+const E_CANT_RECLAIM_WITH_BIDS: u64 = 5010;
 
 // === constants ===
 
@@ -43,6 +45,12 @@ const MAX_MINIMUM_INCREASE_BPS: u64 = 1000 * 100; // 1,000%
 
 const MIN_EXTENSION_PERIOD_MS: u64 = 1000; // 1 second
 const MAX_EXTENSION_PERIOD_MS: u64 = 10 * 24 * 60 * 60 * 1000; // 10 days
+
+const MIN_NAME_LENGTH: u64 = 3;
+const MAX_NAME_LENGTH: u64 = 100;
+
+const MIN_DESCRIPTION_LENGTH: u64 = 0;
+const MAX_DESCRIPTION_LENGTH: u64 = 2000;
 
 // === structs ===
 
@@ -92,19 +100,25 @@ public fun admin_creates_auction<CoinType>(
     ctx: &mut TxContext,
 ): Auction<CoinType>
 {
-    let current_time = clock.timestamp_ms();
-    let adjusted_begin_time_ms =
-        if (begin_time_ms == 0) { current_time }
-        else { begin_time_ms };
+    assert!( name.length() >= MIN_NAME_LENGTH, E_WRONG_NAME );
+    assert!( name.length() <= MAX_NAME_LENGTH, E_WRONG_NAME );
+
+    assert!( description.length() >= MIN_DESCRIPTION_LENGTH, E_WRONG_DESCRIPTION );
+    assert!( description.length() <= MAX_DESCRIPTION_LENGTH, E_WRONG_DESCRIPTION );
 
     assert!( pay_addr != ZERO_ADDRESS, E_WRONG_ADDRESS );
-    assert!( minimum_bid > 0, E_WRONG_MINIMUM_BID );
 
-    assert!( adjusted_begin_time_ms >= current_time, E_WRONG_TIME );
-    assert!( adjusted_begin_time_ms <= current_time + MAX_BEGIN_TIME_MS, E_WRONG_TIME );
+    let current_time_ms = clock.timestamp_ms();
+    let adjusted_begin_time_ms =
+        if (begin_time_ms == 0) { current_time_ms }
+        else { begin_time_ms };
+    assert!( adjusted_begin_time_ms >= current_time_ms, E_WRONG_TIME );
+    assert!( adjusted_begin_time_ms <= current_time_ms + MAX_BEGIN_TIME_MS, E_WRONG_TIME );
 
     assert!( duration_ms >= MIN_DURATION_MS, E_WRONG_DURATION );
     assert!( duration_ms <= MAX_DURATION_MS, E_WRONG_DURATION );
+
+    assert!( minimum_bid > 0, E_WRONG_MINIMUM_BID );
 
     assert!( minimum_increase_bps >= MIN_MINIMUM_INCREASE_BPS, E_WRONG_MINIMUM_INCREASE );
     assert!( minimum_increase_bps <= MAX_MINIMUM_INCREASE_BPS, E_WRONG_MINIMUM_INCREASE );

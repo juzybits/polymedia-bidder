@@ -471,6 +471,32 @@ fun test_admin_creates_auction_e_wrong_extension_period_too_long()
     test_utils::destroy(auction);
 }
 
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_NAME)]
+fun test_admin_creates_auction_e_wrong_name_too_short()
+{
+    // ADMIN tries to create an auction with a very short name
+    let mut args = auction_args();
+    args.name = b"a";
+    let (runner, auction) = begin_with_auction(args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_NAME)]
+fun test_admin_creates_auction_e_wrong_name_too_long()
+{
+    // ADMIN tries to create an auction with a very long name
+    let mut args = auction_args();
+    args.name = b"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+    let (runner, auction) = begin_with_auction(args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
 // === tests: admin_adds_item ===
 
 #[test]
