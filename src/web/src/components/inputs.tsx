@@ -79,7 +79,7 @@ export const useInputBase = <T,>(props: CommonInputProps & {
     return { str, val, err, input };
 };
 
-export const useInputString = (props : CommonInputProps & {
+export const useInputString = (props : CommonInputProps & { // TODO: minBytes, maxBytes
     minLength?: number;
     maxLength?: number;
     msgTooShort?: string;
