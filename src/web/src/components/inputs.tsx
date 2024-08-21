@@ -20,19 +20,34 @@ export type InputReturn<T> = {
     input: JSX.Element;
 };
 
+export type InputValidator<T> = (input: string) => {
+    err: string | undefined;
+    val: T | undefined;
+};
+
 export const useInputBase = <T,>(props: CommonInputProps & {
     type: React.HTMLInputTypeAttribute;
     inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
     pattern?: string;
-    validate: (input: string) => { err: string|undefined; val: T|undefined };
+    validate: InputValidator<T>;
 }): InputReturn<T> =>
 {
     const [str, setStr] = useState<string>(props.initVal ?? "");
     const [val, setVal] = useState<T | undefined>();
     const [err, setErr] = useState<string | undefined>();
 
-    useEffect(() => {
-        const validation = props.validate(str);
+    const validate: InputValidator<T> = (input: string) =>
+    {
+        input = input.trim();
+        if (props.required && input === "") {
+            return { err: props.msgRequired ?? "Input is required", val: undefined };
+        }
+        return props.validate(input);
+    };
+
+    useEffect(() =>
+    {
+        const validation = validate(str);
         setErr(validation.err);
         setVal(validation.val);
     }, [str]);
@@ -91,16 +106,8 @@ export const useInputString = (props : CommonInputProps & {
     const pattern = undefined;
     const textEncoder = new TextEncoder();
 
-    const validate = (
-        input: string,
-    ): { err: string | undefined; val: string | undefined } =>
+    const validate: InputValidator<string> = (input: string) =>
     {
-        input = input.trim();
-
-        if (props.required && input === "") {
-            return { err: props.msgRequired ?? "Input is required", val: undefined };
-        }
-
         if (props.minLength && input.length < props.minLength) {
             return { err: props.msgTooShort ?? `Minimum length is ${props.minLength} characters`, val: undefined };
         }
@@ -136,16 +143,8 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
 {
     const pattern = "^[0-9]*$";
 
-    const validate = (
-        input: string,
-    ): { err: string | undefined; val: number | undefined } =>
+    const validate: InputValidator<number> = (input: string) =>
     {
-        input = input.trim();
-
-        if (props.required && input === "") {
-            return { err: props.msgRequired ?? "Input is required", val: undefined };
-        }
-
         const numValue = Number(input);
 
         if (isNaN(numValue) || numValue < 0) {
@@ -182,16 +181,8 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
 {
     const pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
 
-    const validate = (
-        input: string,
-    ): { err: string | undefined; val: bigint | undefined } =>
+    const validate: InputValidator<bigint> = (input: string) =>
     {
-        input = input.trim();
-
-        if (props.required && input === "") {
-            return { err: props.msgRequired ?? "Input is required", val: undefined };
-        }
-
         if (input === "" || input === ".") {
             return { err: undefined, val: 0n };
         }
