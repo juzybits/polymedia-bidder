@@ -1,7 +1,16 @@
 import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { SignTransaction, SuiClientBase, TransferModule, isOwnerShared, objResToFields, txResToData } from "@polymedia/suitcase-core";
+import {
+    SignTransaction,
+    SuiClientBase,
+    TransferModule,
+    devInspectAndGetReturnValues,
+    isOwnerShared,
+    objResToFields,
+    txResToData,
+} from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
+import { AUCTION_CONFIG } from "./config.js";
 import { AuctionObject, TxAdminCreatesAuction } from "./types.js";
 
 /**
@@ -69,6 +78,23 @@ export class AuctionClient extends SuiClientBase
         };
 
         return results;
+    }
+
+    public async fetchConfig()
+    {
+        const tx = new Transaction();
+
+        const fun_names = Object.keys(AUCTION_CONFIG).map(key => key.toLowerCase());
+        for (const fun_name of fun_names) {
+            tx.moveCall({ target: `${this.packageId}::auction::${fun_name}` });
+        }
+
+        const valuesNested = await devInspectAndGetReturnValues(this.suiClient, tx);
+        const values = valuesNested.map(val => val[0]);
+
+        return Object.fromEntries(
+            fun_names.map( (key, idx) => [key, Number(values[idx])] )
+        );
     }
 
     // === data parsing ===
