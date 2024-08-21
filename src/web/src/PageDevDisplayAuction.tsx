@@ -70,4 +70,4 @@ export const PageDevDisplayAuction: React.FC = () =>
         </div>
     </div>
     );
-}
+};

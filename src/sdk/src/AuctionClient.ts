@@ -81,7 +81,7 @@ export class AuctionClient extends SuiClientBase
         let fields: Record<string, any>;
         try {
             fields = objResToFields(objRes);
-        } catch (err) {
+        } catch (_err) {
             return null;
         }
         return {
@@ -115,7 +115,7 @@ export class AuctionClient extends SuiClientBase
 
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(txRes); }
-        catch (err) { return null; }
+        catch (_err) { return null; }
         const input = txData.inputs;
 
         return {

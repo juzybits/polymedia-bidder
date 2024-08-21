@@ -47,7 +47,7 @@ export type TxAdminCreatesAuction = {
         minimum_increase_bps: number;
         extension_period_ms: number;
         item_addrs: string[];
-    },
+    };
 };
 
 /**

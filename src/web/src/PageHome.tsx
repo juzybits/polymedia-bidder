@@ -55,7 +55,7 @@ const SectionRecentAuctions: React.FC = () =>
     return (
     <div>
         {txs?.data.map(tx => (
-            <div key={tx.digest} style={{ whiteSpace: 'pre-wrap' }} className="break-all">
+            <div key={tx.digest} style={{ whiteSpace: "pre-wrap" }} className="break-all">
                 {JSON.stringify(tx, null, 2)}
             </div>
         ))}

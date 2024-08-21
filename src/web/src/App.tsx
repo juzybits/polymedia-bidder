@@ -160,7 +160,7 @@ const App: React.FC<{
 const Header: React.FC<{
     setNetwork: ReactSetter<NetworkName>;
     setShowMobileNav: ReactSetter<boolean>;
-    openConnectModal: () => void,
+    openConnectModal: () => void;
     network: NetworkName;
     inProgress: boolean;
 }> = ({

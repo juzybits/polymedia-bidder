@@ -30,7 +30,7 @@ export const BtnConnect: React.FC<{
 
     const navigateToUserPage = () => {
         navigate("/user");
-    }
+    };
 
     const text = currAcct ? "USER" : "CONNECT";
     const action = currAcct ? navigateToUserPage : connectWallet;

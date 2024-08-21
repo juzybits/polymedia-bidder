@@ -58,4 +58,4 @@ export const PageDevDisplayHistory: React.FC = () =>
         </div>
     </div>
     );
-}
+};

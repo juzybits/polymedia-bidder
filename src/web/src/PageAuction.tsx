@@ -10,7 +10,7 @@ export const PageAuction: React.FC = () =>
     // === state ===
 
     const { auctionId } = useParams();
-    if (!auctionId) { return <PageNotFound /> };
+    if (!auctionId) { return <PageNotFound />; };
 
     const { header } = useOutletContext<AppContext>();
 
@@ -33,7 +33,7 @@ export const PageAuction: React.FC = () =>
 };
 
 const SectionAuction: React.FC<{
-    auctionId: string,
+    auctionId: string;
 }> = ({
     auctionId,
 }) =>
@@ -69,7 +69,7 @@ const SectionAuction: React.FC<{
     }
 
     return <>
-    <div style={{ whiteSpace: 'pre-wrap' }} className="break-all">
+    <div style={{ whiteSpace: "pre-wrap" }} className="break-all">
         {JSON.stringify(auction, null, 2)}
     </div>
     </>;
