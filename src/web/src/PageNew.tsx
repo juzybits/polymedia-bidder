@@ -88,7 +88,7 @@ const FormCreateAuction: React.FC<{
     const decimals = 9; // TODO: @polymedia/coinmeta
 
     const form = {
-        name: useInputString({ label: "Name", initVal: "", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH }),
+        name: useInputString({ label: "Name", initVal: "", required: true, minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH }),
         description: useInputString({ label: "Description (optional)", initVal: "", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH }),
         type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
         pay_addr: useInputString({ label: "Payment address", initVal: currAcct.address ?? "", required: true }),
@@ -113,7 +113,7 @@ const FormCreateAuction: React.FC<{
             const resp = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 form.name.val!,
-                form.description.val!,
+                form.description.val ?? "",
                 form.pay_addr.val!,
                 form.begin_time_ms.val!,
                 form.duration_ms.val!,

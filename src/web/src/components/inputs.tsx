@@ -6,6 +6,8 @@ import React, { useEffect, useState } from "react";
 export type CommonInputProps = {
     label?: string;
     initVal?: string;
+    // onInputChange?: (str: string) => unknown // TODO
+    // onValueChange?: (val: T | undefined) => unknown // TODO
     onSubmit?: () => void;
     placeholder?: string;
     disabled?: boolean;
@@ -108,6 +110,7 @@ export const useInputString = (props : CommonInputProps & {
 
     const validate: InputValidator<string> = (input: string) =>
     {
+        // TODO non-required with length === 0 is okay, but non-required with 0 < length < minLength/minSize is not okay
         if (props.minLength && input.length < props.minLength) {
             return { err: props.msgTooShort ?? `Minimum length is ${props.minLength} characters`, val: undefined };
         }
@@ -145,6 +148,10 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
 
     const validate: InputValidator<number> = (input: string) =>
     {
+        if (input === "") {
+            return { err: undefined, val: undefined };
+        }
+
         const numValue = Number(input);
 
         if (isNaN(numValue) || numValue < 0) {
@@ -184,7 +191,7 @@ export const useInputUnsignedBalance = (props : CommonInputProps & {
     const validate: InputValidator<bigint> = (input: string) =>
     {
         if (input === "" || input === ".") {
-            return { err: undefined, val: 0n };
+            return { err: undefined, val: undefined };
         }
 
         const bigInput = stringToBalance(input, props.decimals);
