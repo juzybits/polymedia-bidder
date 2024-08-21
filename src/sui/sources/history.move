@@ -124,7 +124,7 @@ fun init(otw: HISTORY, ctx: &mut TxContext)
     display.add(utf8(b"name"), utf8(b"Auction History"));
     display.add(utf8(b"description"), utf8(b"All auctions ever created."));
     display.add(utf8(b"link"), utf8(b"https://auction.polymedia.app"));
-    display.add(utf8(b"image_url"), utf8(b"data:image/svg+xml,TODO"));
+    display.add(utf8(b"image_url"), utf8(b"data:image/svg+xml,%3Csvg%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%201000%201000%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22black%22%2F%3E%3CforeignObject%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3Cdiv%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%20style%3D%22%20height%3A100%25%3Bwidth%3A100%25%3Bdisplay%3Aflex%3Bflex-direction%3Acolumn%3Bjustify-content%3Acenter%3Balign-items%3Acenter%3Bgap%3A1em%3Bbox-sizing%3Aborder-box%3Bpadding%3A0.66em%3Bfont-size%3A75px%3Bfont-family%3Asystem-ui%3Bcolor%3Awhite%3Btext-align%3Acenter%3Boverflow-wrap%3Aanywhere%3B%22%3E%3Cdiv%20style%3D%22font-size%3A1.5em%22%3E%3Cb%3EAUCTION%3C%2Fb%3E%3C%2Fdiv%3E%3Cdiv%3E{name}%3C%2Fdiv%3E%3C%2Fdiv%3E%3C%2FforeignObject%3E%3C%2Fsvg%3E"));
     display.add(utf8(b"project_name"), utf8(b"Auction | Polymedia"));
     display.add(utf8(b"project_url"), utf8(b"https://auction.polymedia.app"));
     // display.add(utf8(b"thumbnail_url"), utf8(b""));

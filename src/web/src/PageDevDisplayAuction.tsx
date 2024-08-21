@@ -1,4 +1,5 @@
 import React from "react";
+import { svgToDataUrl, trimSvg } from "./lib/svg";
 
 const svgRaw = `
 <svg width="100%" height="100%" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
@@ -44,20 +45,8 @@ const svgRaw = `
 </svg>
 `.trim();
 
-const trimSvg = (svg: string) => {
-    return svg
-        .replace(/\n/g, '')             // remove newlines
-        .replace(/:\s+/g, ':')          // remove space after colons in CSS styles
-        .replace(/\s*;\s*/g, ';')       // remove unnecessary spaces around semicolons in CSS
-        .replace(/\s+/g, ' ')           // replace multiple whitespace characters with a single space
-        .replace(/>\s+</g, '><')        // remove whitespace between tags
-        .replace(/\s*([<>])\s*/g, '$1') // remove spaces around opening and closing angle brackets
-        .trim();                        // trim any leading or trailing whitespace
-};
-
 const svgTrimmed = trimSvg(svgRaw);
-
-const svgDataUrl = `data:image/svg+xml,${encodeURIComponent(svgTrimmed)}`;
+const svgDataUrl = svgToDataUrl(svgTrimmed);
 
 const displayUrl = svgDataUrl.replace(
     "Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit%2C%20sed%20do%20eiusmod%20tempor%20incididunt%20ut%20labore",
@@ -67,10 +56,10 @@ const displayUrl = svgDataUrl.replace(
 console.log(displayUrl.length);
 console.log(displayUrl);
 
-export const DevPageDisplay: React.FC = () =>
+export const PageDevDisplayAuction: React.FC = () =>
 {
     return (
-    <div id="page-display" className="page-regular">
+    <div id="page-dev-display-auction" className="page-regular">
 
         <div className="page-content">
 
