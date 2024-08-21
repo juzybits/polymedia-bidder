@@ -31,7 +31,7 @@ const E_CANT_RECLAIM_WITH_BIDS: u64 = 5010;
 
 const ZERO_ADDRESS: address = @0x0;
 
-// === max and min values for Auction configuration ===
+// === auction configuration ===
 
 const MAX_ITEMS: u64 = 50;
 
@@ -84,7 +84,7 @@ public struct Auction<phantom CoinType> has store, key {
     extension_period_ms: u64,
 }
 
-// === mutative functions ===
+// === public-mutative functions ===
 
 public fun admin_creates_auction<CoinType>(
     history: &mut History,
@@ -289,7 +289,19 @@ public fun admin_sets_pay_addr<CoinType>(
     auction.pay_addr = pay_addr;
 }
 
-// === public status helpers ===
+// === private functions ===
+
+fun withdraw_balance<CoinType>(
+    auction: &mut Auction<CoinType>,
+    recipient: address,
+    ctx: &mut TxContext,
+) {
+    let lead_bal = balance::withdraw_all(&mut auction.lead_bal);
+    let lead_coin = coin::from_balance(lead_bal, ctx);
+    transfer::public_transfer(lead_coin, recipient);
+}
+
+// === public-view status helpers ===
 
 public fun has_ended<CoinType>(
     auction: &Auction<CoinType>,
@@ -311,7 +323,7 @@ public fun has_leader<CoinType>(
     return auction.lead_addr != ZERO_ADDRESS
 }
 
-// === public accessors ===
+// === public-view accessors: auction ===
 
 public fun name<T>(a: &Auction<T>): String                  { a.name }
 public fun description<T>(a: &Auction<T>): String           { a.description }
@@ -327,21 +339,37 @@ public fun minimum_bid<T>(a: &Auction<T>): u64              { a.minimum_bid }
 public fun minimum_increase_bps<T>(a: &Auction<T>): u64     { a.minimum_increase_bps }
 public fun extension_period_ms<T>(a: &Auction<T>): u64      { a.extension_period_ms }
 
-// === public-package functions ===
+// === public-view accessors: config ===
 
-// === private functions ===
+public fun max_items(): u64 { MAX_ITEMS }
+public fun max_begin_time_ms(): u64 { MAX_BEGIN_TIME_MS }
+public fun min_duration_ms(): u64 { MIN_DURATION_MS }
+public fun max_duration_ms(): u64 { MAX_DURATION_MS }
+public fun min_minimum_increase_bps(): u64 { MIN_MINIMUM_INCREASE_BPS }
+public fun max_minimum_increase_bps(): u64 { MAX_MINIMUM_INCREASE_BPS }
+public fun min_extension_period_ms(): u64 { MIN_EXTENSION_PERIOD_MS }
+public fun max_extension_period_ms(): u64 { MAX_EXTENSION_PERIOD_MS }
+public fun min_name_length(): u64 { MIN_NAME_LENGTH }
+public fun max_name_length(): u64 { MAX_NAME_LENGTH }
+public fun min_description_length(): u64 { MIN_DESCRIPTION_LENGTH }
+public fun max_description_length(): u64 { MAX_DESCRIPTION_LENGTH }
 
-fun withdraw_balance<CoinType>(
-    auction: &mut Auction<CoinType>,
-    recipient: address,
-    ctx: &mut TxContext,
-) {
-    let lead_bal = balance::withdraw_all(&mut auction.lead_bal);
-    let lead_coin = coin::from_balance(lead_bal, ctx);
-    transfer::public_transfer(lead_coin, recipient);
-}
+// === public-view accessors: errors ===
 
-// === Initialization ===
+public fun e_wrong_name(): u64 { E_WRONG_NAME }
+public fun e_wrong_time(): u64 { E_WRONG_TIME }
+public fun e_wrong_admin(): u64 { E_WRONG_ADMIN }
+public fun e_wrong_address(): u64 { E_WRONG_ADDRESS }
+public fun e_wrong_duration(): u64 { E_WRONG_DURATION }
+public fun e_too_many_items(): u64 { E_TOO_MANY_ITEMS }
+public fun e_wrong_coin_value(): u64 { E_WRONG_COIN_VALUE }
+public fun e_wrong_description(): u64 { E_WRONG_DESCRIPTION }
+public fun e_wrong_minimum_bid(): u64 { E_WRONG_MINIMUM_BID }
+public fun e_wrong_minimum_increase(): u64 { E_WRONG_MINIMUM_INCREASE }
+public fun e_wrong_extension_period(): u64 { E_WRONG_EXTENSION_PERIOD }
+public fun e_cant_reclaim_with_bids(): u64 { E_CANT_RECLAIM_WITH_BIDS }
+
+// === initialization ===
 
 fun init(otw: AUCTION, ctx: &mut TxContext)
 {
