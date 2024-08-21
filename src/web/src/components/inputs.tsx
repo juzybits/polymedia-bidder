@@ -79,14 +79,17 @@ export const useInputBase = <T,>(props: CommonInputProps & {
     return { str, val, err, input };
 };
 
-export const useInputString = (props : CommonInputProps & { // TODO: minBytes, maxBytes
+export const useInputString = (props : CommonInputProps & {
     minLength?: number;
     maxLength?: number;
+    minBytes?: number;
+    maxBytes?: number;
     msgTooShort?: string;
     msgTooLong?: string;
 }): InputReturn<string> =>
 {
     const pattern = undefined;
+    const textEncoder = new TextEncoder();
 
     const validate = (
         input: string,
@@ -99,10 +102,17 @@ export const useInputString = (props : CommonInputProps & { // TODO: minBytes, m
         }
 
         if (props.minLength && input.length < props.minLength) {
-            return { err: props.msgTooShort ?? `Minimum length is ${props.minLength}`, val: undefined };
+            return { err: props.msgTooShort ?? `Minimum length is ${props.minLength} characters`, val: undefined };
         }
         if (props.maxLength && input.length > props.maxLength) {
-            return { err: props.msgTooLong ?? `Maximum length is ${props.maxLength}`, val: undefined };
+            return { err: props.msgTooLong ?? `Maximum length is ${props.maxLength} characters`, val: undefined };
+        }
+
+        if (props.minBytes && textEncoder.encode(input).length < props.minBytes) {
+            return { err: props.msgTooShort ?? `Minimum length is ${props.minBytes} bytes`, val: undefined };
+        }
+        if (props.maxBytes && textEncoder.encode(input).length > props.maxBytes) {
+            return { err: props.msgTooLong ?? `Maximum length is ${props.maxBytes} bytes`, val: undefined };
         }
 
         return { err: undefined, val: input };

@@ -88,8 +88,8 @@ const FormCreateAuction: React.FC<{
     const decimals = 9; // TODO: @polymedia/coinmeta
 
     const form = {
-        name: useInputString({ label: "Name (optional)", initVal: "", minLength: cnf.MIN_NAME_LENGTH, maxLength: cnf.MAX_NAME_LENGTH }),
-        description: useInputString({ label: "Description (optional)", initVal: "", minLength: cnf.MIN_DESCRIPTION_LENGTH, maxLength: cnf.MAX_DESCRIPTION_LENGTH }),
+        name: useInputString({ label: "Name", initVal: "", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH }),
+        description: useInputString({ label: "Description (optional)", initVal: "", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH }),
         type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
         pay_addr: useInputString({ label: "Payment address", initVal: currAcct.address ?? "", required: true }),
         begin_time_ms: useInputUnsignedInt({ label: "Begin time", initVal: "0", required: true }), // TODO MAX_BEGIN_TIME_MS relative to new Date()
