@@ -34,34 +34,37 @@ export const useInputBase = <T,>(
     const [val, setVal] = useState<T | undefined>();
     const [err, setErr] = useState<string | undefined>();
 
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
+    const onChangeInput: React.ChangeEventHandler<HTMLInputElement> = (e) =>
     {
         // prevent input of invalid characters
-        const newStr = e.target.value.trim();
+        const newStr = e.target.value;
         if (html.pattern && !new RegExp(html.pattern).test(newStr)) {
             return;
         }
-        setStr(newStr);
 
-        // validate the input string
-        if (html.required && newStr === "") {
-            setErr(props.msgRequired ?? "Input is required");
-            setVal(undefined);
-        } else {
-            const validation = props.validate(newStr);
-            setErr(validation.err);
-            setVal(validation.val);
-        }
+        setStr(newStr);
+        onChangeStr(newStr);
 
         if (html.onChange) {
             html.onChange(e);
         }
     };
 
+    const onChangeStr = (newStr: string): void =>
+    {
+        const trimStr = newStr.trim();
+        if (html.required && trimStr === "") {
+            setErr(props.msgRequired ?? "Input is required");
+            setVal(undefined);
+        } else {
+            const validation = props.validate(trimStr);
+            setErr(validation.err);
+            setVal(validation.val);
+        }
+    }
+
     useEffect(() => {
-        const initialValidation = props.validate(str.trim());
-        setErr(initialValidation.err);
-        setVal(initialValidation.val);
+        onChangeStr(str.trim());
     }, []);
 
     useEffect(() => {
@@ -78,7 +81,7 @@ export const useInputBase = <T,>(
 
             <input className="input"
                 {...html}
-                onChange={onChange}
+                onChange={onChangeInput}
                 value={str}
             />
 
