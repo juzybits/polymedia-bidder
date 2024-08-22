@@ -1,10 +1,10 @@
 // TODO: move to @polymedia/suitcase-react
 
-import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
+import { balanceToString, NORMALIZED_ADDRESS_REGEX, stringToBalance, validateAndNormalizeSuiAddress } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 
 export type CommonInputProps<T> = {
-    html?: React.InputHTMLAttributes<HTMLInputElement>,
+    html?: React.InputHTMLAttributes<HTMLInputElement>;
     label?: React.ReactNode;
     msgRequired?: string;
     onChangeVal?: (val: T | undefined) => void;
@@ -22,9 +22,11 @@ export type InputValidator<T> = (input: string) => {
     val: T | undefined;
 };
 
-export const useInputBase = <T,>(props: CommonInputProps<T> & {
-    validate: InputValidator<T>;
-}): InputReturn<T> =>
+export const useInputBase = <T,>(
+    props: CommonInputProps<T> & {
+        validate: InputValidator<T>;
+    },
+): InputReturn<T> =>
 {
     const html = props.html ?? {};
 
@@ -89,14 +91,16 @@ export const useInputBase = <T,>(props: CommonInputProps<T> & {
     return { str, val, err, input };
 };
 
-export const useInputString = (props : CommonInputProps<string> & {
-    minLength?: number;
-    maxLength?: number;
-    minBytes?: number;
-    maxBytes?: number;
-    msgTooShort?: string;
-    msgTooLong?: string;
-}): InputReturn<string> =>
+export const useInputString = (
+    props: CommonInputProps<string> & {
+        minLength?: number;
+        maxLength?: number;
+        minBytes?: number;
+        maxBytes?: number;
+        msgTooShort?: string;
+        msgTooLong?: string;
+    },
+): InputReturn<string> =>
 {
     const html = props.html ?? {};
     html.type = "text";
@@ -130,12 +134,38 @@ export const useInputString = (props : CommonInputProps<string> & {
     });
 };
 
-export const useInputUnsignedInt = (props : CommonInputProps<number> & {
-    min?: number;
-    max?: number;
-    msgTooSmall?: string;
-    msgTooLarge?: string;
-}): InputReturn<number> =>
+export const useInputSuiAddress = (
+    props: CommonInputProps<string>,
+): InputReturn<string> =>
+{
+    const html = props.html ?? {};
+    html.type = "text";
+    html.inputMode = "text";
+    html.pattern = `^${NORMALIZED_ADDRESS_REGEX}$`;
+
+    const validate: InputValidator<string> = (input: string) =>
+    {
+        const addr = validateAndNormalizeSuiAddress(input);
+        return addr
+            ? { err: undefined, val: addr }
+            : { err: "Invalid Sui address", val: undefined };
+    };
+
+    return useInputBase<string>({
+        html,
+        validate,
+        ...props,
+    });
+};
+
+export const useInputUnsignedInt = (
+    props: CommonInputProps<number> & {
+        min?: number;
+        max?: number;
+        msgTooSmall?: string;
+        msgTooLarge?: string;
+    },
+): InputReturn<number> =>
 {
     const html = props.html ?? {};
     html.type = "text";
@@ -172,13 +202,15 @@ export const useInputUnsignedInt = (props : CommonInputProps<number> & {
     });
 };
 
-export const useInputUnsignedBalance = (props : CommonInputProps<bigint> & {
-    decimals: number;
-    min?: bigint;
-    max?: bigint;
-    msgTooSmall?: string;
-    msgTooLarge?: string;
-}): InputReturn<bigint> =>
+export const useInputUnsignedBalance = (
+    props: CommonInputProps<bigint> & {
+        decimals: number;
+        min?: bigint;
+        max?: bigint;
+        msgTooSmall?: string;
+        msgTooLarge?: string;
+    },
+): InputReturn<bigint> =>
 {
     const html = props.html ?? {};
     html.type = "text";

@@ -14,7 +14,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
+import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
 export const PageNew: React.FC = () =>
 {
@@ -100,7 +100,7 @@ const FormCreateAuction: React.FC<{
             label: "Coin type",
             html: { value: "0x2::sui::SUI", required: true },
         }),
-        pay_addr: useInputString({
+        pay_addr: useInputSuiAddress({
             label: "Payment address",
             html: { value: currAcct.address ?? "", required: true },
         }),
