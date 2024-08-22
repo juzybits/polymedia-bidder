@@ -4,6 +4,7 @@ export type NetworkName =  "mainnet" | "testnet" | "devnet" | "localnet";
 
 export type NetworkConfig = {
     packageId: string;
+    historyId: string;
 };
 
 // === auction package ===
@@ -11,15 +12,19 @@ export type NetworkConfig = {
 export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
     mainnet: {
         packageId: "",
+        historyId: "",
     },
     testnet: {
         packageId: "",
+        historyId: "",
     },
     devnet: {
-        packageId: "0x67682cee6111b914ceae5ccbe50c4c641e202ab9b5f6dbb6e7a4cb745fa22058",
+        packageId: "0x57013a9829a440e9db875e13d22cbf9f7fcebd7720fa47254b3d7395f3f8d04b",
+        historyId: "0x2a50c7f9ec131b3ca1a7283d4333b882813644d94ef3c9601eb25d81817f00e9",
     },
     localnet: {
         packageId: "",
+        historyId: "",
     },
 };
 

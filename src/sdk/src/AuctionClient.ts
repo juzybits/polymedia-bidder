@@ -19,14 +19,17 @@ import { AuctionObject, TxAdminCreatesAuction } from "./types.js";
 export class AuctionClient extends SuiClientBase
 {
     public readonly packageId: string;
+    public readonly historyId: string;
 
     constructor(
         suiClient: SuiClient,
         signTransaction: SignTransaction,
         packageId: string,
+        historyId: string,
     ) {
         super(suiClient, signTransaction);
         this.packageId = packageId;
+        this.historyId = historyId;
     }
 
     // === data fetching ===
@@ -185,6 +188,7 @@ export class AuctionClient extends SuiClientBase
             tx,
             this.packageId,
             type_coin,
+            this.historyId,
             name,
             description,
             pay_addr,
