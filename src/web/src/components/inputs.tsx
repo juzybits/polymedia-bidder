@@ -4,14 +4,11 @@ import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 
 export type CommonInputProps<T> = {
+    html?: React.InputHTMLAttributes<HTMLInputElement>,
     label?: string;
     initVal?: string;
-    onChange?: (val: T | undefined) => void;
-    onSubmit?: () => void;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
     msgRequired?: string;
+    onChangeVal?: (val: T | undefined) => void;
 };
 
 export type InputReturn<T> = {
@@ -27,9 +24,6 @@ export type InputValidator<T> = (input: string) => {
 };
 
 export const useInputBase = <T,>(props: CommonInputProps<T> & {
-    type: React.HTMLInputTypeAttribute;
-    inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
-    pattern?: string;
     validate: InputValidator<T>;
 }): InputReturn<T> =>
 {
@@ -37,41 +31,38 @@ export const useInputBase = <T,>(props: CommonInputProps<T> & {
     const [val, setVal] = useState<T | undefined>();
     const [err, setErr] = useState<string | undefined>();
 
+    const html = props.html ?? {};
+
     const validate: InputValidator<T> = (input: string) =>
     {
         input = input.trim();
-        if (props.required && input === "") {
+        if (html.required && input === "") {
             return { err: props.msgRequired ?? "Input is required", val: undefined };
         }
         return props.validate(input);
     };
 
-    useEffect(() => {
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
+    {
+        if (html.pattern && !new RegExp(html.pattern).test(e.target.value)) {
+            return;
+        }
+
+        setStr(e.target.value);
         const validation = validate(str);
         setErr(validation.err);
         setVal(validation.val);
-    }, [str]);
+
+        if (html.onChange) {
+            html.onChange(e);
+        }
+    };
 
     useEffect(() => {
-        if (props.onChange) {
-            props.onChange(val);
+        if (props.onChangeVal) {
+            props.onChangeVal(val);
         }
     }, [val]);
-
-    const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (props.pattern && !new RegExp(props.pattern).test(e.target.value)) {
-            return;
-        }
-        setStr(e.target.value);
-    };
-
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
-    {
-        if (e.key === "Enter" && props.onSubmit && !err) {
-            props.onSubmit();
-        }
-    };
 
     const input = (
         <div className="poly-input">
@@ -80,15 +71,9 @@ export const useInputBase = <T,>(props: CommonInputProps<T> & {
             <div className="input-label">{props.label}</div>}
 
             <input className="input"
-                type={props.type}
-                inputMode={props.inputMode}
-                pattern={props.pattern}
-                value={str}
+                {...html}
                 onChange={onChange}
-                onKeyDown={onKeyDown}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
-                required={props.required}
+                value={str}
             />
 
             {err &&
@@ -109,9 +94,12 @@ export const useInputString = (props : CommonInputProps<string> & {
     msgTooLong?: string;
 }): InputReturn<string> =>
 {
-    const pattern = undefined;
-    const textEncoder = new TextEncoder();
+    const html = props.html ?? {};
+    html.type = "text";
+    html.inputMode = "text";
+    html.pattern = undefined;
 
+    const textEncoder = new TextEncoder();
     const validate: InputValidator<string> = (input: string) =>
     {
         if (props.minLength && input.length > 0 && input.length < props.minLength) {
@@ -132,9 +120,7 @@ export const useInputString = (props : CommonInputProps<string> & {
     };
 
     return useInputBase<string>({
-        type: "text",
-        inputMode: "text",
-        pattern,
+        html,
         validate,
         ...props,
     });
@@ -147,7 +133,10 @@ export const useInputUnsignedInt = (props : CommonInputProps<number> & {
     msgTooLarge?: string;
 }): InputReturn<number> =>
 {
-    const pattern = "^[0-9]*$";
+    const html = props.html ?? {};
+    html.type = "text";
+    html.inputMode = "numeric";
+    html.pattern = "^[0-9]*$";
 
     const validate: InputValidator<number> = (input: string) =>
     {
@@ -173,9 +162,7 @@ export const useInputUnsignedInt = (props : CommonInputProps<number> & {
     };
 
     return useInputBase<number>({
-        type: "text",
-        inputMode: "numeric",
-        pattern,
+        html,
         validate,
         ...props,
     });
@@ -189,7 +176,10 @@ export const useInputUnsignedBalance = (props : CommonInputProps<bigint> & {
     msgTooLarge?: string;
 }): InputReturn<bigint> =>
 {
-    const pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
+    const html = props.html ?? {};
+    html.type = "text";
+    html.inputMode = "decimal";
+    html.pattern = `^[0-9]*\\.?[0-9]{0,${props.decimals}}$`;
 
     const validate: InputValidator<bigint> = (input: string) =>
     {
@@ -209,9 +199,7 @@ export const useInputUnsignedBalance = (props : CommonInputProps<bigint> & {
     };
 
     return useInputBase<bigint>({
-        type: "text",
-        inputMode: "decimal",
-        pattern,
+        html,
         validate,
         ...props,
     });
