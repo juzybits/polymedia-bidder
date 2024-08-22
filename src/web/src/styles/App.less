@@ -7,6 +7,7 @@
 @border-gray: 1px solid #555;
 @border-radius: 4px;
 @color-bg: black;
+@color-text-red: rgb(255, 158, 158);
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 @font-system: system-ui;
@@ -133,6 +134,21 @@ footer {
     .network-options {
         position: absolute;
         // background-color: @btn-light;
+    }
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.poly-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    .input-error {
+        color: @color-text-red;
     }
 }
 

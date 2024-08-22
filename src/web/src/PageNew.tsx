@@ -131,7 +131,7 @@ const FormCreateAuction: React.FC<{
     // === html ===
 
     return <>
-    <div>
+    <div className="form">
         {Object.entries(form).map(([name, input]) => (
             <React.Fragment key={name}>
                 {input.input}
