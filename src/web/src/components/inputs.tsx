@@ -3,11 +3,10 @@
 import { balanceToString, stringToBalance } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 
-export type CommonInputProps = {
+export type CommonInputProps<T> = {
     label?: string;
     initVal?: string;
-    // onInputChange?: (str: string) => unknown // TODO
-    // onValueChange?: (val: T | undefined) => unknown // TODO
+    onChange?: (val: T | undefined) => void;
     onSubmit?: () => void;
     placeholder?: string;
     disabled?: boolean;
@@ -27,7 +26,7 @@ export type InputValidator<T> = (input: string) => {
     val: T | undefined;
 };
 
-export const useInputBase = <T,>(props: CommonInputProps & {
+export const useInputBase = <T,>(props: CommonInputProps<T> & {
     type: React.HTMLInputTypeAttribute;
     inputMode: React.HTMLAttributes<HTMLInputElement>["inputMode"];
     pattern?: string;
@@ -47,12 +46,17 @@ export const useInputBase = <T,>(props: CommonInputProps & {
         return props.validate(input);
     };
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         const validation = validate(str);
         setErr(validation.err);
         setVal(validation.val);
     }, [str]);
+
+    useEffect(() => {
+        if (props.onChange) {
+            props.onChange(val);
+        }
+    }, [val]);
 
     const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
     {
@@ -96,7 +100,7 @@ export const useInputBase = <T,>(props: CommonInputProps & {
     return { str, val, err, input };
 };
 
-export const useInputString = (props : CommonInputProps & {
+export const useInputString = (props : CommonInputProps<string> & {
     minLength?: number;
     maxLength?: number;
     minBytes?: number;
@@ -136,7 +140,7 @@ export const useInputString = (props : CommonInputProps & {
     });
 };
 
-export const useInputUnsignedInt = (props : CommonInputProps & {
+export const useInputUnsignedInt = (props : CommonInputProps<number> & {
     min?: number;
     max?: number;
     msgTooSmall?: string;
@@ -177,7 +181,7 @@ export const useInputUnsignedInt = (props : CommonInputProps & {
     });
 };
 
-export const useInputUnsignedBalance = (props : CommonInputProps & {
+export const useInputUnsignedBalance = (props : CommonInputProps<bigint> & {
     decimals: number;
     min?: bigint;
     max?: bigint;
