@@ -46,8 +46,14 @@ const SectionRecentAuctions: React.FC = () =>
         setTxs(txs);
     };
 
+    // const fetchConfig = async () => {
+    //     const config = await auctionClient.fetchConfig();
+    //     console.log(JSON.stringify(config, null, 2));
+    // };
+
     useEffect(() => {
         fetchRecentAuctions();
+        // fetchConfig();
     }, []);
 
     // === html ===

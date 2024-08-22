@@ -1,5 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -68,18 +68,33 @@ const SectionConnection: React.FC = () =>
     </>;
 };
 
-const SectionAuctions: React.FC = () =>
+const SectionAuctions: React.FC = () => // TODO: pagination
 {
     // === state ===
 
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
+    const { auctionClient } = useOutletContext<AppContext>();
+
+    const [ auctionIds, setAuctionIds ] = useState<string[]>();
+
+    const fetchAuctionIds = async () => {
+        const newAuctionIds = await auctionClient.fetchCreatorAuctionIds(currAcct.address);
+        setAuctionIds(newAuctionIds);
+    };
+
+    useEffect(() => {
+        fetchAuctionIds();
+    }, []);
+
     // === html ===
 
+    if (auctionIds === undefined) {
+        return <div>Loading...</div>;
+    }
+
     return <>
-        <div>lorem</div>
-        <div>ipsum</div>
-        <div>dolor</div>
+        <div className="break-all">{JSON.stringify(auctionIds, null, 2)}</div>
     </>;
 };

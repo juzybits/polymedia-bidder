@@ -1,3 +1,4 @@
+import { bcs } from "@mysten/sui/bcs";
 import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
+import { HistoryModule } from "./HistoryModule.js";
 import { AuctionObject, TxAdminCreatesAuction } from "./types.js";
 
 /**
@@ -92,12 +94,47 @@ export class AuctionClient extends SuiClientBase
             tx.moveCall({ target: `${this.packageId}::auction::${fun_name}` });
         }
 
-        const valuesNested = await devInspectAndGetReturnValues(this.suiClient, tx);
-        const values = valuesNested.map(val => val[0]);
+        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx,
+            Object.keys(AUCTION_CONFIG).map(() => [bcs.U64])
+        );
+        const values = blockReturns.map((val: any) => val[0]);
 
         return Object.fromEntries(
             fun_names.map( (key, idx) => [key, Number(values[idx])] )
         );
+    }
+
+    public async fetchCreatorAuctionIds(
+        creator_addr: string,
+        order: "ascending" | "descending" = "descending",
+        cursor?: number,
+        limit = 50,
+    ): Promise<string[]>
+    {
+        const tx = new Transaction();
+
+        if (cursor === undefined) {
+            cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
+        }
+
+        HistoryModule.get_auctions(
+            tx,
+            this.packageId,
+            this.historyId,
+            creator_addr,
+            order === "ascending",
+            cursor,
+            limit,
+        );
+
+        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
+            [
+                bcs.vector(bcs.Address),
+                bcs.Bool,
+                bcs.U64,
+            ],
+        ]);
+        return blockReturns[0][0] as string[];
     }
 
     // === data parsing ===
@@ -219,6 +256,7 @@ export class AuctionClient extends SuiClientBase
         const resp = await this.signAndExecuteTransaction(tx);
         return resp;
     }
+
 }
 
 function getArgVal(arg: SuiCallArg): unknown { // TODO move to @polymedia/suitcase-core
