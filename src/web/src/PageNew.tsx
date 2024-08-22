@@ -88,15 +88,42 @@ const FormCreateAuction: React.FC<{
     const decimals = 9; // TODO: @polymedia/coinmeta
 
     const form = {
-        name: useInputString({ label: "Name", initVal: "", required: true, minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH }),
-        description: useInputString({ label: "Description (optional)", initVal: "", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH }),
-        type_coin: useInputString({ label: "Coin type", initVal: "0x2::sui::SUI", required: true }),
-        pay_addr: useInputString({ label: "Payment address", initVal: currAcct.address ?? "", required: true }),
-        begin_time_ms: useInputUnsignedInt({ label: "Begin time", initVal: "0", required: true }), // TODO MAX_BEGIN_TIME_MS relative to new Date()
-        duration_ms: useInputUnsignedInt({ label: "Duration", initVal: "86400000", required: true, min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS }),
-        minimum_bid: useInputUnsignedBalance({ label: "Minimum bid", decimals, initVal: "1", required: true }),
-        minimum_increase_bps: useInputUnsignedInt({ label: "Minimum bid increase", initVal: "500", required: true, min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS }),
-        extension_period_ms: useInputUnsignedInt({ label: "Extension period", initVal: "900000", required: true, min: cnf.MIN_EXTENSION_PERIOD_MS, max: cnf.MAX_EXTENSION_PERIOD_MS }),
+        name: useInputString({
+            label: "Name", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
+            html: { value: "", required: true },
+        }),
+        description: useInputString({
+            label: "Description (optional)", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH,
+            html: { value: "" },
+        }),
+        type_coin: useInputString({
+            label: "Coin type",
+            html: { value: "0x2::sui::SUI", required: true },
+        }),
+        pay_addr: useInputString({
+            label: "Payment address",
+            html: { value: currAcct.address ?? "", required: true },
+        }),
+        begin_time_ms: useInputUnsignedInt({
+            label: "Begin time",
+            html: { value: "0", required: true }, // TODO MAX_BEGIN_TIME_MS relative to new Date()
+        }),
+        duration_ms: useInputUnsignedInt({
+            label: "Duration", min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS,
+            html: { value: "86400000", required: true },
+        }),
+        minimum_bid: useInputUnsignedBalance({
+            label: "Minimum bid", decimals,
+            html: { value: "1", required: true },
+        }),
+        minimum_increase_bps: useInputUnsignedInt({
+            label: "Minimum bid increase", min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS,
+            html: { value: "500", required: true },
+        }),
+        extension_period_ms: useInputUnsignedInt({
+            label: "Extension period", min: cnf.MIN_EXTENSION_PERIOD_MS, max: cnf.MAX_EXTENSION_PERIOD_MS,
+            html: { value: "900000", required: true },
+        }),
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);

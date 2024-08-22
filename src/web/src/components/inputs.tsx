@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 export type CommonInputProps<T> = {
     html?: React.InputHTMLAttributes<HTMLInputElement>,
     label?: string;
-    initVal?: string;
     msgRequired?: string;
     onChangeVal?: (val: T | undefined) => void;
 };
@@ -27,11 +26,11 @@ export const useInputBase = <T,>(props: CommonInputProps<T> & {
     validate: InputValidator<T>;
 }): InputReturn<T> =>
 {
-    const [str, setStr] = useState<string>(props.initVal ?? "");
+    const html = props.html ?? {};
+
+    const [str, setStr] = useState<string>(`${html.value ?? ""}`);
     const [val, setVal] = useState<T | undefined>();
     const [err, setErr] = useState<string | undefined>();
-
-    const html = props.html ?? {};
 
     const validate: InputValidator<T> = (input: string) =>
     {
@@ -44,19 +43,22 @@ export const useInputBase = <T,>(props: CommonInputProps<T> & {
 
     const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
     {
-        if (html.pattern && !new RegExp(html.pattern).test(e.target.value)) {
+        const newStr = e.target.value;
+        if (html.pattern && !new RegExp(html.pattern).test(newStr)) {
             return;
         }
-
-        setStr(e.target.value);
-        const validation = validate(str);
-        setErr(validation.err);
-        setVal(validation.val);
+        setStr(newStr);
 
         if (html.onChange) {
             html.onChange(e);
         }
     };
+
+    useEffect(() => {
+        const validation = validate(str);
+        setErr(validation.err);
+        setVal(validation.val);
+    }, [str]);
 
     useEffect(() => {
         if (props.onChangeVal) {
