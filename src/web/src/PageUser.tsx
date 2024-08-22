@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { Btn } from "./components/Btn";
+import { AuctionObject } from "@polymedia/auction-sdk";
 
 export const PageUser: React.FC = () =>
 {
@@ -77,11 +78,11 @@ const SectionAuctions: React.FC = () => // TODO: pagination
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ auctionIds, setAuctionIds ] = useState<string[]>();
+    const [ auctions, setAuctions ] = useState<AuctionObject[]>();
 
     const fetchAuctionIds = async () => {
-        const newAuctionIds = await auctionClient.fetchCreatorAuctionIds(currAcct.address);
-        setAuctionIds(newAuctionIds);
+        const newAuctions = await auctionClient.fetchCreatorAuctions(currAcct.address);
+        setAuctions(newAuctions);
     };
 
     useEffect(() => {
@@ -90,11 +91,13 @@ const SectionAuctions: React.FC = () => // TODO: pagination
 
     // === html ===
 
-    if (auctionIds === undefined) {
+    if (auctions === undefined) {
         return <div>Loading...</div>;
     }
 
     return <>
-        <div className="break-all">{JSON.stringify(auctionIds, null, 2)}</div>
+        <div style={{ whiteSpace: "pre-wrap" }} className="break-all">
+            {JSON.stringify(auctions, null, 2)}
+        </div>
     </>;
 };

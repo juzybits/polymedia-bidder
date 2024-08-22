@@ -137,6 +137,17 @@ export class AuctionClient extends SuiClientBase
         return blockReturns[0][0] as string[];
     }
 
+    public async fetchCreatorAuctions(
+        creator_addr: string,
+        order: "ascending" | "descending" = "descending",
+        cursor?: number,
+        limit = 50,
+    ): Promise<AuctionObject[]>
+    {
+        const auctionIds = await this.fetchCreatorAuctionIds(creator_addr, order, cursor, limit);
+        return await this.fetchAuctions(auctionIds) as AuctionObject[];
+    }
+
     // === data parsing ===
 
     /* eslint-disable */
