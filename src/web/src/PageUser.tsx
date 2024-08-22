@@ -40,13 +40,6 @@ export const PageUser: React.FC = () =>
                     </div>
                     <SectionAuctions />
                 </div>
-
-                <div className="page-section card">
-                    <div className="section-description">
-                        <h2>Your bids</h2>
-                    </div>
-                    <SectionBids />
-                </div>
             </>}
         </div>
 
@@ -76,22 +69,6 @@ const SectionConnection: React.FC = () =>
 };
 
 const SectionAuctions: React.FC = () =>
-{
-    // === state ===
-
-    const currAcct = useCurrentAccount();
-    if (!currAcct) { return; }
-
-    // === html ===
-
-    return <>
-        <div>lorem</div>
-        <div>ipsum</div>
-        <div>dolor</div>
-    </>;
-};
-
-const SectionBids: React.FC = () =>
 {
     // === state ===
 

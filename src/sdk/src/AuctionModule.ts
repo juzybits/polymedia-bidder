@@ -7,16 +7,6 @@ import { ObjectArg, objectArg } from "@polymedia/suitcase-core";
  */
 export const AuctionModule =
 {
-    anyone_creates_admin: (
-        tx: Transaction,
-        packageId: string,
-    ): TransactionResult =>
-    {
-        return tx.moveCall({
-            target: `${packageId}::auction::anyone_creates_admin`,
-        });
-    },
-
     admin_creates_auction: (
         tx: Transaction,
         packageId: string,
@@ -84,25 +74,6 @@ export const AuctionModule =
             arguments: [
                 objectArg(tx, auction),
                 objectArg(tx, pay_coin),
-                tx.object(SUI_CLOCK_OBJECT_ID),
-            ],
-        });
-    },
-
-    winner_takes_item: (
-        tx: Transaction,
-        packageId: string,
-        type_coin: string,
-        auction: ObjectArg,
-        item_addr: string,
-    ): TransactionResult =>
-    {
-        return tx.moveCall({
-            target: `${packageId}::auction::winner_takes_item`,
-            typeArguments: [ type_coin ],
-            arguments: [
-                objectArg(tx, auction),
-                tx.pure.address(item_addr),
                 tx.object(SUI_CLOCK_OBJECT_ID),
             ],
         });
@@ -215,16 +186,4 @@ export const AuctionModule =
         });
     },
 
-    admin_destroys_admin: (
-        tx: Transaction,
-        packageId: string,
-    ): TransactionResult =>
-    {
-        return tx.moveCall({
-            target: `${packageId}::auction::admin_destroys_admin`,
-            typeArguments: [],
-            arguments: [
-            ],
-        });
-    },
 };
