@@ -1,8 +1,9 @@
+import { AuctionClient, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { AuctionClient, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { CardTxAdminCreatesAuction } from "./components/cards";
 
 export const PageHome: React.FC = () =>
 {
@@ -64,25 +65,4 @@ const SectionRecentAuctions: React.FC = () =>
             <CardTxAdminCreatesAuction tx={tx} key={tx.digest} />
         ))}
     </>;
-};
-
-const CardTxAdminCreatesAuction: React.FC<{
-    tx: TxAdminCreatesAuction,
-}> = ({
-    tx,
-}) =>
-{
-    const { network } = useOutletContext<AppContext>();
-    return (
-        <div className="card auction-card">
-            <h3>Name: {tx.inputs.name}</h3>
-            <p>Type: {tx.inputs.type_coin}</p>
-            <p>Description: {tx.inputs.description}</p>
-            <p>Auction ID: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></p>
-            <p>Minimum Bid: {tx.inputs.minimum_bid.toString()}</p>
-            <p>Minimum Increase: {tx.inputs.minimum_increase_bps / 100}%</p>
-            <p>Extension Period: {tx.inputs.extension_period_ms / 1000 / 60} minutes</p>
-            <p>Creator: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></p>
-        </div>
-    );
 };

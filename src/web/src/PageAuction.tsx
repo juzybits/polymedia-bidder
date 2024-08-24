@@ -1,7 +1,8 @@
+import { AuctionObj } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { AuctionObj } from "@polymedia/auction-sdk";
+import { CardAuction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { PageNotFound } from "./PageNotFound";
 
@@ -68,9 +69,5 @@ const SectionAuction: React.FC<{
         return <FullScreenMsg>AUCTION NOT FOUND</FullScreenMsg>;
     }
 
-    return <>
-    <div style={{ whiteSpace: "pre-wrap" }} className="break-all">
-        {JSON.stringify(auction, null, 2)}
-    </div>
-    </>;
+    return <CardAuction auction={auction} />;
 };
