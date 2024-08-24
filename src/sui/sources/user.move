@@ -82,24 +82,6 @@ public(package) fun add_bid(
     user.bids.push_back(bid);
 }
 
-public(package) fun new_user(
-    ctx: &mut TxContext,
-): User
-{
-    return User {
-        id: object::new(ctx),
-        created: table_vec::empty(ctx),
-        bids: table_vec::empty(ctx),
-    }
-}
-
-public(package) fun transfer_to_sender(
-    user: User,
-    ctx: &TxContext,
-) {
-    transfer::transfer(user, ctx.sender());
-}
-
 public(package) fun new_bid(
     auction_addr: address,
     bid_amount: u64,
@@ -110,6 +92,34 @@ public(package) fun new_bid(
     }
 }
 
+// === public-package hot potato ===
+
+public struct Request {
+    user: User,
+}
+
+public(package) fun new_request(
+    ctx: &mut TxContext,
+): Request {
+    return Request {
+        user: new_user(ctx),
+    }
+}
+
+public(package) fun borrow_mut(
+    request: &mut Request,
+): &mut User {
+    return &mut request.user
+}
+
+public(package) fun destroy_request(
+    request: Request,
+    ctx: &TxContext,
+) {
+    let Request { user } = request;
+    user.transfer_to_sender(ctx);
+}
+
 // === private functions ===
 
 fun new_registry(ctx: &mut TxContext): Registry {
@@ -117,6 +127,24 @@ fun new_registry(ctx: &mut TxContext): Registry {
         id: object::new(ctx),
         users: table::new(ctx),
     }
+}
+
+fun new_user(
+    ctx: &mut TxContext,
+): User
+{
+    return User {
+        id: object::new(ctx),
+        created: table_vec::empty(ctx),
+        bids: table_vec::empty(ctx),
+    }
+}
+
+fun transfer_to_sender(
+    user: User,
+    ctx: &TxContext,
+) {
+    transfer::transfer(user, ctx.sender());
 }
 
 // === initialization ===

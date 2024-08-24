@@ -147,9 +147,9 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
     if (opt_user.is_some()) {
         opt_user.borrow_mut().add_created(auction.id.to_address());
     } else {
-        let mut user = user::new_user(ctx);
-        user.add_created(auction.id.to_address());
-        user.transfer_to_sender(ctx);
+        let mut req = user::new_request(ctx);
+        req.borrow_mut().add_created(auction.id.to_address());
+        req.destroy_request(ctx);
     };
 
     return auction
@@ -211,9 +211,9 @@ public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed i
     if (opt_user.is_some()) {
         opt_user.borrow_mut().add_bid(bid);
     } else {
-        let mut user = user::new_user(ctx);
-        user.add_bid(bid);
-        user.transfer_to_sender(ctx);
+        let mut req = user::new_request(ctx);
+        req.borrow_mut().add_bid(bid);
+        req.destroy_request(ctx);
     };
 }
 
