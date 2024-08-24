@@ -4,7 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { Btn } from "./components/Btn";
-import { AuctionObject } from "@polymedia/auction-sdk";
+import { AuctionObj } from "@polymedia/auction-sdk";
 
 export const PageUser: React.FC = () =>
 {
@@ -78,7 +78,7 @@ const SectionAuctions: React.FC = () => // TODO: pagination
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ auctions, setAuctions ] = useState<AuctionObject[]>();
+    const [ auctions, setAuctions ] = useState<AuctionObj[]>();
 
     const fetchAuctionIds = async () => {
         const newAuctions = await auctionClient.fetchCreatorAuctions(currAcct.address);

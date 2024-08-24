@@ -2,7 +2,7 @@ import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import { ReactSetter } from "@polymedia/suitcase-react";
 import React from "react";
 import { Btn } from "./Btn";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const BtnConnect: React.FC<{
     id?: string;
@@ -18,8 +18,6 @@ export const BtnConnect: React.FC<{
     setShowMobileNav,
 }) =>
 {
-    const navigate = useNavigate();
-
     const currAcct = useCurrentAccount();
     const { mutate: disconnect } = useDisconnectWallet();
 
@@ -28,21 +26,13 @@ export const BtnConnect: React.FC<{
         setShowMobileNav(false);
     };
 
-    const navigateToUserPage = () => {
-        navigate("/user");
-    };
-
-    const text = currAcct ? "USER" : "CONNECT";
-    const action = currAcct ? navigateToUserPage : connectWallet;
-
-    return (
-        <Btn
-            id={id}
-            className={className}
-            disabled={disabled}
-            onClick={action}
-        >
-            {text}
-        </Btn>
-    );
+    if (currAcct) {
+        return <Link to="/user" id={id} className={className}>
+            USER
+        </Link>;
+    } else {
+        return <Btn id={id} className={className} disabled={disabled} onClick={connectWallet}>
+            CONNECT
+        </Btn>;
+    }
 };
