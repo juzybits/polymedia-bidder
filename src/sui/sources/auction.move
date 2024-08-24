@@ -86,7 +86,7 @@ public struct Auction<phantom CoinType> has store, key {
 
 // === public-mutative functions ===
 
-public fun admin_creates_auction<CoinType>(
+public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
     opt_user: &mut Option<User>,
     name: vector<u8>,
     description: vector<u8>,
@@ -172,7 +172,7 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
 }
 
 /// Anyone can bid for an item, as long as the auction hasn't ended.
-public fun anyone_bids<CoinType>(
+public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
     auction: &mut Auction<CoinType>,
     opt_user: &mut Option<User>,
     pay_coin: Coin<CoinType>,

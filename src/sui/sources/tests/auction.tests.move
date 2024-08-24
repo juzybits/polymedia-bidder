@@ -109,13 +109,21 @@ public fun set_clock_1ms_before_auction_ends(
 
 // === helpers for sui modules ===
 
-public fun mint_sui(runner: &mut TestRunner, value: u64): Coin<SUI> {
-    coin::mint_for_testing<SUI>(value, runner.scen.ctx())
+public fun mint_sui(
+    runner: &mut TestRunner,
+    sender: address,
+    value: u64,
+): Coin<SUI> {
+    runner.scen.next_tx(sender);
+    return coin::mint_for_testing<SUI>(value, runner.scen.ctx())
 }
 
-public fun take_auction(runner: &mut TestRunner): Auction<SUI> {
-    runner.scen.next_tx(ADMIN);
-    runner.scen.take_shared<Auction<SUI>>()
+public fun take_user(
+    runner: &mut TestRunner,
+    sender: address,
+): User {
+    runner.scen.next_tx(sender);
+    return runner.scen.take_from_sender()
 }
 
 // === helpers for our modules ===
@@ -171,8 +179,8 @@ public fun anyone_bids(
 ) {
     runner.scen.next_tx(sender);
 
+    let bid_coin = runner.mint_sui(sender, bid_value);
     let mut opt_user = option::none<User>();
-    let bid_coin = runner.mint_sui(bid_value);
     auction.anyone_bids(
         &mut opt_user,
         bid_coin,
@@ -306,42 +314,37 @@ fun test_admin_creates_auction_ok()
     test_utils::destroy(auction);
 }
 
-// #[test]
-// fun test_history()
-// {
-//     let mut runner = begin();
+#[test]
+fun test_user_history()
+{
+    let mut runner = begin();
 
-//     let mut args = auction_args();
-//     args.name = b"auction 1";
-//     let auction1 = runner.admin_creates_auction(ADMIN, args);
+    let mut args = auction_args();
+    args.name = b"auction 1";
+    let auction1 = runner.admin_creates_auction(ADMIN, args);
 
-//     assert_eq( runner.history.total_auctions(), 1 );
-//     assert_eq( runner.history.creators().length(), 1 );
-//     assert_eq( runner.history.creators().borrow(ADMIN).auctions().length(), 1 );
+    let user_admin1 = runner.take_user(ADMIN);
+    assert_eq( user_admin1.created().length(), 1 );
 
-//     let mut args = auction_args();
-//     args.name = b"auction 2";
-//     let auction2 = runner.admin_creates_auction(ADMIN_2, args);
+    // let mut args = auction_args();
+    // args.name = b"auction 2";
+    // let auction2 = runner.admin_creates_auction(ADMIN_2, args);
 
-//     let mut args = auction_args();
-//     args.name = b"auction 3";
-//     let auction3 = runner.admin_creates_auction(ADMIN_2, args);
+    // let mut args = auction_args();
+    // args.name = b"auction 3";
+    // let auction3 = runner.admin_creates_auction(ADMIN_2, args);
 
-//     assert_eq( runner.history.total_auctions(), 3 );
-//     assert_eq( runner.history.creators().length(), 2 );
-//     assert_eq( runner.history.creators().borrow(ADMIN_2).auctions().length(), 2 );
+    // let user_admin2 = runner.take_user(ADMIN_2);
 
-//     let (auctions_admin_2, _, _) = runner.history.get_auctions(ADMIN_2, false, 999, 10);
-//     assert_eq( auctions_admin_2.length(), 2 );
+    // assert_eq( user_admin2.created().length(), 2 );
 
-//     let (auctions_rando, _, _) = runner.history.get_auctions(RANDO, false, 999, 10);
-//     assert_eq( auctions_rando.length(), 0 );
-
-//     test_utils::destroy(runner);
-//     test_utils::destroy(auction1);
-//     test_utils::destroy(auction2);
-//     test_utils::destroy(auction3);
-// }
+    test_utils::destroy(runner);
+    test_utils::destroy(user_admin1);
+    test_utils::destroy(auction1);
+    // test_utils::destroy(user_admin2);
+    // test_utils::destroy(auction2);
+    // test_utils::destroy(auction3);
+}
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_ADDRESS)]
