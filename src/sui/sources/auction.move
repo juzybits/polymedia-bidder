@@ -10,7 +10,7 @@ use sui::display;
 use sui::object_bag::{Self, ObjectBag};
 use sui::package;
 
-use auction::history::{History};
+use auction::user::{Self, User};
 
 // === errors ===
 
@@ -87,7 +87,7 @@ public struct Auction<phantom CoinType> has store, key {
 // === public-mutative functions ===
 
 public fun admin_creates_auction<CoinType>(
-    history: &mut History,
+    opt_user: &mut Option<User>,
     name: vector<u8>,
     description: vector<u8>,
     pay_addr: address,
@@ -143,7 +143,14 @@ public fun admin_creates_auction<CoinType>(
         extension_period_ms,
     };
 
-    history.add(auction.admin_addr, auction.id.to_address(), ctx);
+    // Update user history
+    if (opt_user.is_some()) {
+        opt_user.borrow_mut().add_created(auction.id.to_address());
+    } else {
+        let mut user = user::new_user(ctx);
+        user.add_created(auction.id.to_address());
+        user.transfer_to_sender(ctx);
+    };
 
     return auction
 }
@@ -167,6 +174,7 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
 /// Anyone can bid for an item, as long as the auction hasn't ended.
 public fun anyone_bids<CoinType>(
     auction: &mut Auction<CoinType>,
+    opt_user: &mut Option<User>,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
@@ -196,6 +204,16 @@ public fun anyone_bids<CoinType>(
     // extend auction end time if within the extension period
     if (clock.timestamp_ms() >= auction.end_time_ms - auction.extension_period_ms) {
         auction.end_time_ms = auction.end_time_ms + auction.extension_period_ms;
+    };
+
+    // Update user history
+    let bid = user::new_bid(auction.id.to_address(), auction.lead_value());
+    if (opt_user.is_some()) {
+        opt_user.borrow_mut().add_bid(bid);
+    } else {
+        let mut user = user::new_user(ctx);
+        user.add_bid(bid);
+        user.transfer_to_sender(ctx);
     };
 }
 
