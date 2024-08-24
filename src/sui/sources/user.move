@@ -22,7 +22,7 @@ public struct Registry has key {
     users: Table<address, address>,
 }
 
-/// stores all auctions created and all bids placed by the User
+/// stores all auctions created and all bids placed by an address
 public struct User has key {
     id: UID,
     created: TableVec<address>,

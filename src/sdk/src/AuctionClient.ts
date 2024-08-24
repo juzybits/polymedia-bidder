@@ -266,7 +266,7 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
-        let [reqArg] = !user
+        let [reqArg1] = !user
             ? UserModule.new_user_request(tx, this.packageId)
             : UserModule.user_request(tx, this.packageId, user);
 
@@ -274,7 +274,7 @@ export class AuctionClient extends SuiClientBase
             tx,
             this.packageId,
             type_coin,
-            reqArg,
+            reqArg1,
             name,
             description,
             pay_addr,

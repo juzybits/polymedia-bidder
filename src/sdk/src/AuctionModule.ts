@@ -64,6 +64,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
+        request: ObjectArg,
         auction: ObjectArg,
         pay_coin: ObjectArg,
     ): TransactionResult =>
@@ -73,6 +74,7 @@ export const AuctionModule =
             typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
+                objectArg(tx, request),
                 objectArg(tx, pay_coin),
                 tx.object(SUI_CLOCK_OBJECT_ID),
             ],
