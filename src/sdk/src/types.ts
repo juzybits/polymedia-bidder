@@ -2,6 +2,8 @@
  * A Sui auction::Auction object
  */
 export type AuctionObj = {
+    // === struct types ===
+    type_coin: string;
     // === fields that map 1:1 to on-chain struct fields ===
     id: string;
     name: string;

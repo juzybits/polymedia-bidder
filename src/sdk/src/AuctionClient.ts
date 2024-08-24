@@ -11,6 +11,7 @@ import {
     isOwnerShared,
     isTxMoveCall,
     objResToFields,
+    objResToType,
     txResToData,
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
@@ -159,8 +160,10 @@ export class AuctionClient extends SuiClientBase
     ): AuctionObj | null
     {
         let fields: Record<string, any>;
+        let objType: string;
         try {
             fields = objResToFields(objRes);
+            objType = objResToType(objRes);
         } catch (_err) {
             return null;
         }
@@ -169,7 +172,12 @@ export class AuctionClient extends SuiClientBase
         const beginTimeMs = Number(fields.begin_time_ms);
         const endTimeMs = Number(fields.end_time_ms);
 
+        // example objType: "0x12345::auction::Auction<0x2::sui::SUI>"
+        const type_coin = objType.split("<")[1].split(">")[0];
+
         return {
+            // === struct types ===
+            type_coin,
             // === fields that map 1:1 to on-chain struct fields ===
             id: fields.id.id,
             name: fields.name,

@@ -32,10 +32,10 @@ export const CardAuction: React.FC<{
         <p>Admin: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></p>
         <p>Payment Recipient: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></p>
         <p>Current Leader: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></p>
-        <p>Current Highest Bid: {auction.lead_value.toString()} SUI</p>
+        <p>Current Highest Bid: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></p>
         <p>Start Time: {beginTime}</p>
         <p>End Time: {endTime}</p>
-        <p>Minimum Bid: {auction.minimum_bid.toString()} SUI</p>
+        <p>Minimum Bid: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></p>
         <p>Minimum Increase: {auction.minimum_increase_bps / 100}%</p>
         <p>Extension Period: {auction.extension_period_ms / 1000 / 60} minutes</p>
         <p>Status: {auction.is_live ? "Live" : "Ended"}</p>
