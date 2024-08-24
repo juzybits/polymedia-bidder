@@ -1,10 +1,10 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
+import { AuctionObj } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { Btn } from "./components/Btn";
-import { AuctionObj } from "@polymedia/auction-sdk";
+import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 
 export const PageUser: React.FC = () =>
 {
