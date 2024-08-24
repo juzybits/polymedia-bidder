@@ -57,6 +57,9 @@ importers:
       '@polymedia/auction-sdk':
         specifier: workspace:*
         version: link:../sdk
+      '@polymedia/coinmeta-react':
+        specifier: ^0.0.6
+        version: 0.0.6(@mysten/sui@1.6.0(typescript@5.5.4))(react@18.3.1)
       '@polymedia/suitcase-core':
         specifier: ^0.0.19
         version: link:../../../polymedia-suitcase/src/core
@@ -581,6 +584,22 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@polymedia/coinmeta-react@0.0.6':
+    resolution: {integrity: sha512-Vy283xG4CEjdlgQumXpXK9TRFAelHSU6R9CPoMOvTpclZoSOge6XJprnbLbdzDYY0vjtEGjxDwzbrXr3tSDFTA==}
+    peerDependencies:
+      '@mysten/sui': ^1.7.0
+      react: '18'
+
+  '@polymedia/coinmeta@0.0.6':
+    resolution: {integrity: sha512-Jyd4WfvcUdlx3bTBDoinvh1vr+8KdW+bLjiyqRywcGVXDiEV3exVLLcDik0cEW3bEJXlZRt2x0wKCufHXEmjsw==}
+    peerDependencies:
+      '@mysten/sui': ^1.7.0
+
+  '@polymedia/suitcase-core@0.0.19':
+    resolution: {integrity: sha512-yOM3CCFX0/S1dg88cfHrWLvZdXZSJm+2hD5zpZHhOCFdO3wZkH0NwYq3yxrd7ZHmdK7b8M9SArLpQJMqVLR1tQ==}
+    peerDependencies:
+      '@mysten/sui': ^1.4.0
 
   '@radix-ui/primitive@1.1.0':
     resolution: {integrity: sha512-4Z8dn6Upk0qk4P74xBhZ6Hd/w0mPEzOOLxy4xiPXOXqjF7jZS0VAKk7/x/H6FyY2zCkYJqePf1G5KmkmNJ4RBA==}
@@ -2931,6 +2950,20 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
+
+  '@polymedia/coinmeta-react@0.0.6(@mysten/sui@1.6.0(typescript@5.5.4))(react@18.3.1)':
+    dependencies:
+      '@mysten/sui': 1.6.0(typescript@5.5.4)
+      '@polymedia/coinmeta': 0.0.6(@mysten/sui@1.6.0(typescript@5.5.4))
+      react: 18.3.1
+
+  '@polymedia/coinmeta@0.0.6(@mysten/sui@1.6.0(typescript@5.5.4))':
+    dependencies:
+      '@mysten/sui': 1.6.0(typescript@5.5.4)
+
+  '@polymedia/suitcase-core@0.0.19(@mysten/sui@1.6.0(typescript@5.5.4))':
+    dependencies:
+      '@mysten/sui': 1.6.0(typescript@5.5.4)
 
   '@radix-ui/primitive@1.1.0': {}
 
