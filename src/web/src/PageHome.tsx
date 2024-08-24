@@ -61,16 +61,17 @@ const SectionRecentAuctions: React.FC = () =>
 
     return <>
         {txs?.data.map(tx => (
-            <AuctionCard tx={tx} key={tx.digest} />
+            <CardTxAdminCreatesAuction tx={tx} key={tx.digest} />
         ))}
     </>;
 };
 
-const AuctionCard: React.FC<{
+const CardTxAdminCreatesAuction: React.FC<{
     tx: TxAdminCreatesAuction,
 }> = ({
     tx,
-}) => {
+}) =>
+{
     const { network } = useOutletContext<AppContext>();
     return (
         <div className="card auction-card">
