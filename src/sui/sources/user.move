@@ -12,19 +12,24 @@ use auction::paginator;
 
 // === structs ===
 
+/// one time witness (OTW)
 public struct USER has drop {}
 
+/// guarantees 1 User per address
 public struct Registry has key {
     id: UID,
+    // address -> User
     users: Table<address, address>,
 }
 
+/// stores all auctions created and all bids placed by the User
 public struct User has key {
     id: UID,
     created: TableVec<address>,
     bids: TableVec<Bid>,
 }
 
+/// a bid on an auction
 public struct Bid has store, copy {
     auction_id: address,
     bid_amount: u64,
@@ -66,39 +71,39 @@ public fun bids(
     &user.bids
 }
 
-// === public-mutative hot potato ===
+// === UserRequest hot potato ===
 
-public struct Request {
+public struct UserRequest {
     user: User,
 }
 
 public fun new_user_request(
     ctx: &mut TxContext,
-): Request {
-    return Request {
+): UserRequest {
+    return UserRequest {
         user: new_user(ctx),
     }
 }
 
 public fun user_request(
     user: User,
-): Request {
-    return Request {
+): UserRequest {
+    return UserRequest {
         user,
     }
 }
 
 public(package) fun borrow_mut_user(
-    request: &mut Request,
+    request: &mut UserRequest,
 ): &mut User {
     return &mut request.user
 }
 
 public fun destroy_user_request(
-    request: Request,
+    request: UserRequest,
     ctx: &TxContext,
 ) {
-    let Request { user } = request;
+    let UserRequest { user } = request;
     user.transfer_to_sender(ctx);
 }
 

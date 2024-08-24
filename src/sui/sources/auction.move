@@ -10,7 +10,7 @@ use sui::display;
 use sui::object_bag::{Self, ObjectBag};
 use sui::package;
 
-use auction::user::{Self, Request};
+use auction::user::{Self, UserRequest};
 
 // === errors ===
 
@@ -87,7 +87,7 @@ public struct Auction<phantom CoinType> has store, key {
 // === public-mutative functions ===
 
 public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
-    mut request: Request,
+    mut request: UserRequest,
     name: vector<u8>,
     description: vector<u8>,
     pay_addr: address,
@@ -98,7 +98,7 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
     extension_period_ms: u64,
     clock: &Clock,
     ctx: &mut TxContext,
-): (Request, Auction<CoinType>)
+): (UserRequest, Auction<CoinType>)
 {
     assert!( name.length() >= MIN_NAME_LENGTH, E_WRONG_NAME );
     assert!( name.length() <= MAX_NAME_LENGTH, E_WRONG_NAME );
@@ -144,8 +144,7 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
     };
 
     // Update user history
-    let user = request.borrow_mut_user();
-    user.add_created(auction.id.to_address());
+    request.borrow_mut_user().add_created(auction.id.to_address());
 
     return (request, auction)
 }
@@ -169,11 +168,11 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
 /// Anyone can bid for an item, as long as the auction hasn't ended.
 public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
     auction: &mut Auction<CoinType>,
-    mut request: Request,
+    mut request: UserRequest,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
-): Request {
+): UserRequest {
     assert!( auction.is_live(clock), E_WRONG_TIME );
     assert!( pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE );
 
