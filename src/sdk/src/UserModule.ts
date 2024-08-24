@@ -95,10 +95,13 @@ export const UserModule =
     new_user_request: (
         tx: Transaction,
         packageId: string,
+        registryId: string,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::new_user_request`,
-            arguments: [],
+            arguments: [
+                objectArg(tx, registryId),
+            ],
         });
     },
 

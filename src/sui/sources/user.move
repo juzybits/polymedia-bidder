@@ -10,6 +10,10 @@ use sui::table::{Self, Table};
 
 use auction::paginator;
 
+// === errors ===
+
+const E_USER_ALREADY_EXISTS: u64 = 6000;
+
 // === structs ===
 
 /// one time witness (OTW)
@@ -78,11 +82,14 @@ public struct UserRequest {
 }
 
 public fun new_user_request(
+    registry: &mut Registry,
     ctx: &mut TxContext,
-): UserRequest {
-    return UserRequest {
-        user: new_user(ctx),
-    }
+): UserRequest
+{
+    assert!( !registry.users.contains(ctx.sender()), E_USER_ALREADY_EXISTS );
+    let user = new_user(ctx);
+    registry.users.add(ctx.sender(), user.id.to_address());
+    return UserRequest { user }
 }
 
 public fun user_request(

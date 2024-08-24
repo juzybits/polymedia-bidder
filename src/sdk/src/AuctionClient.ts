@@ -26,14 +26,17 @@ import { UserModule } from "./UserModule.js";
 export class AuctionClient extends SuiClientBase
 {
     public readonly packageId: string;
+    public readonly registryId: string;
 
     constructor(
         suiClient: SuiClient,
         signTransaction: SignTransaction,
         packageId: string,
+        registryId: string,
     ) {
         super(suiClient, signTransaction);
         this.packageId = packageId;
+        this.registryId = registryId;
     }
 
     // === data fetching ===
@@ -267,7 +270,7 @@ export class AuctionClient extends SuiClientBase
         const tx = new Transaction();
 
         let [reqArg1] = !user
-            ? UserModule.new_user_request(tx, this.packageId)
+            ? UserModule.new_user_request(tx, this.packageId, this.registryId)
             : UserModule.user_request(tx, this.packageId, user);
 
         const [reqArg2, auctionObj] = AuctionModule.admin_creates_auction(
