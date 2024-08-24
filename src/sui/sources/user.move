@@ -66,6 +66,34 @@ public fun bids(
     &user.bids
 }
 
+// === public-mutative hot potato ===
+
+public struct Request {
+    user: User,
+}
+
+public fun new_user_request(
+    ctx: &mut TxContext,
+): Request {
+    return Request {
+        user: new_user(ctx),
+    }
+}
+
+public fun borrow_mut_user(
+    request: &mut Request,
+): &mut User {
+    return &mut request.user
+}
+
+public fun destroy_user_request(
+    request: Request,
+    ctx: &TxContext,
+) {
+    let Request { user } = request;
+    user.transfer_to_sender(ctx);
+}
+
 // === public-package functions ===
 
 public(package) fun add_created(
@@ -90,34 +118,6 @@ public(package) fun new_bid(
         auction_id: auction_addr,
         bid_amount: bid_amount,
     }
-}
-
-// === public-package hot potato ===
-
-public struct Request {
-    user: User,
-}
-
-public(package) fun new_request(
-    ctx: &mut TxContext,
-): Request {
-    return Request {
-        user: new_user(ctx),
-    }
-}
-
-public(package) fun borrow_mut(
-    request: &mut Request,
-): &mut User {
-    return &mut request.user
-}
-
-public(package) fun destroy_request(
-    request: Request,
-    ctx: &TxContext,
-) {
-    let Request { user } = request;
-    user.transfer_to_sender(ctx);
 }
 
 // === private functions ===

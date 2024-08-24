@@ -87,7 +87,7 @@ public struct Auction<phantom CoinType> has store, key {
 // === public-mutative functions ===
 
 public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
-    opt_user: &mut Option<User>,
+    user: &mut User,
     name: vector<u8>,
     description: vector<u8>,
     pay_addr: address,
@@ -144,13 +144,7 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
     };
 
     // Update user history
-    if (opt_user.is_some()) {
-        opt_user.borrow_mut().add_created(auction.id.to_address());
-    } else {
-        let mut req = user::new_request(ctx);
-        req.borrow_mut().add_created(auction.id.to_address());
-        req.destroy_request(ctx);
-    };
+    user.add_created(auction.id.to_address());
 
     return auction
 }
@@ -174,7 +168,7 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
 /// Anyone can bid for an item, as long as the auction hasn't ended.
 public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
     auction: &mut Auction<CoinType>,
-    opt_user: &mut Option<User>,
+    user: &mut User,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
@@ -208,13 +202,7 @@ public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed i
 
     // Update user history
     let bid = user::new_bid(auction.id.to_address(), auction.lead_value());
-    if (opt_user.is_some()) {
-        opt_user.borrow_mut().add_bid(bid);
-    } else {
-        let mut req = user::new_request(ctx);
-        req.borrow_mut().add_bid(bid);
-        req.destroy_request(ctx);
-    };
+    user.add_bid(bid);
 }
 
 /// Anyone can transfer the items to the winner of the auction after it ends.
