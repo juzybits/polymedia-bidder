@@ -1,4 +1,7 @@
+import { CoinMetadata } from "@mysten/sui/client";
 import { AuctionObj, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
+import { useCoinMeta, useCoinMetas } from '@polymedia/coinmeta-react';
+import { balanceToString } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React from "react";
 import { useOutletContext } from "react-router-dom";
@@ -52,10 +55,31 @@ export const CardTxAdminCreatesAuction: React.FC<{
             <p>Type: {tx.inputs.type_coin}</p>
             <p>Description: {tx.inputs.description}</p>
             <p>Auction ID: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></p>
-            <p>Minimum Bid: {tx.inputs.minimum_bid.toString()}</p>
+            <p>Minimum Bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></p>
             <p>Minimum Increase: {tx.inputs.minimum_increase_bps / 100}%</p>
             <p>Extension Period: {tx.inputs.extension_period_ms / 1000 / 60} minutes</p>
             <p>Creator: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></p>
         </div>
     );
+};
+
+export const Balance: React.FC<{
+    balance: bigint;
+    coinType: string;
+}> = ({
+    balance,
+    coinType,
+}) =>
+{
+    const { auctionClient } = useOutletContext<AppContext>();
+
+    const { coinMeta, isLoadingCoinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, coinType);
+
+    return isLoadingCoinMeta
+        ? "Loading..."
+        : (
+            (!coinMeta || errorCoinMeta)
+            ? "Unknown"
+            : `${balanceToString(balance, coinMeta.decimals)} ${coinMeta.symbol}`
+        );
 };
