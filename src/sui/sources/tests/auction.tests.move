@@ -11,7 +11,7 @@ use sui::test_scenario::{Self, Scenario};
 use sui::test_utils::{Self, assert_eq};
 
 use auction::auction::{Self, Auction};
-use auction::history::{Self, History};
+use auction::user::{Self, User};
 
 // === dummy object to be auctioned ===
 
@@ -30,7 +30,7 @@ public fun new_item(runner: &mut TestRunner): Item {
 // === addresses ===
 
 const ADMIN: address = @0x777;
-const ADMIN_2: address = @0x888;
+// const ADMIN_2: address = @0x888;
 const PAYEE: address = @0x999;
 const BIDDER_1: address = @0xb1;
 const BIDDER_2: address = @0xb2;
@@ -67,21 +67,18 @@ public fun auction_args(): AuctionArgs {
 public struct TestRunner {
     scen: Scenario,
     clock: Clock,
-    history: History,
 }
 
 public fun begin(): TestRunner
 {
     let mut scen = test_scenario::begin(ADMIN);
     let mut clock = clock::create_for_testing(scen.ctx());
-    let history = history::new_history_for_testing(scen.ctx());
 
     clock.set_for_testing(24*3600*1000);
 
     return TestRunner {
         scen,
         clock,
-        history,
     }
 }
 
@@ -130,8 +127,10 @@ public fun admin_creates_auction(
 ): Auction<SUI>
 {
     runner.scen.next_tx(sender);
+
+    let mut opt_user = option::none<User>();
     let mut auction = auction::admin_creates_auction<SUI>(
-        &mut runner.history,
+        &mut opt_user,
         args.name,
         args.description,
         args.pay_addr,
@@ -146,6 +145,7 @@ public fun admin_creates_auction(
 
     runner.admin_adds_item(sender, &mut auction);
 
+    test_utils::destroy(opt_user);
     return auction
 }
 
@@ -170,12 +170,17 @@ public fun anyone_bids(
     bid_value: u64,
 ) {
     runner.scen.next_tx(sender);
+
+    let mut opt_user = option::none<User>();
     let bid_coin = runner.mint_sui(bid_value);
     auction.anyone_bids(
+        &mut opt_user,
         bid_coin,
         &runner.clock,
         runner.scen.ctx(),
     );
+
+    test_utils::destroy(opt_user);
 }
 
 public fun anyone_sends_item_to_winner(
@@ -301,42 +306,42 @@ fun test_admin_creates_auction_ok()
     test_utils::destroy(auction);
 }
 
-#[test]
-fun test_history()
-{
-    let mut runner = begin();
+// #[test]
+// fun test_history()
+// {
+//     let mut runner = begin();
 
-    let mut args = auction_args();
-    args.name = b"auction 1";
-    let auction1 = runner.admin_creates_auction(ADMIN, args);
+//     let mut args = auction_args();
+//     args.name = b"auction 1";
+//     let auction1 = runner.admin_creates_auction(ADMIN, args);
 
-    assert_eq( runner.history.total_auctions(), 1 );
-    assert_eq( runner.history.creators().length(), 1 );
-    assert_eq( runner.history.creators().borrow(ADMIN).auctions().length(), 1 );
+//     assert_eq( runner.history.total_auctions(), 1 );
+//     assert_eq( runner.history.creators().length(), 1 );
+//     assert_eq( runner.history.creators().borrow(ADMIN).auctions().length(), 1 );
 
-    let mut args = auction_args();
-    args.name = b"auction 2";
-    let auction2 = runner.admin_creates_auction(ADMIN_2, args);
+//     let mut args = auction_args();
+//     args.name = b"auction 2";
+//     let auction2 = runner.admin_creates_auction(ADMIN_2, args);
 
-    let mut args = auction_args();
-    args.name = b"auction 3";
-    let auction3 = runner.admin_creates_auction(ADMIN_2, args);
+//     let mut args = auction_args();
+//     args.name = b"auction 3";
+//     let auction3 = runner.admin_creates_auction(ADMIN_2, args);
 
-    assert_eq( runner.history.total_auctions(), 3 );
-    assert_eq( runner.history.creators().length(), 2 );
-    assert_eq( runner.history.creators().borrow(ADMIN_2).auctions().length(), 2 );
+//     assert_eq( runner.history.total_auctions(), 3 );
+//     assert_eq( runner.history.creators().length(), 2 );
+//     assert_eq( runner.history.creators().borrow(ADMIN_2).auctions().length(), 2 );
 
-    let (auctions_admin_2, _, _) = runner.history.get_auctions(ADMIN_2, false, 999, 10);
-    assert_eq( auctions_admin_2.length(), 2 );
+//     let (auctions_admin_2, _, _) = runner.history.get_auctions(ADMIN_2, false, 999, 10);
+//     assert_eq( auctions_admin_2.length(), 2 );
 
-    let (auctions_rando, _, _) = runner.history.get_auctions(RANDO, false, 999, 10);
-    assert_eq( auctions_rando.length(), 0 );
+//     let (auctions_rando, _, _) = runner.history.get_auctions(RANDO, false, 999, 10);
+//     assert_eq( auctions_rando.length(), 0 );
 
-    test_utils::destroy(runner);
-    test_utils::destroy(auction1);
-    test_utils::destroy(auction2);
-    test_utils::destroy(auction3);
-}
+//     test_utils::destroy(runner);
+//     test_utils::destroy(auction1);
+//     test_utils::destroy(auction2);
+//     test_utils::destroy(auction3);
+// }
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_ADDRESS)]
@@ -1081,9 +1086,9 @@ fun test_init_auction()
 }
 
 #[test]
-fun test_init_history()
+fun test_init_user_registry()
 {
     let mut runner = begin();
-    history::init_for_testing(runner.scen.ctx());
+    user::init_for_testing(runner.scen.ctx());
     test_utils::destroy(runner);
 }
