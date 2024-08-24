@@ -1,7 +1,8 @@
 /**
  * A Sui auction::Auction object
  */
-export type AuctionObject = {
+export type AuctionObj = {
+    // === fields that map 1:1 to on-chain struct fields ===
     id: string;
     name: string;
     description: string;
@@ -27,6 +28,8 @@ export type AuctionObject = {
     minimum_increase_bps: number;
     /** bids placed within this period before end_time_ms will extend end_time_ms by extension_period_ms */
     extension_period_ms: number;
+    // === derived fields ===
+    is_live: boolean;
 };
 
 /**
@@ -53,7 +56,7 @@ export type TxAdminCreatesAuction = {
 /**
  * Check if an auction is live based on the current time.
  */
-export function isAuctionLive(auction: AuctionObject): boolean {
+export function isAuctionLive(auction: AuctionObj): boolean {
     const currentTimeMs = Date.now();
     return currentTimeMs >= auction.begin_time_ms && currentTimeMs < auction.end_time_ms;
 }

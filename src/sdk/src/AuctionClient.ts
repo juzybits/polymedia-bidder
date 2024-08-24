@@ -1,10 +1,12 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
+import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
     SignTransaction,
     SuiClientBase,
     TransferModule,
+    ZERO_ADDRESS,
     devInspectAndGetReturnValues,
     isOwnerShared,
     objResToFields,
@@ -13,7 +15,7 @@ import {
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
 import { HistoryModule } from "./HistoryModule.js";
-import { AuctionObject, TxAdminCreatesAuction } from "./types.js";
+import { AuctionObj, TxAdminCreatesAuction } from "./types.js";
 
 /**
  * Execute transactions on the auction::auction Sui module.
@@ -38,7 +40,7 @@ export class AuctionClient extends SuiClientBase
 
     public async fetchAuction(
         auctionId: string,
-    ): Promise<AuctionObject | null>
+    ): Promise<AuctionObj | null>
     {
         const auctions = await this.fetchAuctions([auctionId]);
         return auctions[0];
@@ -46,7 +48,7 @@ export class AuctionClient extends SuiClientBase
 
     public async fetchAuctions(
         auctionIds: string[],
-    ): Promise<(AuctionObject | null)[]>
+    ): Promise<(AuctionObj | null)[]>
     {
         const pagObjRes = await this.suiClient.multiGetObjects({
             ids: auctionIds,
@@ -142,10 +144,10 @@ export class AuctionClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
-    ): Promise<AuctionObject[]>
+    ): Promise<AuctionObj[]>
     {
         const auctionIds = await this.fetchCreatorAuctionIds(creator_addr, order, cursor, limit);
-        return await this.fetchAuctions(auctionIds) as AuctionObject[];
+        return await this.fetchAuctions(auctionIds) as AuctionObj[];
     }
 
     // === data parsing ===
@@ -153,7 +155,7 @@ export class AuctionClient extends SuiClientBase
     /* eslint-disable */
     public static parseAuction(
         objRes: SuiObjectResponse,
-    ): AuctionObject | null
+    ): AuctionObj | null
     {
         let fields: Record<string, any>;
         try {
@@ -161,7 +163,13 @@ export class AuctionClient extends SuiClientBase
         } catch (_err) {
             return null;
         }
+
+        const currentTimeMs = Date.now();
+        const beginTimeMs = Number(fields.begin_time_ms);
+        const endTimeMs = Number(fields.end_time_ms);
+
         return {
+            // === fields that map 1:1 to on-chain struct fields ===
             id: fields.id.id,
             name: fields.name,
             description: fields.description,
@@ -172,13 +180,15 @@ export class AuctionClient extends SuiClientBase
             },
             admin_addr: fields.admin_addr,
             pay_addr: fields.pay_addr,
-            lead_addr: fields.lead_addr,
+            lead_addr: normalizeSuiAddress(fields.lead_addr),
             lead_value: BigInt(fields.lead_bal),
-            begin_time_ms: Number(fields.begin_time_ms),
-            end_time_ms: Number(fields.end_time_ms),
+            begin_time_ms: beginTimeMs,
+            end_time_ms: endTimeMs,
             minimum_bid: BigInt(fields.minimum_bid),
             minimum_increase_bps: Number(fields.minimum_increase_bps),
             extension_period_ms: Number(fields.extension_period_ms),
+            // === derived fields ===
+            is_live: currentTimeMs >= beginTimeMs && currentTimeMs < endTimeMs,
         };
     }
     /* eslint-enable */

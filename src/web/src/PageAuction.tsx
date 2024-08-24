@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { AuctionObject } from "@polymedia/auction-sdk";
+import { AuctionObj } from "@polymedia/auction-sdk";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { PageNotFound } from "./PageNotFound";
 
@@ -42,7 +42,7 @@ const SectionAuction: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ auction, setAuction ] = useState<AuctionObject|null>();
+    const [ auction, setAuction ] = useState<AuctionObj|null>();
 
     // === functions ===
 
