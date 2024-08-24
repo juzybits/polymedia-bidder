@@ -1,6 +1,6 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { Transaction } from "@mysten/sui/transactions";
+import { Transaction, TransactionObjectInput } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
     ObjectArg,
@@ -11,12 +11,14 @@ import {
     isOwnerShared,
     isTxMoveCall,
     objResToFields,
+    objResToId,
     objResToType,
     txResToData,
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
 import { AuctionObj, TxAdminCreatesAuction } from "./types.js";
+import { UserModule } from "./UserModule.js";
 
 /**
  * Execute transactions on the auction::auction Sui module.
@@ -102,6 +104,17 @@ export class AuctionClient extends SuiClientBase
         return Object.fromEntries(
             fun_names.map( (key, idx) => [key, Number(values[idx])] )
         );
+    }
+
+    public async fetchUserObject(
+        owner: string,
+    ): Promise<string | null>
+    {
+        const objRes = await this.suiClient.getOwnedObjects({
+            owner,
+            filter: { StructType: `${this.packageId}::user::User` },
+        });
+        return objRes.data.length > 0 ? objResToId(objRes.data[0]) : null;
     }
 
     // public async fetchCreatorAuctionIds(
@@ -239,7 +252,7 @@ export class AuctionClient extends SuiClientBase
 
     public async createAndShareAuction(
         type_coin: string,
-        user: ObjectArg,
+        user: ObjectArg | null,
         name: string,
         description: string,
         pay_addr: string,
@@ -253,11 +266,20 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
+        let userArg: ObjectArg;
+        let reqArg: TransactionObjectInput | null = null;
+        if (!user) {
+            [reqArg] = UserModule.new_user_request(tx, this.packageId);
+            [userArg] = UserModule.borrow_mut_user(tx, this.packageId, reqArg);
+        } else {
+            userArg = user;
+        }
+
         const [auctionObj] = AuctionModule.admin_creates_auction(
             tx,
             this.packageId,
             type_coin,
-            user,
+            userArg,
             name,
             description,
             pay_addr,
@@ -267,6 +289,10 @@ export class AuctionClient extends SuiClientBase
             minimum_increase_bps,
             extension_period_ms,
         );
+
+        if (reqArg) {
+            UserModule.destroy_user_request(tx, this.packageId, reqArg);
+        }
 
         for (const item of itemsToAuction) {
             AuctionModule.admin_adds_item(

@@ -1,5 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client";
+import * as sdk from "@polymedia/auction-sdk";
 import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
 import {
     objResToDisplay,
@@ -85,6 +86,8 @@ const FormCreateAuction: React.FC<{
 
     const { auctionClient, network } = useOutletContext<AppContext>();
 
+    const [ userObj, setUserObj ] = useState<string|null>();
+
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
 
     const form = {
@@ -127,9 +130,20 @@ const FormCreateAuction: React.FC<{
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = chosenObjs.length === 0 || hasErrors;
+    const disableSubmit = chosenObjs.length === 0 || hasErrors || userObj === undefined;
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchUserObj();
+    }, [auctionClient, currAcct]);
 
     // === functions ===
+
+    const fetchUserObj = async () => {
+        const newUserObj = await auctionClient.fetchUserObject(currAcct.address);
+        setUserObj(newUserObj);
+    };
 
     const onSubmit = async () =>
     {
@@ -139,6 +153,7 @@ const FormCreateAuction: React.FC<{
         try {
             const resp = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
+                userObj,
                 form.name.val!,
                 form.description.val ?? "",
                 form.pay_addr.val!,
