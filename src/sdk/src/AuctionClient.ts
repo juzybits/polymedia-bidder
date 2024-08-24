@@ -266,20 +266,15 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
-        let userArg: ObjectArg;
-        let reqArg: TransactionObjectInput | null = null;
-        if (!user) {
-            [reqArg] = UserModule.new_user_request(tx, this.packageId);
-            [userArg] = UserModule.borrow_mut_user(tx, this.packageId, reqArg);
-        } else {
-            userArg = user;
-        }
+        let [reqArg] = !user
+            ? UserModule.new_user_request(tx, this.packageId)
+            : UserModule.user_request(tx, this.packageId, user);
 
-        const [auctionObj] = AuctionModule.admin_creates_auction(
+        const [reqArg2, auctionObj] = AuctionModule.admin_creates_auction(
             tx,
             this.packageId,
             type_coin,
-            userArg,
+            reqArg,
             name,
             description,
             pay_addr,
@@ -290,9 +285,7 @@ export class AuctionClient extends SuiClientBase
             extension_period_ms,
         );
 
-        if (reqArg) {
-            UserModule.destroy_user_request(tx, this.packageId, reqArg);
-        }
+        UserModule.destroy_user_request(tx, this.packageId, reqArg2);
 
         for (const item of itemsToAuction) {
             AuctionModule.admin_adds_item(

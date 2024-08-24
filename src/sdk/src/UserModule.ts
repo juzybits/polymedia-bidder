@@ -17,7 +17,7 @@ export const UserModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::history::get_auctions`,
+            target: `${packageId}::user::get_auctions`,
             arguments: [
                 objectArg(tx, history),
                 tx.pure.address(creator_addr),
@@ -37,7 +37,7 @@ export const UserModule =
         limit: number,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::get_created_page`,
+            target: `${packageId}::user::get_created_page`,
             arguments: [
                 objectArg(tx, user),
                 tx.pure.bool(ascending),
@@ -56,7 +56,7 @@ export const UserModule =
         limit: number,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::get_bids_page`,
+            target: `${packageId}::user::get_bids_page`,
             arguments: [
                 objectArg(tx, user),
                 tx.pure.bool(ascending),
@@ -72,7 +72,7 @@ export const UserModule =
         user: ObjectArg,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::created`,
+            target: `${packageId}::user::created`,
             arguments: [
                 objectArg(tx, user),
             ],
@@ -85,7 +85,7 @@ export const UserModule =
         user: ObjectArg,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::bids`,
+            target: `${packageId}::user::bids`,
             arguments: [
                 objectArg(tx, user),
             ],
@@ -97,20 +97,20 @@ export const UserModule =
         packageId: string,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::new_user_request`,
+            target: `${packageId}::user::new_user_request`,
             arguments: [],
         });
     },
 
-    borrow_mut_user: (
+    user_request: (
         tx: Transaction,
         packageId: string,
-        request: ObjectArg,
+        user: ObjectArg,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::borrow_mut_user`,
+            target: `${packageId}::user::user_request`,
             arguments: [
-                objectArg(tx, request),
+                objectArg(tx, user),
             ],
         });
     },
@@ -121,7 +121,7 @@ export const UserModule =
         request: ObjectArg,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::history::destroy_user_request`,
+            target: `${packageId}::user::destroy_user_request`,
             arguments: [
                 objectArg(tx, request),
             ],

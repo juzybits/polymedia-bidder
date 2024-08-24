@@ -19,7 +19,7 @@ export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
         packageId: "0x57013a9829a440e9db875e13d22cbf9f7fcebd7720fa47254b3d7395f3f8d04b",
     },
     localnet: {
-        packageId: "0x4d63de67e780bc0474e9dcb93cc43a5e07c54e6bb99c765ce2fe15260406ada2",
+        packageId: "0x5d420b364f646259a1febea16072af2a649f539c50747ac1b66b666ba0a99188",
     },
 };
 

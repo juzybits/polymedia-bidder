@@ -10,7 +10,7 @@ use sui::display;
 use sui::object_bag::{Self, ObjectBag};
 use sui::package;
 
-use auction::user::{Self, User};
+use auction::user::{Self, Request};
 
 // === errors ===
 
@@ -87,7 +87,7 @@ public struct Auction<phantom CoinType> has store, key {
 // === public-mutative functions ===
 
 public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
-    user: &mut User,
+    mut request: Request,
     name: vector<u8>,
     description: vector<u8>,
     pay_addr: address,
@@ -98,7 +98,7 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
     extension_period_ms: u64,
     clock: &Clock,
     ctx: &mut TxContext,
-): Auction<CoinType>
+): (Request, Auction<CoinType>)
 {
     assert!( name.length() >= MIN_NAME_LENGTH, E_WRONG_NAME );
     assert!( name.length() <= MAX_NAME_LENGTH, E_WRONG_NAME );
@@ -144,9 +144,10 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
     };
 
     // Update user history
+    let user = request.borrow_mut_user();
     user.add_created(auction.id.to_address());
 
-    return auction
+    return (request, auction)
 }
 
 /// Admin can add items to the auction any time before the auction ends
@@ -168,11 +169,11 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
 /// Anyone can bid for an item, as long as the auction hasn't ended.
 public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
     auction: &mut Auction<CoinType>,
-    user: &mut User,
+    mut request: Request,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
-) {
+): Request {
     assert!( auction.is_live(clock), E_WRONG_TIME );
     assert!( pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE );
 
@@ -202,7 +203,9 @@ public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed i
 
     // Update user history
     let bid = user::new_bid(auction.id.to_address(), auction.lead_value());
-    user.add_bid(bid);
+    request.borrow_mut_user().add_bid(bid);
+
+    return request
 }
 
 /// Anyone can transfer the items to the winner of the auction after it ends.

@@ -80,7 +80,15 @@ public fun new_user_request(
     }
 }
 
-public fun borrow_mut_user(
+public fun user_request(
+    user: User,
+): Request {
+    return Request {
+        user,
+    }
+}
+
+public(package) fun borrow_mut_user(
     request: &mut Request,
 ): &mut User {
     return &mut request.user
