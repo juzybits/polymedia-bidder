@@ -9,6 +9,7 @@ import {
     ZERO_ADDRESS,
     devInspectAndGetReturnValues,
     isOwnerShared,
+    isTxMoveCall,
     objResToFields,
     txResToData,
 } from "@polymedia/suitcase-core";
@@ -203,24 +204,29 @@ export class AuctionClient extends SuiClientBase
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(txRes); }
         catch (_err) { return null; }
-        const input = txData.inputs;
+        const inputs = txData.inputs;
+
+        const tx0 = txData.txs[0];
+        if (!isTxMoveCall(tx0) || !tx0.MoveCall.type_arguments) { return null; }
+        const type_coin = tx0.MoveCall.type_arguments[0];
 
         return {
             digest: txRes.digest,
-            timestamp: txRes.timestampMs!,
+            timestamp: txRes.timestampMs ?? "0",
             sender: txData.sender,
             auctionId: createdObjRef.reference.objectId,
             inputs: {
-                name: getArgVal(input[0]) as string,
-                description: getArgVal(input[1]) as string,
-                pay_addr: getArgVal(input[2]) as string,
-                begin_time_ms: getArgVal(input[3]) as number,
-                duration_ms: getArgVal(input[4]) as number,
-                minimum_bid: getArgVal(input[5]) as bigint,
-                minimum_increase_bps: getArgVal(input[6]) as number,
-                extension_period_ms: getArgVal(input[7]) as number,
-                // clock: getArgVal(inputs[8]) as string,
-                item_addrs: input.slice(9).map(input => getArgVal(input) as string),
+                type_coin,
+                name: getArgVal(inputs[1]) as string,
+                description: getArgVal(inputs[2]) as string,
+                pay_addr: getArgVal(inputs[3]) as string,
+                begin_time_ms: getArgVal(inputs[4]) as number,
+                duration_ms: getArgVal(inputs[5]) as number,
+                minimum_bid: getArgVal(inputs[6]) as bigint,
+                minimum_increase_bps: getArgVal(inputs[7]) as number,
+                extension_period_ms: getArgVal(inputs[8]) as number,
+                // clock: getArgVal(inputs[9]) as string,
+                item_addrs: inputs.slice(10).map(input => getArgVal(input) as string),
             },
         };
     }

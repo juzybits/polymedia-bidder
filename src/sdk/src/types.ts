@@ -41,6 +41,7 @@ export type TxAdminCreatesAuction = {
     sender: string;
     auctionId: string;
     inputs: {
+        type_coin: string;
         name: string;
         description: string;
         pay_addr: string;
