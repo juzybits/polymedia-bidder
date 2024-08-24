@@ -3,10 +3,10 @@ import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse }
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
+    ObjectArg,
     SignTransaction,
     SuiClientBase,
     TransferModule,
-    ZERO_ADDRESS,
     devInspectAndGetReturnValues,
     isOwnerShared,
     isTxMoveCall,
@@ -16,7 +16,6 @@ import {
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
-import { HistoryModule } from "./HistoryModule.js";
 import { AuctionObj, TxAdminCreatesAuction } from "./types.js";
 
 /**
@@ -25,17 +24,14 @@ import { AuctionObj, TxAdminCreatesAuction } from "./types.js";
 export class AuctionClient extends SuiClientBase
 {
     public readonly packageId: string;
-    public readonly historyId: string;
 
     constructor(
         suiClient: SuiClient,
         signTransaction: SignTransaction,
         packageId: string,
-        historyId: string,
     ) {
         super(suiClient, signTransaction);
         this.packageId = packageId;
-        this.historyId = historyId;
     }
 
     // === data fetching ===
@@ -108,49 +104,49 @@ export class AuctionClient extends SuiClientBase
         );
     }
 
-    public async fetchCreatorAuctionIds(
-        creator_addr: string,
-        order: "ascending" | "descending" = "descending",
-        cursor?: number,
-        limit = 50,
-    ): Promise<string[]>
-    {
-        const tx = new Transaction();
+    // public async fetchCreatorAuctionIds(
+    //     creator_addr: string,
+    //     order: "ascending" | "descending" = "descending",
+    //     cursor?: number,
+    //     limit = 50,
+    // ): Promise<string[]>
+    // {
+    //     const tx = new Transaction();
 
-        if (cursor === undefined) {
-            cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
-        }
+    //     if (cursor === undefined) {
+    //         cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
+    //     }
 
-        HistoryModule.get_auctions(
-            tx,
-            this.packageId,
-            this.historyId,
-            creator_addr,
-            order === "ascending",
-            cursor,
-            limit,
-        );
+    //     HistoryModule.get_auctions(
+    //         tx,
+    //         this.packageId,
+    //         this.historyId,
+    //         creator_addr,
+    //         order === "ascending",
+    //         cursor,
+    //         limit,
+    //     );
 
-        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
-            [
-                bcs.vector(bcs.Address),
-                bcs.Bool,
-                bcs.U64,
-            ],
-        ]);
-        return blockReturns[0][0] as string[];
-    }
+    //     const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
+    //         [
+    //             bcs.vector(bcs.Address),
+    //             bcs.Bool,
+    //             bcs.U64,
+    //         ],
+    //     ]);
+    //     return blockReturns[0][0] as string[];
+    // }
 
-    public async fetchCreatorAuctions(
-        creator_addr: string,
-        order: "ascending" | "descending" = "descending",
-        cursor?: number,
-        limit = 50,
-    ): Promise<AuctionObj[]>
-    {
-        const auctionIds = await this.fetchCreatorAuctionIds(creator_addr, order, cursor, limit);
-        return await this.fetchAuctions(auctionIds) as AuctionObj[];
-    }
+    // public async fetchCreatorAuctions(
+    //     creator_addr: string,
+    //     order: "ascending" | "descending" = "descending",
+    //     cursor?: number,
+    //     limit = 50,
+    // ): Promise<AuctionObj[]>
+    // {
+    //     const auctionIds = await this.fetchCreatorAuctionIds(creator_addr, order, cursor, limit);
+    //     return await this.fetchAuctions(auctionIds) as AuctionObj[];
+    // }
 
     // === data parsing ===
 
@@ -243,6 +239,7 @@ export class AuctionClient extends SuiClientBase
 
     public async createAndShareAuction(
         type_coin: string,
+        user: ObjectArg,
         name: string,
         description: string,
         pay_addr: string,
@@ -260,7 +257,7 @@ export class AuctionClient extends SuiClientBase
             tx,
             this.packageId,
             type_coin,
-            this.historyId,
+            user,
             name,
             description,
             pay_addr,

@@ -11,7 +11,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        historyId: string,
+        user: ObjectArg,
         name: string,
         description: string,
         pay_addr: string,
@@ -26,7 +26,7 @@ export const AuctionModule =
             target: `${packageId}::auction::admin_creates_auction`,
             typeArguments: [ type_coin ],
             arguments: [
-                tx.object(historyId),
+                objectArg(tx, user),
                 tx.pure.string(name),
                 tx.pure.string(description),
                 tx.pure.address(pay_addr),

@@ -96,14 +96,12 @@ const App: React.FC<{
     const suiClient = useSuiClient();
     const { mutateAsync: walletSignTx } = useSignTransaction();
     const packageId = sdk.AUCTION_IDS[network].packageId;
-    const historyId = sdk.AUCTION_IDS[network].historyId;
 
     const auctionClient = useMemo(() => {
         return new sdk.AuctionClient(
             suiClient,
             (tx) => walletSignTx({ transaction: tx }),
             packageId,
-            historyId,
         );
     }, [suiClient, packageId, walletSignTx]);
 

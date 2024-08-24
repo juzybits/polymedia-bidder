@@ -77,13 +77,13 @@ const SectionAuctions: React.FC = () => // TODO: pagination
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    // const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ auctions, setAuctions ] = useState<AuctionObj[]>();
+    const [ auctions, _setAuctions ] = useState<AuctionObj[]>();
 
     const fetchAuctionIds = async () => {
-        const newAuctions = await auctionClient.fetchCreatorAuctions(currAcct.address);
-        setAuctions(newAuctions);
+        // const newAuctions = await auctionClient.fetchCreatorAuctions(currAcct.address);
+        // setAuctions(newAuctions);
     };
 
     useEffect(() => {
