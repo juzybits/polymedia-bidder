@@ -17,6 +17,7 @@ import { BtnConnect } from "./components/BtnConnect";
 import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
 import { PageDevDisplayHistory } from "./PageDevDisplayHistory";
+import { PageDevDisplayUser } from "./PageDevDisplayUser";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
 import { PageNotFound } from "./PageNotFound";
@@ -37,6 +38,7 @@ export const AppRouter: React.FC = () => {
                 <Route path="/auction/:auctionId" element={<PageAuction />} />
                 <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
                 <Route path="/dev/display/history" element={<PageDevDisplayHistory />} />
+                <Route path="/dev/display/user" element={<PageDevDisplayUser />} />
             </Route>
         </Routes>
     </BrowserRouter>
@@ -96,12 +98,14 @@ const App: React.FC<{
     const suiClient = useSuiClient();
     const { mutateAsync: walletSignTx } = useSignTransaction();
     const packageId = sdk.AUCTION_IDS[network].packageId;
+    const registryId = sdk.AUCTION_IDS[network].registryId;
 
     const auctionClient = useMemo(() => {
         return new sdk.AuctionClient(
             suiClient,
             (tx) => walletSignTx({ transaction: tx }),
             packageId,
+            registryId,
         );
     }, [suiClient, packageId, walletSignTx]);
 
