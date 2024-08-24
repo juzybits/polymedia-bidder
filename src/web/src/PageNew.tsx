@@ -85,7 +85,7 @@ const FormCreateAuction: React.FC<{
 
     const { auctionClient, network } = useOutletContext<AppContext>();
 
-    const decimals = 9; // TODO: @polymedia/coinmeta
+    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
 
     const form = {
         name: useInputString({
@@ -98,30 +98,30 @@ const FormCreateAuction: React.FC<{
         }),
         type_coin: useInputString({
             label: "Coin type",
-            html: { value: "0x2::sui::SUI", required: true },
+            html: { value: coinType, required: true, disabled: true }, // TODO support other coins
         }),
         pay_addr: useInputSuiAddress({
             label: "Payment address",
             html: { value: currAcct.address ?? "", required: true },
         }),
         begin_time_ms: useInputUnsignedInt({
-            label: "Begin time",
+            label: "Begin time (ms)", // TODO date picker
             html: { value: "0", required: true }, // TODO MAX_BEGIN_TIME_MS relative to new Date()
         }),
         duration_ms: useInputUnsignedInt({
-            label: "Duration", min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS,
+            label: "Duration (ms)", min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS, // TODO hours
             html: { value: "86400000", required: true },
         }),
         minimum_bid: useInputUnsignedBalance({
-            label: "Minimum bid", decimals,
+            label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals, // TODO support other coins
             html: { value: "1", required: true },
         }),
         minimum_increase_bps: useInputUnsignedInt({
-            label: "Minimum bid increase", min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS,
+            label: "Minimum bid increase (bps)", min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS, // TODO percentage
             html: { value: "500", required: true },
         }),
         extension_period_ms: useInputUnsignedInt({
-            label: "Extension period", min: cnf.MIN_EXTENSION_PERIOD_MS, max: cnf.MAX_EXTENSION_PERIOD_MS,
+            label: "Extension period (ms)", min: cnf.MIN_EXTENSION_PERIOD_MS, max: cnf.MAX_EXTENSION_PERIOD_MS, // TODO minutes
             html: { value: "900000", required: true },
         }),
     };

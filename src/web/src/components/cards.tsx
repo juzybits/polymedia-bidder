@@ -52,7 +52,7 @@ export const CardTxAdminCreatesAuction: React.FC<{
     return (
         <div className="card auction-card">
             <h3>"{tx.inputs.name}"</h3>
-            <p>Type: {tx.inputs.type_coin}</p>
+            <p>Currency: {tx.inputs.type_coin}</p>
             <p>Description: {tx.inputs.description}</p>
             <p>Auction ID: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></p>
             <p>Minimum Bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></p>
