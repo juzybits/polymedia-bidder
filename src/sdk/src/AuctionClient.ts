@@ -193,7 +193,13 @@ export class AuctionClient extends SuiClientBase
                 bcs.U64,
             ],
         ]);
-        return blockReturns[0][0] as UserBid[];
+        const bidsRaw = blockReturns[0][0] as (typeof UserBidBcs.$inferType)[];
+        const bidsTyped: UserBid[] = bidsRaw.map(bid => ({
+            auction_id: bid.auction_id,
+            time: Number(bid.time),
+            amount: BigInt(bid.amount),
+        }));
+        return bidsTyped;
     }
 
     // === data parsing ===

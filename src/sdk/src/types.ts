@@ -64,7 +64,11 @@ export const UserBidBcs = bcs.struct("Bid", {
     amount: bcs.U64,
 });
 
-export type UserBid = typeof UserBidBcs.$inferType;
+export type UserBid = {
+    auction_id: string;
+    time: number;
+    amount: bigint;
+};
 
 /**
  * Check if an auction is live based on the current time.

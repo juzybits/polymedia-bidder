@@ -136,10 +136,10 @@ const SectionHistory: React.FC = () => // TODO: pagination
         ))}
         <h3>Your bids</h3>
         {userBids.map(bid => (
-            <div key={bid.auction_id}>
+            <div key={bid.auction_id + bid.amount}>
                 <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
-                <div>Time: {bid.time}</div>
-                <div>Amount: {bid.amount}</div> {/* TODO: fetch bid then calculate amount based on currency decimals */}
+                <div>Time: {new Date(bid.time).toLocaleString()}</div>
+                <div>Amount: {bid.amount.toString()}</div> {/* TODO: fetch auction then calculate amount based on currency decimals */}
             </div>
         ))}
     </>;
