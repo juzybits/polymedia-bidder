@@ -30,7 +30,7 @@ public fun new_item(runner: &mut TestRunner): Item {
 // === addresses ===
 
 const ADMIN: address = @0x777;
-// const ADMIN_2: address = @0x888;
+const ADMIN_2: address = @0x888;
 const PAYEE: address = @0x999;
 const BIDDER_1: address = @0xb1;
 const BIDDER_2: address = @0xb2;
@@ -207,13 +207,16 @@ public fun admin_adds_item(
 public fun anyone_bids(
     runner: &mut TestRunner,
     sender: address,
+    first_bid: bool,
     auction: &mut Auction<SUI>,
     bid_value: u64,
 ) {
     runner.scen.next_tx(sender);
 
     let bid_coin = runner.mint_sui(sender, bid_value);
-    let request1 = runner.new_user_request(sender);
+    let request1 =
+        if (first_bid) { runner.new_user_request(sender) }
+        else { runner.user_request(sender) };
     let request2 = auction.anyone_bids(
         request1,
         bid_coin,
@@ -353,31 +356,47 @@ fun test_user_history()
 
     let mut args = auction_args();
     args.name = b"auction 1";
-
     let request = runner.new_user_request(ADMIN);
-    let auction1 = runner.admin_creates_auction(ADMIN, request, args);
+    let mut auction1 = runner.admin_creates_auction(ADMIN, request, args);
 
     let user_admin1 = runner.take_user(ADMIN);
     assert_eq( user_admin1.created().length(), 1 );
 
-    // let mut args = auction_args();
-    // args.name = b"auction 2";
-    // let auction2 = runner.admin_creates_auction(ADMIN_2, args);
+    let mut args = auction_args();
+    args.name = b"auction 2";
+    let request = runner.new_user_request(ADMIN_2);
+    let auction2 = runner.admin_creates_auction(ADMIN_2, request, args);
 
-    // let mut args = auction_args();
-    // args.name = b"auction 3";
-    // let auction3 = runner.admin_creates_auction(ADMIN_2, args);
+    let mut args = auction_args();
+    args.name = b"auction 3";
+    let request = runner.user_request(ADMIN_2);
+    let auction3 = runner.admin_creates_auction(ADMIN_2, request, args);
 
-    // let user_admin2 = runner.take_user(ADMIN_2);
+    let user_admin2 = runner.take_user(ADMIN_2);
+    assert_eq( user_admin2.created().length(), 2 );
 
-    // assert_eq( user_admin2.created().length(), 2 );
+    runner.anyone_bids(BIDDER_1, true, &mut auction1, 1000);
+    runner.anyone_bids(BIDDER_2, true, &mut auction1, 1100);
+    runner.anyone_bids(BIDDER_1, false, &mut auction1, 1200);
+    runner.anyone_bids(BIDDER_2, false, &mut auction1, 1300);
+
+    let user_bidder1 = runner.take_user(BIDDER_1);
+    assert_eq( user_bidder1.bids().length(), 2 );
+
+    let user_bidder2 = runner.take_user(BIDDER_2);
+    assert_eq( user_bidder2.bids().length(), 2 );
 
     test_utils::destroy(runner);
+
     test_utils::destroy(user_admin1);
     test_utils::destroy(auction1);
-    // test_utils::destroy(user_admin2);
-    // test_utils::destroy(auction2);
-    // test_utils::destroy(auction3);
+
+    test_utils::destroy(user_admin2);
+    test_utils::destroy(auction2);
+    test_utils::destroy(auction3);
+
+    test_utils::destroy(user_bidder1);
+    test_utils::destroy(user_bidder2);
 }
 
 #[test]
@@ -614,7 +633,7 @@ fun test_anyone_bids_ok()
     assert_eq( auction.begin_time_ms(), runner.clock.timestamp_ms() );
     assert_eq( auction.has_leader(), false );
     // bid
-    runner.anyone_bids(BIDDER_1, &mut auction, minimum_bid_1);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, minimum_bid_1);
     // check outcome
     assert_eq( auction.lead_addr(), BIDDER_1 );
     assert_eq( auction.lead_value(), minimum_bid_1 );
@@ -625,7 +644,7 @@ fun test_anyone_bids_ok()
     // BIDDER_2 bids a millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
     // bid
-    runner.anyone_bids(BIDDER_2, &mut auction, minimum_bid_2);
+    runner.anyone_bids(BIDDER_2, true, &mut auction, minimum_bid_2);
     // check outcome
     assert_eq( auction.lead_addr(), BIDDER_2 );
     assert_eq( auction.lead_value(), minimum_bid_2 );
@@ -650,7 +669,7 @@ fun test_anyone_bids_e_wrong_time_too_early()
 
     // BIDDER_1 tries to bid 1 millisecond before the auction starts
     runner.clock.set_for_testing(begin_time_ms - 1);
-    runner.anyone_bids(BIDDER_1, &mut auction, 1000);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, 1000);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -664,7 +683,7 @@ fun test_anyone_bids_e_wrong_time_too_late()
 
     // BIDDER_1 tries to bid the moment the auction ends
     runner.set_clock_to_auction_end_time(&mut auction);
-    runner.anyone_bids(BIDDER_1, &mut auction, 1000);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, 1000);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -678,7 +697,7 @@ fun test_anyone_bids_e_wrong_coin_value_1st_bid()
 
     // BIDDER_1 bids
     let minimum_bid = auction.minimum_bid();
-    runner.anyone_bids(BIDDER_1, &mut auction, minimum_bid - 1);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, minimum_bid - 1);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -692,11 +711,11 @@ fun test_anyone_bids_e_wrong_coin_value_2nd_bid()
 
     // BIDDER_1 bids
     let initial_bid = auction.minimum_bid();
-    runner.anyone_bids(BIDDER_1, &mut auction, initial_bid);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, initial_bid);
 
     // BIDDER_2 bids
     let min_second_bid = 1010; // 1% higher than the initial bid of 1000
-    runner.anyone_bids(BIDDER_2, &mut auction, min_second_bid - 1);
+    runner.anyone_bids(BIDDER_2, true, &mut auction, min_second_bid - 1);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -713,12 +732,12 @@ fun test_anyone_bids_e_wrong_coin_value_tiny_amounts()
     let (mut runner, mut auction) = begin_with_auction(args);
 
     // BIDDER_1 bids
-    runner.anyone_bids(BIDDER_1, &mut auction, 1);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, 1);
 
     assert_eq( auction.minimum_bid(), 2 );
 
     // BIDDER_2 bids
-    runner.anyone_bids(BIDDER_2, &mut auction, 1);
+    runner.anyone_bids(BIDDER_2, true, &mut auction, 1);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -734,7 +753,7 @@ fun test_anyone_sends_item_to_winner_ok()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
     assert_eq( auction.is_live(&runner.clock), true );
 
     // RANDO sends item to BIDDER_1 the moment the auction ends
@@ -764,7 +783,7 @@ fun test_anyone_sends_item_to_winner_e_wrong_time()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
 
     // RANDO tries to send item to BIDDER_1, 1 millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
@@ -798,7 +817,7 @@ fun test_anyone_pays_funds_ok_with_bids()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
 
     // RANDO sends the funds to pay_addr
     runner.set_clock_to_auction_end_time(&mut auction);
@@ -847,7 +866,7 @@ fun test_admin_ends_auction_early_ok_with_bids()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
 
     // ADMIN ends the auction early
     runner.set_clock_1ms_before_auction_ends(&mut auction);
@@ -919,7 +938,7 @@ fun test_admin_cancels_auction_ok_with_bids()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
 
     // ADMIN cancels the auction
     runner.set_clock_1ms_before_auction_ends(&mut auction);
@@ -1016,7 +1035,7 @@ fun test_admin_reclaims_item_ok_with_bids_and_cancel()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
 
     // ADMIN cancels the auction
     runner.admin_cancels_auction(ADMIN, &mut auction);
@@ -1074,7 +1093,7 @@ fun test_admin_reclaims_item_e_cant_reclaim_with_bids()
 
     // BIDDER_1 bids
     let bid_value = 1000;
-    runner.anyone_bids(BIDDER_1, &mut auction, bid_value);
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
 
     // auction ends with bids
     runner.set_clock_to_auction_end_time(&mut auction);
