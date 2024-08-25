@@ -39,12 +39,12 @@ const SectionRecentAuctions: React.FC = () =>
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsCreateAuction"]>>>();
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxAdminCreatesAuction"]>>>();
 
     // === functions ===
 
     const fetchRecentAuctions = async () => {
-        const txs = await auctionClient.fetchTxsCreateAuction(null);
+        const txs = await auctionClient.fetchTxAdminCreatesAuction(null);
         setTxs(txs);
     };
 

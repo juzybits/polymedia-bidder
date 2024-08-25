@@ -63,7 +63,7 @@ export class AuctionClient extends SuiClientBase
         return auctions;
     }
 
-    public async fetchTxsCreateAuction(
+    public async fetchTxAdminCreatesAuction(
         cursor: string | null | undefined,
     ) {
         const pagTxRes = await this.suiClient.queryTransactionBlocks({
@@ -257,9 +257,9 @@ export class AuctionClient extends SuiClientBase
         catch (_err) { return null; }
         const inputs = txData.inputs;
 
-        const tx0 = txData.txs[0];
-        if (!isTxMoveCall(tx0) || !tx0.MoveCall.type_arguments) { return null; }
-        const type_coin = tx0.MoveCall.type_arguments[0];
+        const tx = txData.txs[1]; // see AuctionClient.createAndShareAuction()
+        if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
+        const type_coin = tx.MoveCall.type_arguments[0];
 
         return {
             digest: txRes.digest,
