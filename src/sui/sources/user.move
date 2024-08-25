@@ -63,6 +63,12 @@ public fun get_bids_page(
 
 // === public accessors ===
 
+public fun users(
+    registry: &UserRegistry,
+): &Table<address, address> {
+    &registry.users
+}
+
 public fun created(
     user: &User,
 ): &TableVec<address> {

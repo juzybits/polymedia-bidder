@@ -386,6 +386,8 @@ fun test_user_history()
     let user_bidder2 = runner.take_user(BIDDER_2);
     assert_eq( user_bidder2.bids().length(), 2 );
 
+    assert_eq( runner.registry.users().length(), 4 );
+
     test_utils::destroy(runner);
 
     test_utils::destroy(user_admin1);
