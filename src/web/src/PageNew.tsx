@@ -134,14 +134,14 @@ const FormCreateAuction: React.FC<{
 
     // === effects ===
 
-    useEffect(() => {
+    useEffect(() => { // TODO move to App.tsx
         fetchUserObj();
     }, [auctionClient, currAcct]);
 
     // === functions ===
 
     const fetchUserObj = async () => {
-        const newUserObj = await auctionClient.fetchUserObject(currAcct.address);
+        const newUserObj = await auctionClient.fetchUserObjectId(currAcct.address);
         setUserObj(newUserObj);
     };
 

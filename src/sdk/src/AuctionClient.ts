@@ -109,7 +109,7 @@ export class AuctionClient extends SuiClientBase
         );
     }
 
-    public async fetchUserObject(
+    public async fetchUserObjectId( // TODO: cache
         owner: string,
     ): Promise<string | null>
     {
@@ -120,49 +120,48 @@ export class AuctionClient extends SuiClientBase
         return objRes.data.length > 0 ? objResToId(objRes.data[0]) : null;
     }
 
-    // public async fetchCreatorAuctionIds(
-    //     creator_addr: string,
-    //     order: "ascending" | "descending" = "descending",
-    //     cursor?: number,
-    //     limit = 50,
-    // ): Promise<string[]>
-    // {
-    //     const tx = new Transaction();
+    public async fetchCreatorAuctionIds(
+        user_id: string,
+        order: "ascending" | "descending" = "descending",
+        cursor?: number,
+        limit = 50,
+    ): Promise<string[]>
+    {
+        const tx = new Transaction();
 
-    //     if (cursor === undefined) {
-    //         cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
-    //     }
+        if (cursor === undefined) {
+            cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
+        }
 
-    //     HistoryModule.get_auctions(
-    //         tx,
-    //         this.packageId,
-    //         this.historyId,
-    //         creator_addr,
-    //         order === "ascending",
-    //         cursor,
-    //         limit,
-    //     );
+        UserModule.get_created_page(
+            tx,
+            this.packageId,
+            user_id,
+            order === "ascending",
+            cursor,
+            limit,
+        );
 
-    //     const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
-    //         [
-    //             bcs.vector(bcs.Address),
-    //             bcs.Bool,
-    //             bcs.U64,
-    //         ],
-    //     ]);
-    //     return blockReturns[0][0] as string[];
-    // }
+        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
+            [
+                bcs.vector(bcs.Address),
+                bcs.Bool,
+                bcs.U64,
+            ],
+        ]);
+        return blockReturns[0][0] as string[];
+    }
 
-    // public async fetchCreatorAuctions(
-    //     creator_addr: string,
-    //     order: "ascending" | "descending" = "descending",
-    //     cursor?: number,
-    //     limit = 50,
-    // ): Promise<AuctionObj[]>
-    // {
-    //     const auctionIds = await this.fetchCreatorAuctionIds(creator_addr, order, cursor, limit);
-    //     return await this.fetchAuctions(auctionIds) as AuctionObj[];
-    // }
+    public async fetchCreatorAuctions(
+        user_id: string,
+        order: "ascending" | "descending" = "descending",
+        cursor?: number,
+        limit = 50,
+    ): Promise<AuctionObj[]>
+    {
+        const auctionIds = await this.fetchCreatorAuctionIds(user_id, order, cursor, limit);
+        return await this.fetchAuctions(auctionIds) as AuctionObj[];
+    }
 
     // === data parsing ===
 

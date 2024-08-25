@@ -77,18 +77,39 @@ const SectionAuctions: React.FC = () => // TODO: pagination
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    // const { auctionClient } = useOutletContext<AppContext>();
+    const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ auctions, _setAuctions ] = useState<AuctionObj[]>();
+    const [ userObjId, setUserObjId ] = useState<string|null>();
+    const [ auctions, setAuctions ] = useState<AuctionObj[]>();
 
-    const fetchAuctionIds = async () => {
-        // const newAuctions = await auctionClient.fetchCreatorAuctions(currAcct.address);
-        // setAuctions(newAuctions);
-    };
+    // === effects ===
+
+    useEffect(() => { // TODO move to App.tsx
+        fetchUserObj();
+    }, [auctionClient, currAcct]);
 
     useEffect(() => {
-        fetchAuctionIds();
-    }, []);
+        fetchAuctions();
+    }, [userObjId]);
+
+    // === functions ===
+
+    const fetchUserObj = async () => {
+        const newUserObj = await auctionClient.fetchUserObjectId(currAcct.address);
+        setUserObjId(newUserObj);
+    };
+
+    const fetchAuctions = async () =>
+    {
+        if (userObjId === undefined) {
+            setAuctions(undefined);
+        } else if (userObjId === null) {
+            setAuctions([]);
+        } else {
+            const newAuctions = await auctionClient.fetchCreatorAuctions(userObjId);
+            setAuctions(newAuctions);
+        }
+    };
 
     // === html ===
 
