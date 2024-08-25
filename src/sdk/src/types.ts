@@ -1,3 +1,5 @@
+import { bcs } from "@mysten/sui/bcs";
+
 /**
  * A Sui auction::Auction object
  */
@@ -55,6 +57,13 @@ export type TxAdminCreatesAuction = {
         item_addrs: string[];
     };
 };
+
+export const BcsBid = bcs.struct("Bid", {
+    auction_id: bcs.Address,
+    bid_amount: bcs.U64,
+});
+
+export type Bid = typeof BcsBid.$inferType;
 
 /**
  * Check if an auction is live based on the current time.

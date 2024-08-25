@@ -17,7 +17,7 @@ import {
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
-import { AuctionObj, TxAdminCreatesAuction } from "./types.js";
+import { AuctionObj, BcsBid, Bid, TxAdminCreatesAuction } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 /**
@@ -120,7 +120,7 @@ export class AuctionClient extends SuiClientBase
         return objRes.data.length > 0 ? objResToId(objRes.data[0]) : null;
     }
 
-    public async fetchCreatorAuctionIds(
+    public async fetchUserAuctionIds(
         user_id: string,
         order: "ascending" | "descending" = "descending",
         cursor?: number,
@@ -152,15 +152,47 @@ export class AuctionClient extends SuiClientBase
         return blockReturns[0][0] as string[];
     }
 
-    public async fetchCreatorAuctions(
+    public async fetchUserAuctions(
         user_id: string,
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
     ): Promise<AuctionObj[]>
     {
-        const auctionIds = await this.fetchCreatorAuctionIds(user_id, order, cursor, limit);
+        const auctionIds = await this.fetchUserAuctionIds(user_id, order, cursor, limit);
         return await this.fetchAuctions(auctionIds) as AuctionObj[];
+    }
+
+    public async fetchUserBids(
+        user_id: string,
+        order: "ascending" | "descending" = "descending",
+        cursor?: number,
+        limit = 50,
+    )
+    {
+        const tx = new Transaction();
+
+        if (cursor === undefined) {
+            cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
+        }
+
+        UserModule.get_bids_page(
+            tx,
+            this.packageId,
+            user_id,
+            order === "ascending",
+            cursor,
+            limit,
+        );
+
+        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
+            [
+                bcs.vector(BcsBid),
+                bcs.Bool,
+                bcs.U64,
+            ],
+        ]);
+        return blockReturns[0][0] as Bid[];
     }
 
     // === data parsing ===

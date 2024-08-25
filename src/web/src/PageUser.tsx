@@ -1,11 +1,12 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { AuctionObj } from "@polymedia/auction-sdk";
+import { AuctionObj, Bid } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardAuction } from "./components/cards";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 
 export const PageUser: React.FC = () =>
 {
@@ -37,10 +38,7 @@ export const PageUser: React.FC = () =>
                 </div>
 
                 <div className="page-section">
-                    <div className="section-description">
-                        <h2>Your auctions</h2>
-                    </div>
-                    <SectionAuctions />
+                    <SectionHistory />
                 </div>
             </>}
         </div>
@@ -70,17 +68,18 @@ const SectionConnection: React.FC = () =>
     </div>;
 };
 
-const SectionAuctions: React.FC = () => // TODO: pagination
+const SectionHistory: React.FC = () => // TODO: pagination
 {
     // === state ===
 
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { network, auctionClient } = useOutletContext<AppContext>();
 
     const [ userObjId, setUserObjId ] = useState<string|null>();
-    const [ auctions, setAuctions ] = useState<AuctionObj[]>();
+    const [ userAuctions, setUserAuctions ] = useState<AuctionObj[]>();
+    const [ userBids, setUserBids ] = useState<Bid[]>();
 
     // === effects ===
 
@@ -102,24 +101,45 @@ const SectionAuctions: React.FC = () => // TODO: pagination
     const fetchAuctions = async () =>
     {
         if (userObjId === undefined) {
-            setAuctions(undefined);
+            setUserAuctions(undefined);
+            setUserBids(undefined);
         } else if (userObjId === null) {
-            setAuctions([]);
+            setUserAuctions([]);
+            setUserBids([]);
         } else {
-            const newAuctions = await auctionClient.fetchCreatorAuctions(userObjId);
-            setAuctions(newAuctions);
+            const newUserAuctions = await auctionClient.fetchUserAuctions(userObjId);
+            const newUserBids = await auctionClient.fetchUserBids(userObjId);
+            setUserAuctions(newUserAuctions);
+            setUserBids(newUserBids);
         }
     };
 
     // === html ===
 
-    if (auctions === undefined) {
-        return <div>Loading...</div>;
+    const sectionDescription =
+        <div className="section-description">
+            <h2>Your auctions</h2>
+        </div>;
+
+    if (userAuctions === undefined || userBids === undefined) {
+        return <>
+            {sectionDescription}
+            <div>Loading...</div>
+        </>;
     }
 
     return <>
-        {auctions.map(auction => (
+        {sectionDescription}
+        <h3>Your auctions</h3>
+        {userAuctions.map(auction => (
             <CardAuction auction={auction} key={auction.id} />
+        ))}
+        <h3>Your bids</h3>
+        {userBids.map(bid => (
+            <div key={bid.auction_id}>
+                <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
+                <div>Amount: {bid.bid_amount}</div> {/* TODO: fetch bid then calculate amount based on currency decimals */}
+            </div>
         ))}
     </>;
 };
