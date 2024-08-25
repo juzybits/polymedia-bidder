@@ -139,8 +139,8 @@ public(package) fun add_bid(
 
 public(package) fun new_bid(
     auction_addr: address,
+    time: u64,
     amount: u64,
-    time: u64
 ): UserBid {
     return UserBid {
         auction_id: auction_addr,

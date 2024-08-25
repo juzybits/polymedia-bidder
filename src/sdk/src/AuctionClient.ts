@@ -8,6 +8,7 @@ import {
     SuiClientBase,
     TransferModule,
     devInspectAndGetReturnValues,
+    getCoinOfValue,
     isOwnerShared,
     isTxMoveCall,
     objResToFields,
@@ -286,7 +287,7 @@ export class AuctionClient extends SuiClientBase
 
     public async createAndShareAuction(
         type_coin: string,
-        user: ObjectArg | null,
+        userObj: ObjectArg | null,
         name: string,
         description: string,
         pay_addr: string,
@@ -300,9 +301,9 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
-        let [reqArg1] = !user
+        let [reqArg1] = !userObj
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
-            : UserModule.user_request(tx, this.packageId, user);
+            : UserModule.existing_user_request(tx, this.packageId, userObj);
 
         const [reqArg2, auctionObj] = AuctionModule.admin_creates_auction(
             tx,
@@ -337,6 +338,37 @@ export class AuctionClient extends SuiClientBase
             `${this.packageId}::auction::Auction<${type_coin}>`,
             auctionObj,
         );
+
+        const resp = await this.signAndExecuteTransaction(tx);
+        return resp;
+    }
+
+    public async bid(
+        owner: string,
+        userObj: ObjectArg | null,
+        auctionId: string,
+        type_coin: string,
+        amount: bigint,
+    ): Promise<SuiTransactionBlockResponse>
+    {
+        const tx = new Transaction();
+
+        const [pay_coin] = await getCoinOfValue(this.suiClient, tx, owner, type_coin, amount);
+
+        const [reqArg1] = !userObj
+            ? UserModule.new_user_request(tx, this.packageId, this.registryId)
+            : UserModule.existing_user_request(tx, this.packageId, userObj);
+
+        const [reqArg2] = AuctionModule.anyone_bids(
+            tx,
+            this.packageId,
+            type_coin,
+            reqArg1,
+            auctionId,
+            pay_coin,
+        );
+
+        UserModule.destroy_user_request(tx, this.packageId, reqArg2);
 
         const resp = await this.signAndExecuteTransaction(tx);
         return resp;

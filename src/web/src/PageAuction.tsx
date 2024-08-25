@@ -1,4 +1,6 @@
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj } from "@polymedia/auction-sdk";
+import { balanceToString } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
@@ -83,6 +85,12 @@ const BidForm: React.FC<{
     auction,
 }) =>
 {
+    const currAcct = useCurrentAccount();
+
+    const { auctionClient } = useOutletContext<AppContext>();
+
+    const [ userObjId, setUserObjId ] = useState<string|null>();
+
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
 
     const form = {
@@ -90,17 +98,46 @@ const BidForm: React.FC<{
             label: `Amount (${coinSymbol})`,
             decimals: coinDecimals,
             min: auction.minimum_bid,
-            html: { value: "", required: true },
+            html: { value: balanceToString(auction.minimum_bid, coinDecimals), required: true },
         }),
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = hasErrors;
+    const disableSubmit = hasErrors || !currAcct || userObjId === undefined;
+
+    // === effects ===
+
+    useEffect(() => { // TODO move to App.tsx
+        fetchUserObjId();
+    }, [auctionClient, currAcct]);
 
     // === functions ===
 
-    const onSubmit = () => {
-        // TODO
+    const fetchUserObjId = async () => {
+        if (!currAcct) {
+            setUserObjId(null);
+        } else {
+            const newUserObjId = await auctionClient.fetchUserObjectId(currAcct.address);
+            setUserObjId(newUserObjId);
+        }
+    };
+
+    const onSubmit = async () => {
+        if (disableSubmit) {
+            return;
+        }
+        try {
+            const resp = await auctionClient.bid(
+                currAcct.address,
+                userObjId,
+                auction.id,
+                coinType,
+                form.amount.val!,
+            );
+            console.debug("resp:", resp);
+        } catch (err) {
+            console.warn(err);
+        }
     };
 
     return <>
@@ -113,7 +150,7 @@ const BidForm: React.FC<{
         </div>
 
         <Btn onClick={onSubmit} disabled={disableSubmit}>
-            CREATE AUCTION
+            BID
         </Btn>
     </>;
 };

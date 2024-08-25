@@ -105,13 +105,13 @@ export const UserModule =
         });
     },
 
-    user_request: (
+    existing_user_request: (
         tx: Transaction,
         packageId: string,
         user: ObjectArg,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::user::user_request`,
+            target: `${packageId}::user::existing_user_request`,
             arguments: [
                 objectArg(tx, user),
             ],

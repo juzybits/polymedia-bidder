@@ -86,7 +86,7 @@ const FormCreateAuction: React.FC<{
 
     const { auctionClient, network } = useOutletContext<AppContext>();
 
-    const [ userObj, setUserObj ] = useState<string|null>();
+    const [ userObjId, setUserObjId ] = useState<string|null>();
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
 
@@ -130,7 +130,7 @@ const FormCreateAuction: React.FC<{
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = chosenObjs.length === 0 || hasErrors || userObj === undefined;
+    const disableSubmit = chosenObjs.length === 0 || hasErrors || userObjId === undefined;
 
     // === effects ===
 
@@ -141,8 +141,8 @@ const FormCreateAuction: React.FC<{
     // === functions ===
 
     const fetchUserObj = async () => {
-        const newUserObj = await auctionClient.fetchUserObjectId(currAcct.address);
-        setUserObj(newUserObj);
+        const newUserObjId = await auctionClient.fetchUserObjectId(currAcct.address);
+        setUserObjId(newUserObjId);
     };
 
     const onSubmit = async () =>
@@ -153,7 +153,7 @@ const FormCreateAuction: React.FC<{
         try {
             const resp = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
-                userObj,
+                userObjId,
                 form.name.val!,
                 form.description.val ?? "",
                 form.pay_addr.val!,
