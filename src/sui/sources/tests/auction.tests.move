@@ -11,7 +11,7 @@ use sui::test_scenario::{Self, Scenario};
 use sui::test_utils::{Self, assert_eq};
 
 use auction::auction::{Self, Auction};
-use auction::user::{Self, User};
+use auction::user::{Self, Registry, User, UserRequest};
 
 // === dummy object to be auctioned ===
 
@@ -67,18 +67,21 @@ public fun auction_args(): AuctionArgs {
 public struct TestRunner {
     scen: Scenario,
     clock: Clock,
+    registry: Registry,
 }
 
 public fun begin(): TestRunner
 {
     let mut scen = test_scenario::begin(ADMIN);
     let mut clock = clock::create_for_testing(scen.ctx());
+    let registry = user::new_registry_for_testing(scen.ctx());
 
     clock.set_for_testing(24*3600*1000);
 
     return TestRunner {
         scen,
         clock,
+        registry,
     }
 }
 
@@ -87,7 +90,8 @@ public fun begin_with_auction(
 ): (TestRunner, Auction<SUI>)
 {
     let mut runner = begin();
-    let auction = runner.admin_creates_auction(ADMIN, args);
+    let request = runner.new_user_request(ADMIN);
+    let auction = runner.admin_creates_auction(ADMIN, request, args);
 
     return (runner, auction)
 }
@@ -118,6 +122,34 @@ public fun mint_sui(
     return coin::mint_for_testing<SUI>(value, runner.scen.ctx())
 }
 
+// === helpers for user module ===
+
+public fun new_user_request(
+    runner: &mut TestRunner,
+    sender: address,
+): UserRequest {
+    runner.scen.next_tx(sender);
+    let request = user::new_user_request(&mut runner.registry, runner.scen.ctx());
+    return request
+}
+
+public fun user_request(
+    runner: &mut TestRunner,
+    sender: address,
+): UserRequest {
+    runner.scen.next_tx(sender);
+    let user = runner.take_user(sender);
+    let request = user::user_request(user);
+    return request
+}
+
+public fun destroy_user_request(
+    runner: &mut TestRunner,
+    request: UserRequest,
+) {
+    user::destroy_user_request(request, runner.scen.ctx());
+}
+
 public fun take_user(
     runner: &mut TestRunner,
     sender: address,
@@ -126,19 +158,19 @@ public fun take_user(
     return runner.scen.take_from_sender()
 }
 
-// === helpers for our modules ===
+// === helpers for auction module ===
 
 public fun admin_creates_auction(
     runner: &mut TestRunner,
     sender: address,
+    request: UserRequest,
     args: AuctionArgs,
 ): Auction<SUI>
 {
     runner.scen.next_tx(sender);
 
-    let mut opt_user = option::none<User>();
-    let mut auction = auction::admin_creates_auction<SUI>(
-        &mut opt_user,
+    let (request, mut auction) = auction::admin_creates_auction<SUI>(
+        request,
         args.name,
         args.description,
         args.pay_addr,
@@ -151,9 +183,10 @@ public fun admin_creates_auction(
         runner.scen.ctx(),
     );
 
+    runner.destroy_user_request(request);
+
     runner.admin_adds_item(sender, &mut auction);
 
-    test_utils::destroy(opt_user);
     return auction
 }
 
@@ -180,15 +213,14 @@ public fun anyone_bids(
     runner.scen.next_tx(sender);
 
     let bid_coin = runner.mint_sui(sender, bid_value);
-    let mut opt_user = option::none<User>();
-    auction.anyone_bids(
-        &mut opt_user,
+    let request1 = runner.new_user_request(sender);
+    let request2 = auction.anyone_bids(
+        request1,
         bid_coin,
         &runner.clock,
         runner.scen.ctx(),
     );
-
-    test_utils::destroy(opt_user);
+    runner.destroy_user_request(request2);
 }
 
 public fun anyone_sends_item_to_winner(
@@ -321,7 +353,9 @@ fun test_user_history()
 
     let mut args = auction_args();
     args.name = b"auction 1";
-    let auction1 = runner.admin_creates_auction(ADMIN, args);
+
+    let request = runner.new_user_request(ADMIN);
+    let auction1 = runner.admin_creates_auction(ADMIN, request, args);
 
     let user_admin1 = runner.take_user(ADMIN);
     assert_eq( user_admin1.created().length(), 1 );
@@ -380,7 +414,9 @@ fun test_admin_creates_auction_e_wrong_time_past()
     let mut runner = begin();
     let mut args = auction_args();
     args.begin_time_ms = runner.clock.timestamp_ms() - 1;
-    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    let request = runner.new_user_request(ADMIN);
+    let auction = runner.admin_creates_auction(ADMIN, request, args);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -395,7 +431,9 @@ fun test_admin_creates_auction_e_wrong_time_future()
     let mut args = auction_args();
     let three_years = 3 * 365 * 24 * 60 * 60 * 1000;
     args.begin_time_ms = runner.clock.timestamp_ms() + three_years;
-    let auction = runner.admin_creates_auction(ADMIN, args);
+
+    let request = runner.new_user_request(ADMIN);
+    let auction = runner.admin_creates_auction(ADMIN, request, args);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -607,7 +645,8 @@ fun test_anyone_bids_e_wrong_time_too_early()
     let mut args = auction_args();
     let begin_time_ms = runner.clock.timestamp_ms() + 1000;
     args.begin_time_ms = begin_time_ms;
-    let mut auction = runner.admin_creates_auction(ADMIN, args);
+    let request = runner.new_user_request(ADMIN);
+    let mut auction = runner.admin_creates_auction(ADMIN, request, args);
 
     // BIDDER_1 tries to bid 1 millisecond before the auction starts
     runner.clock.set_for_testing(begin_time_ms - 1);
