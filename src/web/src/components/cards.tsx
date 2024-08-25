@@ -60,6 +60,7 @@ export const CardTxAdminCreatesAuction: React.FC<{
             <div>Minimum Increase: {tx.inputs.minimum_increase_bps / 100}%</div>
             <div>Extension Period: {tx.inputs.extension_period_ms / 1000 / 60} minutes</div>
             <div>Creator: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
         </div>
     );
 };

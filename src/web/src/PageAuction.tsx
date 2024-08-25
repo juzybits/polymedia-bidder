@@ -2,8 +2,10 @@ import { AuctionObj } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
+import { Btn } from "./components/Btn";
 import { CardAuction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
+import { useInputUnsignedBalance } from "./components/inputs";
 import { PageNotFound } from "./PageNotFound";
 
 export const PageAuction: React.FC = () =>
@@ -69,5 +71,49 @@ const SectionAuction: React.FC<{
         return <FullScreenMsg>AUCTION NOT FOUND</FullScreenMsg>;
     }
 
-    return <CardAuction auction={auction} />;
+    return <>
+        {auction.is_live && <BidForm auction={auction} />}
+        <CardAuction auction={auction} />
+    </>;
+};
+
+const BidForm: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) =>
+{
+    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
+
+    const form = {
+        amount: useInputUnsignedBalance({
+            label: `Amount (${coinSymbol})`,
+            decimals: coinDecimals,
+            min: auction.minimum_bid,
+            html: { value: "", required: true },
+        }),
+    };
+
+    const hasErrors = Object.values(form).some(input => input.err !== undefined);
+    const disableSubmit = hasErrors;
+
+    // === functions ===
+
+    const onSubmit = () => {
+        // TODO
+    };
+
+    return <>
+        <div className="form">
+            {Object.entries(form).map(([name, input]) => (
+                <React.Fragment key={name}>
+                    {input.input}
+                </React.Fragment>
+            ))}
+        </div>
+
+        <Btn onClick={onSubmit} disabled={disableSubmit}>
+            CREATE AUCTION
+        </Btn>
+    </>;
 };
