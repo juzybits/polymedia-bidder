@@ -196,12 +196,17 @@ public fun anyone_bids<CoinType>(
     auction.minimum_bid = new_minimum_bid;
 
     // extend auction end time if within the extension period
-    if (clock.timestamp_ms() >= auction.end_time_ms - auction.extension_period_ms) {
+    let current_time_ms = clock.timestamp_ms();
+    if (current_time_ms >= auction.end_time_ms - auction.extension_period_ms) {
         auction.end_time_ms = auction.end_time_ms + auction.extension_period_ms;
     };
 
     // update user history
-    let bid = user::new_bid(auction.id.to_address(), auction.lead_value());
+    let bid = user::new_bid(
+        auction.id.to_address(),
+        current_time_ms,
+        auction.lead_value(),
+    );
     request.borrow_mut_user().add_bid(bid);
 
     return request

@@ -1,6 +1,6 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { Transaction, TransactionObjectInput } from "@mysten/sui/transactions";
+import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
     ObjectArg,
@@ -17,7 +17,7 @@ import {
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
-import { AuctionObj, BcsBid, Bid, TxAdminCreatesAuction } from "./types.js";
+import { AuctionObj, TxAdminCreatesAuction, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 /**
@@ -168,7 +168,7 @@ export class AuctionClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
-    )
+    ): Promise<UserBid[]>
     {
         const tx = new Transaction();
 
@@ -187,12 +187,12 @@ export class AuctionClient extends SuiClientBase
 
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
             [
-                bcs.vector(BcsBid),
+                bcs.vector(UserBidBcs),
                 bcs.Bool,
                 bcs.U64,
             ],
         ]);
-        return blockReturns[0][0] as Bid[];
+        return blockReturns[0][0] as UserBid[];
     }
 
     // === data parsing ===

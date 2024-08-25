@@ -1,12 +1,12 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { AuctionObj, Bid } from "@polymedia/auction-sdk";
+import { AuctionObj, UserBid } from "@polymedia/auction-sdk";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardAuction } from "./components/cards";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
 
 export const PageUser: React.FC = () =>
 {
@@ -79,7 +79,7 @@ const SectionHistory: React.FC = () => // TODO: pagination
 
     const [ userObjId, setUserObjId ] = useState<string|null>();
     const [ userAuctions, setUserAuctions ] = useState<AuctionObj[]>();
-    const [ userBids, setUserBids ] = useState<Bid[]>();
+    const [ userBids, setUserBids ] = useState<UserBid[]>();
 
     // === effects ===
 
@@ -138,6 +138,7 @@ const SectionHistory: React.FC = () => // TODO: pagination
         {userBids.map(bid => (
             <div key={bid.auction_id}>
                 <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
+                <div>Time: {new Date(bid.time).toLocaleString()}</div>
                 <div>Amount: {bid.bid_amount}</div> {/* TODO: fetch bid then calculate amount based on currency decimals */}
             </div>
         ))}

@@ -30,13 +30,14 @@ public struct UserRegistry has key {
 public struct User has key {
     id: UID,
     created: TableVec<address>,
-    bids: TableVec<Bid>,
+    bids: TableVec<UserBid>,
 }
 
 /// a bid on an auction
-public struct Bid has store, copy {
+public struct UserBid has store, copy {
     auction_id: address,
-    bid_amount: u64,
+    time: u64,
+    amount: u64,
 }
 
 // === public-view functions ===
@@ -56,7 +57,7 @@ public fun get_bids_page(
     ascending: bool,
     cursor: u64,
     limit: u64,
-): (vector<Bid>, bool, u64)
+): (vector<UserBid>, bool, u64)
 {
     return paginator::get_page(&user.bids, ascending, cursor, limit)
 }
@@ -77,7 +78,7 @@ public fun created(
 
 public fun bids(
     user: &User,
-): &TableVec<Bid> {
+): &TableVec<UserBid> {
     &user.bids
 }
 
@@ -131,18 +132,20 @@ public(package) fun add_created(
 
 public(package) fun add_bid(
     user: &mut User,
-    bid: Bid,
+    bid: UserBid,
 ) {
     user.bids.push_back(bid);
 }
 
 public(package) fun new_bid(
     auction_addr: address,
-    bid_amount: u64,
-): Bid {
-    return Bid {
+    amount: u64,
+    time: u64
+): UserBid {
+    return UserBid {
         auction_id: auction_addr,
-        bid_amount: bid_amount,
+        time,
+        amount,
     }
 }
 

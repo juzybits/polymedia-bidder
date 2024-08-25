@@ -58,12 +58,13 @@ export type TxAdminCreatesAuction = {
     };
 };
 
-export const BcsBid = bcs.struct("Bid", {
+export const UserBidBcs = bcs.struct("Bid", {
     auction_id: bcs.Address,
-    bid_amount: bcs.U64,
+    time: bcs.U64,
+    amount: bcs.U64,
 });
 
-export type Bid = typeof BcsBid.$inferType;
+export type UserBid = typeof UserBidBcs.$inferType;
 
 /**
  * Check if an auction is live based on the current time.
