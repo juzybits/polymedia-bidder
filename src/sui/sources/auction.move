@@ -86,7 +86,7 @@ public struct Auction<phantom CoinType> has store, key {
 
 // === public-mutative functions ===
 
-public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
+public fun admin_creates_auction<CoinType>(
     mut request: UserRequest,
     name: vector<u8>,
     description: vector<u8>,
@@ -143,7 +143,7 @@ public fun admin_creates_auction<CoinType>( // TODO: PROBLEM: History needs to b
         extension_period_ms,
     };
 
-    // Update user history
+    // update user history
     request.borrow_mut_user().add_created(auction.id.to_address());
 
     return (request, auction)
@@ -166,7 +166,7 @@ public fun admin_adds_item<CoinType, ItemType: key+store>(
 }
 
 /// Anyone can bid for an item, as long as the auction hasn't ended.
-public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed in to guarantee 1 User per address
+public fun anyone_bids<CoinType>(
     auction: &mut Auction<CoinType>,
     mut request: UserRequest,
     pay_coin: Coin<CoinType>,
@@ -200,7 +200,7 @@ public fun anyone_bids<CoinType>( // TODO: PROBLEM: History needs to be passed i
         auction.end_time_ms = auction.end_time_ms + auction.extension_period_ms;
     };
 
-    // Update user history
+    // update user history
     let bid = user::new_bid(auction.id.to_address(), auction.lead_value());
     request.borrow_mut_user().add_bid(bid);
 

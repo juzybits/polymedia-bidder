@@ -11,7 +11,7 @@ use sui::test_scenario::{Self, Scenario};
 use sui::test_utils::{Self, assert_eq};
 
 use auction::auction::{Self, Auction};
-use auction::user::{Self, Registry, User, UserRequest};
+use auction::user::{Self, UserRegistry, User, UserRequest};
 
 // === dummy object to be auctioned ===
 
@@ -67,7 +67,7 @@ public fun auction_args(): AuctionArgs {
 public struct TestRunner {
     scen: Scenario,
     clock: Clock,
-    registry: Registry,
+    registry: UserRegistry,
 }
 
 public fun begin(): TestRunner
@@ -133,13 +133,13 @@ public fun new_user_request(
     return request
 }
 
-public fun user_request(
+public fun existing_user_request(
     runner: &mut TestRunner,
     sender: address,
 ): UserRequest {
     runner.scen.next_tx(sender);
     let user = runner.take_user(sender);
-    let request = user::user_request(user);
+    let request = user::existing_user_request(user);
     return request
 }
 
@@ -216,7 +216,7 @@ public fun anyone_bids(
     let bid_coin = runner.mint_sui(sender, bid_value);
     let request1 =
         if (first_bid) { runner.new_user_request(sender) }
-        else { runner.user_request(sender) };
+        else { runner.existing_user_request(sender) };
     let request2 = auction.anyone_bids(
         request1,
         bid_coin,
@@ -369,7 +369,7 @@ fun test_user_history()
 
     let mut args = auction_args();
     args.name = b"auction 3";
-    let request = runner.user_request(ADMIN_2);
+    let request = runner.existing_user_request(ADMIN_2);
     let auction3 = runner.admin_creates_auction(ADMIN_2, request, args);
 
     let user_admin2 = runner.take_user(ADMIN_2);
