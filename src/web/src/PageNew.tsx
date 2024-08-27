@@ -1,8 +1,9 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client";
-import * as sdk from "@polymedia/auction-sdk";
 import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
 import {
+    isParsedDataObject,
+    objResToContent,
     objResToDisplay,
     objResToFields,
     objResToId,
@@ -231,7 +232,7 @@ const ObjectGridSelector: React.FC<{
             const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
                 owner: currAcct.address,
                 // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
-                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], }, // TODO exclude non-transferable objects
+                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
                 cursor: ownedObjs?.nextCursor,
             });
@@ -268,6 +269,9 @@ const ObjectGridSelector: React.FC<{
         {ownedObjs.data.map((objRes) =>
         {
             const obj = objResToSuiObject(objRes);
+            if (!obj.hasPublicTransfer) {
+                return null;
+            }
             return (
             <div className="grid-item card" key={obj.id}
                 onClick={() => { addOrRemoveItem(obj); }}
@@ -305,6 +309,7 @@ type SuiObject = {
     type: ReturnType<typeof objResToType>;
     display: ReturnType<typeof objResToDisplay>;
     fields: ReturnType<typeof objResToFields>;
+    hasPublicTransfer: boolean;
     name: string;
     desc: string;
 };
@@ -316,8 +321,11 @@ function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
     const type = objResToType(objRes);
     const display = objResToDisplay(objRes);
     const fields = objResToFields(objRes);
+    const content = objResToContent(objRes);
+    const isObject = isParsedDataObject(content);
+    const hasPublicTransfer = isObject && content.hasPublicTransfer;
     const name = display.name ?? fields.name ?? null;
     const desc = display.description ?? fields.description ?? null;
-    return { id, type, display, fields, name, desc };
+    return { id, type, display, fields, hasPublicTransfer, name, desc };
 }
 /* eslint-enable @typescript-eslint/no-unsafe-assignment */
