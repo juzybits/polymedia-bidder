@@ -87,10 +87,12 @@ const FormCreateAuction: React.FC<{
     const { auctionClient, network } = useOutletContext<AppContext>();
 
     const [ userObjId, setUserObjId ] = useState<string|null>();
+    const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
 
     const form = {
+        // basic options
         name: useInputString({
             label: "Name", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
             html: { value: "", required: true },
@@ -99,6 +101,15 @@ const FormCreateAuction: React.FC<{
             label: "Description (optional)", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH,
             html: { value: "" },
         }),
+        minimum_bid: useInputUnsignedBalance({
+            label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals, // TODO support other coins
+            html: { value: "1", required: true },
+        }),
+        duration_ms: useInputUnsignedInt({
+            label: "Duration (ms)", min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS, // TODO hours
+            html: { value: "86400000", required: true },
+        }),
+        // advanced options
         type_coin: useInputString({
             label: "Coin type",
             html: { value: coinType, required: true, disabled: true }, // TODO support other coins
@@ -110,14 +121,6 @@ const FormCreateAuction: React.FC<{
         begin_time_ms: useInputUnsignedInt({
             label: "Begin time (ms)", // TODO date picker
             html: { value: "0", required: true }, // TODO MAX_BEGIN_TIME_MS relative to new Date()
-        }),
-        duration_ms: useInputUnsignedInt({
-            label: "Duration (ms)", min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS, // TODO hours
-            html: { value: "86400000", required: true },
-        }),
-        minimum_bid: useInputUnsignedBalance({
-            label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals, // TODO support other coins
-            html: { value: "1", required: true },
         }),
         minimum_increase_bps: useInputUnsignedInt({
             label: "Minimum bid increase (bps)", min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS, // TODO percentage
@@ -174,11 +177,24 @@ const FormCreateAuction: React.FC<{
 
     return <>
     <div className="form">
-        {Object.entries(form).map(([name, input]) => (
-            <React.Fragment key={name}>
-                {input.input}
-            </React.Fragment>
-        ))}
+        <div className="form-section">
+            {form.name.input}
+            {form.description.input}
+            {form.minimum_bid.input}
+            {form.duration_ms.input}
+        </div>
+        <div className="form-section">
+            <div className="section-toggle" onClick={() => setShowAdvancedForm(!showAdvancedForm)}>
+                {showAdvancedForm ? "- hide" : "+ show"} advanced options
+            </div>
+            {showAdvancedForm && <>
+                {form.type_coin.input}
+                {form.pay_addr.input}
+                {form.begin_time_ms.input}
+                {form.minimum_increase_bps.input}
+                {form.extension_period_ms.input}
+            </>}
+        </div>
     </div>
 
     {chosenObjs.length > 0 &&
