@@ -51,14 +51,17 @@ export const CardTxAdminCreatesAuction: React.FC<{
     const { network } = useOutletContext<AppContext>();
     return (
         <div className="card auction-card">
-            <h3>"{tx.inputs.name}"</h3>
-            <div>Currency: {tx.inputs.type_coin}</div>
-            <div>Description: {tx.inputs.description}</div>
-            <div>Auction ID: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
-            <div>Minimum Bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
-            <div>Minimum Increase: {tx.inputs.minimum_increase_bps / 100}%</div>
-            <div>Extension Period: {tx.inputs.extension_period_ms / 1000 / 60} minutes</div>
-            <div>Creator: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
+            <div>type_coin: {tx.inputs.type_coin}</div>
+            <div>name: {tx.inputs.name}</div>
+            <div>description: {tx.inputs.description}</div>
+            <div>pay_addr: <LinkToPolymedia addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
+            <div>begin_delay_ms: {tx.inputs.begin_delay_ms}</div>
+            <div>duration_ms: {tx.inputs.duration_ms}</div>
+            <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
+            <div>minimum_increase_bps: {tx.inputs.minimum_increase_bps}</div>
+            <div>extension_period_ms: {tx.inputs.extension_period_ms}</div>
+            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
             <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
         </div>
     );

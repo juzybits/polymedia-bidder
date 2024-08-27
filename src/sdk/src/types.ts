@@ -49,7 +49,7 @@ export type TxAdminCreatesAuction = {
         name: string;
         description: string;
         pay_addr: string;
-        begin_time_ms: number;
+        begin_delay_ms: number;
         duration_ms: number;
         minimum_bid: bigint;
         minimum_increase_bps: number;

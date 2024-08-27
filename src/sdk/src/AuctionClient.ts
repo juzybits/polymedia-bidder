@@ -278,7 +278,7 @@ export class AuctionClient extends SuiClientBase
                 name: getArgVal(inputs[1]) as string,
                 description: getArgVal(inputs[2]) as string,
                 pay_addr: getArgVal(inputs[3]) as string,
-                begin_time_ms: getArgVal(inputs[4]) as number,
+                begin_delay_ms: getArgVal(inputs[4]) as number,
                 duration_ms: getArgVal(inputs[5]) as number,
                 minimum_bid: getArgVal(inputs[6]) as bigint,
                 minimum_increase_bps: getArgVal(inputs[7]) as number,
