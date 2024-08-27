@@ -91,7 +91,7 @@ const FormCreateAuction: React.FC<{
     const [ userObjId, setUserObjId ] = useState<string|null>();
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
 
-    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
+    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
 
     const form = {
         // basic options
@@ -104,7 +104,7 @@ const FormCreateAuction: React.FC<{
             html: { value: "" },
         }),
         minimum_bid: useInputUnsignedBalance({
-            label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals, // TODO support other coins
+            label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals,
             html: { value: "1", required: true },
         }),
         duration_hours: useInputUnsignedInt({
@@ -114,7 +114,7 @@ const FormCreateAuction: React.FC<{
         // advanced options
         type_coin: useInputString({
             label: "Coin type",
-            html: { value: coinType, required: true, disabled: true }, // TODO support other coins
+            html: { value: coinType, required: true, disabled: true },
         }),
         pay_addr: useInputSuiAddress({
             label: "Payment address",
@@ -124,9 +124,9 @@ const FormCreateAuction: React.FC<{
             label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/ONE_HOUR_MS),
             html: { value: "0", required: true },
         }),
-        minimum_increase_bps: useInputUnsignedInt({
-            label: "Minimum bid increase (bps)", min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS, // TODO percentage
-            html: { value: "500", required: true },
+        minimum_increase_pct: useInputUnsignedInt({
+            label: "Minimum bid increase (%)", min: Math.max(1, Math.floor(cnf.MIN_MINIMUM_INCREASE_BPS/100)), max: Math.floor(cnf.MAX_MINIMUM_INCREASE_BPS/100),
+            html: { value: "5", required: true },
         }),
         extension_period_ms: useInputUnsignedInt({
             label: "Extension period (ms)", min: cnf.MIN_EXTENSION_PERIOD_MS, max: cnf.MAX_EXTENSION_PERIOD_MS, // TODO minutes
@@ -165,7 +165,7 @@ const FormCreateAuction: React.FC<{
                 form.begin_delay_hours.val! * ONE_HOUR_MS,
                 form.duration_hours.val! * ONE_HOUR_MS,
                 form.minimum_bid.val!,
-                form.minimum_increase_bps.val!,
+                form.minimum_increase_pct.val! * 100,
                 form.extension_period_ms.val!,
                 chosenObjs,
             );
@@ -193,7 +193,7 @@ const FormCreateAuction: React.FC<{
                 {form.type_coin.input}
                 {form.pay_addr.input}
                 {form.begin_delay_hours.input}
-                {form.minimum_increase_bps.input}
+                {form.minimum_increase_pct.input}
                 {form.extension_period_ms.input}
             </>}
         </div>
