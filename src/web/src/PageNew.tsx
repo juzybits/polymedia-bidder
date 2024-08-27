@@ -231,7 +231,7 @@ const ObjectGridSelector: React.FC<{
             const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
                 owner: currAcct.address,
                 // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b",
-                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
+                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], }, // TODO exclude non-transferable objects
                 options: { showContent: true, showDisplay: true, showType: true },
                 cursor: ownedObjs?.nextCursor,
             });

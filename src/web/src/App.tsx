@@ -177,7 +177,7 @@ const Header: React.FC<{
 {
     return <header>
         <Link to="/" className="header-item">
-            [AUCTION]
+            <img src="/img/logo.webp" alt="logo" id="header-logo" />
         </Link>
         {supportedNetworks.length > 1 &&
         <BtnNetwork
