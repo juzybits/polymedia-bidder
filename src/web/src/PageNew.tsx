@@ -313,6 +313,7 @@ type SuiObject = {
     desc: string;
 };
 
+/* eslint-disable */
 function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
 {
     if (objRes.error) {
@@ -337,3 +338,4 @@ function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
     const desc = display.description ?? fields.description ?? null;
     return { id, type, display, fields, hasPublicTransfer, name, desc };
 }
+/* eslint-enable */

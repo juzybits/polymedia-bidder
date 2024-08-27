@@ -61,7 +61,7 @@ export const useInputBase = <T,>(
             setErr(validation.err);
             setVal(validation.val);
         }
-    }
+    };
 
     useEffect(() => {
         onChangeStr(str.trim());

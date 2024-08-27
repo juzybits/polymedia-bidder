@@ -1,5 +1,4 @@
-import { AuctionClient, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { AuctionClient } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";

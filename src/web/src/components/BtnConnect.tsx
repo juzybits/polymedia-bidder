@@ -2,7 +2,7 @@ import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import { ReactSetter } from "@polymedia/suitcase-react";
 import React from "react";
 import { Btn } from "./Btn";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const BtnConnect: React.FC<{
     id?: string;

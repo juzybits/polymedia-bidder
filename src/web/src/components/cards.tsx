@@ -1,6 +1,5 @@
-import { CoinMetadata } from "@mysten/sui/client";
 import { AuctionObj, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
-import { useCoinMeta, useCoinMetas } from '@polymedia/coinmeta-react';
+import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React from "react";
@@ -8,7 +7,7 @@ import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 
 export const CardAuction: React.FC<{
-    auction: AuctionObj,
+    auction: AuctionObj;
 }> = ({
     auction,
 }) =>
@@ -24,7 +23,7 @@ export const CardAuction: React.FC<{
         <div>Auction ID: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
         <div>Item Addresses ({auction.item_addrs.length}): {auction.item_addrs.map((addr, index) =>
             <React.Fragment key={index}>
-                {index > 0 && ', '}
+                {index > 0 && ", "}
                 <LinkToPolymedia key={addr} addr={addr} kind="object" network={network} />
             </React.Fragment>
         )}</div>
@@ -44,7 +43,7 @@ export const CardAuction: React.FC<{
 };
 
 export const CardTxAdminCreatesAuction: React.FC<{
-    tx: TxAdminCreatesAuction,
+    tx: TxAdminCreatesAuction;
 }> = ({
     tx,
 }) =>

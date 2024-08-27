@@ -103,7 +103,7 @@ export class AuctionClient extends SuiClientBase
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx,
             Object.keys(AUCTION_CONFIG).map(() => [bcs.U64])
         );
-        const values = blockReturns.map((val: any) => val[0]);
+        const values = blockReturns.map(val => val[0]); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
         return Object.fromEntries(
             fun_names.map( (key, idx) => [key, Number(values[idx])] )
@@ -307,7 +307,7 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
-        let [reqArg1] = !userObj
+        const [reqArg1] = !userObj
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
             : UserModule.existing_user_request(tx, this.packageId, userObj);
 
