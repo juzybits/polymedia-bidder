@@ -18,6 +18,7 @@ import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
 const ONE_HOUR_MS = 3_600_000;
+const ONE_MINUTE_MS = 60_000;
 
 export const PageNew: React.FC = () =>
 {
@@ -128,9 +129,9 @@ const FormCreateAuction: React.FC<{
             label: "Minimum bid increase (%)", min: Math.max(1, Math.floor(cnf.MIN_MINIMUM_INCREASE_BPS/100)), max: Math.floor(cnf.MAX_MINIMUM_INCREASE_BPS/100),
             html: { value: "5", required: true },
         }),
-        extension_period_ms: useInputUnsignedInt({
-            label: "Extension period (ms)", min: cnf.MIN_EXTENSION_PERIOD_MS, max: cnf.MAX_EXTENSION_PERIOD_MS, // TODO minutes
-            html: { value: "900000", required: true },
+        extension_period_minutes: useInputUnsignedInt({
+            label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/ONE_MINUTE_MS)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/ONE_MINUTE_MS),
+            html: { value: "15", required: true },
         }),
     };
 
@@ -166,7 +167,7 @@ const FormCreateAuction: React.FC<{
                 form.duration_hours.val! * ONE_HOUR_MS,
                 form.minimum_bid.val!,
                 form.minimum_increase_pct.val! * 100,
-                form.extension_period_ms.val!,
+                form.extension_period_minutes.val! * ONE_MINUTE_MS,
                 chosenObjs,
             );
             console.debug("resp:", resp);
@@ -194,7 +195,7 @@ const FormCreateAuction: React.FC<{
                 {form.pay_addr.input}
                 {form.begin_delay_hours.input}
                 {form.minimum_increase_pct.input}
-                {form.extension_period_ms.input}
+                {form.extension_period_minutes.input}
             </>}
         </div>
     </div>
