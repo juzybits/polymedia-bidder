@@ -120,9 +120,9 @@ const FormCreateAuction: React.FC<{
             label: "Payment address",
             html: { value: currAcct.address ?? "", required: true },
         }),
-        begin_time_ms: useInputUnsignedInt({
-            label: "Begin time (ms)", // TODO date picker
-            html: { value: "0", required: true }, // TODO MAX_BEGIN_TIME_MS relative to new Date()
+        begin_delay_hours: useInputUnsignedInt({
+            label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/ONE_HOUR_MS),
+            html: { value: "0", required: true },
         }),
         minimum_increase_bps: useInputUnsignedInt({
             label: "Minimum bid increase (bps)", min: cnf.MIN_MINIMUM_INCREASE_BPS, max: cnf.MAX_MINIMUM_INCREASE_BPS, // TODO percentage
@@ -162,7 +162,7 @@ const FormCreateAuction: React.FC<{
                 form.name.val!,
                 form.description.val ?? "",
                 form.pay_addr.val!,
-                form.begin_time_ms.val!,
+                form.begin_delay_hours.val! * ONE_HOUR_MS,
                 form.duration_hours.val! * ONE_HOUR_MS,
                 form.minimum_bid.val!,
                 form.minimum_increase_bps.val!,
@@ -192,7 +192,7 @@ const FormCreateAuction: React.FC<{
             {showAdvancedForm && <>
                 {form.type_coin.input}
                 {form.pay_addr.input}
-                {form.begin_time_ms.input}
+                {form.begin_delay_hours.input}
                 {form.minimum_increase_bps.input}
                 {form.extension_period_ms.input}
             </>}
