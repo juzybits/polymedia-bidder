@@ -3,12 +3,11 @@ import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client"
 import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
 import {
     isParsedDataObject,
-    objResToContent,
     objResToDisplay,
     objResToFields,
     objResToId,
     objResToType,
-    shortenAddress,
+    shortenAddress
 } from "@polymedia/suitcase-core";
 import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
@@ -314,18 +313,27 @@ type SuiObject = {
     desc: string;
 };
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
 {
-    const id = objResToId(objRes);
-    const type = objResToType(objRes);
+    if (objRes.error) {
+        throw Error(`response error: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!objRes.data) {
+        throw Error(`response has no data: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!objRes.data?.content) {
+        throw Error(`response has no content: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!isParsedDataObject(objRes.data.content)) {
+        throw Error(`response data is not a moveObject: ${JSON.stringify(objRes, null, 2)}`);
+    }
+
+    const id = objRes.data.objectId;
+    const type = objRes.data.content.type;
     const display = objResToDisplay(objRes);
-    const fields = objResToFields(objRes);
-    const content = objResToContent(objRes);
-    const isObject = isParsedDataObject(content);
-    const hasPublicTransfer = isObject && content.hasPublicTransfer;
+    const fields = objRes.data.content.fields as Record<string, any>;
+    const hasPublicTransfer = objRes.data.content.hasPublicTransfer;
     const name = display.name ?? fields.name ?? null;
     const desc = display.description ?? fields.description ?? null;
     return { id, type, display, fields, hasPublicTransfer, name, desc };
 }
-/* eslint-enable @typescript-eslint/no-unsafe-assignment */
