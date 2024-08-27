@@ -35,7 +35,7 @@ const ZERO_ADDRESS: address = @0x0;
 
 const MAX_ITEMS: u64 = 50;
 
-const MAX_BEGIN_TIME_MS: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days in the future
+const MAX_BEGIN_DELAY_MS: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days in the future
 
 const MIN_DURATION_MS: u64 = 10 * 1000; // 10 seconds
 const MAX_DURATION_MS: u64 = 100 * 24 * 60 * 60 * 1000; // 100 days
@@ -91,7 +91,7 @@ public fun admin_creates_auction<CoinType>(
     name: vector<u8>,
     description: vector<u8>,
     pay_addr: address,
-    begin_time_ms: u64,
+    begin_delay_ms: u64,
     duration_ms: u64,
     minimum_bid: u64,
     minimum_increase_bps: u64,
@@ -109,11 +109,8 @@ public fun admin_creates_auction<CoinType>(
     assert!( pay_addr != ZERO_ADDRESS, E_WRONG_ADDRESS );
 
     let current_time_ms = clock.timestamp_ms();
-    let adjusted_begin_time_ms =
-        if (begin_time_ms == 0) { current_time_ms }
-        else { begin_time_ms };
-    assert!( adjusted_begin_time_ms >= current_time_ms, E_WRONG_TIME );
-    assert!( adjusted_begin_time_ms <= current_time_ms + MAX_BEGIN_TIME_MS, E_WRONG_TIME );
+    let begin_time_ms = current_time_ms + begin_delay_ms;
+    assert!( begin_time_ms <= current_time_ms + MAX_BEGIN_DELAY_MS, E_WRONG_TIME );
 
     assert!( duration_ms >= MIN_DURATION_MS, E_WRONG_DURATION );
     assert!( duration_ms <= MAX_DURATION_MS, E_WRONG_DURATION );
@@ -136,8 +133,8 @@ public fun admin_creates_auction<CoinType>(
         pay_addr,
         lead_addr: ZERO_ADDRESS,
         lead_bal: balance::zero(),
-        begin_time_ms: adjusted_begin_time_ms,
-        end_time_ms: adjusted_begin_time_ms + duration_ms,
+        begin_time_ms,
+        end_time_ms: begin_time_ms + duration_ms,
         minimum_bid,
         minimum_increase_bps,
         extension_period_ms,
@@ -355,7 +352,7 @@ public fun extension_period_ms<T>(a: &Auction<T>): u64      { a.extension_period
 // === public-view accessors: config ===
 
 public fun max_items(): u64 { MAX_ITEMS }
-public fun max_begin_time_ms(): u64 { MAX_BEGIN_TIME_MS }
+public fun max_begin_delay_ms(): u64 { MAX_BEGIN_DELAY_MS }
 public fun min_duration_ms(): u64 { MIN_DURATION_MS }
 public fun max_duration_ms(): u64 { MAX_DURATION_MS }
 public fun min_minimum_increase_bps(): u64 { MIN_MINIMUM_INCREASE_BPS }

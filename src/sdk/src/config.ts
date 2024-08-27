@@ -33,7 +33,7 @@ export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
 export const AUCTION_CONFIG = {
     MAX_ITEMS: 50,
 
-    MAX_BEGIN_TIME_MS: 100 * 24 * 60 * 60 * 1000,
+    MAX_BEGIN_DELAY_MS: 100 * 24 * 60 * 60 * 1000,
 
     MIN_DURATION_MS: 10 * 1000,
     MAX_DURATION_MS: 100 * 24 * 60 * 60 * 1000,
