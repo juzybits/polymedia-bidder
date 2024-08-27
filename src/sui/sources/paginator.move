@@ -1,4 +1,4 @@
-module auction::paginator;
+module bidder::paginator;
 
 use std::u64::{Self};
 use sui::table_vec::{TableVec};

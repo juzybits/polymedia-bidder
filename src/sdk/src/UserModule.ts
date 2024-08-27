@@ -2,7 +2,7 @@ import { Transaction, TransactionResult } from "@mysten/sui/transactions";
 import { ObjectArg, objectArg } from "@polymedia/suitcase-core";
 
 /**
- * Build transactions for the auction::user Sui module.
+ * Build transactions for the bidder::user Sui module.
  */
 export const UserModule =
 {

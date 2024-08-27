@@ -1,3 +1,3 @@
-# Polymedia Auction
+# Bidder | Polymedia
 
-<!-- ![Polymedia Auction](https://auction.polymedia.app/img/open-graph.webp) TODO -->
+<!-- ![Polymedia Bidder](https://bidder.polymedia.app/img/open-graph.webp) TODO -->

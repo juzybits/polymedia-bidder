@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "name": "@polymedia/auction-monorepo",
     "author": "@juzybits (https://polymedia.app)",
-    "homepage": "https://auction.polymedia.app",
+    "homepage": "https://bidder.polymedia.app",
     "description": "Sui's auction house",
     "license": "Apache-2.0",
     "repository": {

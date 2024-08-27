@@ -1,11 +1,11 @@
 #[test_only]
-module auction::paginator_tests;
+module bidder::paginator_tests;
 
 use sui::table_vec::{Self};
 use sui::test_scenario::{Self, Scenario};
 use sui::test_utils::{Self, assert_eq};
 
-use auction::paginator;
+use bidder::paginator;
 
 // === addresses ===
 

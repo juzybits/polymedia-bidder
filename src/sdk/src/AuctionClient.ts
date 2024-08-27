@@ -22,7 +22,7 @@ import { AuctionObj, TxAdminCreatesAuction, UserBid, UserBidBcs } from "./types.
 import { UserModule } from "./UserModule.js";
 
 /**
- * Execute transactions on the auction::auction Sui module.
+ * Execute transactions on the bidder::auction Sui module.
  */
 export class AuctionClient extends SuiClientBase
 {

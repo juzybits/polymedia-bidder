@@ -1,7 +1,7 @@
 import { bcs } from "@mysten/sui/bcs";
 
 /**
- * A Sui auction::Auction object
+ * A Sui bidder::auction::Auction object
  */
 export type AuctionObj = {
     // === struct types ===
@@ -37,7 +37,7 @@ export type AuctionObj = {
 };
 
 /**
- * An `auction::admin_creates_auction` transaction
+ * An `bidder::auction::admin_creates_auction` transaction
  */
 export type TxAdminCreatesAuction = {
     digest: string;

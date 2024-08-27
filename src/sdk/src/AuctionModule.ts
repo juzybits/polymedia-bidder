@@ -3,7 +3,7 @@ import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
 import { ObjectArg, objectArg } from "@polymedia/suitcase-core";
 
 /**
- * Build transactions for the auction::auction Sui module.
+ * Build transactions for the bidder::auction Sui module.
  */
 export const AuctionModule =
 {

@@ -1,5 +1,5 @@
 #[test_only]
-module auction::auction_tests;
+module bidder::auction_tests;
 
 use std::string::{String};
 use std::u64::{Self};
@@ -10,8 +10,8 @@ use sui::sui::{SUI};
 use sui::test_scenario::{Self, Scenario};
 use sui::test_utils::{Self, assert_eq};
 
-use auction::auction::{Self, Auction};
-use auction::user::{Self, UserRegistry, User, UserRequest};
+use bidder::auction::{Self, Auction};
+use bidder::user::{Self, UserRegistry, User, UserRequest};
 
 // === dummy object to be auctioned ===
 
