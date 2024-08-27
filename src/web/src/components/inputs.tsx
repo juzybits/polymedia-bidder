@@ -114,17 +114,17 @@ export const useInputString = (
     const validate: InputValidator<string> = (input: string) =>
     {
         if (props.minLength && input.length > 0 && input.length < props.minLength) {
-            return { err: props.msgTooShort ?? `Minimum length is ${props.minLength} characters`, val: undefined };
+            return { err: props.msgTooShort ?? "Too short", val: undefined };
         }
         if (props.maxLength && input.length > 0 && input.length > props.maxLength) {
-            return { err: props.msgTooLong ?? `Maximum length is ${props.maxLength} characters`, val: undefined };
+            return { err: props.msgTooLong ?? "Too long", val: undefined };
         }
 
         if (props.minBytes && input.length > 0 && textEncoder.encode(input).length < props.minBytes) {
-            return { err: props.msgTooShort ?? `Minimum length is ${props.minBytes} bytes`, val: undefined };
+            return { err: props.msgTooShort ?? "Too short", val: undefined };
         }
         if (props.maxBytes && input.length > 0 && textEncoder.encode(input).length > props.maxBytes) {
-            return { err: props.msgTooLong ?? `Maximum length is ${props.maxBytes} bytes`, val: undefined };
+            return { err: props.msgTooLong ?? "Too long", val: undefined };
         }
 
         return { err: undefined, val: input };

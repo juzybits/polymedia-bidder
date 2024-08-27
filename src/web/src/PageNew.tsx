@@ -17,6 +17,8 @@ import { Btn } from "./components/Btn";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
+const ONE_HOUR_MS = 3_600_000;
+
 export const PageNew: React.FC = () =>
 {
     // === state ===
@@ -105,9 +107,9 @@ const FormCreateAuction: React.FC<{
             label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals, // TODO support other coins
             html: { value: "1", required: true },
         }),
-        duration_ms: useInputUnsignedInt({
-            label: "Duration (ms)", min: cnf.MIN_DURATION_MS, max: cnf.MAX_DURATION_MS, // TODO hours
-            html: { value: "86400000", required: true },
+        duration_hours: useInputUnsignedInt({
+            label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/ONE_HOUR_MS), max: Math.floor(cnf.MAX_DURATION_MS/ONE_HOUR_MS),
+            html: { value: "24", required: true },
         }),
         // advanced options
         type_coin: useInputString({
@@ -161,7 +163,7 @@ const FormCreateAuction: React.FC<{
                 form.description.val ?? "",
                 form.pay_addr.val!,
                 form.begin_time_ms.val!,
-                form.duration_ms.val!,
+                form.duration_hours.val! * ONE_HOUR_MS,
                 form.minimum_bid.val!,
                 form.minimum_increase_bps.val!,
                 form.extension_period_ms.val!,
@@ -181,7 +183,7 @@ const FormCreateAuction: React.FC<{
             {form.name.input}
             {form.description.input}
             {form.minimum_bid.input}
-            {form.duration_ms.input}
+            {form.duration_hours.input}
         </div>
         <div className="form-section">
             <div className="section-toggle" onClick={() => setShowAdvancedForm(!showAdvancedForm)}>
