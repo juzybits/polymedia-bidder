@@ -282,7 +282,90 @@ export class AuctionClient extends SuiClientBase
     }
     /* eslint-enable */
 
+    /**
+     * Parse an `auction::admin_creates_auction` transaction.
+     * Assumes the tx block contains only one `admin_creates_auction` call,
+     * and possibly one or more `admin_adds_item` calls.
+     */
     public parseTxAdminCreatesAuction(
+        txRes: SuiTransactionBlockResponse,
+    ): TxAdminCreatesAuction | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(txRes); }
+        catch (_err) { return null; }
+        const allInputs = txData.inputs;
+
+        // find the created auction object
+        const createdObjRef = txRes.effects?.created?.find(o => isOwnerShared(o.owner));
+        if (!createdObjRef) { return null; }
+
+        let createTxInputs: Omit<TxAdminCreatesAuction["inputs"], "item_addrs"> | undefined;
+        const item_addrs: string[] = []; // these come from `admin_adds_item` calls
+
+        for (const tx of txData.txs)
+        {
+            if (!isTxMoveCall(tx) ||
+                tx.MoveCall.package !== this.packageId ||
+                tx.MoveCall.module !== "auction" ||
+                !tx.MoveCall.arguments ||
+                !tx.MoveCall.type_arguments
+            ) {
+                continue;
+            }
+
+            // find the `admin_creates_auction` tx and parse the inputs
+            if (tx.MoveCall.function === "admin_creates_auction")
+            {
+                const txInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => allInputs[arg.Input]);
+
+                if (txInputs.length !== 9) { return null; }
+
+                createTxInputs = {
+                    type_coin: tx.MoveCall.type_arguments[0],
+                    name: getArgVal(txInputs[0]) as string,
+                    description: getArgVal(txInputs[1]) as string,
+                    pay_addr: getArgVal(txInputs[2]) as string,
+                    begin_delay_ms: getArgVal(txInputs[3]) as number,
+                    duration_ms: getArgVal(txInputs[4]) as number,
+                    minimum_bid: getArgVal(txInputs[5]) as bigint,
+                    minimum_increase_bps: getArgVal(txInputs[6]) as number,
+                    extension_period_ms: getArgVal(txInputs[7]) as number,
+                };
+            }
+            // find the `admin_adds_item` txs and parse the inputs
+            if (tx.MoveCall.function === "admin_adds_item")
+            {
+                const txInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => allInputs[arg.Input]);
+
+                if (txInputs.length !== 2) { return null; }
+
+                item_addrs.push(getArgVal(txInputs[0]) as string);
+            }
+        }
+
+        if (!createTxInputs) { return null; }
+
+        return {
+            digest: txRes.digest,
+            timestamp: txRes.timestampMs ?? "0",
+            sender: txData.sender,
+            auctionId: createdObjRef.reference.objectId,
+            inputs: {
+                ...createTxInputs,
+                item_addrs,
+            },
+        };
+    }
+
+    /**
+     * A simpler but less correct approach as it makes more assumptions about the tx block.
+     */
+    public parseTxAdminCreatesAuctionSimpler(
         txRes: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | null
     {
@@ -330,8 +413,7 @@ export class AuctionClient extends SuiClientBase
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(txRes); }
         catch (_err) { return null; }
-
-        const inputs = txData.inputs;
+        const allInputs = txData.inputs;
 
         let bidAmount: bigint | undefined;
         let userId: string | undefined;
@@ -344,7 +426,7 @@ export class AuctionClient extends SuiClientBase
             {
                 const splitTxInputs = tx.SplitCoins[1]
                     .filter(arg => isArgInput(arg))
-                    .map(arg => inputs[arg.Input]);
+                    .map(arg => allInputs[arg.Input]);
 
                 if (splitTxInputs.length !== 1) { return null; }
 
@@ -359,7 +441,7 @@ export class AuctionClient extends SuiClientBase
             ) {
                 const bidTxInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
-                    .map(arg => inputs[arg.Input]);
+                    .map(arg => allInputs[arg.Input]);
 
                 if (bidTxInputs.length !== 2) { return null; }
 
