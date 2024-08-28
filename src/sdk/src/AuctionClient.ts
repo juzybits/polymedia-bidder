@@ -330,39 +330,57 @@ export class AuctionClient extends SuiClientBase
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(txRes); }
         catch (_err) { return null; }
-        const inputs = txData.inputs;
 
-        const splitGasTx = txData.txs.find(tx =>
-            isTxSplitCoins(tx) && tx.SplitCoins[0] === "GasCoin"
-        ) as (SuiTransaction & { SplitCoins: [SuiArgument, SuiArgument[]] }) | undefined;
-        if (!splitGasTx) { return null; }
+        const extractBidAmount = () =>
+        {
+            const splitGasTx = txData.txs.find(tx =>
+                isTxSplitCoins(tx) && tx.SplitCoins[0] === "GasCoin"
+            ) as (SuiTransaction & { SplitCoins: [SuiArgument, SuiArgument[]] }) | undefined;
 
-        const splitTxInputs = splitGasTx.SplitCoins[1]
-            .filter(arg => isArgInput(arg))
-            .map(arg => inputs[arg.Input]);
-        if (splitTxInputs.length !== 1) { return null; }
+            if (!splitGasTx) return null;
 
-        const bidTx = txData.txs.find(tx =>
-            isTxMoveCall(tx) &&
-            tx.MoveCall.package === this.packageId &&
-            tx.MoveCall.module === "auction" &&
-            tx.MoveCall.function === "anyone_bids" &&
-            tx.MoveCall.arguments
-        ) as (SuiTransaction & { MoveCall: { arguments: SuiArgument[] } }) | undefined;
-        if (!bidTx) { return null; }
+            const splitTxInput = splitGasTx.SplitCoins[1]
+                .filter(isArgInput)
+                .map(arg => txData.inputs[arg.Input])[0];
 
-        const bidTxInputs = bidTx.MoveCall.arguments
-            .filter(arg => isArgInput(arg))
-            .map(arg => inputs[arg.Input]);
-        if (bidTxInputs.length !== 2) { return null; }
+            return splitTxInput ? getArgVal(splitTxInput) as bigint : null;
+        };
+        const bidAmount = extractBidAmount();
+        if (!bidAmount) return null;
+
+        const extractBidDetails = () =>
+        {
+            const bidTx = txData.txs.find(tx =>
+                isTxMoveCall(tx) &&
+                tx.MoveCall.package === this.packageId &&
+                tx.MoveCall.module === "auction" &&
+                tx.MoveCall.function === "anyone_bids" &&
+                tx.MoveCall.arguments
+            ) as (SuiTransaction & { MoveCall: { arguments: SuiArgument[] } }) | undefined;
+
+            if (!bidTx) return null;
+
+            const bidTxInputs = bidTx.MoveCall.arguments
+                .filter(isArgInput)
+                .map(arg => txData.inputs[arg.Input]);
+
+            if (bidTxInputs.length !== 2) return null;
+
+            return {
+                userId: getArgVal(bidTxInputs[0]) as string,
+                auctionId: getArgVal(bidTxInputs[1]) as string,
+            };
+        };
+        const bidDetails = extractBidDetails();
+        if (!bidDetails) return null;
 
         return {
             digest: txRes.digest,
             timestamp: txRes.timestampMs ?? "0",
             sender: txData.sender,
-            userId: getArgVal(bidTxInputs[0]) as string,
-            auctionId: getArgVal(bidTxInputs[1]) as string,
-            amount: getArgVal(splitTxInputs[0]) as bigint,
+            userId: bidDetails.userId,
+            auctionId: bidDetails.auctionId,
+            amount: bidAmount,
         };
     }
 
