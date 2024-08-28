@@ -18,10 +18,11 @@ import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
 import { PageDevDisplayHistory } from "./PageDevDisplayHistory";
 import { PageDevDisplayUser } from "./PageDevDisplayUser";
+import { PageHistory } from "./PageHistory";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
 import { PageNotFound } from "./PageNotFound";
-import { PageUser } from "./PageUser";
+import { PageSettings } from "./PageSettings";
 import "./styles/App.less";
 
 /* App router */
@@ -34,7 +35,8 @@ export const AppRouter: React.FC = () => {
                 <Route index element={<PageHome />} />
                 <Route path="*" element={<PageNotFound />} />
                 <Route path="/new" element={<PageNew />} />
-                <Route path="/user" element={<PageUser />} />
+                <Route path="/history" element={<PageHistory />} />
+                <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId" element={<PageAuction />} />
                 <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
                 <Route path="/dev/display/history" element={<PageDevDisplayHistory />} />
@@ -189,6 +191,9 @@ const Header: React.FC<{
         />}
         <Link to="/new" className="header-item">
             NEW
+        </Link>
+        <Link to="/history" className="header-item">
+            HISTORY
         </Link>
         <BtnConnect
             openConnectModal={openConnectModal}

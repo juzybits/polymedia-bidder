@@ -26,8 +26,8 @@ export const BtnConnect: React.FC<{
     };
 
     if (currAcct) {
-        return <Link to="/user" id={id} className={className}>
-            USER
+        return <Link to="/settings" id={id} className={className}>
+            SETTINGS
         </Link>;
     } else {
         return <button id={id} className={className} disabled={disabled} onClick={connectWallet}>

@@ -7,7 +7,7 @@ import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardAuction } from "./components/cards";
 
-export const PageUser: React.FC = () =>
+export const PageHistory: React.FC = () =>
 {
     // === state ===
 
@@ -24,18 +24,11 @@ export const PageUser: React.FC = () =>
 
         <div className="page-content">
 
-            <h1 className="page-title">USER</h1>
+            <h1 className="page-title">HISTORY</h1>
 
             {!currAcct
             ? <ConnectToGetStarted />
             : <>
-                <div className="page-section">
-                    <div className="section-description">
-                        <h2>Wallet</h2>
-                    </div>
-                    <SectionConnection />
-                </div>
-
                 <div className="page-section">
                     <SectionHistory />
                 </div>
@@ -115,25 +108,18 @@ const SectionHistory: React.FC = () => // TODO: pagination
 
     // === html ===
 
-    const sectionDescription =
-        <div className="section-description">
-            <h2>Your auctions</h2>
-        </div>;
-
     if (userAuctions === undefined || userBids === undefined) {
         return <>
-            {sectionDescription}
             <div>Loading...</div>
         </>;
     }
 
     return <>
-        {sectionDescription}
-        <h3>Your auctions</h3>
+        <h2>Your auctions</h2>
         {userAuctions.map(auction => (
             <CardAuction auction={auction} key={auction.id} />
         ))}
-        <h3>Your bids</h3>
+        <h2>Your bids</h2>
         {userBids.map(bid => (
             <div key={bid.auction_id + bid.amount}>
                 <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
