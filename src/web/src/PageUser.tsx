@@ -17,10 +17,10 @@ export const PageUser: React.FC = () =>
 
     // === html ===
 
-    return (
+    return <>
+    {header}
     <div id="page-user" className="page-regular">
 
-        {header}
 
         <div className="page-content">
 
@@ -43,7 +43,7 @@ export const PageUser: React.FC = () =>
         </div>
 
     </div>
-    );
+    </>;
 };
 
 const SectionConnection: React.FC = () =>

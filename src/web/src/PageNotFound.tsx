@@ -6,15 +6,15 @@ import { FullScreenMsg } from "./components/FullScreenMsg";
 export const PageNotFound: React.FC = () =>
 {
     const { header } = useOutletContext<AppContext>();
-    return (
+    return <>
+    {header}
     <div id="page-notfound" className="page-regular">
 
-        {header}
 
         <FullScreenMsg>
             PAGE NOT FOUND
         </FullScreenMsg>
 
     </div>
-    );
+    </>;
 };

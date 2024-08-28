@@ -20,10 +20,10 @@ export const PageAuction: React.FC = () =>
 
     // === html ===
 
-    return (
+    return <>
+    {header}
     <div id="page-auction" className="page-regular">
 
-        {header}
 
         <div className="page-content">
 
@@ -33,7 +33,7 @@ export const PageAuction: React.FC = () =>
         </div>
 
     </div>
-    );
+    </>;
 };
 
 const SectionAuction: React.FC<{

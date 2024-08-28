@@ -31,10 +31,10 @@ export const PageNew: React.FC = () =>
 
     // === html ===
 
-    return (
+    return <>
+    {header}
     <div id="page-new" className="page-regular">
 
-        {header}
 
         <div className="page-content">
 
@@ -70,7 +70,7 @@ export const PageNew: React.FC = () =>
         </div>
 
     </div>
-    );
+    </>;
 };
 
 // === components ===

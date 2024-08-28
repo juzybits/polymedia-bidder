@@ -6,7 +6,7 @@
 
 @border-gray: 1px solid #555;
 @border-radius: 4px;
-@color-bg: black;
+@color-bg: rgb(10 12 14);
 @color-text-red: rgb(255, 158, 158);
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -87,22 +87,23 @@ header {
     display: flex;
     align-items: center;
     justify-content: right;
-    @media (max-width: @screen-small) {
-        justify-content: center;
-    }
-    flex-wrap: wrap;
     gap: 1em 2em;
-    padding: 2em 0 3em;
+    padding: 0 @gap*1.25;
+    height: 80px;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    position: sticky;
+    top: 0;
+    left: 0;
     user-select: none;
+    background-color: @color-bg;
+    border-bottom: 1px solid rgb(138 145 158 / 20%);
     .header-item {
         &:first-child {
             flex-grow: 1;
             font-size: 1.5em;
             font-weight: bold;
-            @media (max-width: @screen-small) {
-                flex-grow: 0;
-                font-size: 1em;
-        }
         }
         background: none;
         display: inline-block;
@@ -113,7 +114,7 @@ header {
         }
     }
     #header-logo {
-        height: 4rem;
+        height: 3rem;
         aspect-ratio: 692 / 643;
     }
 }
@@ -154,8 +155,8 @@ footer {
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: calc(@gap * 1.5);
-    gap: calc(@gap * 1.5);
+    padding: @gap*1.5;
+    gap: @gap*1.5;
 }
 
 .form-flex {
@@ -196,24 +197,24 @@ footer {
 .page-regular {
     max-width: @max-width-page-regular;
     margin: 0 auto;
-    padding: 0 calc(@gap * 2) 8rem;
+    padding: @gap*2 @gap*2 8rem;
     .page-content {
         display: flex;
         flex-direction: column;
-        gap: calc(@gap * 2);
+        gap: @gap*2;
         // .page-title {}
         .page-section {
             display: flex;
             flex-direction: column;
             align-items: start;
-            gap: calc(@gap * 2);
+            gap: @gap*2;
             // .section-title {}
             // .section-description {}
         }
     }
     @media (max-width: @screen-small) {
-        padding-left: calc(@gap * 1.5);
-        padding-right: calc(@gap * 1.5);
+        padding-left: @gap*1.5;
+        padding-right: @gap*1.5;
     }
 }
 
@@ -223,7 +224,7 @@ footer {
     @media (max-width: @screen-small) {
         grid-template-columns: repeat(1, 1fr);
     }
-    gap: calc(@gap * 2);
+    gap: @gap*2;
     .grid-item {
         &:hover {
             cursor: pointer;
@@ -233,7 +234,7 @@ footer {
         .sui-obj {
             display: flex;
             flex-direction: row;
-            gap: calc(@gap * 1.5);
+            gap: @gap*1.5;
             .obj-img {
                 width: 100px;
                 height: 100px;
@@ -250,7 +251,7 @@ footer {
             .obj-info {
                 display: flex;
                 flex-direction: column;
-                gap: calc(@gap * 1.5);
+                gap: @gap*1.5;
             }
         }
     }

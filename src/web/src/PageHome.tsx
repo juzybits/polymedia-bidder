@@ -9,10 +9,10 @@ export const PageHome: React.FC = () =>
 {
     const { header } = useOutletContext<AppContext>();
 
-    return (
+    return <>
+    {header}
     <div id="page-home" className="page-regular">
 
-        {header}
 
         <div className="page-content">
 
@@ -30,7 +30,7 @@ export const PageHome: React.FC = () =>
         </div>
 
     </div>
-    );
+    </>;
 };
 
 const SectionRecentAuctions: React.FC = () =>
