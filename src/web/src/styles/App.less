@@ -13,7 +13,7 @@
 @font-system: system-ui;
 @gap: 1rem;
 @screen-small: 700px;
-@width-page-regular: 1000px;
+@max-width-page-regular: 1440px;
 
 // === resets ===
 
@@ -148,6 +148,16 @@ footer {
     }
 }
 
+.card {
+    border-radius: @border-radius;
+    border: @border-gray;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: calc(@gap * 1.5);
+    gap: calc(@gap * 1.5);
+}
+
 .form-flex {
     display: flex;
     flex-direction: column;
@@ -156,7 +166,7 @@ footer {
 .form {
     .form-flex;
     width: 100%;
-    max-width: calc((@width-page-regular - 4*@gap)/2);
+    max-width: calc((@max-width-page-regular - 4*@gap)/2);
     .form-section {
         .form-flex;
         .section-toggle {
@@ -175,16 +185,6 @@ footer {
     }
 }
 
-.card {
-    border-radius: @border-radius;
-    border: @border-gray;
-    padding: @gap;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: @gap;
-}
-
 .load-more {
     text-align: center;
 }
@@ -194,22 +194,26 @@ footer {
 }
 
 .page-regular {
-    max-width: @width-page-regular;
+    max-width: @max-width-page-regular;
     margin: 0 auto;
-    padding: 0 @gap 8rem;
+    padding: 0 calc(@gap * 2) 8rem;
     .page-content {
         display: flex;
         flex-direction: column;
-        gap: 2rem;
+        gap: calc(@gap * 2);
         // .page-title {}
         .page-section {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
             align-items: start;
+            gap: calc(@gap * 2);
             // .section-title {}
             // .section-description {}
         }
+    }
+    @media (max-width: @screen-small) {
+        padding-left: calc(@gap * 1.5);
+        padding-right: calc(@gap * 1.5);
     }
 }
 
@@ -219,7 +223,7 @@ footer {
     @media (max-width: @screen-small) {
         grid-template-columns: repeat(1, 1fr);
     }
-    gap: @gap;
+    gap: calc(@gap * 2);
     .grid-item {
         &:hover {
             cursor: pointer;
@@ -229,7 +233,7 @@ footer {
         .sui-obj {
             display: flex;
             flex-direction: row;
-            gap: @gap;
+            gap: calc(@gap * 1.5);
             .obj-img {
                 width: 100px;
                 height: 100px;
@@ -246,7 +250,7 @@ footer {
             .obj-info {
                 display: flex;
                 flex-direction: column;
-                gap: @gap;
+                gap: calc(@gap * 1.5);
             }
         }
     }
