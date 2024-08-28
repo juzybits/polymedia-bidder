@@ -1,12 +1,9 @@
 import { bcs } from "@mysten/sui/bcs";
 import {
-    SuiArgument,
-    SuiCallArg,
     SuiClient,
     SuiObjectResponse,
-    SuiTransaction,
     SuiTransactionBlockResponse,
-    TransactionFilter,
+    TransactionFilter
 } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
@@ -16,9 +13,12 @@ import {
     SuiClientBase,
     TransferModule,
     devInspectAndGetReturnValues,
+    getArgVal,
     getCoinOfValue,
+    isArgInput,
     isOwnerShared,
     isTxMoveCall,
+    isTxSplitCoins,
     objResToFields,
     objResToId,
     objResToType,
@@ -600,60 +600,4 @@ export class AuctionClient extends SuiClientBase
         return resp;
     }
 
-}
-
-// TODO move this to @polymedia/suitcase-core
-
-/**
- * Get the value of a `SuiCallArg` (transaction input).
- * If the argument is a pure value, return it.
- * If the argument is an object, return its ID.
- */
-export function getArgVal<T>(arg: SuiCallArg): T {
-    if (arg.type === "pure") {
-        return arg.value as T;
-    }
-    return arg.objectId as T;
-}
-
-/**
- * Type guard to check if a `SuiArgument` is a GasCoin.
- */
-export function isArgGasCoin(arg: SuiArgument): arg is "GasCoin" {
-    return arg === "GasCoin";
-}
-
-/**
- * Type guard to check if a `SuiArgument` is an Input.
- */
-export function isArgInput(arg: SuiArgument): arg is { Input: number } {
-    return typeof arg === "object" && "Input" in arg;
-}
-
-/**
- * Type guard to check if a `SuiArgument` is a Result.
- */
-export function isArgResult(arg: SuiArgument): arg is { Result: number } {
-    return typeof arg === "object" && "Result" in arg;
-}
-
-/**
- * Type guard to check if a `SuiArgument` is a NestedResult.
- */
-export function isArgNestedResult(arg: SuiArgument): arg is { NestedResult: [number, number] } {
-    return typeof arg === "object" && "NestedResult" in arg;
-}
-
-/** Type guard to check if a `SuiTransaction` is `SplitCoins`. */
-export function isTxSplitCoins(
-    tx: SuiTransaction,
-): tx is { SplitCoins: [SuiArgument, SuiArgument[]] } {
-    return "SplitCoins" in tx;
-}
-
-/** Type guard to check if a `SuiTransaction` is `MergeCoins`. */
-export function isTxMergeCoins(
-    tx: SuiTransaction,
-): tx is { MergeCoins: [SuiArgument, SuiArgument[]] } {
-    return "MergeCoins" in tx;
 }
