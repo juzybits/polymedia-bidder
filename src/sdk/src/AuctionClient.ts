@@ -1,5 +1,5 @@
 import { bcs } from "@mysten/sui/bcs";
-import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, TransactionFilter } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
@@ -67,41 +67,28 @@ export class AuctionClient extends SuiClientBase
     public async fetchTxAdminCreatesAuction(
         cursor: string | null | undefined,
     ) {
-        const pagTxRes = await this.suiClient.queryTransactionBlocks({
-            filter: {
-                MoveFunction: {
-                    package: this.packageId,
-                    module: "auction",
-                    function: "admin_creates_auction",
-                },
-            },
-            options: { showEffects: true, showInput: true, },
-            cursor,
-            order: "descending",
-        });
-
-        const results = {
-            cursor: pagTxRes.nextCursor,
-            hasNextPage: pagTxRes.hasNextPage,
-            data: pagTxRes.data
-                .map(txRes => AuctionClient.parseTxAdminCreatesAuction(txRes))
-                .filter(result => result !== null),
-        };
-
-        return results;
+        const filter = { MoveFunction: {
+            package: this.packageId, module: "auction", function: "admin_creates_auction"
+        }};
+        return this.fetchAndParseTxs(filter, AuctionClient.parseTxAdminCreatesAuction, cursor);
     }
 
     public async fetchTxAnyoneBids(
         cursor: string | null | undefined,
     ) {
+        const filter = { MoveFunction: {
+            package: this.packageId, module: "auction", function: "anyone_bids"
+        }};
+        return this.fetchAndParseTxs(filter, AuctionClient.parseTxAnyoneBids, cursor);
+    }
+
+    protected async fetchAndParseTxs(
+        filter: TransactionFilter,
+        txResParser: (txRes: SuiTransactionBlockResponse) => any | null,
+        cursor: string | null | undefined,
+    ) {
         const pagTxRes = await this.suiClient.queryTransactionBlocks({
-            filter: {
-                MoveFunction: {
-                    package: this.packageId,
-                    module: "auction",
-                    function: "anyone_bids",
-                },
-            },
+            filter,
             options: { showEffects: true, showInput: true, },
             cursor,
             order: "descending",
@@ -111,7 +98,7 @@ export class AuctionClient extends SuiClientBase
             cursor: pagTxRes.nextCursor,
             hasNextPage: pagTxRes.hasNextPage,
             data: pagTxRes.data
-                .map(txRes => AuctionClient.parseTxAnyoneBids(txRes))
+                .map(txRes => txResParser(txRes))
                 .filter(result => result !== null),
         };
 
