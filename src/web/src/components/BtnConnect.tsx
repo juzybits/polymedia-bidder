@@ -1,7 +1,6 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import { ReactSetter } from "@polymedia/suitcase-react";
 import React from "react";
-import { Btn } from "./Btn";
 import { Link } from "react-router-dom";
 
 export const BtnConnect: React.FC<{
@@ -31,8 +30,8 @@ export const BtnConnect: React.FC<{
             USER
         </Link>;
     } else {
-        return <Btn id={id} className={className} disabled={disabled} onClick={connectWallet}>
+        return <button id={id} className={className} disabled={disabled} onClick={connectWallet}>
             CONNECT
-        </Btn>;
+        </button>;
     }
 };

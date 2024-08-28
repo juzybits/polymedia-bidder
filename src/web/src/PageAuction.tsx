@@ -4,7 +4,6 @@ import { balanceToString } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { Btn } from "./components/Btn";
 import { CardAuction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
@@ -150,9 +149,9 @@ const FormBid: React.FC<{
             ))}
         </div>
 
-        <Btn onClick={onSubmit} disabled={disableSubmit}>
+        <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
             BID
-        </Btn>
+        </button>
     </>;
 };
 

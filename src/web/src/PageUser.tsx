@@ -4,7 +4,6 @@ import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { Btn } from "./components/Btn";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardAuction } from "./components/cards";
 
@@ -61,9 +60,9 @@ const SectionConnection: React.FC = () =>
         <div>You are connected with address:</div>
         <div className="address">{currAcct.address}</div>
         <div>
-            <Btn onClick={disconnect}>
+            <button onClick={() => disconnect()} className="btn">
                 DISCONNECT
-            </Btn>
+            </button>
         </div>
     </div>;
 };
