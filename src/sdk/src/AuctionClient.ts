@@ -325,14 +325,14 @@ export class AuctionClient extends SuiClientBase
 
                 createTxInputs = {
                     type_coin: tx.MoveCall.type_arguments[0],
-                    name: getArgVal(txInputs[0]) as string,
-                    description: getArgVal(txInputs[1]) as string,
-                    pay_addr: getArgVal(txInputs[2]) as string,
-                    begin_delay_ms: getArgVal(txInputs[3]) as number,
-                    duration_ms: getArgVal(txInputs[4]) as number,
-                    minimum_bid: getArgVal(txInputs[5]) as bigint,
-                    minimum_increase_bps: getArgVal(txInputs[6]) as number,
-                    extension_period_ms: getArgVal(txInputs[7]) as number,
+                    name: getArgVal(txInputs[0]),
+                    description: getArgVal(txInputs[1]),
+                    pay_addr: getArgVal(txInputs[2]),
+                    begin_delay_ms: getArgVal(txInputs[3]),
+                    duration_ms: getArgVal(txInputs[4]),
+                    minimum_bid: getArgVal(txInputs[5]),
+                    minimum_increase_bps: getArgVal<number>(txInputs[6]),
+                    extension_period_ms: getArgVal(txInputs[7]),
                 };
             }
             // find the `admin_adds_item` txs and parse the inputs
@@ -344,7 +344,7 @@ export class AuctionClient extends SuiClientBase
 
                 if (txInputs.length !== 2) { return null; }
 
-                item_addrs.push(getArgVal(txInputs[0]) as string);
+                item_addrs.push(getArgVal(txInputs[0]));
             }
         }
 
@@ -388,16 +388,16 @@ export class AuctionClient extends SuiClientBase
             auctionId: createdObjRef.reference.objectId,
             inputs: {
                 type_coin,
-                name: getArgVal(inputs[1]) as string,
-                description: getArgVal(inputs[2]) as string,
-                pay_addr: getArgVal(inputs[3]) as string,
-                begin_delay_ms: getArgVal(inputs[4]) as number,
-                duration_ms: getArgVal(inputs[5]) as number,
-                minimum_bid: getArgVal(inputs[6]) as bigint,
-                minimum_increase_bps: getArgVal(inputs[7]) as number,
-                extension_period_ms: getArgVal(inputs[8]) as number,
-                // clock: getArgVal(inputs[9]) as string,
-                item_addrs: inputs.slice(10).map(input => getArgVal(input) as string),
+                name: getArgVal(inputs[1]),
+                description: getArgVal(inputs[2]),
+                pay_addr: getArgVal(inputs[3]),
+                begin_delay_ms: getArgVal(inputs[4]),
+                duration_ms: getArgVal(inputs[5]),
+                minimum_bid: getArgVal(inputs[6]),
+                minimum_increase_bps: getArgVal(inputs[7]),
+                extension_period_ms: getArgVal(inputs[8]),
+                // clock: getArgVal(inputs[9]),
+                item_addrs: inputs.slice(10).map(input => getArgVal(input)),
             },
         };
     }
@@ -430,7 +430,7 @@ export class AuctionClient extends SuiClientBase
 
                 if (splitTxInputs.length !== 1) { return null; }
 
-                bidAmount = getArgVal(splitTxInputs[0]) as bigint;
+                bidAmount = getArgVal(splitTxInputs[0]);
             }
             // find the `anyone_bids` tx and parse the userId and auctionId
             if (isTxMoveCall(tx) &&
@@ -445,8 +445,8 @@ export class AuctionClient extends SuiClientBase
 
                 if (bidTxInputs.length !== 2) { return null; }
 
-                userId = getArgVal(bidTxInputs[0]) as string;
-                auctionId = getArgVal(bidTxInputs[1]) as string;
+                userId = getArgVal(bidTxInputs[0]);
+                auctionId = getArgVal(bidTxInputs[1]);
             }
         }
 
@@ -478,9 +478,9 @@ export class AuctionClient extends SuiClientBase
             digest: txRes.digest,
             timestamp: txRes.timestampMs ?? "0",
             sender: txData.sender,
-            userId: getArgVal(inputs[1]) as string,
-            auctionId: getArgVal(inputs[2]) as string,
-            amount: BigInt(getArgVal(inputs[0]) as string),
+            userId: getArgVal(inputs[1]),
+            auctionId: getArgVal(inputs[2]),
+            amount: getArgVal(inputs[0]),
         };
     }
 
@@ -605,15 +605,15 @@ export class AuctionClient extends SuiClientBase
 // TODO move this to @polymedia/suitcase-core
 
 /**
- * Get the value of a `SuiCallArg`.
+ * Get the value of a `SuiCallArg` (transaction input).
  * If the argument is a pure value, return it.
  * If the argument is an object, return its ID.
  */
-export function getArgVal(arg: SuiCallArg): unknown {
+export function getArgVal<T>(arg: SuiCallArg): T {
     if (arg.type === "pure") {
-        return arg.value;
+        return arg.value as T;
     }
-    return arg.objectId;
+    return arg.objectId as T;
 }
 
 /**
