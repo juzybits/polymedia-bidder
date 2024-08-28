@@ -331,55 +331,51 @@ export class AuctionClient extends SuiClientBase
         try { txData = txResToData(txRes); }
         catch (_err) { return null; }
 
-        const extractBidAmount = () =>
+        const inputs = txData.inputs;
+
+        let bidAmount: bigint | undefined;
+        let userId: string | undefined;
+        let auctionId: string | undefined;
+
+        for (const tx of txData.txs)
         {
-            const splitGasTx = txData.txs.find(tx =>
-                isTxSplitCoins(tx) && tx.SplitCoins[0] === "GasCoin"
-            ) as (SuiTransaction & { SplitCoins: [SuiArgument, SuiArgument[]] }) | undefined;
+            // find the SplitCoins tx and parse the bid amount
+            if (isTxSplitCoins(tx) && tx.SplitCoins[0] === "GasCoin")
+            {
+                const splitTxInputs = tx.SplitCoins[1]
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => inputs[arg.Input]);
 
-            if (!splitGasTx) return null;
+                if (splitTxInputs.length !== 1) { return null; }
 
-            const splitTxInput = splitGasTx.SplitCoins[1]
-                .filter(isArgInput)
-                .map(arg => txData.inputs[arg.Input])[0];
-
-            return splitTxInput ? getArgVal(splitTxInput) as bigint : null;
-        };
-        const bidAmount = extractBidAmount();
-        if (!bidAmount) return null;
-
-        const extractBidDetails = () =>
-        {
-            const bidTx = txData.txs.find(tx =>
-                isTxMoveCall(tx) &&
+                bidAmount = getArgVal(splitTxInputs[0]) as bigint;
+            }
+            // find the `anyone_bids` tx and parse the userId and auctionId
+            if (isTxMoveCall(tx) &&
                 tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
                 tx.MoveCall.function === "anyone_bids" &&
                 tx.MoveCall.arguments
-            ) as (SuiTransaction & { MoveCall: { arguments: SuiArgument[] } }) | undefined;
+            ) {
+                const bidTxInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => inputs[arg.Input]);
 
-            if (!bidTx) return null;
+                if (bidTxInputs.length !== 2) { return null; }
 
-            const bidTxInputs = bidTx.MoveCall.arguments
-                .filter(isArgInput)
-                .map(arg => txData.inputs[arg.Input]);
+                userId = getArgVal(bidTxInputs[0]) as string;
+                auctionId = getArgVal(bidTxInputs[1]) as string;
+            }
+        }
 
-            if (bidTxInputs.length !== 2) return null;
-
-            return {
-                userId: getArgVal(bidTxInputs[0]) as string,
-                auctionId: getArgVal(bidTxInputs[1]) as string,
-            };
-        };
-        const bidDetails = extractBidDetails();
-        if (!bidDetails) return null;
+        if (!userId || !auctionId || !bidAmount) { return null; }
 
         return {
             digest: txRes.digest,
             timestamp: txRes.timestampMs ?? "0",
             sender: txData.sender,
-            userId: bidDetails.userId,
-            auctionId: bidDetails.auctionId,
+            userId,
+            auctionId,
             amount: bidAmount,
         };
     }
