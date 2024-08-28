@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AuctionObj } from "@polymedia/auction-sdk";
+import { AuctionClient, AuctionObj, UserBid } from "@polymedia/auction-sdk";
 import { balanceToString } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -74,12 +74,13 @@ const SectionAuction: React.FC<{
     }
 
     return <>
-        {auction.is_live && <BidForm auction={auction} />}
+        {auction.is_live && <FormBid auction={auction} />}
         <CardAuction auction={auction} />
+        <SectionBidHistory auction={auction} />
     </>;
 };
 
-const BidForm: React.FC<{
+const FormBid: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
@@ -153,4 +154,54 @@ const BidForm: React.FC<{
             BID
         </Btn>
     </>;
+};
+
+const SectionBidHistory: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+
+    // === state ===
+
+    const { auctionClient } = useOutletContext<AppContext>();
+
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxAnyoneBids"]>>>();
+
+    // === functions ===
+
+    const fetchRecentBids = async () => { // TODO: "load more" / "next page"
+        try {
+            const newTxs = await auctionClient.fetchTxAnyoneBids(null);
+            setTxs(newTxs);
+        } catch (err) {
+            console.warn(err); // TODO show error to user
+        }
+    };
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchRecentBids();
+    }, [auction]);
+
+    // === html ===
+
+    return <>
+        {txs?.data.map(tx => (
+            <CardTxAnyoneBids tx={tx} key={tx.digest} />
+        ))}
+</>;
+};
+
+const CardTxAnyoneBids: React.FC<{
+    tx: any; // TODO: add type
+}> = ({
+    tx,
+}) => {
+    return <div>
+        <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+            {JSON.stringify(tx, null, 2)}
+        </div>
+    </div>;
 };

@@ -18,7 +18,7 @@ import {
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
-import { AuctionObj, TxAdminCreatesAuction, UserBid, UserBidBcs } from "./types.js";
+import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 /**
@@ -85,6 +85,33 @@ export class AuctionClient extends SuiClientBase
             hasNextPage: pagTxRes.hasNextPage,
             data: pagTxRes.data
                 .map(txRes => AuctionClient.parseTxAdminCreatesAuction(txRes))
+                .filter(result => result !== null),
+        };
+
+        return results;
+    }
+
+    public async fetchTxAnyoneBids(
+        cursor: string | null | undefined,
+    ) {
+        const pagTxRes = await this.suiClient.queryTransactionBlocks({
+            filter: {
+                MoveFunction: {
+                    package: this.packageId,
+                    module: "auction",
+                    function: "anyone_bids",
+                },
+            },
+            options: { showEffects: true, showInput: true, },
+            cursor,
+            order: "descending",
+        });
+
+        const results = {
+            cursor: pagTxRes.nextCursor,
+            hasNextPage: pagTxRes.hasNextPage,
+            data: pagTxRes.data
+                .map(txRes => AuctionClient.parseTxAnyoneBids(txRes))
                 .filter(result => result !== null),
         };
 
@@ -286,6 +313,25 @@ export class AuctionClient extends SuiClientBase
                 // clock: getArgVal(inputs[9]) as string,
                 item_addrs: inputs.slice(10).map(input => getArgVal(input) as string),
             },
+        };
+    }
+
+    public static parseTxAnyoneBids(
+        txRes: SuiTransactionBlockResponse,
+    ): TxAnyoneBids | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(txRes); }
+        catch (_err) { return null; }
+        const inputs = txData.inputs;
+
+        return {
+            digest: txRes.digest,
+            timestamp: txRes.timestampMs ?? "0",
+            sender: txData.sender,
+            userId: getArgVal(inputs[1]) as string,
+            auctionId: getArgVal(inputs[2]) as string,
+            amount: BigInt(getArgVal(inputs[0]) as string),
         };
     }
 

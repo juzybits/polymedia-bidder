@@ -37,7 +37,7 @@ export type AuctionObj = {
 };
 
 /**
- * An `bidder::auction::admin_creates_auction` transaction
+ * A `bidder::auction::admin_creates_auction` transaction
  */
 export type TxAdminCreatesAuction = {
     digest: string;
@@ -56,6 +56,18 @@ export type TxAdminCreatesAuction = {
         extension_period_ms: number;
         item_addrs: string[];
     };
+};
+
+/**
+ * A `bidder::auction::anyone_bids` transaction
+ */
+export type TxAnyoneBids = {
+    digest: string;
+    timestamp: string;
+    sender: string;
+    userId: string;
+    auctionId: string;
+    amount: bigint;
 };
 
 export const UserBidBcs = bcs.struct("Bid", {
