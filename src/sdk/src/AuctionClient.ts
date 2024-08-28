@@ -1,5 +1,13 @@
 import { bcs } from "@mysten/sui/bcs";
-import { SuiCallArg, SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, TransactionFilter } from "@mysten/sui/client";
+import {
+    SuiArgument,
+    SuiCallArg,
+    SuiClient,
+    SuiObjectResponse,
+    SuiTransaction,
+    SuiTransactionBlockResponse,
+    TransactionFilter,
+} from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
@@ -311,7 +319,57 @@ export class AuctionClient extends SuiClientBase
         };
     }
 
-    public parseTxAnyoneBids(
+    /**
+     * Parse an `auction::anyone_bids` transaction.
+     * Assumes the tx block contains only one `anyone_bids` call.
+     */
+    public parseTxAnyoneBids( // TODO: support non-SUI bids
+        txRes: SuiTransactionBlockResponse,
+    ): TxAnyoneBids | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(txRes); }
+        catch (_err) { return null; }
+        const inputs = txData.inputs;
+
+        const splitGasTx = txData.txs.find(tx =>
+            isTxSplitCoins(tx) && tx.SplitCoins[0] === "GasCoin"
+        ) as (SuiTransaction & { SplitCoins: [SuiArgument, SuiArgument[]] }) | undefined;
+        if (!splitGasTx) { return null; }
+
+        const splitTxInputs = splitGasTx.SplitCoins[1]
+            .filter(arg => isArgInput(arg))
+            .map(arg => inputs[arg.Input]);
+        if (splitTxInputs.length !== 1) { return null; }
+
+        const bidTx = txData.txs.find(tx =>
+            isTxMoveCall(tx) &&
+            tx.MoveCall.package === this.packageId &&
+            tx.MoveCall.module === "auction" &&
+            tx.MoveCall.function === "anyone_bids" &&
+            tx.MoveCall.arguments
+        ) as (SuiTransaction & { MoveCall: { arguments: SuiArgument[] } }) | undefined;
+        if (!bidTx) { return null; }
+
+        const bidTxInputs = bidTx.MoveCall.arguments
+            .filter(arg => isArgInput(arg))
+            .map(arg => inputs[arg.Input]);
+        if (bidTxInputs.length !== 2) { return null; }
+
+        return {
+            digest: txRes.digest,
+            timestamp: txRes.timestampMs ?? "0",
+            sender: txData.sender,
+            userId: getArgVal(bidTxInputs[0]) as string,
+            auctionId: getArgVal(bidTxInputs[1]) as string,
+            amount: getArgVal(splitTxInputs[0]) as bigint,
+        };
+    }
+
+    /**
+     * A simpler but less correct approach as it makes more assumptions about the tx block.
+     */
+    public parseTxAnyoneBidsSimpler(
         txRes: SuiTransactionBlockResponse,
     ): TxAnyoneBids | null
     {
@@ -448,9 +506,58 @@ export class AuctionClient extends SuiClientBase
 
 }
 
-function getArgVal(arg: SuiCallArg): unknown { // TODO move to @polymedia/suitcase-core
+// TODO move this to @polymedia/suitcase-core
+
+/**
+ * Get the value of a `SuiCallArg`.
+ * If the argument is a pure value, return it.
+ * If the argument is an object, return its ID.
+ */
+export function getArgVal(arg: SuiCallArg): unknown {
     if (arg.type === "pure") {
         return arg.value;
     }
     return arg.objectId;
+}
+
+/**
+ * Type guard to check if a `SuiArgument` is a GasCoin.
+ */
+export function isArgGasCoin(arg: SuiArgument): arg is "GasCoin" {
+    return arg === "GasCoin";
+}
+
+/**
+ * Type guard to check if a `SuiArgument` is an Input.
+ */
+export function isArgInput(arg: SuiArgument): arg is { Input: number } {
+    return typeof arg === "object" && "Input" in arg;
+}
+
+/**
+ * Type guard to check if a `SuiArgument` is a Result.
+ */
+export function isArgResult(arg: SuiArgument): arg is { Result: number } {
+    return typeof arg === "object" && "Result" in arg;
+}
+
+/**
+ * Type guard to check if a `SuiArgument` is a NestedResult.
+ */
+export function isArgNestedResult(arg: SuiArgument): arg is { NestedResult: [number, number] } {
+    return typeof arg === "object" && "NestedResult" in arg;
+}
+
+/** Type guard to check if a `SuiTransaction` is `SplitCoins`. */
+export function isTxSplitCoins(
+    tx: SuiTransaction,
+): tx is { SplitCoins: [SuiArgument, SuiArgument[]] } {
+    return "SplitCoins" in tx;
+}
+
+/** Type guard to check if a `SuiTransaction` is `MergeCoins`. */
+export function isTxMergeCoins(
+    tx: SuiTransaction,
+): tx is { MergeCoins: [SuiArgument, SuiArgument[]] } {
+    return "MergeCoins" in tx;
 }
