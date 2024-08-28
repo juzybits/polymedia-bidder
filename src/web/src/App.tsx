@@ -49,12 +49,12 @@ export const AppRouter: React.FC = () => {
 
 /* Sui providers + network config */
 
-const supportedNetworks = isLocalhost()
+export const supportedNetworks = isLocalhost()
     ? ["mainnet", "testnet", "devnet", "localnet"] as const
-    : ["mainnet"] as const;
+    : ["mainnet", "testnet"] as const;
 export type NetworkName = typeof supportedNetworks[number];
 
-const { networkConfig } = createNetworkConfig({
+export const { networkConfig} = createNetworkConfig({
     mainnet: { url: getFullnodeUrl("mainnet") },
     testnet: { url: getFullnodeUrl("testnet") },
     devnet: { url: getFullnodeUrl("devnet") },
@@ -78,7 +78,7 @@ const AppSuiProviders: React.FC = () => {
 /* App */
 
 export type AppContext = {
-    network: NetworkName;
+    network: NetworkName; setNetwork: ReactSetter<NetworkName>;
     inProgress: boolean; setInProgress: ReactSetter<boolean>;
     showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
@@ -121,7 +121,7 @@ const App: React.FC<{
     };
 
     const appContext: AppContext = {
-        network,
+        network, setNetwork,
         inProgress, setInProgress,
         showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,
@@ -181,14 +181,6 @@ const Header: React.FC<{
         <Link to="/" className="header-item">
             <img src="/img/logo.webp" alt="logo" id="header-logo" />
         </Link>
-        {supportedNetworks.length > 1 &&
-        <BtnNetwork
-            setNetwork={setNetwork}
-            setShowMobileNav={setShowMobileNav}
-            network={network}
-            inProgress={inProgress}
-            className="header-item"
-        />}
         <Link to="/new" className="header-item">
             NEW
         </Link>
@@ -202,32 +194,4 @@ const Header: React.FC<{
             className="header-item"
         />
     </header>;
-};
-
-const BtnNetwork: React.FC<{
-    setNetwork: ReactSetter<NetworkName>;
-    setShowMobileNav: ReactSetter<boolean>;
-    network: NetworkName;
-    inProgress: boolean;
-    className?: string;
-}> = ({
-    setNetwork,
-    setShowMobileNav,
-    network,
-    inProgress,
-    className = undefined,
-}) =>
-{
-    const onSwitchNetwork = (newNet: NetworkName) => {
-        setNetwork(newNet);
-        setShowMobileNav(false);
-    };
-    return <NetworkSelector
-        currentNetwork={network}
-        supportedNetworks={supportedNetworks}
-        onSwitch={onSwitchNetwork}
-        disabled={inProgress}
-        className={className}
-        id="btn-network"
-    />;
 };
