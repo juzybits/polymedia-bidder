@@ -59,32 +59,40 @@ export class AuctionClient extends SuiClientBase
             options: { showContent: true }
         });
         const auctions = pagObjRes.map(
-            objRes => AuctionClient.parseAuction(objRes)
+            objRes => this.parseAuctionObj(objRes)
         );
         return auctions;
     }
 
-    public async fetchTxAdminCreatesAuction(
+    public async fetchTxsAdminCreatesAuction(
         cursor: string | null | undefined,
     ) {
         const filter = { MoveFunction: {
             package: this.packageId, module: "auction", function: "admin_creates_auction"
         }};
-        return this.fetchAndParseTxs(filter, AuctionClient.parseTxAdminCreatesAuction, cursor);
+        return this.fetchAndParseTxs(filter, this.parseTxAdminCreatesAuction.bind(this), cursor);
     }
 
-    public async fetchTxAnyoneBids(
+    public async fetchTxsAnyoneBids(
         cursor: string | null | undefined,
     ) {
         const filter = { MoveFunction: {
             package: this.packageId, module: "auction", function: "anyone_bids"
         }};
-        return this.fetchAndParseTxs(filter, AuctionClient.parseTxAnyoneBids, cursor);
+        return this.fetchAndParseTxs(filter, this.parseTxAnyoneBids.bind(this), cursor);
     }
 
-    protected async fetchAndParseTxs(
+    public async fetchTxsByAuctionId(
+        auctionId: string,
+        cursor: string | null | undefined,
+    ) {
+        const filter = { ChangedObject: auctionId };
+        return this.fetchAndParseTxs(filter, this.parseAuctionTx.bind(this), cursor);
+    }
+
+    protected async fetchAndParseTxs<T>(
         filter: TransactionFilter,
-        txResParser: (txRes: SuiTransactionBlockResponse) => any | null,
+        txResParser: (txRes: SuiTransactionBlockResponse) => T | null,
         cursor: string | null | undefined,
     ) {
         const pagTxRes = await this.suiClient.queryTransactionBlocks({
@@ -219,7 +227,7 @@ export class AuctionClient extends SuiClientBase
     // === data parsing ===
 
     /* eslint-disable */
-    public static parseAuction(
+    public parseAuctionObj(
         objRes: SuiObjectResponse,
     ): AuctionObj | null
     {
@@ -266,7 +274,7 @@ export class AuctionClient extends SuiClientBase
     }
     /* eslint-enable */
 
-    public static parseTxAdminCreatesAuction(
+    public parseTxAdminCreatesAuction(
         txRes: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | null
     {
@@ -303,7 +311,7 @@ export class AuctionClient extends SuiClientBase
         };
     }
 
-    public static parseTxAnyoneBids(
+    public parseTxAnyoneBids(
         txRes: SuiTransactionBlockResponse,
     ): TxAnyoneBids | null
     {
@@ -320,6 +328,31 @@ export class AuctionClient extends SuiClientBase
             auctionId: getArgVal(inputs[2]) as string,
             amount: BigInt(getArgVal(inputs[0]) as string),
         };
+    }
+
+    /**
+     * Parse various transactions on the `auction` module.
+     */
+    public parseAuctionTx(
+        txRes: SuiTransactionBlockResponse,
+    ) {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(txRes); }
+        catch (_err) { return null; }
+
+        for (const tx of txData.txs) {
+            if (!isTxMoveCall(tx) || tx.MoveCall.package !== this.packageId || tx.MoveCall.module !== "auction") {
+                continue;
+            }
+            if (tx.MoveCall.function === "admin_creates_auction") {
+                return this.parseTxAdminCreatesAuction(txRes);
+            }
+            if (tx.MoveCall.function === "anyone_bids") {
+                return this.parseTxAnyoneBids(txRes);
+            }
+        }
+
+        return null;
     }
 
     // === module interactions ===

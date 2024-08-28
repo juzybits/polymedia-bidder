@@ -39,13 +39,13 @@ const SectionRecentAuctions: React.FC = () =>
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxAdminCreatesAuction"]>>>();
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsAdminCreatesAuction"]>>>();
 
     // === functions ===
 
     const fetchRecentAuctions = async () => { // TODO: "load more" / "next page"
         try {
-            const newTxs = await auctionClient.fetchTxAdminCreatesAuction(null);
+            const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
             setTxs(newTxs);
         } catch (err) {
             console.warn(err); // TODO show error to user

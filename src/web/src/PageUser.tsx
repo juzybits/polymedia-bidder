@@ -94,8 +94,8 @@ const SectionHistory: React.FC = () => // TODO: pagination
     // === functions ===
 
     const fetchUserObj = async () => {
-        const newUserObj = await auctionClient.fetchUserObjectId(currAcct.address);
-        setUserObjId(newUserObj);
+        const newUserObjId = await auctionClient.fetchUserObjectId(currAcct.address);
+        setUserObjId(newUserObjId);
     };
 
     const fetchAuctions = async () =>

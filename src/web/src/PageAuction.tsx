@@ -76,7 +76,7 @@ const SectionAuction: React.FC<{
     return <>
         {auction.is_live && <FormBid auction={auction} />}
         <CardAuction auction={auction} />
-        <SectionBidHistory auction={auction} />
+        <SectionAuctionHistory auction={auction} />
     </>;
 };
 
@@ -156,7 +156,7 @@ const FormBid: React.FC<{
     </>;
 };
 
-const SectionBidHistory: React.FC<{
+const SectionAuctionHistory: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
@@ -166,13 +166,13 @@ const SectionBidHistory: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxAnyoneBids"]>>>();
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>>>();
 
     // === functions ===
 
     const fetchRecentBids = async () => { // TODO: "load more" / "next page"
         try {
-            const newTxs = await auctionClient.fetchTxAnyoneBids(null);
+            const newTxs = await auctionClient.fetchTxsByAuctionId(auction.id, null);
             setTxs(newTxs);
         } catch (err) {
             console.warn(err); // TODO show error to user
