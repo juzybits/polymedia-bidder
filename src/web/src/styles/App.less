@@ -5,13 +5,15 @@
 // === constants ===
 
 @border-gray: 1px solid #555;
-@border-radius: 4px;
+@border-radius: 1.5rem;
 @color-bg: rgb(10 12 14);
 @color-text-red: rgb(255, 158, 158);
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 @font-system: system-ui;
-@gap: 1rem;
+@gap-10: 1rem;
+@gap-15: 1.5rem;
+@gap-20: 2rem;
 @screen-small: 700px;
 @max-width-page-regular: 1440px;
 
@@ -88,8 +90,8 @@ header {
     align-items: center;
     justify-content: right;
     gap: 1em 2em;
-    padding: 0 @gap*1.25;
-    height: 80px;
+    padding: 0 @gap-10*1.25;
+    height: 65px;
     width: 100%;
     overflow-x: scroll;
     overflow-y: hidden;
@@ -114,7 +116,7 @@ header {
         }
     }
     #header-logo {
-        height: 3rem;
+        height: 2.5rem;
         aspect-ratio: 692 / 643;
     }
 }
@@ -155,8 +157,11 @@ footer {
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: @gap*1.5;
-    gap: @gap*1.5;
+    padding: @gap-20;
+    gap: @gap-15;
+    @media (max-width: @screen-small) {
+        padding: @gap-15;
+    }
 }
 
 .form-flex {
@@ -167,7 +172,6 @@ footer {
 .form {
     .form-flex;
     width: 100%;
-    max-width: calc((@max-width-page-regular - 4*@gap)/2);
     .form-section {
         .form-flex;
         .section-toggle {
@@ -197,24 +201,24 @@ footer {
 .page-regular {
     max-width: @max-width-page-regular;
     margin: 0 auto;
-    padding: @gap*2 @gap*2 8rem;
+    padding: @gap-20 @gap-20 8rem;
     .page-content {
         display: flex;
         flex-direction: column;
-        gap: @gap*2;
+        gap: @gap-20;
         // .page-title {}
         .page-section {
             display: flex;
             flex-direction: column;
             align-items: start;
-            gap: @gap*2;
+            gap: @gap-20;
             // .section-title {}
             // .section-description {}
         }
     }
     @media (max-width: @screen-small) {
-        padding-left: @gap*1.5;
-        padding-right: @gap*1.5;
+        padding-left: @gap-15;
+        padding-right: @gap-15;
     }
 }
 
@@ -224,7 +228,7 @@ footer {
     @media (max-width: @screen-small) {
         grid-template-columns: repeat(1, 1fr);
     }
-    gap: @gap*2;
+    gap: @gap-20;
     .grid-item {
         &:hover {
             cursor: pointer;
@@ -234,7 +238,7 @@ footer {
         .sui-obj {
             display: flex;
             flex-direction: row;
-            gap: @gap*1.5;
+            gap: @gap-15;
             .obj-img {
                 width: 100px;
                 height: 100px;
@@ -251,7 +255,7 @@ footer {
             .obj-info {
                 display: flex;
                 flex-direction: column;
-                gap: @gap*1.5;
+                gap: @gap-15;
             }
         }
     }

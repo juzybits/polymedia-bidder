@@ -2,7 +2,6 @@
 module bidder::auction_tests;
 
 use std::string::{String};
-use std::u64::{Self};
 use sui::clock::{Self, Clock};
 use sui::coin::{Coin};
 use sui::coin::{Self};
@@ -598,7 +597,7 @@ fun test_admin_adds_item_e_too_many_items()
 {
     // ADMIN tries to add 100 items to the auction (limit is 50)
     let (mut runner, mut auction) = begin_with_auction(auction_args());
-    u64::do!(100, |_i| runner.admin_adds_item(ADMIN, &mut auction));
+    100u8.do!(|_i| runner.admin_adds_item(ADMIN, &mut auction));
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
