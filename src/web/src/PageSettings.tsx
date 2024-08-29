@@ -11,8 +11,6 @@ export const PageSettings: React.FC = () =>
 {
     // === state ===
 
-    const currAcct = useCurrentAccount();
-
     const { header } = useOutletContext<AppContext>();
 
     // === html ===
@@ -21,18 +19,12 @@ export const PageSettings: React.FC = () =>
     {header}
     <div id="page-settings" className="page-regular">
 
-
         <div className="page-content">
-
             <h1 className="page-title">SETTINGS</h1>
-
-            {!currAcct
-            ? <ConnectToGetStarted />
-            : <>
-                <SectionConnection />
-                <SectionNetwork />
-                <SectionRpc />
-            </>}
+            <SectionConnection />
+            <SectionExplorer />
+            <SectionRpc />
+            <SectionNetwork />
         </div>
 
     </div>
@@ -44,7 +36,6 @@ const SectionConnection: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    if (!currAcct) { return; }
     const { mutate: disconnect } = useDisconnectWallet();
 
     // === html ===
@@ -53,15 +44,18 @@ const SectionConnection: React.FC = () =>
         <div className="section-title">
             Wallet
         </div>
-        <div className="card">
-            <div>You are connected with address:</div>
-            <div className="address">{currAcct.address}</div>
-            <div>
-                <button onClick={() => disconnect()} className="btn">
-                    DISCONNECT
-                </button>
+        {!currAcct
+            ? <ConnectToGetStarted />
+            : <div className="card">
+                <div>You are connected with address:</div>
+                <div className="address">{currAcct.address}</div>
+                <div>
+                    <button onClick={() => disconnect()} className="btn">
+                        DISCONNECT
+                        </button>
+                    </div>
             </div>
-        </div>
+        }
     </div>;
 };
 
@@ -104,7 +98,6 @@ const SectionRpc: React.FC = () => // TODO: selector / input
         </div>
     </div>;
 };
-
 
 const SectionNetwork: React.FC = () => // TODO: style
 {
