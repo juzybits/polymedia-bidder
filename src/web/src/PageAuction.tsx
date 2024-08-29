@@ -33,7 +33,7 @@ export const PageAuction: React.FC = () =>
             const auction = await auctionClient.fetchAuction(auctionId);
             setAuction(auction);
         } catch (err) {
-            console.warn(err); // TODO show error to user
+            console.warn("[fetchAuction]", err); // TODO show error to user
         }
     };
 
@@ -178,7 +178,7 @@ const SectionAuctionHistory: React.FC<{
             const newTxs = await auctionClient.fetchTxsByAuctionId(auction.id, null);
             setTxs(newTxs);
         } catch (err) {
-            console.warn(err); // TODO show error to user
+            console.warn("[fetchRecentBids]", err); // TODO show error to user
         }
     };
 

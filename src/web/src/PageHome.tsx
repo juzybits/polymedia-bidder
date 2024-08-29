@@ -56,7 +56,7 @@ const SectionRecentAuctions: React.FC = () =>
             const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
             setTxs(newTxs);
         } catch (err) {
-            console.warn(err); // TODO show error to user
+            console.warn("[fetchRecentAuctions]", err); // TODO show error to user
         }
     };
 
