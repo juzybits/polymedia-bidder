@@ -1,9 +1,10 @@
 import { AuctionClient, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Balance } from "./components/cards";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { Glitch } from "./components/Glitch";
 
 export const PageHome: React.FC = () =>
 {
@@ -13,11 +14,18 @@ export const PageHome: React.FC = () =>
     {header}
     <div id="page-home" className="page-regular">
 
-
         <div className="page-content">
 
-            <div className="page-section">
-                <h1>Home</h1>
+            <div id="home-hero" className="page-section">
+                <Glitch text="BIDDER" />
+                <div id="hero-title">
+                    <h1>Sui's Auction House</h1>
+                </div>
+                <div id="hero-description">
+                    <p>
+                        BIDDER is a decentralized platform for creating and bidding on auctions.
+                    </p>
+                </div>
             </div>
 
             <div className="page-section">
