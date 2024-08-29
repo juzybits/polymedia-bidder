@@ -42,17 +42,17 @@ export const PageNew: React.FC = () =>
             {!currAcct
             ? <ConnectToGetStarted />
             : <>
-                <div className="page-section card">
+                <div className="page-section">
+                    <div className="section-title">
+                        Settings
+                    </div>
                     <FormCreateAuction chosenObjs={chosenObjs} />
                 </div>
 
                 <div className="page-section">
-                    <div className="section-description">
-                        Click on the items you want to auction:
+                    <div className="section-title">
+                        Items
                     </div>
-                </div>
-
-                <div className="page-section">
                     <ObjectGridSelector setChosenObjs={setChosenObjs} />
                 </div>
             </>}
@@ -177,6 +177,7 @@ const FormCreateAuction: React.FC<{
     // === html ===
 
     return <>
+    <div className="card">
     <div className="form">
         <div className="form-section">
             {form.name.input}
@@ -215,7 +216,8 @@ const FormCreateAuction: React.FC<{
         )}
         </div>
 
-    </div>}
+        </div>}
+    </div>
     </>;
 };
 
