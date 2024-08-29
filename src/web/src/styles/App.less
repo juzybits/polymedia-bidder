@@ -41,39 +41,6 @@ h1, h2, h3, h4, h5, button, input {
     margin: 0;
 }
 
-// === elements ===
-
-@btn-dark: rgb(0, 121, 155);
-@btn-light: white;
-
-.btn {
-    &, * { color: @btn-light; }
-    background-color: @btn-dark;
-    padding: 0.67em 1em;
-    cursor: pointer;
-    font-weight: 600;
-    display: inline-block;
-    user-select: none;
-    border-radius: 2em;
-    &:hover {
-        &, * { color: @btn-dark; }
-        background-color: @btn-light;
-    }
-    &:disabled, &.disabled {
-        cursor: default;
-        &, * { color: #ddd; }
-        background-color: gray;
-    }
-}
-
-input {
-    color: @color-bg;
-    padding: 0.5em 1em;
-    &:disabled {
-        background-color: #999;
-    }
-}
-
 // === utility classes ===
 
 .cursor-pointer {
@@ -172,7 +139,7 @@ footer {
 .form-flex {
     display: flex;
     flex-direction: column;
-    gap: 1.5em;
+    gap: 1.75em;
 }
 .form {
     .form-flex;
@@ -186,12 +153,54 @@ footer {
     }
 }
 
+.rounded {
+    padding: 0.67em 1.5em;
+    border-radius: 2em;
+}
+
+@btn-dark: rgb(0, 121, 155);
+@btn-light: white;
+.btn {
+    .rounded;
+    &, * { color: @btn-light; }
+    background-color: @btn-dark;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-block;
+    user-select: none;
+    &:hover {
+        &, * { color: @btn-dark; }
+        background-color: @btn-light;
+    }
+    &:disabled, &.disabled {
+        cursor: default;
+        &, * { color: #ddd; }
+        background-color: gray;
+    }
+}
+
 .poly-input {
     display: flex;
     flex-direction: column;
-    gap: 0.25em;
+    gap: 0.5em;
+    .input-label {
+        padding-left: 0.8em;
+    }
     .input-error {
         color: @color-text-red;
+        padding-left: 0.8em;
+    }
+    .input {
+        .rounded;
+        background-color: rgb(58, 61, 69);
+        color: @color-text;
+        &:focus {
+            outline: 2px solid rgb(55,115,245);
+        }
+        &:disabled {
+            background-color: #222;
+            color: #777;
+        }
     }
 }
 
