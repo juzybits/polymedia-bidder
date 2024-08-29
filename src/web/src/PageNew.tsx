@@ -295,7 +295,7 @@ const ObjectGridSelector: React.FC<{
             >
                 <div className="sui-obj">
                     <div className="obj-img">
-                        <img src={obj.display.image_url ?? svgNoImage} alt="object image" />
+                        <img src={obj.display.image_url ?? svgNoImage} alt="object image" className={obj.display.image_url ? "" : "no-image"}/>
                     </div>
                     <div className="obj-info">
                         <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>

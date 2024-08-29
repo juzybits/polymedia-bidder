@@ -4,9 +4,10 @@
 
 // === constants ===
 
-@border-gray: 1px solid #555;
+@border-gray: 1px solid @color-border-gray;
 @border-radius: 1.5rem;
 @color-bg: rgb(10 12 14);
+@color-border-gray: rgb(138 145 158 / 20%);
 @color-text-red: rgb(255, 158, 158);
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -16,8 +17,9 @@
 @gap-20: 2rem;
 @gap-25: 2.5rem;
 @gap-30: 3rem;
-@screen-small: 700px;
 @max-width-page-regular: 1440px;
+@screen-medium: 1100px;
+@screen-small: 700px;
 
 // === resets ===
 
@@ -59,7 +61,7 @@ h1, h2, h3, h4, h5, button, input {
     &:disabled, &.disabled {
         cursor: default;
         &, * { color: #ddd; }
-        background-color: grey;
+        background-color: gray;
     }
 }
 
@@ -102,7 +104,7 @@ header {
     left: 0;
     user-select: none;
     background-color: @color-bg;
-    border-bottom: 1px solid rgb(138 145 158 / 20%);
+    border-bottom: 1px solid @color-border-gray;
     .header-item {
         &:first-child {
             flex-grow: 1;
@@ -226,7 +228,10 @@ footer {
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    @media (max-width: @screen-medium) {
+        grid-template-columns: repeat(2, 1fr);
+    }
     @media (max-width: @screen-small) {
         grid-template-columns: repeat(1, 1fr);
     }
@@ -239,19 +244,21 @@ footer {
         }
         .sui-obj {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             gap: @gap-15;
             .obj-img {
-                width: 100px;
-                height: 100px;
-                border-radius: @border-radius;
+                width: 100%;
+                border-radius: @border-radius * 0.75;
                 flex-shrink: 0;
                 img {
                     width: 100%;
                     height: 100%;
-                    border-radius: @border-radius;
+                    border-radius: @border-radius * 0.75;
                     object-fit: cover;
-                    background-color: @color-text; // for no-image
+                    background-color: @color-bg;
+                    &.no-image {
+                        background-color: #999;
+                    }
                 }
             }
             .obj-info {
