@@ -143,7 +143,11 @@ footer {
 }
 .form {
     .form-flex;
-    width: 100%;
+    margin: 0 auto;
+    width: 500px;
+    @media (max-width: @screen-small) {
+        width: 100%;
+    }
     .form-section {
         .form-flex;
         .section-toggle {

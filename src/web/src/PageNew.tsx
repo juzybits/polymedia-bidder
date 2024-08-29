@@ -35,7 +35,6 @@ export const PageNew: React.FC = () =>
     {header}
     <div id="page-new" className="page-regular">
 
-
         <div className="page-content">
 
             <h1 className="page-title">NEW AUCTION</h1>
@@ -49,7 +48,7 @@ export const PageNew: React.FC = () =>
 
                 <div className="page-section">
                     <div className="section-description">
-                        Click on the items you want to auction.
+                        Click on the items you want to auction:
                     </div>
                 </div>
 
@@ -197,6 +196,10 @@ const FormCreateAuction: React.FC<{
                 {form.extension_period_minutes.input}
             </>}
         </div>
+
+        <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
+            CREATE AUCTION
+        </button>
     </div>
 
     {chosenObjs.length > 0 &&
@@ -213,10 +216,6 @@ const FormCreateAuction: React.FC<{
         </div>
 
     </div>}
-
-    <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
-        CREATE AUCTION
-    </button>
     </>;
 };
 
