@@ -73,6 +73,7 @@ header {
     user-select: none;
     background-color: @color-bg;
     border-bottom: 1px solid @color-border-gray;
+    z-index: 1;
     .header-item {
         &:first-child {
             flex-grow: 1;
@@ -296,6 +297,13 @@ footer {
             }
         }
     }
+}
+
+.list-cards {
+    display: flex;
+    flex-direction: column;
+    gap: @gap-15;
+    width: 100%;
 }
 
 .full-screen-msg {

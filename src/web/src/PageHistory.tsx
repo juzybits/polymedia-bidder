@@ -28,11 +28,7 @@ export const PageHistory: React.FC = () =>
 
             {!currAcct
             ? <ConnectToGetStarted />
-            : <>
-                <div className="page-section">
-                    <SectionHistory />
-                </div>
-            </>}
+            : <SectionsHistory />}
         </div>
 
     </div>
@@ -60,7 +56,7 @@ const SectionConnection: React.FC = () =>
     </div>;
 };
 
-const SectionHistory: React.FC = () => // TODO: pagination
+const SectionsHistory: React.FC = () => // TODO: pagination
 {
     // === state ===
 
@@ -115,17 +111,30 @@ const SectionHistory: React.FC = () => // TODO: pagination
     }
 
     return <>
-        <h2>Your auctions</h2>
-        {userAuctions.map(auction => (
-            <CardAuction auction={auction} key={auction.id} />
-        ))}
-        <h2>Your bids</h2>
-        {userBids.map(bid => (
-            <div key={bid.auction_id + bid.amount}>
-                <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
-                <div>Time: {new Date(bid.time).toLocaleString()}</div>
-                <div>Amount: {bid.amount.toString()}</div> {/* TODO: fetch auction then calculate amount based on currency decimals */}
+        <div className="page-section">
+            <div className="section-title">
+                Your auctions
             </div>
-        ))}
+            <div className="list-cards">
+                {userAuctions.map(auction =>
+                    <CardAuction auction={auction} key={auction.id} />
+                )}
+            </div>
+        </div>
+
+        <div className="page-section">
+            <div className="section-title">
+                Your bids
+            </div>
+            <div className="list-cards">
+                {userBids.map(bid =>
+                    <div key={bid.auction_id + bid.amount} className="card">
+                        <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
+                <div>Time: {new Date(bid.time).toLocaleString()}</div>
+                        <div>Amount: {bid.amount.toString()}</div> {/* TODO: fetch auction then calculate amount based on currency decimals */}
+                    </div>
+                )}
+            </div>
+        </div>
     </>;
 };

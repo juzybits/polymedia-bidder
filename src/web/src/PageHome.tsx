@@ -29,8 +29,8 @@ export const PageHome: React.FC = () =>
             </div>
 
             <div className="page-section">
-                <div className="section-description">
-                    <h2>Recent auctions</h2>
+                <div className="section-title">
+                    Recent auctions
                 </div>
                 <SectionRecentAuctions />
             </div>
