@@ -2,18 +2,16 @@ import {
     ConnectModal,
     SuiClientProvider,
     WalletProvider,
-    createNetworkConfig,
-    useSignTransaction,
-    useSuiClient,
+    createNetworkConfig, useSignTransaction,
+    useSuiClient
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
 import { getFullnodeUrl } from "@mysten/sui/client";
 import * as sdk from "@polymedia/auction-sdk";
-import { NetworkSelector, ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react";
+import { ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
-import { BtnConnect } from "./components/BtnConnect";
 import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
 import { PageDevDisplayHistory } from "./PageDevDisplayHistory";
@@ -125,13 +123,7 @@ const App: React.FC<{
         inProgress, setInProgress,
         showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,
-        header: <Header
-            setNetwork={setNetwork}
-            setShowMobileNav={setShowMobileNav}
-            openConnectModal={openConnectModal}
-            network={network}
-            inProgress={inProgress}
-        />,
+        header: <Header />,
         auctionClient,
         // setModalContent,
     };
@@ -163,19 +155,7 @@ const App: React.FC<{
 
 /* One-off components */
 
-const Header: React.FC<{
-    setNetwork: ReactSetter<NetworkName>;
-    setShowMobileNav: ReactSetter<boolean>;
-    openConnectModal: () => void;
-    network: NetworkName;
-    inProgress: boolean;
-}> = ({
-    setNetwork,
-    setShowMobileNav,
-    openConnectModal,
-    network,
-    inProgress,
-}) =>
+const Header: React.FC = () =>
 {
     return <header>
         <Link to="/" className="header-item">
@@ -187,11 +167,8 @@ const Header: React.FC<{
         <Link to="/history" className="header-item">
             HISTORY
         </Link>
-        <BtnConnect
-            openConnectModal={openConnectModal}
-            setShowMobileNav={setShowMobileNav}
-            disabled={inProgress}
-            className="header-item"
-        />
+        <Link to="/settings" className="header-item">
+            SETTINGS
+        </Link>
     </header>;
 };
