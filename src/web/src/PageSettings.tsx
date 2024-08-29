@@ -19,21 +19,19 @@ export const PageSettings: React.FC = () =>
 
     return <>
     {header}
-    <div id="page-user" className="page-regular">
+    <div id="page-settings" className="page-regular">
 
 
         <div className="page-content">
 
-            <h1 className="page-title">USER</h1>
+            <h1 className="page-title">SETTINGS</h1>
 
             {!currAcct
             ? <ConnectToGetStarted />
             : <>
-                <div className="page-section">
-                    <SectionConnection />
-                    <SectionNetwork />
-                    <SectionRpc />
-                </div>
+                <SectionConnection />
+                <SectionNetwork />
+                <SectionRpc />
             </>}
         </div>
 
@@ -51,20 +49,20 @@ const SectionConnection: React.FC = () =>
 
     // === html ===
 
-    return <>
-    <div className="section-description">
-        <h2>Wallet</h2>
-    </div>
-    <div className="card">
-        <div>You are connected with address:</div>
-        <div className="address">{currAcct.address}</div>
-        <div>
-            <button onClick={() => disconnect()} className="btn">
-                DISCONNECT
-            </button>
+    return <div className="page-section">
+        <div className="section-title">
+            Wallet
         </div>
-    </div>
-    </>;
+        <div className="card">
+            <div>You are connected with address:</div>
+            <div className="address">{currAcct.address}</div>
+            <div>
+                <button onClick={() => disconnect()} className="btn">
+                    DISCONNECT
+                </button>
+            </div>
+        </div>
+    </div>;
 };
 
 const SectionNetwork: React.FC = () => // TODO: style
@@ -77,20 +75,20 @@ const SectionNetwork: React.FC = () => // TODO: style
         setNetwork(newNet);
     };
 
-    return <>
-    <div className="section-description">
-        <h2>Network</h2>
-    </div>
-    <div className="card">
-        <NetworkSelector
-            currentNetwork={network}
-            supportedNetworks={supportedNetworks}
-            onSwitch={onSwitchNetwork}
-            disabled={inProgress}
-            id="btn-network"
-        />
-    </div>
-    </>;
+    return <div className="page-section">
+        <div className="section-title">
+            Network
+        </div>
+        <div className="card">
+            <NetworkSelector
+                currentNetwork={network}
+                supportedNetworks={supportedNetworks}
+                onSwitch={onSwitchNetwork}
+                disabled={inProgress}
+                id="btn-network"
+            />
+        </div>
+    </div>;
 };
 
 const SectionRpc: React.FC = () => // TODO: selector / input
@@ -103,12 +101,12 @@ const SectionRpc: React.FC = () => // TODO: selector / input
 
     // === html ===
 
-    return <>
-    <div className="section-description">
-        <h2>RPC</h2>
-    </div>
-    <div className="card">
-        <div className="break-word">{rpcUrl}</div>
-    </div>
-    </>;
+    return <div className="page-section">
+        <div className="section-title">
+            RPC
+        </div>
+        <div className="card">
+            <div className="break-word">{rpcUrl}</div>
+        </div>
+    </div>;
 };

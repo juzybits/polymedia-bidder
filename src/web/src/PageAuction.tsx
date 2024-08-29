@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AuctionClient, AuctionObj, UserBid } from "@polymedia/auction-sdk";
+import { AuctionClient, AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid } from "@polymedia/auction-sdk";
 import { balanceToString } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -16,37 +16,15 @@ export const PageAuction: React.FC = () =>
     const { auctionId } = useParams();
     if (!auctionId) { return <PageNotFound />; };
 
-    const { header } = useOutletContext<AppContext>();
-
-    // === html ===
-
-    return <>
-    {header}
-    <div id="page-auction" className="page-regular">
-
-
-        <div className="page-content">
-
-            <div className="page-section">
-                <SectionAuction auctionId={auctionId} />
-            </div>
-        </div>
-
-    </div>
-    </>;
-};
-
-const SectionAuction: React.FC<{
-    auctionId: string;
-}> = ({
-    auctionId,
-}) =>
-{
-    // === state ===
-
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { auctionClient, header } = useOutletContext<AppContext>();
 
     const [ auction, setAuction ] = useState<AuctionObj|null>();
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchAuction();
+    }, [auctionId]);
 
     // === functions ===
 
@@ -59,10 +37,6 @@ const SectionAuction: React.FC<{
         }
     };
 
-    useEffect(() => {
-        fetchAuction();
-    }, [auctionId]);
-
     // === html ===
 
     if (auction === undefined) {
@@ -72,14 +46,34 @@ const SectionAuction: React.FC<{
         return <FullScreenMsg>AUCTION NOT FOUND</FullScreenMsg>;
     }
 
+    // === html ===
+
     return <>
-        {auction.is_live && <FormBid auction={auction} />}
-        <CardAuction auction={auction} />
-        <SectionAuctionHistory auction={auction} />
+    {header}
+    <div id="page-auction" className="page-regular">
+
+        <div className="page-content">
+            {auction.is_live && <SectionBid auction={auction} />}
+            <SectionInfo auction={auction} />
+            <SectionAuctionHistory auction={auction} />
+        </div>
+
+    </div>
     </>;
 };
 
-const FormBid: React.FC<{
+const SectionInfo: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    return <div className="page-section">
+        <div className="section-title">Info</div>
+        <CardAuction auction={auction} />
+    </div>
+};
+
+const SectionBid: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
@@ -140,19 +134,23 @@ const FormBid: React.FC<{
         }
     };
 
-    return <>
-        <div className="form">
+    return <div className="page-section">
+        <div className="section-title">Bid</div>
+
+        <div className="card">
+        <div className="form ">
             {Object.entries(form).map(([name, input]) => (
                 <React.Fragment key={name}>
                     {input.input}
                 </React.Fragment>
             ))}
+            <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
+                BID
+            </button>
+        </div>
         </div>
 
-        <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
-            BID
-        </button>
-    </>;
+    </div>;
 };
 
 const SectionAuctionHistory: React.FC<{
@@ -167,6 +165,12 @@ const SectionAuctionHistory: React.FC<{
 
     const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>>>();
 
+    // === effects ===
+
+    useEffect(() => {
+        fetchRecentBids();
+    }, [auction]);
+
     // === functions ===
 
     const fetchRecentBids = async () => { // TODO: "load more" / "next page"
@@ -178,27 +182,24 @@ const SectionAuctionHistory: React.FC<{
         }
     };
 
-    // === effects ===
-
-    useEffect(() => {
-        fetchRecentBids();
-    }, [auction]);
-
     // === html ===
 
-    return <>
-        {txs?.data.map(tx => (
-            <CardTxAnyoneBids tx={tx} key={tx.digest} />
-        ))}
-</>;
+    return <div className="page-section">
+        <div className="section-title">History</div>
+        <div className="list-cards">
+            {txs?.data.map(tx =>
+                <CardTransaction tx={tx} key={tx.digest} />
+            )}
+        </div>
+    </div>;
 };
 
-const CardTxAnyoneBids: React.FC<{
-    tx: any; // TODO: add type
+const CardTransaction: React.FC<{
+    tx: TxAdminCreatesAuction | TxAnyoneBids;
 }> = ({
     tx,
 }) => {
-    return <div>
+    return <div className="card">
         <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
             {JSON.stringify(tx, null, 2)}
         </div>
