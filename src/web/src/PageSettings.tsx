@@ -65,6 +65,47 @@ const SectionConnection: React.FC = () =>
     </div>;
 };
 
+const SectionExplorer: React.FC = () => // TODO: radio buttons
+{
+    // === state ===
+
+    const { network, setNetwork } = useOutletContext<AppContext>();
+
+    const rpcUrl = networkConfig[network].url;
+
+    // === html ===
+
+    return <div className="page-section">
+        <div className="section-title">
+            Explorer
+        </div>
+        <div className="card">
+            <div>Polymedia Explorer</div>
+        </div>
+    </div>;
+};
+
+const SectionRpc: React.FC = () => // TODO: selector / input
+{
+    // === state ===
+
+    const { network } = useOutletContext<AppContext>();
+
+    const rpcUrl = networkConfig[network].url;
+
+    // === html ===
+
+    return <div className="page-section">
+        <div className="section-title">
+            RPC
+        </div>
+        <div className="card">
+            <div className="break-word">{rpcUrl}</div>
+        </div>
+    </div>;
+};
+
+
 const SectionNetwork: React.FC = () => // TODO: style
 {
     // === state ===
@@ -87,26 +128,6 @@ const SectionNetwork: React.FC = () => // TODO: style
                 disabled={inProgress}
                 id="btn-network"
             />
-        </div>
-    </div>;
-};
-
-const SectionRpc: React.FC = () => // TODO: selector / input
-{
-    // === state ===
-
-    const { network, setNetwork } = useOutletContext<AppContext>();
-
-    const rpcUrl = networkConfig[network].url;
-
-    // === html ===
-
-    return <div className="page-section">
-        <div className="section-title">
-            RPC
-        </div>
-        <div className="card">
-            <div className="break-word">{rpcUrl}</div>
         </div>
     </div>;
 };
