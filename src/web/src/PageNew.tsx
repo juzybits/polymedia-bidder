@@ -298,9 +298,15 @@ const ObjectGridSelector: React.FC<{
                         <img src={obj.display.image_url ?? svgNoImage} alt="object image" className={obj.display.image_url ? "" : "no-image"}/>
                     </div>
                     <div className="obj-info">
-                        <div className="info-line break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div>
-                        {obj.name && <div className="info-line break-word">{obj.name}</div>}
-                        {obj.desc && <div className="info-line break-word">{obj.desc}</div>}
+                        <div className="obj-title break-word">
+                            {obj.name ? obj.name : shortenAddress(obj.type)}
+                        </div>
+                        <div className="obj-button">
+                            <button className="btn">ADD</button>
+                        </div>
+                        {/* <div className="break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div> */}
+                        {/* {obj.name && <div className="break-word">{obj.name}</div>} */}
+                        {/* {obj.desc && <div className="break-word">{obj.desc}</div>} */}
                     </div>
                 </div>
             </div>

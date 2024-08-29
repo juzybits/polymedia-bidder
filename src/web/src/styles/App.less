@@ -49,11 +49,12 @@ h1, h2, h3, h4, h5, button, input {
 .btn {
     &, * { color: @btn-light; }
     background-color: @btn-dark;
-    padding: 0.5em 1em;
+    padding: 0.67em 1em;
     cursor: pointer;
     font-weight: 600;
     display: inline-block;
     user-select: none;
+    border-radius: 2em;
     &:hover {
         &, * { color: @btn-dark; }
         background-color: @btn-light;
@@ -239,13 +240,12 @@ footer {
     .grid-item {
         &:hover {
             cursor: pointer;
-            background-color: rgb(40, 40, 40);
-            border-color: @color-text;
+            background-color: @color-border-gray;
         }
         .sui-obj {
             display: flex;
             flex-direction: column;
-            gap: @gap-15;
+            gap: @gap-10;
             .obj-img {
                 width: 100%;
                 border-radius: @border-radius * 0.75;
@@ -264,7 +264,17 @@ footer {
             .obj-info {
                 display: flex;
                 flex-direction: column;
-                gap: @gap-15;
+                gap: @gap-10;
+                .obj-title {
+                    font-size: 1.1em;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+                .obj-button {
+                    .btn {
+                        width: 100%;
+                    }
+                }
             }
         }
     }
