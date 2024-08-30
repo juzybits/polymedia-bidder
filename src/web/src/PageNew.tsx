@@ -9,7 +9,6 @@ import {
     objResToType,
     shortenAddress
 } from "@polymedia/suitcase-core";
-import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
@@ -29,6 +28,20 @@ export const PageNew: React.FC = () =>
 
     const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
 
+    // === functions ===
+
+    const addOrRemoveItem = (obj: SuiObject): void =>
+    {
+        setChosenObjs(prev => {
+            const exists = prev.some(item => item.id === obj.id);
+            if (exists) {
+                return prev.filter(item => item.id !== obj.id);
+            } else {
+                return [...prev, obj];
+            }
+        });
+    };
+
     // === html ===
 
     return <>
@@ -46,14 +59,14 @@ export const PageNew: React.FC = () =>
                     <div className="section-title">
                         Settings
                     </div>
-                    <FormCreateAuction chosenObjs={chosenObjs} />
+                    <FormCreateAuction chosenObjs={chosenObjs} addOrRemoveItem={addOrRemoveItem} />
                 </div>
 
                 <div className="page-section">
                     <div className="section-title">
                         Items
                     </div>
-                    <ObjectGridSelector setChosenObjs={setChosenObjs} />
+                    <ObjectGridSelector addOrRemoveItem={addOrRemoveItem} />
                 </div>
             </>}
 
@@ -67,8 +80,10 @@ export const PageNew: React.FC = () =>
 
 const FormCreateAuction: React.FC<{
     chosenObjs: SuiObject[];
+    addOrRemoveItem: (obj: SuiObject) => void;
 }> = ({
     chosenObjs,
+    addOrRemoveItem,
 }) =>
 {
     // === state ===
@@ -76,7 +91,7 @@ const FormCreateAuction: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient, network } = useOutletContext<AppContext>();
+    const { auctionClient } = useOutletContext<AppContext>();
 
     const [ userObjId, setUserObjId ] = useState<string|null>();
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
@@ -198,25 +213,24 @@ const FormCreateAuction: React.FC<{
         </button>
 
         <div className="chosen-objects">
-
             <h2>Chosen objects ({chosenObjs.length})</h2>
 
             <div className="list-cards">
             {chosenObjs.map(obj =>
-                <CardSuiObject obj={obj} key={obj.id} />
+                <CardSuiObject obj={obj} key={obj.id} onClick={() => addOrRemoveItem(obj)} />
             )}
             </div>
-
         </div>
+
     </div>
     </div>
     </>;
 };
 
 const ObjectGridSelector: React.FC<{
-    setChosenObjs: ReactSetter<SuiObject[]>;
+    addOrRemoveItem: (obj: SuiObject) => void;
 }> = ({
-    setChosenObjs,
+    addOrRemoveItem,
 }) =>
 {
     // === state ===
@@ -257,21 +271,9 @@ const ObjectGridSelector: React.FC<{
         }
     };
 
-    const addOrRemoveItem = (obj: SuiObject): void =>
-    {
-        setChosenObjs(prev => {
-            const exists = prev.some(item => item.id === obj.id);
-            if (exists) {
-                return prev.filter(item => item.id !== obj.id);
-            } else {
-                return [...prev, obj];
-            }
-        });
-    };
-
     // === html ===
 
-    if (!ownedObjs) {
+    if (ownedObjs === undefined) {
         return <span>Loading...</span>;
     }
 
@@ -285,11 +287,14 @@ const ObjectGridSelector: React.FC<{
             }
             return (
             <div className="grid-item card" key={obj.id}
-                onClick={() => { addOrRemoveItem(obj); }}
+                // onClick={() => { showItemInfo(obj); TODO: "flip" card and show ID etc }}
             >
                 <CardSuiObject obj={obj}
-                    extra={<div className="obj-button">
-                            <button className="btn">ADD</button>
+                    extra={
+                        <div className="obj-button">
+                            <button className="btn" onClick={() => addOrRemoveItem(obj)}>
+                                ADD
+                            </button>
                         </div>
                     }
                     />
@@ -306,6 +311,30 @@ const ObjectGridSelector: React.FC<{
     </div>}
     </>;
 };
+
+const CardSuiObject: React.FC<{
+    obj: SuiObject;
+    extra?: React.ReactNode;
+    onClick?: () => void;
+}> = ({
+    obj,
+    extra,
+    onClick,
+}) =>
+{
+    return <div className="sui-obj" onClick={onClick}>
+        <div className="obj-img">
+            <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
+        </div>
+        <div className="obj-info">
+            <div className="obj-title break-word">
+                {obj.name ? obj.name : shortenAddress(obj.type)}
+            </div>
+            {extra}
+        </div>
+    </div>;
+}
+
 
 const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');
 
@@ -347,24 +376,3 @@ function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
     return { id, type, display, fields, hasPublicTransfer, name, desc };
 }
 /* eslint-enable */
-
-const CardSuiObject: React.FC<{
-    obj: SuiObject;
-    extra?: React.ReactNode;
-}> = ({
-    obj,
-    extra,
-}) =>
-{
-    return <div className="sui-obj">
-        <div className="obj-img">
-            <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
-        </div>
-        <div className="obj-info">
-            <div className="obj-title break-word">
-                {obj.name ? obj.name : shortenAddress(obj.type)}
-            </div>
-            {extra}
-        </div>
-    </div>;
-}
