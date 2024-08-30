@@ -12,6 +12,7 @@ import { ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
+import { Glitch } from "./components/Glitch";
 import { IconHistory, IconNew, IconSettings } from "./components/icons";
 import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
@@ -159,9 +160,11 @@ const App: React.FC<{
 const Header: React.FC = () =>
 {
     return <header>
-        <Link to="/" className="header-item">
-            <img src="/img/logo.webp" alt="logo" id="header-logo" />
-        </Link>
+        <div className="header-item">
+            <Link to="/">
+                <Glitch text="BIDDER" />
+            </Link>
+        </div>
         <Link to="/new" className="header-item">
             <IconNew />
         </Link>

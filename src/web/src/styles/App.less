@@ -63,7 +63,7 @@ header {
     justify-content: right;
     gap: 1em 2.5em;
     padding: 0 @gap-10*1.25;
-    height: 65px;
+    height: 62px;
     width: 100%;
     overflow-x: scroll;
     overflow-y: hidden;
@@ -77,17 +77,20 @@ header {
     .header-item {
         &:first-child {
             flex-grow: 1;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.02em;
         }
         display: inline-block;
-        &:hover {
+        > *:hover {
             cursor: pointer;
             text-decoration: underline;
         }
     }
-    #header-logo {
-        height: 2.5rem;
-        aspect-ratio: 692 / 643;
-    }
+    // #header-logo {
+    //     height: 2.5rem;
+    //     aspect-ratio: 692 / 643;
+    // }
 }
 .icon {
     height: 1.75rem;
