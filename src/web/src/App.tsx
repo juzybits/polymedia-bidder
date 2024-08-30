@@ -12,6 +12,7 @@ import { ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
+import { IconHistory, IconNew, IconSettings } from "./components/icons";
 import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
 import { PageDevDisplayHistory } from "./PageDevDisplayHistory";
@@ -162,13 +163,13 @@ const Header: React.FC = () =>
             <img src="/img/logo.webp" alt="logo" id="header-logo" />
         </Link>
         <Link to="/new" className="header-item">
-            NEW
+            <IconNew />
         </Link>
         <Link to="/history" className="header-item">
-            HISTORY
+            <IconHistory />
         </Link>
         <Link to="/settings" className="header-item">
-            SETTINGS
+            <IconSettings />
         </Link>
     </header>;
 };
