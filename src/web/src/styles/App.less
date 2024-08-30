@@ -12,6 +12,7 @@
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 @font-system: system-ui;
+@gap-05: 0.5rem;
 @gap-10: 1rem;
 @gap-15: 1.5rem;
 @gap-20: 2rem;
@@ -93,8 +94,8 @@ header {
     // }
 }
 .icon {
-    height: 1.75rem;
-    width: 1.75rem;
+    height: 1.7rem;
+    width: 1.7rem;
     fill: @color-text;
     &:hover {
         fill: #00fffc;
@@ -128,27 +129,6 @@ footer {
     .network-options {
         position: absolute;
         // background-color: @btn-light;
-    }
-}
-
-.form-flex {
-    display: flex;
-    flex-direction: column;
-    gap: 1.75em;
-}
-.form {
-    .form-flex;
-    margin: 0 auto;
-    width: 500px;
-    @media (max-width: @screen-small) {
-        width: 100%;
-    }
-    .form-section {
-        .form-flex;
-        .section-toggle {
-            cursor: pointer;
-            user-select: none;
-        }
     }
 }
 
@@ -260,6 +240,28 @@ footer {
     }
 }
 
+.sui-obj {
+    display: flex;
+    gap: @gap-10;
+    .obj-img {
+        border-radius: 5%;
+        img {
+            border-radius: 5%;
+            object-fit: cover;
+            background-color: @color-bg;
+            &.no-image {
+                background-color: #999;
+            }
+        }
+    }
+    // .obj-info {
+        // .obj-title {
+        // }
+        // .obj-button {
+        // }
+    // }
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -276,12 +278,9 @@ footer {
             background-color: @color-border-gray;
         }
         .sui-obj {
-            display: flex;
             flex-direction: column;
-            gap: @gap-10;
             height: 100%;
             .obj-img {
-                border-radius: @border-radius * 0.75;
                 position: relative;
                 width: 100%;
                 padding-bottom: 100%; // creates a 1:1 aspect ratio even when the image src is broken
@@ -291,12 +290,6 @@ footer {
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    border-radius: @border-radius * 0.75;
-                    object-fit: cover;
-                    background-color: @color-bg;
-                    &.no-image {
-                        background-color: #999;
-                    }
                 }
             }
             .obj-info {
@@ -309,12 +302,51 @@ footer {
                 .obj-title {
                     font-size: 1.1em;
                     font-weight: bold;
-                    text-transform: uppercase;
                 }
                 .obj-button {
                     .btn {
                         width: 100%;
                     }
+                }
+            }
+        }
+    }
+}
+
+.form-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75em;
+}
+.form {
+    .form-flex;
+    margin: 0 auto;
+    width: 500px;
+    @media (max-width: @screen-small) {
+        width: 100%;
+    }
+    .form-section {
+        .form-flex;
+        .section-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+    }
+    .chosen-objects {
+        display: flex;
+        flex-direction: column;
+        gap: @gap-10;
+        .list-cards {
+            gap: @gap-05;
+            .sui-obj {
+                flex-direction: row;
+                align-items: center;
+                .obj-img {
+                    img {
+                        border: @border-gray;
+                        height: 40px;
+                        width: 40px;
+                    };
                 }
             }
         }

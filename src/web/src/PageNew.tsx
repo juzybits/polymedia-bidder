@@ -9,7 +9,7 @@ import {
     objResToType,
     shortenAddress
 } from "@polymedia/suitcase-core";
-import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
+import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
@@ -196,22 +196,19 @@ const FormCreateAuction: React.FC<{
         <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
             CREATE AUCTION
         </button>
-    </div>
 
-    {chosenObjs.length > 0 &&
-    <div className="object-list">
+        <div className="chosen-objects">
 
-        {chosenObjs.length} object{chosenObjs.length > 1 ? "s" : ""} selected:
+            <h2>Chosen objects ({chosenObjs.length})</h2>
 
-        <div className="list-items">
-        {chosenObjs.map(obj =>
-            <div key={obj.id}>
-                - <LinkToPolymedia addr={obj.id} kind="object" network={network} /> | {shortenAddress(obj.type)} | {obj.name}
+            <div className="list-cards">
+            {chosenObjs.map(obj =>
+                <CardSuiObject obj={obj} key={obj.id} />
+            )}
             </div>
-        )}
-        </div>
 
-        </div>}
+        </div>
+    </div>
     </div>
     </>;
 };
@@ -290,22 +287,12 @@ const ObjectGridSelector: React.FC<{
             <div className="grid-item card" key={obj.id}
                 onClick={() => { addOrRemoveItem(obj); }}
             >
-                <div className="sui-obj">
-                    <div className="obj-img">
-                        <img src={obj.display.image_url ?? svgNoImage} alt="object image" className={obj.display.image_url ? "" : "no-image"}/>
-                    </div>
-                    <div className="obj-info">
-                        <div className="obj-title break-word">
-                            {obj.name ? obj.name : shortenAddress(obj.type)}
-                        </div>
-                        <div className="obj-button">
+                <CardSuiObject obj={obj}
+                    extra={<div className="obj-button">
                             <button className="btn">ADD</button>
                         </div>
-                        {/* <div className="break-all">{shortenAddress(obj.id)} ({shortenAddress(obj.type)})</div> */}
-                        {/* {obj.name && <div className="break-word">{obj.name}</div>} */}
-                        {/* {obj.desc && <div className="break-word">{obj.desc}</div>} */}
-                    </div>
-                </div>
+                    }
+                    />
             </div>
             );
         })}
@@ -360,3 +347,24 @@ function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
     return { id, type, display, fields, hasPublicTransfer, name, desc };
 }
 /* eslint-enable */
+
+const CardSuiObject: React.FC<{
+    obj: SuiObject;
+    extra?: React.ReactNode;
+}> = ({
+    obj,
+    extra,
+}) =>
+{
+    return <div className="sui-obj">
+        <div className="obj-img">
+            <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
+        </div>
+        <div className="obj-info">
+            <div className="obj-title break-word">
+                {obj.name ? obj.name : shortenAddress(obj.type)}
+            </div>
+            {extra}
+        </div>
+    </div>;
+}
