@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { IconCheck } from "./components/icons";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 
 const ONE_HOUR_MS = 3_600_000;
@@ -42,6 +43,11 @@ export const PageNew: React.FC = () =>
         });
     };
 
+    const isChosenObj = (obj: SuiObject): boolean =>
+    {
+        return chosenObjs.some(item => item.id === obj.id);
+    };
+
     // === html ===
 
     return <>
@@ -66,7 +72,7 @@ export const PageNew: React.FC = () =>
                     <div className="section-title">
                         Items
                     </div>
-                    <ObjectGridSelector addOrRemoveItem={addOrRemoveItem} />
+                    <ObjectGridSelector addOrRemoveItem={addOrRemoveItem} isChosenObj={isChosenObj} />
                 </div>
             </>}
 
@@ -229,8 +235,10 @@ const FormCreateAuction: React.FC<{
 
 const ObjectGridSelector: React.FC<{
     addOrRemoveItem: (obj: SuiObject) => void;
+    isChosenObj: (obj: SuiObject) => boolean;
 }> = ({
     addOrRemoveItem,
+    isChosenObj,
 }) =>
 {
     // === state ===
@@ -290,6 +298,7 @@ const ObjectGridSelector: React.FC<{
                 // onClick={() => { showItemInfo(obj); TODO: "flip" card and show ID etc }}
             >
                 <CardSuiObject obj={obj}
+                    isChosen={isChosenObj(obj)}
                     extra={
                         <div className="obj-button">
                             <button className="btn" onClick={() => addOrRemoveItem(obj)}>
@@ -314,17 +323,20 @@ const ObjectGridSelector: React.FC<{
 
 const CardSuiObject: React.FC<{
     obj: SuiObject;
+    isChosen?: boolean;
     extra?: React.ReactNode;
     onClick?: () => void;
 }> = ({
     obj,
-    extra,
-    onClick,
+    isChosen = false,
+    extra = null,
+    onClick = undefined,
 }) =>
 {
     return <div className="sui-obj" onClick={onClick}>
         <div className="obj-img">
             <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
+            {isChosen && <IconCheck className="obj-chosen icon" /> }
         </div>
         <div className="obj-info">
             <div className="obj-title break-word">
