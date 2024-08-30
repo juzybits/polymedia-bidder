@@ -218,8 +218,8 @@ const FormCreateAuction: React.FC<{
             CREATE AUCTION
         </button>
 
-        <div className="chosen-objects">
-            <h2>Chosen objects ({chosenObjs.length})</h2>
+        <div className="chosen-items">
+            <h2>Chosen items ({chosenObjs.length})</h2>
 
             <div className="list-cards">
             {chosenObjs.map(obj =>
@@ -293,16 +293,17 @@ const ObjectGridSelector: React.FC<{
             if (!obj.hasPublicTransfer) {
                 return null;
             }
+            const isChosen = isChosenObj(obj);
             return (
             <div className="grid-item card" key={obj.id}
                 // onClick={() => { showItemInfo(obj); TODO: "flip" card and show ID etc }}
             >
                 <CardSuiObject obj={obj}
-                    isChosen={isChosenObj(obj)}
+                    isChosen={isChosen}
                     extra={
                         <div className="obj-button">
-                            <button className="btn" onClick={() => addOrRemoveItem(obj)}>
-                                ADD
+                            <button className={`btn ${isChosen ? "red" : ""}`} onClick={() => addOrRemoveItem(obj)}>
+                                {isChosen ? "REMOVE" : "ADD"}
                             </button>
                         </div>
                     }

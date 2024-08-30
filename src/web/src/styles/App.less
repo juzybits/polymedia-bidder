@@ -120,7 +120,7 @@ footer {
         &:not(.selected) {
             .text {
                 &:hover {
-                    color: @btn-light;
+                    color: @btn-white;
                     // background-color: @btn-dark;
                 }
             }
@@ -128,7 +128,7 @@ footer {
     }
     .network-options {
         position: absolute;
-        // background-color: @btn-light;
+        // background-color: @btn-white;
     }
 }
 
@@ -137,19 +137,28 @@ footer {
     border-radius: 2em;
 }
 
-@btn-dark: rgb(0, 121, 155);
-@btn-light: white;
+@btn-blue: rgb(0, 121, 155);
+@btn-red: rgb(186, 36, 36);
+@btn-white: white;
 .btn {
     .rounded;
-    &, * { color: @btn-light; }
-    background-color: @btn-dark;
+    &, * { color: @btn-white; }
+    background-color: @btn-blue;
     cursor: pointer;
     font-weight: 600;
     display: inline-block;
     user-select: none;
     &:hover {
-        &, * { color: @btn-dark; }
-        background-color: @btn-light;
+        &, * { color: @btn-blue; }
+        background-color: @btn-white;
+    }
+    &.red {
+        &, * { color: @btn-white; }
+        background-color: @btn-red;
+        &:hover {
+            &, * { color: @btn-red; }
+            background-color: @btn-white;
+        }
     }
     &:disabled, &.disabled {
         cursor: default;
@@ -274,7 +283,7 @@ footer {
     gap: @gap-20;
     .grid-item {
         &:hover {
-            cursor: pointer;
+            // cursor: pointer;
             background-color: @color-border-gray;
         }
         .sui-obj {
@@ -341,7 +350,7 @@ footer {
             user-select: none;
         }
     }
-    .chosen-objects {
+    .chosen-items {
         display: flex;
         flex-direction: column;
         gap: @gap-10;
