@@ -250,10 +250,10 @@ footer {
     }
 }
 
-.sui-obj {
+.sui-item {
     display: flex;
     gap: @gap-10;
-    .obj-img {
+    .item-img {
         border-radius: 5%;
         img {
             border-radius: 5%;
@@ -264,10 +264,10 @@ footer {
             }
         }
     }
-    // .obj-info {
-        // .obj-title {
+    // .item-info {
+        // .item-title {
         // }
-        // .obj-button {
+        // .item-button {
         // }
     // }
 }
@@ -295,11 +295,11 @@ footer {
             // cursor: pointer;
             background-color: @color-border-gray;
         }
-        .sui-obj {
+        .sui-item {
             flex-direction: column;
             height: 100%;
             position: relative;
-            .obj-chosen.icon {
+            .item-chosen.icon {
                 position: absolute;
                 top: 0.5rem;
                 right: 0.5rem;
@@ -307,7 +307,7 @@ footer {
                 width: 3rem;
                 fill: rgb(0 255 0);
             }
-            .obj-img {
+            .item-img {
                 position: relative;
                 width: 100%;
                 padding-bottom: 100%; // creates a 1:1 aspect ratio even when the image src is broken
@@ -319,18 +319,18 @@ footer {
                     height: 100%;
                 }
             }
-            .obj-info {
+            .item-info {
                 flex-grow: 1;
                 justify-content: space-between;
 
                 display: flex;
                 flex-direction: column;
                 gap: @gap-10;
-                // .obj-title {
+                // .item-title {
                     // font-size: 1.1em;
                     // font-weight: bold;
                 // }
-                .obj-button {
+                .item-button {
                     .btn {
                         width: 100%;
                     }
@@ -365,10 +365,10 @@ footer {
         gap: @gap-10;
         .list-cards {
             gap: @gap-05;
-            .sui-obj {
+            .sui-item {
                 flex-direction: row;
                 align-items: center;
-                .obj-img {
+                .item-img {
                     img {
                         border: @border-gray;
                         height: 40px;
@@ -377,7 +377,7 @@ footer {
                 }
                 &:hover {
                     cursor: pointer;
-                    .obj-title {
+                    .item-title {
                         color: @color-text-red;
                     }
                 }

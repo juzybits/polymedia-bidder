@@ -293,7 +293,7 @@ const ItemGridSelector: React.FC<{
                 <CardSuiItem item={item}
                     isChosen={isChosen}
                     extra={
-                        <div className="obj-button">
+                        <div className="item-button">
                             <button className={`btn ${isChosen ? "red" : ""}`} onClick={() => addOrRemoveItem(item)}>
                                 {isChosen ? "REMOVE" : "ADD"}
                             </button>

@@ -7,6 +7,8 @@ import {
     objResToType,
 } from "@polymedia/suitcase-core";
 
+const MAX_NAME_LENGTH = 100;
+
 export type SuiItem = {
     id: ReturnType<typeof objResToId>;
     type: ReturnType<typeof objResToType>;
@@ -46,7 +48,8 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const fields = objRes.data.content.fields as Record<string, any>;
     const hasPublicTransfer = objRes.data.content.hasPublicTransfer;
     const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? "";
-    const nameShort = nameFull.length <= 100 ? nameFull : nameFull.slice(0, 100).trim() + " …";
+    const nameShort = nameFull.length <= MAX_NAME_LENGTH
+        ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
     const desc = display.description?.trim() ?? fields.description ?? null;
     return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc };
 }

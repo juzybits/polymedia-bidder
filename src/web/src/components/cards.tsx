@@ -20,13 +20,13 @@ export const CardSuiItem: React.FC<{
     onClick = undefined,
 }) =>
 {
-    return <div className="sui-obj" onClick={onClick}>
-        <div className="obj-img">
+    return <div className="sui-item" onClick={onClick}>
+        <div className="item-img">
             <img src={item.display.image_url ?? svgNoImage} className={item.display.image_url ? "" : "no-image"}/>
-            {isChosen && <IconCheck className="obj-chosen icon" /> }
+            {isChosen && <IconCheck className="item-chosen icon" /> }
         </div>
-        <div className="obj-info">
-            <div className="obj-title break-word">
+        <div className="item-info">
+            <div className="item-title break-word">
                 {item.nameShort ? item.nameShort : shortenAddress(item.type)}
             </div>
             {extra}
