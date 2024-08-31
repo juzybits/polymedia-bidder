@@ -1,10 +1,10 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AuctionClient, AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid } from "@polymedia/auction-sdk";
+import { AuctionClient, AuctionObj } from "@polymedia/auction-sdk";
 import { balanceToString } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardAuction } from "./components/cards";
+import { CardAuction, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { PageNotFound } from "./PageNotFound";
@@ -53,8 +53,8 @@ export const PageAuction: React.FC = () =>
     <div id="page-auction" className="page-regular">
 
         <div className="page-content">
-            {auction.is_live && <SectionBid auction={auction} />}
             <SectionInfo auction={auction} />
+            {auction.is_live && <SectionBid auction={auction} />}
             <SectionAuctionHistory auction={auction} />
         </div>
 
@@ -68,7 +68,7 @@ const SectionInfo: React.FC<{
     auction,
 }) => {
     return <div className="page-section">
-        <div className="section-title">Info</div>
+        <div className="section-title">{auction.name}</div>
         <CardAuction auction={auction} />
     </div>
 };
@@ -190,18 +190,6 @@ const SectionAuctionHistory: React.FC<{
             {txs?.data.map(tx =>
                 <CardTransaction tx={tx} key={tx.digest} />
             )}
-        </div>
-    </div>;
-};
-
-const CardTransaction: React.FC<{
-    tx: TxAdminCreatesAuction | TxAnyoneBids;
-}> = ({
-    tx,
-}) => {
-    return <div className="card">
-        <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
-            {JSON.stringify(tx, null, 2)}
         </div>
     </div>;
 };
