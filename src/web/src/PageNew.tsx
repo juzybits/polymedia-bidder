@@ -289,7 +289,7 @@ const ObjectGridSelector: React.FC<{
     <div className="grid">
         {ownedObjs.data.map((objRes) =>
         {
-            const obj = objResToSuiObject(objRes);
+            const obj = objResToSuiObject(objRes); // TODO do this only once instead of on render
             if (!obj.hasPublicTransfer) {
                 return null;
             }
@@ -341,7 +341,7 @@ const CardSuiObject: React.FC<{
         </div>
         <div className="obj-info">
             <div className="obj-title break-word">
-                {obj.name ? obj.name : shortenAddress(obj.type)}
+                {obj.nameShort ? obj.nameShort : shortenAddress(obj.type)}
             </div>
             {extra}
         </div>
@@ -359,7 +359,8 @@ type SuiObject = {
     display: ReturnType<typeof objResToDisplay>;
     fields: ReturnType<typeof objResToFields>;
     hasPublicTransfer: boolean;
-    name: string;
+    nameFull: string;
+    nameShort: string;
     desc: string;
 };
 
@@ -384,8 +385,9 @@ function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
     const display = objResToDisplay(objRes);
     const fields = objRes.data.content.fields as Record<string, any>;
     const hasPublicTransfer = objRes.data.content.hasPublicTransfer;
-    const name = display.name ?? fields.name ?? null;
-    const desc = display.description ?? fields.description ?? null;
-    return { id, type, display, fields, hasPublicTransfer, name, desc };
+    const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? "";
+    const nameShort = nameFull.length <= 100 ? nameFull : nameFull.slice(0, 100).trim() + " …";
+    const desc = display.description?.trim() ?? fields.description ?? null;
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc };
 }
 /* eslint-enable */
