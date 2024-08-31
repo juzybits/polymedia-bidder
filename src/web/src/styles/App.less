@@ -21,7 +21,7 @@
 @max-width-page-regular: 1440px;
 @screen-large: 1100px;
 @screen-medium: 700px;
-@screen-small: 400px;
+@screen-small: 420px;
 
 // === resets ===
 
@@ -274,14 +274,22 @@ footer {
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: @gap-20;
+
+    .grid-item { padding: @gap-15; }
+    @media (max-width: @screen-large) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: @gap-15;
+        .grid-item { padding: @gap-10; }
+    }
     @media (max-width: @screen-medium) {
         grid-template-columns: repeat(2, 1fr);
     }
     @media (max-width: @screen-small) {
         grid-template-columns: repeat(1, 1fr);
     }
-    gap: @gap-20;
+
     .grid-item {
         &:hover {
             // cursor: pointer;
@@ -318,10 +326,10 @@ footer {
                 display: flex;
                 flex-direction: column;
                 gap: @gap-10;
-                .obj-title {
-                    font-size: 1.1em;
-                    font-weight: bold;
-                }
+                // .obj-title {
+                    // font-size: 1.1em;
+                    // font-weight: bold;
+                // }
                 .obj-button {
                     .btn {
                         width: 100%;

@@ -263,8 +263,8 @@ const ObjectGridSelector: React.FC<{
         try {
             const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
                 owner: currAcct.address,
-                // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
                 // owner: "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", // death
+                // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
                 filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
                 cursor: ownedObjs?.nextCursor,
