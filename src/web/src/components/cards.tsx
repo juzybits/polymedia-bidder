@@ -1,8 +1,9 @@
 import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, ObjectDisplay, shortenAddress } from "@polymedia/suitcase-core";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 import { objResToSuiItem, SuiItem } from "../lib/items";
 import { IconCheck } from "./icons";
@@ -69,12 +70,24 @@ export const CardAuction: React.FC<{
     const endTime = new Date(auction.end_time_ms).toLocaleString();
 
     return (
-        <div className="grid">
-            {items.map((item, idx) => (
-                <div className="grid-item card" key={idx}>
-                    <CardSuiItem item={item} />
-                </div>
-            ))}
+        <div className="auction-card card">
+
+            <div className="auction-title">
+                <h3>{auction.name}</h3>
+            </div>
+
+            {auction.description.length > 0 &&
+            <div className="auction-description">
+                <p>{auction.description}</p>
+            </div>}
+
+            <div className="grid">
+                {items.map((item, idx) => (
+                    <div className="grid-item card" key={idx}>
+                        <CardSuiItem item={item} />
+                    </div>
+                ))}
+            </div>
         </div>
     );
 
@@ -117,6 +130,30 @@ export const CardTransaction: React.FC<{
     </div>;
 };
 
+export const CardTxAdminCreatesAuction: React.FC<{
+    tx: TxAdminCreatesAuction;
+}> = ({
+    tx,
+}) =>
+{
+    const { network } = useOutletContext<AppContext>();
+    return (
+        <div className="card auction-card">
+            <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
+            <div>type_coin: {tx.inputs.type_coin}</div>
+            <div>name: {tx.inputs.name}</div>
+            <div>description: {tx.inputs.description}</div>
+            <div>pay_addr: <LinkToPolymedia addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
+            <div>begin_delay_ms: {tx.inputs.begin_delay_ms}</div>
+            <div>duration_ms: {tx.inputs.duration_ms}</div>
+            <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
+            <div>minimum_increase_bps: {tx.inputs.minimum_increase_bps}</div>
+            <div>extension_period_ms: {tx.inputs.extension_period_ms}</div>
+            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
+        </div>
+    );
+};
 
 export const Balance: React.FC<{
     balance: bigint;

@@ -68,7 +68,7 @@ const SectionInfo: React.FC<{
     auction,
 }) => {
     return <div className="page-section">
-        <div className="section-title">{auction.name}</div>
+        <div className="section-title">AUCTION</div>
         <CardAuction auction={auction} />
     </div>
 };
