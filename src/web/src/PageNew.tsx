@@ -1,20 +1,13 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { PaginatedObjectsResponse, SuiObjectResponse } from "@mysten/sui/client";
+import { PaginatedObjectsResponse } from "@mysten/sui/client";
 import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
-import {
-    isParsedDataObject,
-    objResToDisplay,
-    objResToFields,
-    objResToId,
-    objResToType,
-    shortenAddress
-} from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
+import { CardSuiObject } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { IconCheck } from "./components/icons";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
+import { objResToSuiItem, SuiItem } from "./lib/items";
 
 const ONE_HOUR_MS = 3_600_000;
 const ONE_MINUTE_MS = 60_000;
@@ -27,11 +20,11 @@ export const PageNew: React.FC = () =>
 
     const { header } = useOutletContext<AppContext>();
 
-    const [ chosenObjs, setChosenObjs ] = useState<SuiObject[]>([]);
+    const [ chosenObjs, setChosenObjs ] = useState<SuiItem[]>([]);
 
     // === functions ===
 
-    const addOrRemoveItem = (obj: SuiObject): void =>
+    const addOrRemoveItem = (obj: SuiItem): void =>
     {
         setChosenObjs(prev => {
             const exists = prev.some(item => item.id === obj.id);
@@ -43,7 +36,7 @@ export const PageNew: React.FC = () =>
         });
     };
 
-    const isChosenObj = (obj: SuiObject): boolean =>
+    const isChosenObj = (obj: SuiItem): boolean =>
     {
         return chosenObjs.some(item => item.id === obj.id);
     };
@@ -85,8 +78,8 @@ export const PageNew: React.FC = () =>
 // === components ===
 
 const FormCreateAuction: React.FC<{
-    chosenObjs: SuiObject[];
-    addOrRemoveItem: (obj: SuiObject) => void;
+    chosenObjs: SuiItem[];
+    addOrRemoveItem: (obj: SuiItem) => void;
 }> = ({
     chosenObjs,
     addOrRemoveItem,
@@ -234,8 +227,8 @@ const FormCreateAuction: React.FC<{
 };
 
 const ObjectGridSelector: React.FC<{
-    addOrRemoveItem: (obj: SuiObject) => void;
-    isChosenObj: (obj: SuiObject) => boolean;
+    addOrRemoveItem: (obj: SuiItem) => void;
+    isChosenObj: (obj: SuiItem) => boolean;
 }> = ({
     addOrRemoveItem,
     isChosenObj,
@@ -289,7 +282,7 @@ const ObjectGridSelector: React.FC<{
     <div className="grid">
         {ownedObjs.data.map((objRes) =>
         {
-            const obj = objResToSuiObject(objRes); // TODO do this only once instead of on render
+            const obj = objResToSuiItem(objRes); // TODO do this only once instead of on render
             if (!obj.hasPublicTransfer) {
                 return null;
             }
@@ -321,73 +314,3 @@ const ObjectGridSelector: React.FC<{
     </div>}
     </>;
 };
-
-const CardSuiObject: React.FC<{
-    obj: SuiObject;
-    isChosen?: boolean;
-    extra?: React.ReactNode;
-    onClick?: () => void;
-}> = ({
-    obj,
-    isChosen = false,
-    extra = null,
-    onClick = undefined,
-}) =>
-{
-    return <div className="sui-obj" onClick={onClick}>
-        <div className="obj-img">
-            <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
-            {isChosen && <IconCheck className="obj-chosen icon" /> }
-        </div>
-        <div className="obj-info">
-            <div className="obj-title break-word">
-                {obj.nameShort ? obj.nameShort : shortenAddress(obj.type)}
-            </div>
-            {extra}
-        </div>
-    </div>;
-}
-
-
-const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');
-
-// === helpers ===
-
-type SuiObject = {
-    id: ReturnType<typeof objResToId>;
-    type: ReturnType<typeof objResToType>;
-    display: ReturnType<typeof objResToDisplay>;
-    fields: ReturnType<typeof objResToFields>;
-    hasPublicTransfer: boolean;
-    nameFull: string;
-    nameShort: string;
-    desc: string;
-};
-
-/* eslint-disable */
-function objResToSuiObject(objRes: SuiObjectResponse): SuiObject
-{
-    if (objRes.error) {
-        throw Error(`response error: ${JSON.stringify(objRes, null, 2)}`);
-    }
-    if (!objRes.data) {
-        throw Error(`response has no data: ${JSON.stringify(objRes, null, 2)}`);
-    }
-    if (!objRes.data?.content) {
-        throw Error(`response has no content: ${JSON.stringify(objRes, null, 2)}`);
-    }
-    if (!isParsedDataObject(objRes.data.content)) {
-        throw Error(`response data is not a moveObject: ${JSON.stringify(objRes, null, 2)}`);
-    }
-
-    const id = objRes.data.objectId;
-    const type = objRes.data.content.type;
-    const display = objResToDisplay(objRes);
-    const fields = objRes.data.content.fields as Record<string, any>;
-    const hasPublicTransfer = objRes.data.content.hasPublicTransfer;
-    const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? "";
-    const nameShort = nameFull.length <= 100 ? nameFull : nameFull.slice(0, 100).trim() + " …";
-    const desc = display.description?.trim() ?? fields.description ?? null;
-    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc };
-}
-/* eslint-enable */

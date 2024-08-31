@@ -1,10 +1,38 @@
 import { AuctionObj, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString } from "@polymedia/suitcase-core";
+import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
+import { SuiItem } from "../lib/items";
+import { IconCheck } from "./icons";
+
+export const CardSuiObject: React.FC<{
+    obj: SuiItem;
+    isChosen?: boolean;
+    extra?: React.ReactNode;
+    onClick?: () => void;
+}> = ({
+    obj,
+    isChosen = false,
+    extra = null,
+    onClick = undefined,
+}) =>
+{
+    return <div className="sui-obj" onClick={onClick}>
+        <div className="obj-img">
+            <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
+            {isChosen && <IconCheck className="obj-chosen icon" /> }
+        </div>
+        <div className="obj-info">
+            <div className="obj-title break-word">
+                {obj.nameShort ? obj.nameShort : shortenAddress(obj.type)}
+            </div>
+            {extra}
+        </div>
+    </div>;
+}
 
 export const CardAuction: React.FC<{
     auction: AuctionObj;
@@ -62,3 +90,5 @@ export const Balance: React.FC<{
             : `${balanceToString(balance, coinMeta.decimals)} ${coinMeta.symbol}`
         );
 };
+
+const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');
