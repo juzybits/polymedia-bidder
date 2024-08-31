@@ -19,8 +19,9 @@
 @gap-25: 2.5rem;
 @gap-30: 3rem;
 @max-width-page-regular: 1440px;
-@screen-medium: 1100px;
-@screen-small: 700px;
+@screen-large: 1100px;
+@screen-medium: 700px;
+@screen-small: 400px;
 
 // === resets ===
 
@@ -223,7 +224,7 @@ footer {
             // .section-description {}
         }
     }
-    @media (max-width: @screen-small) {
+    @media (max-width: @screen-medium) {
         padding-left: @gap-15;
         padding-right: @gap-15;
     }
@@ -244,7 +245,7 @@ footer {
     flex-direction: column;
     padding: @gap-20;
     gap: @gap-15;
-    @media (max-width: @screen-small) {
+    @media (max-width: @screen-medium) {
         padding: @gap-15;
     }
 }
@@ -340,7 +341,7 @@ footer {
     .form-flex;
     margin: 0 auto;
     width: 500px;
-    @media (max-width: @screen-small) {
+    @media (max-width: @screen-medium) {
         width: 100%;
     }
     .form-section {
@@ -411,7 +412,7 @@ footer {
             font-weight: bold;
             letter-spacing: 0.05em;
         }
-        @media (max-width: @screen-small) {
+        @media (max-width: @screen-medium) {
             padding: @gap-20;
         }
     }
