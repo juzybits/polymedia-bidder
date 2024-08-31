@@ -1,6 +1,6 @@
 // TODO: move to @polymedia/suitcase-react
 
-import { balanceToString, NORMALIZED_ADDRESS_REGEX, stringToBalance, validateAndNormalizeSuiAddress } from "@polymedia/suitcase-core";
+import { balanceToString, NORMALIZED_ADDRESS_REGEX, stringToBalance, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 
 export type CommonInputProps<T> = {
@@ -148,7 +148,7 @@ export const useInputSuiAddress = (
 
     const validate: InputValidator<string> = (input: string) =>
     {
-        const addr = validateAndNormalizeSuiAddress(input);
+        const addr = validateAndNormalizeAddress(input);
         return addr
             ? { err: undefined, val: addr }
             : { err: "Invalid Sui address", val: undefined };
