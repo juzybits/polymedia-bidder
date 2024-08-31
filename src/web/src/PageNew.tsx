@@ -1,5 +1,4 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { PaginatedObjectsResponse } from "@mysten/sui/client";
 import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
@@ -7,7 +6,7 @@ import { AppContext } from "./App";
 import { CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
-import { objResToSuiItem, SuiItem } from "./lib/items";
+import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./lib/items";
 
 const ONE_HOUR_MS = 3_600_000;
 const ONE_MINUTE_MS = 60_000;
@@ -240,17 +239,17 @@ const ItemGridSelector: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ ownedObjs, setOwnedObjs ] = useState<PaginatedObjectsResponse>();
+    const [ ownedItems, setOwnedItems ] = useState<PaginatedItemsResponse>();
 
     // === effects ===
 
     useEffect(() => {
-        fetchOwnedObjects();
+        fetchOwnedItems();
     }, [auctionClient, currAcct]);
 
     // === functions ===
 
-    const fetchOwnedObjects = async (): Promise<void> =>
+    const fetchOwnedItems = async (): Promise<void> =>
     {
         try {
             const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
@@ -259,42 +258,43 @@ const ItemGridSelector: React.FC<{
                 // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
                 filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
                 options: { showContent: true, showDisplay: true, showType: true },
-                cursor: ownedObjs?.nextCursor,
+                cursor: ownedItems?.nextCursor,
             });
-            setOwnedObjs((prevObjs) => ({
-                data: [...(prevObjs ? prevObjs.data : []), ...pagObjRes.data],
+
+            const newItems = pagObjRes.data
+                .map(objRes => objResToSuiItem(objRes))
+                .filter(item => item.hasPublicTransfer);
+
+            setOwnedItems((prevItems) => ({
+                data: [...(prevItems ? prevItems.data : []), ...newItems],
                 hasNextPage: pagObjRes.hasNextPage,
                 nextCursor: pagObjRes.nextCursor,
             }));
         } catch (err) {
-            console.warn("[fetchOwnedObjects]", err);
+            console.warn("[fetchOwnedItems]", err);
         }
     };
 
     // === html ===
 
-    if (ownedObjs === undefined) {
+    if (ownedItems === undefined) {
         return <span>Loading...</span>;
     }
 
     return <>
     <div className="grid">
-        {ownedObjs.data.map((objRes) =>
+        {ownedItems.data.map(item =>
         {
-            const obj = objResToSuiItem(objRes); // TODO do this only once instead of on render
-            if (!obj.hasPublicTransfer) {
-                return null;
-            }
-            const isChosen = isChosenItem(obj);
+            const isChosen = isChosenItem(item);
             return (
-            <div className="grid-item card" key={obj.id}
-                // onClick={() => { showItemInfo(obj); TODO: "flip" card and show ID etc }}
+            <div className="grid-item card" key={item.id}
+                // onClick={() => { showItemInfo(item); TODO: "flip" card and show ID etc }}
             >
-                <CardSuiItem item={obj}
+                <CardSuiItem item={item}
                     isChosen={isChosen}
                     extra={
                         <div className="obj-button">
-                            <button className={`btn ${isChosen ? "red" : ""}`} onClick={() => addOrRemoveItem(obj)}>
+                            <button className={`btn ${isChosen ? "red" : ""}`} onClick={() => addOrRemoveItem(item)}>
                                 {isChosen ? "REMOVE" : "ADD"}
                             </button>
                         </div>
@@ -305,9 +305,9 @@ const ItemGridSelector: React.FC<{
         })}
     </div>
 
-    {ownedObjs.hasNextPage &&
+    {ownedItems.hasNextPage &&
     <div className="load-more">
-        <button className="btn" onClick={fetchOwnedObjects}>
+        <button className="btn" onClick={fetchOwnedItems}>
             LOAD MORE
         </button>
     </div>}
