@@ -8,13 +8,13 @@ import { AppContext } from "../App";
 import { SuiItem } from "../lib/items";
 import { IconCheck } from "./icons";
 
-export const CardSuiObject: React.FC<{
-    obj: SuiItem;
+export const CardSuiItem: React.FC<{
+    item: SuiItem;
     isChosen?: boolean;
     extra?: React.ReactNode;
     onClick?: () => void;
 }> = ({
-    obj,
+    item,
     isChosen = false,
     extra = null,
     onClick = undefined,
@@ -22,12 +22,12 @@ export const CardSuiObject: React.FC<{
 {
     return <div className="sui-obj" onClick={onClick}>
         <div className="obj-img">
-            <img src={obj.display.image_url ?? svgNoImage} className={obj.display.image_url ? "" : "no-image"}/>
+            <img src={item.display.image_url ?? svgNoImage} className={item.display.image_url ? "" : "no-image"}/>
             {isChosen && <IconCheck className="obj-chosen icon" /> }
         </div>
         <div className="obj-info">
             <div className="obj-title break-word">
-                {obj.nameShort ? obj.nameShort : shortenAddress(obj.type)}
+                {item.nameShort ? item.nameShort : shortenAddress(item.type)}
             </div>
             {extra}
         </div>

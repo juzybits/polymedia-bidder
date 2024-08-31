@@ -4,7 +4,7 @@ import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardSuiObject } from "./components/cards";
+import { CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { objResToSuiItem, SuiItem } from "./lib/items";
@@ -20,25 +20,24 @@ export const PageNew: React.FC = () =>
 
     const { header } = useOutletContext<AppContext>();
 
-    const [ chosenObjs, setChosenObjs ] = useState<SuiItem[]>([]);
+    const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
 
     // === functions ===
 
-    const addOrRemoveItem = (obj: SuiItem): void =>
+    const addOrRemoveItem = (item: SuiItem): void =>
     {
-        setChosenObjs(prev => {
-            const exists = prev.some(item => item.id === obj.id);
+        setChosenItems(prev => {
+            const exists = prev.some(i => i.id === item.id);
             if (exists) {
-                return prev.filter(item => item.id !== obj.id);
+                return prev.filter(i => i.id !== item.id);
             } else {
-                return [...prev, obj];
+                return [...prev, item];
             }
         });
     };
 
-    const isChosenObj = (obj: SuiItem): boolean =>
-    {
-        return chosenObjs.some(item => item.id === obj.id);
+    const isChosenItem = (item: SuiItem): boolean => {
+        return chosenItems.some(i => i.id === item.id);
     };
 
     // === html ===
@@ -58,14 +57,14 @@ export const PageNew: React.FC = () =>
                     <div className="section-title">
                         Settings
                     </div>
-                    <FormCreateAuction chosenObjs={chosenObjs} addOrRemoveItem={addOrRemoveItem} />
+                    <FormCreateAuction chosenItems={chosenItems} addOrRemoveItem={addOrRemoveItem} />
                 </div>
 
                 <div className="page-section">
                     <div className="section-title">
                         Items
                     </div>
-                    <ObjectGridSelector addOrRemoveItem={addOrRemoveItem} isChosenObj={isChosenObj} />
+                    <ItemGridSelector addOrRemoveItem={addOrRemoveItem} isChosenItem={isChosenItem} />
                 </div>
             </>}
 
@@ -78,10 +77,10 @@ export const PageNew: React.FC = () =>
 // === components ===
 
 const FormCreateAuction: React.FC<{
-    chosenObjs: SuiItem[];
-    addOrRemoveItem: (obj: SuiItem) => void;
+    chosenItems: SuiItem[];
+    addOrRemoveItem: (item: SuiItem) => void;
 }> = ({
-    chosenObjs,
+    chosenItems,
     addOrRemoveItem,
 }) =>
 {
@@ -139,7 +138,7 @@ const FormCreateAuction: React.FC<{
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = chosenObjs.length === 0 || hasErrors || userObjId === undefined;
+    const disableSubmit = chosenItems.length === 0 || hasErrors || userObjId === undefined;
 
     // === effects ===
 
@@ -175,7 +174,7 @@ const FormCreateAuction: React.FC<{
                 form.minimum_bid.val!,
                 form.minimum_increase_pct.val! * 100,
                 form.extension_period_minutes.val! * ONE_MINUTE_MS,
-                chosenObjs,
+                chosenItems,
             );
             console.debug("resp:", resp);
         } catch (err) {
@@ -212,11 +211,11 @@ const FormCreateAuction: React.FC<{
         </button>
 
         <div className="chosen-items">
-            <h2>Chosen items ({chosenObjs.length})</h2>
+            <h2>Chosen items ({chosenItems.length})</h2>
 
             <div className="list-cards">
-            {chosenObjs.map(obj =>
-                <CardSuiObject obj={obj} key={obj.id} onClick={() => addOrRemoveItem(obj)} />
+            {chosenItems.map(item =>
+                <CardSuiItem item={item} key={item.id} onClick={() => addOrRemoveItem(item)} />
             )}
             </div>
         </div>
@@ -226,12 +225,12 @@ const FormCreateAuction: React.FC<{
     </>;
 };
 
-const ObjectGridSelector: React.FC<{
-    addOrRemoveItem: (obj: SuiItem) => void;
-    isChosenObj: (obj: SuiItem) => boolean;
+const ItemGridSelector: React.FC<{
+    addOrRemoveItem: (item: SuiItem) => void;
+    isChosenItem: (item: SuiItem) => boolean;
 }> = ({
     addOrRemoveItem,
-    isChosenObj,
+    isChosenItem,
 }) =>
 {
     // === state ===
@@ -286,12 +285,12 @@ const ObjectGridSelector: React.FC<{
             if (!obj.hasPublicTransfer) {
                 return null;
             }
-            const isChosen = isChosenObj(obj);
+            const isChosen = isChosenItem(obj);
             return (
             <div className="grid-item card" key={obj.id}
                 // onClick={() => { showItemInfo(obj); TODO: "flip" card and show ID etc }}
             >
-                <CardSuiObject obj={obj}
+                <CardSuiItem item={obj}
                     isChosen={isChosen}
                     extra={
                         <div className="obj-button">
