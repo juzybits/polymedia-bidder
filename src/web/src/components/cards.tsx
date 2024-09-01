@@ -163,14 +163,13 @@ export const CardTxAnyoneBids: React.FC<{
     tx,
 }) => {
     const { network } = useOutletContext<AppContext>();
-    // const { coinMeta } = useCoinMeta(auctionClient.suiClient, tx.type_coin);
     return <>
         <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
         <div>timestamp: {msToDate(tx.timestamp)}</div>
         <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
-        <div>userId: <LinkToPolymedia addr={tx.userId} kind="address" network={network} /></div>
-        <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
-        {/* <div>amount: <Balance balance={tx.amount} coinType={tx.type_coin} /></div> */}
+        <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
+        <div>auction_id: <LinkToPolymedia addr={tx.inputs.auction_id} kind="object" network={network} /></div>
+        <div>amount: <Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} /></div>
     </>;
 };
 

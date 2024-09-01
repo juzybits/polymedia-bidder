@@ -68,9 +68,11 @@ export type TxAnyoneBids = {
     digest: string;
     timestamp: number;
     sender: string;
-    userId: string;
-    auctionId: string;
-    amount: bigint;
+    inputs: {
+        type_coin: string;
+        auction_id: string;
+        amount: bigint;
+    };
 };
 
 export const UserBidBcs = bcs.struct("Bid", {

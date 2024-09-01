@@ -516,7 +516,7 @@ export class AuctionClient extends SuiClientBase
      * Parse an `auction::anyone_bids` transaction.
      * Assumes the tx block contains only one `anyone_bids` call.
      */
-    public parseTxAnyoneBids( // TODO: support non-SUI bids
+    public parseTxAnyoneBids( // TODO: support non-SUI bids, test with coin merge
         txRes: SuiTransactionBlockResponse,
     ): TxAnyoneBids | null
     {
@@ -525,9 +525,9 @@ export class AuctionClient extends SuiClientBase
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        let bidAmount: bigint | undefined;
-        let userId: string | undefined;
-        let auctionId: string | undefined;
+        let amount: bigint | undefined;
+        let type_coin: string | undefined;
+        let auction_id: string | undefined;
 
         for (const tx of txData.txs)
         {
@@ -540,14 +540,15 @@ export class AuctionClient extends SuiClientBase
 
                 if (splitTxInputs.length !== 1) { return null; }
 
-                bidAmount = getArgVal(splitTxInputs[0]);
+                amount = getArgVal(splitTxInputs[0]);
             }
             // find the `anyone_bids` tx and parse the userId and auctionId
             if (isTxMoveCall(tx) &&
                 tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
                 tx.MoveCall.function === "anyone_bids" &&
-                tx.MoveCall.arguments
+                tx.MoveCall.arguments &&
+                tx.MoveCall.type_arguments
             ) {
                 const bidTxInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
@@ -555,21 +556,23 @@ export class AuctionClient extends SuiClientBase
 
                 if (bidTxInputs.length !== 2) { return null; }
 
-                userId = getArgVal(bidTxInputs[0]);
-                auctionId = getArgVal(bidTxInputs[1]);
+                type_coin = tx.MoveCall.type_arguments[0];
+                auction_id = getArgVal(bidTxInputs[0]);
             }
         }
 
-        if (!userId || !auctionId || !bidAmount) { return null; }
+        if (!amount || !type_coin || !auction_id) { return null; }
 
         return {
             kind: "anyone_bids",
             digest: txRes.digest,
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
-            userId,
-            auctionId,
-            amount: bidAmount,
+            inputs: {
+                type_coin,
+                auction_id,
+                amount,
+            },
         };
     }
 
@@ -585,14 +588,20 @@ export class AuctionClient extends SuiClientBase
         catch (_err) { return null; }
         const inputs = txData.inputs;
 
+        const tx = txData.txs[2]; // see AuctionClient.bid()
+        if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
+        const type_coin = tx.MoveCall.type_arguments[0];
+
         return {
             kind: "anyone_bids",
             digest: txRes.digest,
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
-            userId: getArgVal(inputs[1]),
-            auctionId: getArgVal(inputs[2]),
-            amount: getArgVal(inputs[0]),
+            inputs: {
+                type_coin,
+                auction_id: getArgVal(inputs[2]),
+                amount: getArgVal(inputs[0]),
+            },
         };
     }
 
@@ -640,15 +649,15 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
-        const [reqArg1] = !userObj
+        const [reqArg0] = !userObj
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
             : UserModule.existing_user_request(tx, this.packageId, userObj);
 
-        const [reqArg2, auctionObj] = AuctionModule.admin_creates_auction(
+        const [reqArg1, auctionObj] = AuctionModule.admin_creates_auction(
             tx,
             this.packageId,
             type_coin,
-            reqArg1,
+            reqArg0,
             name,
             description,
             pay_addr,
@@ -659,7 +668,7 @@ export class AuctionClient extends SuiClientBase
             extension_period_ms,
         );
 
-        UserModule.destroy_user_request(tx, this.packageId, reqArg2);
+        UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
         for (const item of itemsToAuction) {
             AuctionModule.admin_adds_item(
@@ -694,23 +703,22 @@ export class AuctionClient extends SuiClientBase
 
         const [pay_coin] = await getCoinOfValue(this.suiClient, tx, owner, type_coin, amount);
 
-        const [reqArg1] = !userObj
+        const [reqArg0] = !userObj
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
             : UserModule.existing_user_request(tx, this.packageId, userObj);
 
-        const [reqArg2] = AuctionModule.anyone_bids(
+        const [reqArg1] = AuctionModule.anyone_bids(
             tx,
             this.packageId,
             type_coin,
-            reqArg1,
+            reqArg0,
             auctionId,
             pay_coin,
         );
 
-        UserModule.destroy_user_request(tx, this.packageId, reqArg2);
+        UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
         const resp = await this.signAndExecuteTransaction(tx);
         return resp;
     }
-
 }
