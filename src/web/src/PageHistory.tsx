@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { CardAuction } from "./components/cards";
+import { CardAuctionItems } from "./components/cards";
 
 export const PageHistory: React.FC = () =>
 {
@@ -117,7 +117,7 @@ const SectionsHistory: React.FC = () => // TODO: pagination
             </div>
             <div className="list-cards">
                 {userAuctions.map(auction =>
-                    <CardAuction auction={auction} key={auction.id} />
+                    <CardAuctionItems auction={auction} key={auction.id} />
                 )}
             </div>
         </div>

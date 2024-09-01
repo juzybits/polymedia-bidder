@@ -4,7 +4,7 @@ import { balanceToString } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardAuction, CardTransaction } from "./components/cards";
+import { CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { PageNotFound } from "./PageNotFound";
@@ -68,8 +68,10 @@ const SectionInfo: React.FC<{
     auction,
 }) => {
     return <div className="page-section">
-        <div className="section-title">AUCTION</div>
-        <CardAuction auction={auction} />
+        <div className="section-title">{auction.name}</div>
+        {auction.description.length > 0 &&
+        <div className="section-description">{auction.description}</div>}
+        <CardAuctionItems auction={auction} />
     </div>
 };
 

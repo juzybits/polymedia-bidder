@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext, networkConfig, supportedNetworks } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { CardAuction } from "./components/cards";
+import { CardAuctionItems } from "./components/cards";
 
 export const PageSettings: React.FC = () =>
 {

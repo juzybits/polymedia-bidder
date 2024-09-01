@@ -36,7 +36,7 @@ export const CardSuiItem: React.FC<{
     </div>;
 }
 
-export const CardAuction: React.FC<{
+export const CardAuctionItems: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
@@ -72,14 +72,14 @@ export const CardAuction: React.FC<{
     return (
         <div className="auction-card card">
 
-            <div className="auction-title">
+            {/* <div className="auction-title">
                 <h3>{auction.name}</h3>
             </div>
 
             {auction.description.length > 0 &&
             <div className="auction-description">
                 <p>{auction.description}</p>
-            </div>}
+            </div>} */}
 
             <div className="grid">
                 {items.map((item, idx) => (
