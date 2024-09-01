@@ -7,6 +7,8 @@ import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 import { IconCheck } from "./icons";
 
+// === cards ===
+
 export const CardSuiItem: React.FC<{
     item: SuiItem;
     isChosen?: boolean;
@@ -65,7 +67,7 @@ export const CardAuctionItems: React.FC<{
     // const endTime = new Date(auction.end_time_ms).toLocaleString();
 
     return (
-        <div className="auction-card card">
+        <div className="auction-card">
 
             {/* <div className="auction-title">
                 <h3>{auction.name}</h3>
@@ -85,32 +87,6 @@ export const CardAuctionItems: React.FC<{
             </div>
         </div>
     );
-
-    /*
-    return <div className="auction-card card">
-        <h3>"{auction.name}"</h3>
-        <div>Description: {auction.description}</div>
-        <div>Auction ID: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
-        <div>Item Addresses ({auction.item_addrs.length}): {auction.item_addrs.map((addr, index) =>
-            <React.Fragment key={index}>
-                {index > 0 && ", "}
-                <LinkToPolymedia key={addr} addr={addr} kind="object" network={network} />
-            </React.Fragment>
-        )}</div>
-        <div>Item Bag ({auction.item_bag.size}): <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /></div>
-        <div>Admin: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
-        <div>Payment Recipient: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
-        <div>Current Leader: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
-        <div>Current Highest Bid: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
-        <div>Start Time: {beginTime}</div>
-        <div>End Time: {endTime}</div>
-        <div>Minimum Bid: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
-        <div>Minimum Increase: {auction.minimum_increase_bps / 100}%</div>
-        <div>Extension Period: {auction.extension_period_ms / 1000 / 60} minutes</div>
-        <div>Status: {auction.is_live ? "Live" : "Ended"}</div>
-        <div><Link to={`/auction/${auction.id}`} className="btn">VIEW</Link></div>
-    </div>;
-    */
 };
 
 export const CardTransaction: React.FC<{
@@ -150,6 +126,8 @@ export const CardTxAdminCreatesAuction: React.FC<{
     );
 };
 
+// === smaller components ===
+
 export const Balance: React.FC<{
     balance: bigint;
     coinType: string;
@@ -160,15 +138,32 @@ export const Balance: React.FC<{
 {
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const { coinMeta, isLoadingCoinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, coinType);
+    const { coinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, coinType);
 
-    return isLoadingCoinMeta
+    return coinMeta === undefined
         ? "Loading..."
         : (
             (!coinMeta || errorCoinMeta)
             ? "Unknown"
             : `${balanceToString(balance, coinMeta.decimals)} ${coinMeta.symbol}`
         );
+};
+
+// === formatters ===
+
+export const ONE_HOUR_MS = 3_600_000;
+export const ONE_MINUTE_MS = 60_000;
+
+export const msToHours = (ms: number): string => {
+    return `${ms / ONE_HOUR_MS} hours`;
+};
+
+export const msToMinutes = (ms: number): string => {
+    return `${ms / ONE_MINUTE_MS} minutes`;
+};
+
+export const bpsToPct = (bps: number): string => {
+    return `${bps / 100}%`;
 };
 
 // === helpers ===

@@ -3,13 +3,10 @@ import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymed
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardSuiItem } from "./components/cards";
+import { CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-
-const ONE_HOUR_MS = 3_600_000;
-const ONE_MINUTE_MS = 60_000;
 
 export const PageNew: React.FC = () =>
 {

@@ -7,7 +7,7 @@ import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardAuctionItems, CardTransaction } from "./components/cards";
+import { Balance, bpsToPct, CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
@@ -245,11 +245,11 @@ const SectionDetails: React.FC<{ // TODO
                 <div>admin_addr: {shortenAddress(auction.admin_addr)}</div>
                 <div>pay_addr: {shortenAddress(auction.pay_addr)}</div>
                 <div>lead_addr: {shortenAddress(auction.lead_addr)}</div>
-                <div>lead_value: {auction.lead_value.toString()}</div>
+                <div>lead_value: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
                 <div>begin_time_ms: {auction.begin_time_ms}</div>
                 <div>end_time_ms: {auction.end_time_ms}</div>
-                <div>minimum_bid: {auction.minimum_bid.toString()}</div>
-                <div>minimum_increase_bps: {auction.minimum_increase_bps}</div>
+                <div>minimum_bid: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
+                <div>minimum_increase_bps: {bpsToPct(auction.minimum_increase_bps)}</div>
                 <div>extension_period_ms: {auction.extension_period_ms}</div>
                 <div>is_live: {auction.is_live ? "yes" : "no"}</div>
             </div>
