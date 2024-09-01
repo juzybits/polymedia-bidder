@@ -64,21 +64,26 @@ export const PageAuction: React.FC = () =>
                     {auction.description}
                 </div>}
 
-                <div className="content-tabbed">
-                    <div className="tabs-header">
-                        <div className="tab-title" onClick={() => setTab("info")}>Info</div>
-                        {auction.is_live && <div className="tab-title" onClick={() => setTab("bid")}>Bid</div>}
-                        <div className="tab-title" onClick={() => setTab("details")}>Details</div>
-                        <div className="tab-title" onClick={() => setTab("history")}>History</div>
+                <div className="tabs-header">
+                    <div className={`tab-title ${tab === "info" ? "selected" : ""}`} onClick={() => setTab("info")}>
+                        INFO
                     </div>
-
-                    <div className="tabs-content">
-                        {tab === "info" && <SectionInfo auction={auction} />}
-                        {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
-                        {tab === "details" && <SectionAuctionDetails auction={auction} />}
-                        {tab === "history" && <SectionAuctionHistory auction={auction} />}
+                    {auction.is_live && <div className={`tab-title ${tab === "bid" ? "selected" : ""}`} onClick={() => setTab("bid")}>
+                        BID
+                    </div>}
+                    <div className={`tab-title ${tab === "details" ? "selected" : ""}`} onClick={() => setTab("details")}>
+                        DETAILS
                     </div>
+                    <div className={`tab-title ${tab === "history" ? "selected" : ""}`} onClick={() => setTab("history")}>
+                        HISTORY
+                    </div>
+                </div>
 
+                <div className="tabs-content">
+                    {tab === "info" && <SectionItems auction={auction} />}
+                    {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
+                    {tab === "details" && <SectionDetails auction={auction} />}
+                    {tab === "history" && <SectionActivity auction={auction} />}
                 </div>
 
             </div>
@@ -89,14 +94,18 @@ export const PageAuction: React.FC = () =>
     </>;
 };
 
-const SectionInfo: React.FC<{
+const SectionItems: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
 }) => {
-    return <div>
-        <CardAuctionItems auction={auction} />
-    </div>
+    return (
+        <div className="card">
+            <div className="card-content">
+                <CardAuctionItems auction={auction} />
+            </div>
+        </div>
+    );
 };
 
 const SectionBid: React.FC<{
@@ -160,42 +169,38 @@ const SectionBid: React.FC<{
         }
     };
 
-    return <div>
-        <div className="section-title">Bid</div>
-
+    return (
         <div className="card">
-        <div className="form ">
-            {Object.entries(form).map(([name, input]) => (
-                <React.Fragment key={name}>
-                    {input.input}
-                </React.Fragment>
-            ))}
-            <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
-                BID
-            </button>
+            <div className="form">
+                {Object.entries(form).map(([name, input]) => (
+                    <React.Fragment key={name}>
+                        {input.input}
+                    </React.Fragment>
+                ))}
+                <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
+                    BID
+                </button>
+            </div>
         </div>
-        </div>
-
-    </div>;
+    );
 };
 
-const SectionAuctionDetails: React.FC<{ // TODO
+const SectionDetails: React.FC<{ // TODO
     auction: AuctionObj;
 }> = ({
     auction,
 }) => {
-    return <div>
-        <div className="section-title">Details</div>
+    return (
         <div className="card">
             <div className="card-content">
                 <div>Auction ID: {auction.id}</div>
                 <div>Auction Name: {auction.name}</div>
             </div>
         </div>
-    </div>
+    );
 };
 
-const SectionAuctionHistory: React.FC<{
+const SectionActivity: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
@@ -226,12 +231,15 @@ const SectionAuctionHistory: React.FC<{
 
     // === html ===
 
-    return <div>
-        <div className="section-title">History</div>
-        <div className="list-cards">
-            {txs?.data.map(tx =>
-                <CardTransaction tx={tx} key={tx.digest} />
-            )}
+    return (
+        <div className="card">
+            <div className="card-content">
+                <div className="list-cards">
+                    {txs?.data.map(tx =>
+                        <CardTransaction tx={tx} key={tx.digest} />
+                    )}
+                </div>
+            </div>
         </div>
-    </div>;
+    );
 };
