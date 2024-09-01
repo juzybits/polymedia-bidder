@@ -459,7 +459,7 @@ export class AuctionClient extends SuiClientBase
 
         return {
             digest: txRes.digest,
-            timestamp: txRes.timestampMs ?? "0",
+            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
             auctionId: createdObjRef.reference.objectId,
             inputs: {
@@ -490,7 +490,7 @@ export class AuctionClient extends SuiClientBase
 
         return {
             digest: txRes.digest,
-            timestamp: txRes.timestampMs ?? "0",
+            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
             auctionId: createdObjRef.reference.objectId,
             inputs: {

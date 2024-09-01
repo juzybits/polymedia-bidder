@@ -48,12 +48,7 @@ export const CardAuctionDetails: React.FC<{
         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
         {/* <div>Name: {auction.name}</div>
         <div>Description: {auction.description}</div> */}
-        <div>Auctioned items: {auction.item_addrs.map((addr, idx) => (
-            <React.Fragment key={idx}>
-                {idx > 0 && ", "}
-                <LinkToPolymedia addr={addr} kind="object" network={network} />
-            </React.Fragment>
-        ))}</div>
+        <div>Auctioned items: <ObjectLinkList ids={auction.item_addrs} /></div>
         <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
         <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
         <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
@@ -141,17 +136,20 @@ export const CardTxAdminCreatesAuction: React.FC<{
     const { network } = useOutletContext<AppContext>();
     return (
         <div className="card auction-card">
+            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
+            <div>timestamp: {msToDate(tx.timestamp)}</div>
+            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
             <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
-            <div>type_coin: {tx.inputs.type_coin}</div>
+            <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
             <div>name: {tx.inputs.name}</div>
             <div>description: {tx.inputs.description}</div>
             <div>pay_addr: <LinkToPolymedia addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
-            <div>begin_delay_ms: {tx.inputs.begin_delay_ms}</div>
-            <div>duration_ms: {tx.inputs.duration_ms}</div>
+            <div>begin_delay_ms: {msToHours(tx.inputs.begin_delay_ms)}</div>
+            <div>duration_ms: {msToHours(tx.inputs.duration_ms)}</div>
             <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
-            <div>minimum_increase_bps: {tx.inputs.minimum_increase_bps}</div>
-            <div>extension_period_ms: {tx.inputs.extension_period_ms}</div>
-            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div>minimum_increase_bps: {bpsToPct(tx.inputs.minimum_increase_bps)}</div>
+            <div>extension_period_ms: {msToMinutes(tx.inputs.extension_period_ms)}</div>
+            <div>item_addrs: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
             <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
         </div>
     );
@@ -178,6 +176,20 @@ export const Balance: React.FC<{
             ? "Unknown"
             : `${balanceToString(balance, coinMeta.decimals)} ${coinMeta.symbol}`
         );
+};
+
+export const ObjectLinkList: React.FC<{
+    ids: string[];
+}> = ({
+    ids,
+}) => {
+    const { network } = useOutletContext<AppContext>();
+    return <>{ids.map((id, idx) => (
+        <React.Fragment key={idx}>
+            {idx > 0 && ", "}
+            <LinkToPolymedia addr={id} kind="object" network={network} />
+        </React.Fragment>
+    ))}</>;
 };
 
 // === formatters ===

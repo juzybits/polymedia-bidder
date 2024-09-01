@@ -41,7 +41,7 @@ export type AuctionObj = {
  */
 export type TxAdminCreatesAuction = {
     digest: string;
-    timestamp: string;
+    timestamp: number;
     sender: string;
     auctionId: string;
     inputs: {
