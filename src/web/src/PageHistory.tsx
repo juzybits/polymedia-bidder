@@ -1,4 +1,4 @@
-import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserBid } from "@polymedia/auction-sdk";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
@@ -33,27 +33,6 @@ export const PageHistory: React.FC = () =>
 
     </div>
     </>;
-};
-
-const SectionConnection: React.FC = () =>
-{
-    // === state ===
-
-    const currAcct = useCurrentAccount();
-    if (!currAcct) { return; }
-    const { mutate: disconnect } = useDisconnectWallet();
-
-    // === html ===
-
-    return <div className="card">
-        <div>You are connected with address:</div>
-        <div className="address">{currAcct.address}</div>
-        <div>
-            <button onClick={() => disconnect()} className="btn">
-                DISCONNECT
-            </button>
-        </div>
-    </div>;
 };
 
 const SectionsHistory: React.FC = () => // TODO: pagination

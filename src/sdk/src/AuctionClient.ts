@@ -40,7 +40,7 @@ export class AuctionClient extends SuiClientBase
     protected readonly cache: {
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
-    }
+    };
 
     constructor(
         suiClient: SuiClient,
@@ -61,7 +61,7 @@ export class AuctionClient extends SuiClientBase
 
     public async fetchAuction(
         auctionId: string,
-        useCache: boolean = true,
+        useCache = true,
     ): Promise<AuctionObj | null>
     {
         const auctions = await this.fetchAuctions([auctionId], useCache);
@@ -70,7 +70,7 @@ export class AuctionClient extends SuiClientBase
 
     public async fetchAuctions( // MAYBE add pagination
         auctionIds: string[],
-        useCache: boolean = true,
+        useCache = true,
     ): Promise<AuctionObj[]>
     {
         const auctions: AuctionObj[] = [];
@@ -102,7 +102,7 @@ export class AuctionClient extends SuiClientBase
 
     public async fetchItem(
         itemId: string,
-        useCache: boolean = true,
+        useCache = true,
     ): Promise<SuiItem | null>
     {
         const items = await this.fetchItems([itemId], useCache);
@@ -111,7 +111,7 @@ export class AuctionClient extends SuiClientBase
 
     public async fetchItems( // MAYBE add pagination
         itemIds: string[],
-        useCache: boolean = true,
+        useCache = true,
     ): Promise<SuiItem[]>
     {
         const items: SuiItem[] = [];
@@ -132,10 +132,8 @@ export class AuctionClient extends SuiClientBase
             });
             for (const objRes of pagObjRes) {
                 const item = objResToSuiItem(objRes);
-                if (item) {
-                    items.push(item);
-                    this.cache.items.set(item.id, item);
-                }
+                items.push(item);
+                this.cache.items.set(item.id, item);
             }
         }
         return items;
@@ -156,7 +154,7 @@ export class AuctionClient extends SuiClientBase
         const items: SuiItem[] = [];
         for (const objRes of pagObjRes.data) {
             const item = objResToSuiItem(objRes);
-            if (item && item.hasPublicTransfer) {
+            if (item.hasPublicTransfer) {
                 items.push(item);
             }
         }
@@ -286,7 +284,7 @@ export class AuctionClient extends SuiClientBase
     ): Promise<AuctionObj[]>
     {
         const auctionIds = await this.fetchUserAuctionIds(user_id, order, cursor, limit);
-        return await this.fetchAuctions(auctionIds) as AuctionObj[];
+        return await this.fetchAuctions(auctionIds);
     }
 
     public async fetchUserBids(

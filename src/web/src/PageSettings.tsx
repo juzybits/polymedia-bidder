@@ -1,11 +1,10 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { AuctionObj, NetworkName, UserBid } from "@polymedia/auction-sdk";
-import { LinkToPolymedia, NetworkSelector } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import { NetworkName } from "@polymedia/auction-sdk";
+import { NetworkSelector } from "@polymedia/suitcase-react";
+import React from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext, networkConfig, supportedNetworks } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { CardAuctionItems } from "./components/cards";
 
 export const PageSettings: React.FC = () =>
 {
@@ -61,14 +60,6 @@ const SectionConnection: React.FC = () =>
 
 const SectionExplorer: React.FC = () => // TODO: radio buttons
 {
-    // === state ===
-
-    const { network, setNetwork } = useOutletContext<AppContext>();
-
-    const rpcUrl = networkConfig[network].url;
-
-    // === html ===
-
     return <div className="page-section">
         <div className="section-title">
             Explorer

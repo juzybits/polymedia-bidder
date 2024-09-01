@@ -24,7 +24,7 @@ export type PaginatedItemsResponse = {
     data: SuiItem[];
     hasNextPage: boolean;
     nextCursor?: string | null;
-}
+};
 
 /* eslint-disable */
 export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem

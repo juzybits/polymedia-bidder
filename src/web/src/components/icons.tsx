@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
-interface IconProps extends React.SVGProps<SVGSVGElement> {
+type IconProps = {
     children: React.ReactNode;
-}
+} & React.SVGProps<SVGSVGElement>;
 
 const Icon: React.FC<IconProps> = ({
     height = "24px",

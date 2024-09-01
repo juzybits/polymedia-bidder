@@ -1,4 +1,4 @@
-import { AuctionObj, objResToSuiItem, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, ObjectDisplay, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
@@ -33,7 +33,7 @@ export const CardSuiItem: React.FC<{
             {extra}
         </div>
     </div>;
-}
+};
 
 export const CardAuctionItems: React.FC<{
     auction: AuctionObj;
@@ -61,8 +61,8 @@ export const CardAuctionItems: React.FC<{
 
     // === html ===
 
-    const beginTime = new Date(auction.begin_time_ms).toLocaleString();
-    const endTime = new Date(auction.end_time_ms).toLocaleString();
+    // const beginTime = new Date(auction.begin_time_ms).toLocaleString();
+    // const endTime = new Date(auction.end_time_ms).toLocaleString();
 
     return (
         <div className="auction-card card">
