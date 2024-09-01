@@ -40,6 +40,7 @@ export class AuctionClient extends SuiClientBase
     protected readonly cache: {
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
+        userIds: Map<string, string>;
     };
 
     constructor(
@@ -54,6 +55,7 @@ export class AuctionClient extends SuiClientBase
         this.cache = {
             auctions: new Map(),
             items: new Map(),
+            userIds: new Map(),
         };
     }
 
@@ -233,15 +235,27 @@ export class AuctionClient extends SuiClientBase
         );
     }
 
-    public async fetchUserObjectId( // TODO: cache
+    public async fetchUserObjectId(
         owner: string,
     ): Promise<string | null>
     {
+        const cachedUserId = this.cache.userIds.get(owner);
+        if (cachedUserId) {
+            return cachedUserId;
+        }
+
         const objRes = await this.suiClient.getOwnedObjects({
             owner,
             filter: { StructType: `${this.packageId}::user::User` },
         });
-        return objRes.data.length > 0 ? objResToId(objRes.data[0]) : null;
+
+        if (objRes.data.length > 0) {
+            const userId = objResToId(objRes.data[0]);
+            this.cache.userIds.set(owner, userId);
+            return userId;
+        }
+
+        return null;
     }
 
     public async fetchUserAuctionIds(
