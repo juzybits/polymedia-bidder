@@ -1,12 +1,11 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf } from "@polymedia/auction-sdk";
+import { AUCTION_CONFIG as cnf, objResToSuiItem, PaginatedItemsResponse, SuiItem } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
-import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./lib/items";
 
 const ONE_HOUR_MS = 3_600_000;
 const ONE_MINUTE_MS = 60_000;

@@ -1,11 +1,10 @@
-import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { AuctionObj, objResToSuiItem, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, ObjectDisplay, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
-import { objResToSuiItem, SuiItem } from "../lib/items";
 import { IconCheck } from "./icons";
 
 export const CardSuiItem: React.FC<{
