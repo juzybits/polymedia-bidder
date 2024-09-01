@@ -39,8 +39,8 @@ importers:
         specifier: ^1.3.1
         version: 1.7.0(typescript@5.5.4)
       '@polymedia/suitcase-core':
-        specifier: ^0.0.25
-        version: link:../../../polymedia-suitcase/src/core
+        specifier: ^0.0.26
+        version: 0.0.26(@mysten/sui@1.7.0(typescript@5.5.4))
     devDependencies:
       typescript:
         specifier: ^5.5.4
@@ -58,14 +58,14 @@ importers:
         specifier: workspace:*
         version: link:../sdk
       '@polymedia/coinmeta-react':
-        specifier: ^0.0.7
-        version: 0.0.7(@mysten/sui@1.7.0(typescript@5.5.4))(react@18.3.1)
+        specifier: ^0.0.8
+        version: 0.0.8(@mysten/sui@1.7.0(typescript@5.5.4))(react@18.3.1)
       '@polymedia/suitcase-core':
-        specifier: ^0.0.25
-        version: link:../../../polymedia-suitcase/src/core
+        specifier: ^0.0.26
+        version: 0.0.26(@mysten/sui@1.7.0(typescript@5.5.4))
       '@polymedia/suitcase-react':
-        specifier: ^0.0.25
-        version: link:../../../polymedia-suitcase/src/react
+        specifier: ^0.0.26
+        version: 0.0.26(@mysten/sui@1.7.0(typescript@5.5.4))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.53.1
         version: 5.53.1(react@18.3.1)
@@ -90,7 +90,7 @@ importers:
         version: 18.3.0
       '@vitejs/plugin-react-swc':
         specifier: ^3.7.0
-        version: 3.7.0(vite@5.4.2(@types/node@22.5.1)(less@4.2.0))
+        version: 3.7.0(vite@5.4.2(@types/node@22.5.2)(less@4.2.0))
       less:
         specifier: ^4.2.0
         version: 4.2.0
@@ -102,7 +102,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: ^5.4.2
-        version: 5.4.2(@types/node@22.5.1)(less@4.2.0)
+        version: 5.4.2(@types/node@22.5.2)(less@4.2.0)
       wrangler:
         specifier: ^3.73.0
         version: 3.73.0
@@ -585,16 +585,26 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@polymedia/coinmeta-react@0.0.7':
-    resolution: {integrity: sha512-n/yY9wK07e2t3V5xeOHnHhvWnfUKOIvlxa/lVGyffNQ+0mxFsJf/yWyuv8tQnipzfb0g+jF9t2Ry19Tmkcrzxw==}
+  '@polymedia/coinmeta-react@0.0.8':
+    resolution: {integrity: sha512-ZPjhLg/QeaWB7FHRbmgUxv+rnHQHcaVfZem5bLFQsOePVFw386idW4or7hIhNVArsZg18v/3JvkvFAgYjyDNEQ==}
     peerDependencies:
       '@mysten/sui': ^1.7.0
       react: '18'
 
-  '@polymedia/coinmeta@0.0.7':
-    resolution: {integrity: sha512-Oz85H/kMp5xoV6QRC7Z0qvb6p7Gwj3b7CGJkJl3ZkYJ42BVXbrgWx9q6f7rF4CVzlz7/JaNxg7hhzYv8tHMpLA==}
+  '@polymedia/coinmeta@0.0.8':
+    resolution: {integrity: sha512-uhI9V8b/l4wurQHVkSP2GYmSoneK+JFugK7vZPZ46o/aRC9+SOYMuX9OA5tJb/Aoz84t1NtBRY6Hzzivpe2M3w==}
     peerDependencies:
       '@mysten/sui': ^1.7.0
+
+  '@polymedia/suitcase-core@0.0.26':
+    resolution: {integrity: sha512-+ud+XRvTww46b5XDCyZBIjvmIksDg4Iyap5YOrzn3T5L0Zc14ibEiuM5F4TKFwqkrV5wx0eA8CnxBJfnu2OFnA==}
+    peerDependencies:
+      '@mysten/sui': ^1.7.0
+
+  '@polymedia/suitcase-react@0.0.26':
+    resolution: {integrity: sha512-bfcgKSWTOZjzqDEydzCxG4HA4Ie8VmAcaCtuVFsE7WvPT5q6mxmSYu6Ru7BSgh85ljxtoRFMCBEgJRlGPbF/9Q==}
+    peerDependencies:
+      react: ^18.0.0
 
   '@radix-ui/primitive@1.1.0':
     resolution: {integrity: sha512-4Z8dn6Upk0qk4P74xBhZ6Hd/w0mPEzOOLxy4xiPXOXqjF7jZS0VAKk7/x/H6FyY2zCkYJqePf1G5KmkmNJ4RBA==}
@@ -1063,8 +1073,8 @@ packages:
   '@types/node-forge@1.3.11':
     resolution: {integrity: sha512-FQx220y22OKNTqaByeBGqHWYz4cl94tpcxeFdvBo3wjG6XPBuZ0BNgNZRV5J5TFmmcsJ4IzsLkmGRiQbnYsBEQ==}
 
-  '@types/node@22.5.1':
-    resolution: {integrity: sha512-KkHsxej0j9IW1KKOOAA/XBA0z08UFSrRQHErzEfA3Vgq57eXIMYboIlHJuYIfd+lwCQjtKqUu3UnmKbtUc9yRw==}
+  '@types/node@22.5.2':
+    resolution: {integrity: sha512-acJsPTEqYqulZS/Yp/S3GgeE6GZ0qYODUR8aVr/DkhHQ8l9nd4j5x1/ZJy9/gHrRlFMqkO6i0I3E27Alu4jjPg==}
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
@@ -2032,8 +2042,8 @@ packages:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
     engines: {node: '>= 0.4'}
 
-  postcss@8.4.41:
-    resolution: {integrity: sha512-TesUflQ0WKZqAvg52PWL6kHgLKP6xB6heTOdoYM0Wt2UHyxNa4K25EZZMgKns3BH1RLVbZCREPpLY0rhnNoHVQ==}
+  postcss@8.4.42:
+    resolution: {integrity: sha512-hywKUQB9Ra4dR1mGhldy5Aj1X3MWDSIA1cEi+Uy0CjheLvP6Ual5RlwMCh8i/X121yEDLDIKBsrCQ8ba3FDMfQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -2902,15 +2912,26 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@polymedia/coinmeta-react@0.0.7(@mysten/sui@1.7.0(typescript@5.5.4))(react@18.3.1)':
+  '@polymedia/coinmeta-react@0.0.8(@mysten/sui@1.7.0(typescript@5.5.4))(react@18.3.1)':
     dependencies:
       '@mysten/sui': 1.7.0(typescript@5.5.4)
-      '@polymedia/coinmeta': 0.0.7(@mysten/sui@1.7.0(typescript@5.5.4))
+      '@polymedia/coinmeta': 0.0.8(@mysten/sui@1.7.0(typescript@5.5.4))
       react: 18.3.1
 
-  '@polymedia/coinmeta@0.0.7(@mysten/sui@1.7.0(typescript@5.5.4))':
+  '@polymedia/coinmeta@0.0.8(@mysten/sui@1.7.0(typescript@5.5.4))':
     dependencies:
       '@mysten/sui': 1.7.0(typescript@5.5.4)
+
+  '@polymedia/suitcase-core@0.0.26(@mysten/sui@1.7.0(typescript@5.5.4))':
+    dependencies:
+      '@mysten/sui': 1.7.0(typescript@5.5.4)
+
+  '@polymedia/suitcase-react@0.0.26(@mysten/sui@1.7.0(typescript@5.5.4))(react@18.3.1)':
+    dependencies:
+      '@polymedia/suitcase-core': 0.0.26(@mysten/sui@1.7.0(typescript@5.5.4))
+      react: 18.3.1
+    transitivePeerDependencies:
+      - '@mysten/sui'
 
   '@radix-ui/primitive@1.1.0': {}
 
@@ -3314,9 +3335,9 @@ snapshots:
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.5.1
+      '@types/node': 22.5.2
 
-  '@types/node@22.5.1':
+  '@types/node@22.5.2':
     dependencies:
       undici-types: 6.19.8
 
@@ -3439,10 +3460,10 @@ snapshots:
     dependencies:
       '@vanilla-extract/css': 1.15.5
 
-  '@vitejs/plugin-react-swc@3.7.0(vite@5.4.2(@types/node@22.5.1)(less@4.2.0))':
+  '@vitejs/plugin-react-swc@3.7.0(vite@5.4.2(@types/node@22.5.2)(less@4.2.0))':
     dependencies:
       '@swc/core': 1.7.22
-      vite: 5.4.2(@types/node@22.5.1)(less@4.2.0)
+      vite: 5.4.2(@types/node@22.5.2)(less@4.2.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -4474,7 +4495,7 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  postcss@8.4.41:
+  postcss@8.4.42:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.0.1
@@ -4903,13 +4924,13 @@ snapshots:
 
   valibot@0.36.0: {}
 
-  vite@5.4.2(@types/node@22.5.1)(less@4.2.0):
+  vite@5.4.2(@types/node@22.5.2)(less@4.2.0):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.4.41
+      postcss: 8.4.42
       rollup: 4.21.2
     optionalDependencies:
-      '@types/node': 22.5.1
+      '@types/node': 22.5.2
       fsevents: 2.3.3
       less: 4.2.0
 
