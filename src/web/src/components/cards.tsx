@@ -37,6 +37,37 @@ export const CardSuiItem: React.FC<{
     </div>;
 };
 
+export const CardAuctionDetails: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    const { network } = useOutletContext<AppContext>();
+    return <>
+        <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
+        <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
+        <div>Name: {auction.name}</div>
+        <div>Description: {auction.description}</div>
+        <div>Auctioned items: {auction.item_addrs.map((addr, idx) => (
+            <React.Fragment key={idx}>
+                {idx > 0 && ", "}
+                <LinkToPolymedia addr={addr} kind="object" network={network} />
+            </React.Fragment>
+        ))}</div>
+        <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
+        <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
+        <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
+        <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
+        <div>Leader amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
+        <div>Start time: {msToDate(auction.begin_time_ms)}</div>
+        <div>End time: {msToDate(auction.end_time_ms)}</div>
+        <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
+        <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
+        <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
+        <div>Is live: {auction.is_live ? "yes" : "no"}</div>
+    </>;
+};
+
 export const CardAuctionItems: React.FC<{
     auction: AuctionObj;
 }> = ({
@@ -160,6 +191,10 @@ export const msToHours = (ms: number): string => {
 
 export const msToMinutes = (ms: number): string => {
     return `${ms / ONE_MINUTE_MS} minutes`;
+};
+
+export const msToDate = (ms: number): string => {
+    return new Date(ms).toLocaleString();
 };
 
 export const bpsToPct = (bps: number): string => {

@@ -7,7 +7,7 @@ import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { Balance, bpsToPct, CardAuctionItems, CardTransaction } from "./components/cards";
+import { Balance, bpsToPct, CardAuctionDetails, CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
@@ -118,9 +118,7 @@ const SectionItems: React.FC<{
 }) => {
     return (
         <div className="card">
-            <div className="card-content">
-                <CardAuctionItems auction={auction} />
-            </div>
+            <CardAuctionItems auction={auction} />
         </div>
     );
 };
@@ -157,9 +155,7 @@ const SectionBid: React.FC<{
 
     return (
         <div className="card">
-            <div className="card-content">
-                {content}
-            </div>
+            {content}
         </div>
     );
 };
@@ -235,24 +231,7 @@ const SectionDetails: React.FC<{ // TODO
 }) => {
     return (
         <div className="card">
-            <div className="card-content">
-                <div>type_coin: {auction.type_coin}</div>
-                <div>id: {shortenAddress(auction.id)}</div>
-                <div>name: {auction.name}</div>
-                <div>description: {auction.description}</div>
-                <div>item_addrs: {auction.item_addrs.map(addr => shortenAddress(addr)).join(", ")}</div>
-                <div>item_bag: {auction.item_bag.id} ({auction.item_bag.size})</div>
-                <div>admin_addr: {shortenAddress(auction.admin_addr)}</div>
-                <div>pay_addr: {shortenAddress(auction.pay_addr)}</div>
-                <div>lead_addr: {shortenAddress(auction.lead_addr)}</div>
-                <div>lead_value: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
-                <div>begin_time_ms: {auction.begin_time_ms}</div>
-                <div>end_time_ms: {auction.end_time_ms}</div>
-                <div>minimum_bid: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
-                <div>minimum_increase_bps: {bpsToPct(auction.minimum_increase_bps)}</div>
-                <div>extension_period_ms: {auction.extension_period_ms}</div>
-                <div>is_live: {auction.is_live ? "yes" : "no"}</div>
-            </div>
+            <CardAuctionDetails auction={auction} />
         </div>
     );
 };
@@ -290,12 +269,10 @@ const SectionActivity: React.FC<{
 
     return (
         <div className="card">
-            <div className="card-content">
-                <div className="list-cards">
-                    {txs?.data.map(tx =>
-                        <CardTransaction tx={tx} key={tx.digest} />
-                    )}
-                </div>
+            <div className="list-cards">
+                {txs?.data.map(tx =>
+                    <CardTransaction tx={tx} key={tx.digest} />
+                )}
             </div>
         </div>
     );
