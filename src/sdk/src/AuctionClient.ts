@@ -235,7 +235,7 @@ export class AuctionClient extends SuiClientBase
         );
     }
 
-    public async fetchUserObjectId(
+    public async fetchUserId(
         owner: string,
     ): Promise<string | null>
     {

@@ -89,7 +89,7 @@ const FormCreateAuction: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ userObjId, setUserObjId ] = useState<string|null>();
+    const [ userId, setUserId ] = useState<string|null>();
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
@@ -136,22 +136,22 @@ const FormCreateAuction: React.FC<{
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = chosenItems.length === 0 || hasErrors || userObjId === undefined;
+    const disableSubmit = chosenItems.length === 0 || hasErrors || userId === undefined;
 
     // === effects ===
 
     useEffect(() => { // TODO move to App.tsx
-        fetchUserObj();
+        fetchUserId();
     }, [auctionClient, currAcct]);
 
     // === functions ===
 
-    const fetchUserObj = async () => {
+    const fetchUserId = async () => {
         try {
-            const newUserObjId = await auctionClient.fetchUserObjectId(currAcct.address);
-            setUserObjId(newUserObjId);
+            const newUserId = await auctionClient.fetchUserId(currAcct.address);
+            setUserId(newUserId);
         } catch (err) {
-            console.warn("[fetchUserObj]", err); // TODO show error to user
+            console.warn("[fetchUserId]", err); // TODO show error to user
         }
     };
 
@@ -163,7 +163,7 @@ const FormCreateAuction: React.FC<{
         try {
             const resp = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
-                userObjId,
+                userId,
                 form.name.val!,
                 form.description.val ?? "",
                 form.pay_addr.val!,

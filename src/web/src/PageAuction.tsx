@@ -136,29 +136,29 @@ const SectionBid: React.FC<{
 
     const { coinMeta, errorCoinMeta: _ } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
 
-    const [ userObjId, setUserObjId ] = useState<string|null>();
+    const [ userId, setUserId ] = useState<string|null>();
 
     // === effects ===
 
     useEffect(() => { // TODO move to App.tsx
-        fetchUserObjId();
+        fetchUserId();
     }, [auctionClient, currAcct]);
 
     // === functions ===
 
-    const fetchUserObjId = async () => {
+    const fetchUserId = async () => {
         if (!currAcct) {
-            setUserObjId(null);
+            setUserId(null);
         } else {
-            const newUserObjId = await auctionClient.fetchUserObjectId(currAcct.address);
-            setUserObjId(newUserObjId);
+            const newUserId = await auctionClient.fetchUserId(currAcct.address);
+            setUserId(newUserId);
         }
     };
 
     // === html ===
 
-    const isLoading = coinMeta === undefined || userObjId === undefined;
-    const isError = coinMeta === null || userObjId === null;
+    const isLoading = coinMeta === undefined || userId === undefined;
+    const isError = coinMeta === null || userId === null;
 
     let content;
     if (isError) {
@@ -166,7 +166,7 @@ const SectionBid: React.FC<{
     } else if (isLoading) {
         content = <div>Loading...</div>;
     } else {
-        content = <FormBid auction={auction} coinMeta={coinMeta} userObjId={userObjId} />;
+        content = <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />;
     }
 
     return (
@@ -181,11 +181,11 @@ const SectionBid: React.FC<{
 const FormBid: React.FC<{
     auction: AuctionObj;
     coinMeta: CoinMetadata;
-    userObjId: string | null;
+    userId: string | null;
 }> = ({
     auction,
     coinMeta,
-    userObjId,
+    userId,
 }) =>
 {
     // === state ===
@@ -215,7 +215,7 @@ const FormBid: React.FC<{
         try {
             const resp = await auctionClient.bid(
                 currAcct.address,
-                userObjId,
+                userId,
                 auction.id,
                 auction.type_coin,
                 form.amount.val!,

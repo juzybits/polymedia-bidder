@@ -44,38 +44,42 @@ const SectionsHistory: React.FC = () => // TODO: pagination
 
     const { network, auctionClient } = useOutletContext<AppContext>();
 
-    const [ userObjId, setUserObjId ] = useState<string|null>();
+    const [ userId, setUserId ] = useState<string|null>();
     const [ userAuctions, setUserAuctions ] = useState<AuctionObj[]>();
     const [ userBids, setUserBids ] = useState<UserBid[]>();
 
     // === effects ===
 
     useEffect(() => { // TODO move to App.tsx
-        fetchUserObj();
+        fetchUserId();
     }, [auctionClient, currAcct]);
 
     useEffect(() => {
         fetchAuctions();
-    }, [userObjId]);
+    }, [userId]);
 
     // === functions ===
 
-    const fetchUserObj = async () => {
-        const newUserObjId = await auctionClient.fetchUserObjectId(currAcct.address);
-        setUserObjId(newUserObjId);
+    const fetchUserId = async () => {
+        try {
+            const newUserId = await auctionClient.fetchUserId(currAcct.address);
+            setUserId(newUserId);
+        } catch (err) {
+            console.warn("[fetchUserId]", err); // TODO show error to user
+        }
     };
 
     const fetchAuctions = async () =>
     {
-        if (userObjId === undefined) {
+        if (userId === undefined) {
             setUserAuctions(undefined);
             setUserBids(undefined);
-        } else if (userObjId === null) {
+        } else if (userId === null) {
             setUserAuctions([]);
             setUserBids([]);
         } else {
-            const newUserAuctions = await auctionClient.fetchUserAuctions(userObjId);
-            const newUserBids = await auctionClient.fetchUserBids(userObjId);
+            const newUserAuctions = await auctionClient.fetchUserAuctions(userId);
+            const newUserBids = await auctionClient.fetchUserBids(userId);
             setUserAuctions(newUserAuctions);
             setUserBids(newUserBids);
         }
