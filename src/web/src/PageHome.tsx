@@ -75,7 +75,9 @@ const SectionRecentAuctions: React.FC = () =>
 
     return <>
         {txs?.data.map(tx => (
-            <CardTxAdminCreatesAuction tx={tx} key={tx.digest} />
+            <div className="card" key={tx.digest}>
+                <CardTxAdminCreatesAuction tx={tx} />
+            </div>
         ))}
     </>;
 };

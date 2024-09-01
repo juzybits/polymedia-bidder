@@ -41,6 +41,7 @@ export type AuctionObj = {
  * A `bidder::auction::admin_creates_auction` transaction
  */
 export type TxAdminCreatesAuction = {
+    kind: "admin_creates_auction";
     digest: string;
     timestamp: number;
     sender: string;
@@ -63,8 +64,9 @@ export type TxAdminCreatesAuction = {
  * A `bidder::auction::anyone_bids` transaction
  */
 export type TxAnyoneBids = {
+    kind: "anyone_bids";
     digest: string;
-    timestamp: string;
+    timestamp: number;
     sender: string;
     userId: string;
     auctionId: string;

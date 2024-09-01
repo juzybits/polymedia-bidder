@@ -459,6 +459,7 @@ export class AuctionClient extends SuiClientBase
         if (!createTxInputs) { return null; }
 
         return {
+            kind: "admin_creates_auction",
             digest: txRes.digest,
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
@@ -490,6 +491,7 @@ export class AuctionClient extends SuiClientBase
         const type_coin = tx.MoveCall.type_arguments[0];
 
         return {
+            kind: "admin_creates_auction",
             digest: txRes.digest,
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
@@ -561,8 +563,9 @@ export class AuctionClient extends SuiClientBase
         if (!userId || !auctionId || !bidAmount) { return null; }
 
         return {
+            kind: "anyone_bids",
             digest: txRes.digest,
-            timestamp: txRes.timestampMs ?? "0",
+            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
             userId,
             auctionId,
@@ -583,8 +586,9 @@ export class AuctionClient extends SuiClientBase
         const inputs = txData.inputs;
 
         return {
+            kind: "anyone_bids",
             digest: txRes.digest,
-            timestamp: txRes.timestampMs ?? "0",
+            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
             userId: getArgVal(inputs[1]),
             auctionId: getArgVal(inputs[2]),
@@ -597,7 +601,8 @@ export class AuctionClient extends SuiClientBase
      */
     public parseAuctionTx(
         txRes: SuiTransactionBlockResponse,
-    ) {
+    ): TxAdminCreatesAuction | TxAnyoneBids | null
+    {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(txRes); }
         catch (_err) { return null; }

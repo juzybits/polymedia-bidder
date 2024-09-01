@@ -1,6 +1,6 @@
 import { AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString, ObjectDisplay, shortenAddress } from "@polymedia/suitcase-core";
+import { balanceToString, newEmptyDisplay, ObjectDisplay, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
@@ -120,11 +120,15 @@ export const CardTransaction: React.FC<{
 }> = ({
     tx,
 }) => {
-    return <div className="card">
-        <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
-            {JSON.stringify(tx, null, 2)}
-        </div>
-    </div>;
+    if (tx.kind === "admin_creates_auction") {
+        return <CardTxAdminCreatesAuction tx={tx} />;
+    }
+    if (tx.kind === "anyone_bids") {
+        return <CardTxAnyoneBids tx={tx} />;
+    }
+    return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+        {JSON.stringify(tx, null, 2)}
+    </div>
 };
 
 export const CardTxAdminCreatesAuction: React.FC<{
@@ -150,6 +154,23 @@ export const CardTxAdminCreatesAuction: React.FC<{
         <div>extension_period_ms: {msToMinutes(tx.inputs.extension_period_ms)}</div>
         <div>item_addrs: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
         <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
+    </>;
+};
+
+export const CardTxAnyoneBids: React.FC<{
+    tx: TxAnyoneBids;
+}> = ({
+    tx,
+}) => {
+    const { network } = useOutletContext<AppContext>();
+    // const { coinMeta } = useCoinMeta(auctionClient.suiClient, tx.type_coin);
+    return <>
+        <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
+        <div>timestamp: {msToDate(tx.timestamp)}</div>
+        <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+        <div>userId: <LinkToPolymedia addr={tx.userId} kind="address" network={network} /></div>
+        <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
+        {/* <div>amount: <Balance balance={tx.amount} coinType={tx.type_coin} /></div> */}
     </>;
 };
 
@@ -212,20 +233,6 @@ export const bpsToPct = (bps: number): string => {
 };
 
 // === helpers ===
-
-export function newEmptyDisplay(): ObjectDisplay { // TODO: import from @polymedia/suitcase-core
-    return {
-        name: null,
-        description: null,
-        link: null,
-        image_url: null,
-        thumbnail_url: null,
-        project_name: null,
-        project_url: null,
-        project_image_url: null,
-        creator: null,
-    };
-}
 
 export function newItemPlaceholder(addr: string): SuiItem {
     const display = newEmptyDisplay();

@@ -271,7 +271,9 @@ const SectionActivity: React.FC<{
         <div className="card">
             <div className="list-cards">
                 {txs?.data.map(tx =>
-                    <CardTransaction tx={tx} key={tx.digest} />
+                    <div className="card" key={tx.digest}>
+                        <CardTransaction tx={tx} />
+                    </div>
                 )}
             </div>
         </div>
