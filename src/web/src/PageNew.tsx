@@ -251,23 +251,17 @@ const ItemGridSelector: React.FC<{
     const fetchOwnedItems = async (): Promise<void> =>
     {
         try {
-            const pagObjRes = await auctionClient.suiClient.getOwnedObjects({
-                owner: currAcct.address,
-                // owner: "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", // death
-                // owner: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
-                filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
-                options: { showContent: true, showDisplay: true, showType: true },
-                cursor: ownedItems?.nextCursor,
-            });
-
-            const newItems = pagObjRes.data
-                .map(objRes => objResToSuiItem(objRes))
-                .filter(item => item.hasPublicTransfer);
+            const newItems = await auctionClient.fetchOwnedItems(
+                currAcct.address,
+                // "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", // death
+                // "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
+                ownedItems?.nextCursor,
+            );
 
             setOwnedItems((prevItems) => ({
-                data: [...(prevItems ? prevItems.data : []), ...newItems],
-                hasNextPage: pagObjRes.hasNextPage,
-                nextCursor: pagObjRes.nextCursor,
+                data: [...(prevItems?.data ?? []), ...newItems.data],
+                hasNextPage: newItems.hasNextPage,
+                nextCursor: newItems.nextCursor,
             }));
         } catch (err) {
             console.warn("[fetchOwnedItems]", err);
