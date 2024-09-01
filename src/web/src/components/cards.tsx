@@ -23,18 +23,20 @@ export const CardSuiItem: React.FC<{
 {
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
-    return <div className="sui-item" onClick={onClick}>
-        <div className="item-img">
-            <img src={imgSrc} className={imgClass}/>
-            {isChosen && <IconCheck className="item-chosen icon" /> }
-        </div>
-        <div className="item-info">
-            <div className="item-title break-word">
-                {item.nameShort ? item.nameShort : shortenAddress(item.type)}
+    return (
+        <div className="sui-item" onClick={onClick}>
+            <div className="item-img">
+                <img src={imgSrc} className={imgClass}/>
+                {isChosen && <IconCheck className="item-chosen icon" /> }
             </div>
-            {extra}
+            <div className="item-info">
+                <div className="item-title break-word">
+                    {item.nameShort ? item.nameShort : shortenAddress(item.type)}
+                </div>
+                {extra}
+            </div>
         </div>
-    </div>;
+    );
 };
 
 export const CardAuctionDetails: React.FC<{
@@ -92,27 +94,24 @@ export const CardAuctionItems: React.FC<{
     // const beginTime = new Date(auction.begin_time_ms).toLocaleString();
     // const endTime = new Date(auction.end_time_ms).toLocaleString();
 
-    return (
-        <div className="auction-card">
-
-            {/* <div className="auction-title">
-                <h3>{auction.name}</h3>
-            </div>
-
-            {auction.description.length > 0 &&
-            <div className="auction-description">
-                <p>{auction.description}</p>
-            </div>} */}
-
-            <div className="grid">
-                {items.map((item, idx) => (
-                    <div className="grid-item card" key={idx}>
-                        <CardSuiItem item={item} />
-                    </div>
-                ))}
-            </div>
+    return <>
+        {/* <div className="auction-title">
+            <h3>{auction.name}</h3>
         </div>
-    );
+
+        {auction.description.length > 0 &&
+        <div className="auction-description">
+            <p>{auction.description}</p>
+        </div>} */}
+
+        <div className="grid">
+            {items.map((item, idx) => (
+                <div className="grid-item card" key={idx}>
+                    <CardSuiItem item={item} />
+                </div>
+            ))}
+        </div>
+    </>;
 };
 
 export const CardTransaction: React.FC<{
@@ -134,25 +133,23 @@ export const CardTxAdminCreatesAuction: React.FC<{
 }) =>
 {
     const { network } = useOutletContext<AppContext>();
-    return (
-        <div className="card auction-card">
-            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
-            <div>timestamp: {msToDate(tx.timestamp)}</div>
-            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
-            <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
-            <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
-            <div>name: {tx.inputs.name}</div>
-            <div>description: {tx.inputs.description}</div>
-            <div>pay_addr: <LinkToPolymedia addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
-            <div>begin_delay_ms: {msToHours(tx.inputs.begin_delay_ms)}</div>
-            <div>duration_ms: {msToHours(tx.inputs.duration_ms)}</div>
-            <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
-            <div>minimum_increase_bps: {bpsToPct(tx.inputs.minimum_increase_bps)}</div>
-            <div>extension_period_ms: {msToMinutes(tx.inputs.extension_period_ms)}</div>
-            <div>item_addrs: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
-            <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
-        </div>
-    );
+    return <>
+        <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
+        <div>timestamp: {msToDate(tx.timestamp)}</div>
+        <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+        <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
+        <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
+        <div>name: {tx.inputs.name}</div>
+        <div>description: {tx.inputs.description}</div>
+        <div>pay_addr: <LinkToPolymedia addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
+        <div>begin_delay_ms: {msToHours(tx.inputs.begin_delay_ms)}</div>
+        <div>duration_ms: {msToHours(tx.inputs.duration_ms)}</div>
+        <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
+        <div>minimum_increase_bps: {bpsToPct(tx.inputs.minimum_increase_bps)}</div>
+        <div>extension_period_ms: {msToMinutes(tx.inputs.extension_period_ms)}</div>
+        <div>item_addrs: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
+        <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
+    </>;
 };
 
 // === smaller components ===
