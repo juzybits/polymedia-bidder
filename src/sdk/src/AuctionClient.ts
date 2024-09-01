@@ -36,6 +36,9 @@ export class AuctionClient extends SuiClientBase
 {
     public readonly packageId: string;
     public readonly registryId: string;
+    protected readonly cache: {
+        auctions: Map<string, AuctionObj>;
+    }
 
     constructor(
         suiClient: SuiClient,
@@ -46,29 +49,51 @@ export class AuctionClient extends SuiClientBase
         super(suiClient, signTransaction);
         this.packageId = packageId;
         this.registryId = registryId;
+        this.cache = {
+            auctions: new Map(),
+        };
     }
 
     // === data fetching ===
 
     public async fetchAuction(
         auctionId: string,
+        useCache: boolean = true,
     ): Promise<AuctionObj | null>
     {
-        const auctions = await this.fetchAuctions([auctionId]);
+        const auctions = await this.fetchAuctions([auctionId], useCache);
         return auctions[0];
     }
 
-    public async fetchAuctions(
+    public async fetchAuctions( // MAYBE add pagination
         auctionIds: string[],
+        useCache: boolean = true,
     ): Promise<(AuctionObj | null)[]>
     {
-        const pagObjRes = await this.suiClient.multiGetObjects({
-            ids: auctionIds,
-            options: { showContent: true }
-        });
-        const auctions = pagObjRes.map(
-            objRes => this.parseAuctionObj(objRes)
-        );
+        const auctions: AuctionObj[] = [];
+        const uncachedAuctionIds: string[] = [];
+
+        for (const id of auctionIds) {
+            const cachedAuction = useCache ? this.cache.auctions.get(id) : undefined;
+            if (cachedAuction) {
+                auctions.push(cachedAuction);
+            } else {
+                uncachedAuctionIds.push(id);
+            }
+        }
+        if (uncachedAuctionIds.length > 0) {
+            const pagObjRes = await this.suiClient.multiGetObjects({
+                ids: uncachedAuctionIds,
+                options: { showContent: true },
+            });
+            for (const objRes of pagObjRes) {
+                const auction = this.parseAuctionObj(objRes);
+                if (auction) {
+                    auctions.push(auction);
+                    this.cache.auctions.set(auction.id, auction);
+                }
+            }
+        }
         return auctions;
     }
 
