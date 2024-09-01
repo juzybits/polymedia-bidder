@@ -1,6 +1,9 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import { CoinMetadata } from "@mysten/sui/client";
 import { AuctionClient, AuctionObj } from "@polymedia/auction-sdk";
+import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
+import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
@@ -8,7 +11,6 @@ import { CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { PageNotFound } from "./PageNotFound";
-import { ReactSetter } from "@polymedia/suitcase-react";
 
 type TabName = "items" | "bid" | "details" | "activity";
 
@@ -132,21 +134,9 @@ const SectionBid: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
+    const { coinMeta, errorCoinMeta: _ } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
+
     const [ userObjId, setUserObjId ] = useState<string|null>();
-
-    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta
-
-    const form = {
-        amount: useInputUnsignedBalance({
-            label: `Amount (${coinSymbol})`,
-            decimals: coinDecimals,
-            min: auction.minimum_bid,
-            html: { value: balanceToString(auction.minimum_bid, coinDecimals), required: true },
-        }),
-    };
-
-    const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = hasErrors || !currAcct || userObjId === undefined;
 
     // === effects ===
 
@@ -165,7 +155,60 @@ const SectionBid: React.FC<{
         }
     };
 
-    const onSubmit = async () => {
+    // === html ===
+
+    const isLoading = coinMeta === undefined || userObjId === undefined;
+    const isError = coinMeta === null || userObjId === null;
+
+    let content;
+    if (isError) {
+        content = <div>Error</div>;
+    } else if (isLoading) {
+        content = <div>Loading...</div>;
+    } else {
+        content = <FormBid auction={auction} coinMeta={coinMeta} userObjId={userObjId} />;
+    }
+
+    return (
+        <div className="card">
+            <div className="card-content">
+                {content}
+            </div>
+        </div>
+    );
+};
+
+const FormBid: React.FC<{
+    auction: AuctionObj;
+    coinMeta: CoinMetadata;
+    userObjId: string | null;
+}> = ({
+    auction,
+    coinMeta,
+    userObjId,
+}) =>
+{
+    // === state ===
+
+    const currAcct = useCurrentAccount();
+    const { auctionClient } = useOutletContext<AppContext>();
+
+    const form = {
+        amount: useInputUnsignedBalance({
+            label: `Amount (${coinMeta.symbol})`,
+            decimals: coinMeta.decimals,
+            min: auction.minimum_bid,
+            html: { value: balanceToString(auction.minimum_bid, coinMeta.decimals), required: true },
+        }),
+    };
+
+    const hasErrors = Object.values(form).some(input => input.err !== undefined);
+    const disableSubmit = hasErrors || !currAcct;
+
+    // === functions ===
+
+    const onSubmit = async () =>
+    {
         if (disableSubmit) {
             return;
         }
@@ -174,7 +217,7 @@ const SectionBid: React.FC<{
                 currAcct.address,
                 userObjId,
                 auction.id,
-                coinType,
+                auction.type_coin,
                 form.amount.val!,
             );
             console.debug("resp:", resp);
@@ -183,18 +226,18 @@ const SectionBid: React.FC<{
         }
     };
 
+    // === html ===
+
     return (
-        <div className="card">
-            <div className="form">
-                {Object.entries(form).map(([name, input]) => (
-                    <React.Fragment key={name}>
-                        {input.input}
-                    </React.Fragment>
-                ))}
-                <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
-                    BID
-                </button>
-            </div>
+        <div className="form">
+            {Object.entries(form).map(([name, input]) => (
+                <React.Fragment key={name}>
+                    {input.input}
+                </React.Fragment>
+            ))}
+            <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
+                BID
+            </button>
         </div>
     );
 };
