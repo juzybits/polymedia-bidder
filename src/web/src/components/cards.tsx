@@ -62,6 +62,7 @@ export const CardAuctionDetails: React.FC<{
         <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
         <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
         <div>Is live: {auction.is_live ? "yes" : "no"}</div>
+        <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
     </>;
 };
 

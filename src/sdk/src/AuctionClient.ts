@@ -385,6 +385,7 @@ export class AuctionClient extends SuiClientBase
             extension_period_ms: Number(fields.extension_period_ms),
             // === derived fields ===
             is_live: currentTimeMs >= beginTimeMs && currentTimeMs < endTimeMs,
+            has_ended: currentTimeMs >= endTimeMs,
         };
     }
     /* eslint-enable */

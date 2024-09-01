@@ -34,6 +34,7 @@ export type AuctionObj = {
     extension_period_ms: number;
     // === derived fields ===
     is_live: boolean;
+    has_ended: boolean;
 };
 
 /**
