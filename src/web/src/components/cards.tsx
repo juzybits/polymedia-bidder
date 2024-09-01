@@ -46,8 +46,8 @@ export const CardAuctionDetails: React.FC<{
     return <>
         <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
-        <div>Name: {auction.name}</div>
-        <div>Description: {auction.description}</div>
+        {/* <div>Name: {auction.name}</div>
+        <div>Description: {auction.description}</div> */}
         <div>Auctioned items: {auction.item_addrs.map((addr, idx) => (
             <React.Fragment key={idx}>
                 {idx > 0 && ", "}

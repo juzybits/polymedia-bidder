@@ -7,7 +7,8 @@
 @border-gray: 1px solid @color-border-gray;
 @border-radius: 1.5rem;
 @color-bg: rgb(10 12 14);
-@color-blue-light: #00fffc;
+@color-blue: #00fffc;
+@color-blue-light: #acf3f2;
 @color-border-gray: rgb(138 145 158 / 20%);
 @color-text-red: rgb(255, 158, 158);
 @color-text: #eee;
@@ -101,7 +102,7 @@ header {
     width: 1.7rem;
     fill: @color-text;
     &:hover {
-        fill: @color-blue-light;
+        fill: @color-blue;
     }
 }
 
@@ -240,8 +241,8 @@ footer {
                 font-weight: bold;
                 text-transform: uppercase;
                 &.selected {
-                    color: @color-blue-light;
-                    border-bottom: 2px solid @color-blue-light;
+                    color: @color-blue;
+                    border-bottom: 2px solid @color-blue;
                 }
             }
         }
@@ -272,6 +273,12 @@ footer {
     gap: @gap-15;
     @media (max-width: @screen-medium) {
         padding: @gap-15;
+    }
+    a {
+        color: @color-blue-light;
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 
