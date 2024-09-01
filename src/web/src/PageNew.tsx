@@ -90,7 +90,7 @@ const FormCreateAuction: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const userId = useFetchUserId();
+    const { userId, ..._user} = useFetchUserId();
 
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
 

@@ -45,7 +45,7 @@ const SectionsHistory: React.FC = () => // TODO: pagination
 
     const { network, auctionClient } = useOutletContext<AppContext>();
 
-    const userId = useFetchUserId();
+    const { userId, ..._user } = useFetchUserId();
 
     const [ userAuctions, setUserAuctions ] = useState<AuctionObj[]>();
     const [ userBids, setUserBids ] = useState<UserBid[]>();

@@ -5,22 +5,42 @@ import { AppContext } from "../App";
 
 export const useFetchUserId = () =>
 {
+    // === state ===
+
     const currAcct = useCurrentAccount();
+
     const { auctionClient } = useOutletContext<AppContext>();
+
     const [ userId, setUserId ] = useState<string | null | undefined>();
+    const [ errorFetchUserId, setError ] = useState<Error | null>(null);
+
+    // === effects ===
 
     useEffect(() => {
         fetchUserId();
     }, [auctionClient, currAcct]);
 
-    const fetchUserId = async () => {
+    // === functions ===
+
+    const fetchUserId = async () =>
+    {
+        setError(null);
+
         if (!currAcct) {
             setUserId(null);
-        } else {
+            return;
+        }
+
+        setUserId(undefined); // loading
+
+        try {
             const newUserId = await auctionClient.fetchUserId(currAcct.address);
             setUserId(newUserId);
+        } catch (err) {
+            setError(err instanceof Error ? err : new Error(String(err)));
+            setUserId(null);
         }
     };
 
-    return userId;
+    return { userId, errorFetchUserId };
 };
