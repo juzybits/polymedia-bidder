@@ -2,7 +2,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { AuctionClient, AuctionObj } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString } from "@polymedia/suitcase-core";
+import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -10,8 +10,8 @@ import { AppContext } from "./App";
 import { CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
-import { PageNotFound } from "./PageNotFound";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { PageNotFound } from "./PageNotFound";
 
 type TabName = "items" | "bid" | "details" | "activity";
 
@@ -236,8 +236,22 @@ const SectionDetails: React.FC<{ // TODO
     return (
         <div className="card">
             <div className="card-content">
-                <div>Auction ID: {auction.id}</div>
-                <div>Auction Name: {auction.name}</div>
+                <div>type_coin: {auction.type_coin}</div>
+                <div>id: {shortenAddress(auction.id)}</div>
+                <div>name: {auction.name}</div>
+                <div>description: {auction.description}</div>
+                <div>item_addrs: {auction.item_addrs.map(addr => shortenAddress(addr)).join(", ")}</div>
+                <div>item_bag: {auction.item_bag.id} ({auction.item_bag.size})</div>
+                <div>admin_addr: {shortenAddress(auction.admin_addr)}</div>
+                <div>pay_addr: {shortenAddress(auction.pay_addr)}</div>
+                <div>lead_addr: {shortenAddress(auction.lead_addr)}</div>
+                <div>lead_value: {auction.lead_value.toString()}</div>
+                <div>begin_time_ms: {auction.begin_time_ms}</div>
+                <div>end_time_ms: {auction.end_time_ms}</div>
+                <div>minimum_bid: {auction.minimum_bid.toString()}</div>
+                <div>minimum_increase_bps: {auction.minimum_increase_bps}</div>
+                <div>extension_period_ms: {auction.extension_period_ms}</div>
+                <div>is_live: {auction.is_live ? "yes" : "no"}</div>
             </div>
         </div>
     );
