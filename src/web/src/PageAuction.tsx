@@ -8,6 +8,28 @@ import { CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { PageNotFound } from "./PageNotFound";
+import { ReactSetter } from "@polymedia/suitcase-react";
+
+type TabName = "items" | "bid" | "details" | "activity";
+
+const TabHeader: React.FC<{
+    tabName: TabName;
+    selectedTab: TabName;
+    setTab: ReactSetter<TabName>;
+}> = ({
+    tabName,
+    selectedTab,
+    setTab,
+}) => {
+    return (
+        <div
+            className={`tab-title ${tabName === selectedTab ? "selected" : ""}`}
+            onClick={() => setTab(tabName)}
+        >
+            {tabName}
+        </div>
+    );
+};
 
 export const PageAuction: React.FC = () =>
 {
@@ -18,7 +40,7 @@ export const PageAuction: React.FC = () =>
 
     const { auctionClient, header } = useOutletContext<AppContext>();
 
-    const [ tab, setTab ] = useState<"info"|"bid"|"details"|"history">("info");
+    const [ tab, setTab ] = useState<TabName>("items");
     const [ auction, setAuction ] = useState<AuctionObj|null>();
 
     // === effects ===
@@ -65,25 +87,17 @@ export const PageAuction: React.FC = () =>
                 </div>}
 
                 <div className="tabs-header">
-                    <div className={`tab-title ${tab === "info" ? "selected" : ""}`} onClick={() => setTab("info")}>
-                        INFO
-                    </div>
-                    {auction.is_live && <div className={`tab-title ${tab === "bid" ? "selected" : ""}`} onClick={() => setTab("bid")}>
-                        BID
-                    </div>}
-                    <div className={`tab-title ${tab === "details" ? "selected" : ""}`} onClick={() => setTab("details")}>
-                        DETAILS
-                    </div>
-                    <div className={`tab-title ${tab === "history" ? "selected" : ""}`} onClick={() => setTab("history")}>
-                        HISTORY
-                    </div>
+                    <TabHeader tabName="items" selectedTab={tab} setTab={setTab} />
+                    {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} />}
+                    <TabHeader tabName="details" selectedTab={tab} setTab={setTab} />
+                    <TabHeader tabName="activity" selectedTab={tab} setTab={setTab} />
                 </div>
 
                 <div className="tabs-content">
-                    {tab === "info" && <SectionItems auction={auction} />}
+                    {tab === "items" && <SectionItems auction={auction} />}
                     {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
                     {tab === "details" && <SectionDetails auction={auction} />}
-                    {tab === "history" && <SectionActivity auction={auction} />}
+                    {tab === "activity" && <SectionActivity auction={auction} />}
                 </div>
 
             </div>
