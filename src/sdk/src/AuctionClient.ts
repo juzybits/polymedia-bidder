@@ -8,10 +8,6 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
-    ObjectArg,
-    SignTransaction,
-    SuiClientBase,
-    TransferModule,
     devInspectAndGetReturnValues,
     getArgVal,
     getCoinOfValue,
@@ -19,13 +15,18 @@ import {
     isOwnerShared,
     isTxMoveCall,
     isTxSplitCoins,
+    ObjectArg,
     objResToFields,
     objResToId,
     objResToType,
+    SignTransaction,
+    SuiClientBase,
+    TransferModule,
     txResToData,
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
+import { objResToSuiItem, SuiItem } from "./items.js";
 import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
@@ -38,6 +39,7 @@ export class AuctionClient extends SuiClientBase
     public readonly registryId: string;
     protected readonly cache: {
         auctions: Map<string, AuctionObj>;
+        items: Map<string, SuiItem>;
     }
 
     constructor(
@@ -51,6 +53,7 @@ export class AuctionClient extends SuiClientBase
         this.registryId = registryId;
         this.cache = {
             auctions: new Map(),
+            items: new Map(),
         };
     }
 
@@ -62,13 +65,13 @@ export class AuctionClient extends SuiClientBase
     ): Promise<AuctionObj | null>
     {
         const auctions = await this.fetchAuctions([auctionId], useCache);
-        return auctions[0];
+        return auctions.length > 0 ? auctions[0] : null;
     }
 
     public async fetchAuctions( // MAYBE add pagination
         auctionIds: string[],
         useCache: boolean = true,
-    ): Promise<(AuctionObj | null)[]>
+    ): Promise<AuctionObj[]>
     {
         const auctions: AuctionObj[] = [];
         const uncachedAuctionIds: string[] = [];
@@ -95,6 +98,47 @@ export class AuctionClient extends SuiClientBase
             }
         }
         return auctions;
+    }
+
+    public async fetchItem(
+        itemId: string,
+        useCache: boolean = true,
+    ): Promise<SuiItem | null>
+    {
+        const items = await this.fetchItems([itemId], useCache);
+        return items.length > 0 ? items[0] : null;
+    }
+
+    public async fetchItems( // MAYBE add pagination
+        itemIds: string[],
+        useCache: boolean = true,
+    ): Promise<SuiItem[]>
+    {
+        const items: SuiItem[] = [];
+        const uncachedItemIds: string[] = [];
+
+        for (const id of itemIds) {
+            const cachedItem = useCache ? this.cache.items.get(id) : undefined;
+            if (cachedItem) {
+                items.push(cachedItem);
+            } else {
+                uncachedItemIds.push(id);
+            }
+        }
+        if (uncachedItemIds.length > 0) {
+            const pagObjRes = await this.suiClient.multiGetObjects({
+                ids: uncachedItemIds,
+                options: { showContent: true, showDisplay: true, showType: true },
+            });
+            for (const objRes of pagObjRes) {
+                const item = objResToSuiItem(objRes);
+                if (item) {
+                    items.push(item);
+                    this.cache.items.set(item.id, item);
+                }
+            }
+        }
+        return items;
     }
 
     public async fetchTxsAdminCreatesAuction(

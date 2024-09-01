@@ -50,12 +50,8 @@ export const CardAuctionItems: React.FC<{
     // === functions ===
 
     const fetchItems = async () => {
-        const objs = await auctionClient.suiClient.multiGetObjects({
-            ids: auction.item_addrs,
-            options: { showContent: true, showDisplay: true },
-        });
-        const items = objs.map(obj => objResToSuiItem(obj));
-        setItems(items);
+        const newItems = await auctionClient.fetchItems(auction.item_addrs);
+        setItems(newItems);
     };
 
     // === effects ===
