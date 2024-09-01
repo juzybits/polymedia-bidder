@@ -6,6 +6,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardAuctionItems } from "./components/cards";
+import { useFetchUserId } from "./hooks/useFetchUserId";
 
 export const PageHistory: React.FC = () =>
 {
@@ -44,30 +45,18 @@ const SectionsHistory: React.FC = () => // TODO: pagination
 
     const { network, auctionClient } = useOutletContext<AppContext>();
 
-    const [ userId, setUserId ] = useState<string|null>();
+    const userId = useFetchUserId();
+
     const [ userAuctions, setUserAuctions ] = useState<AuctionObj[]>();
     const [ userBids, setUserBids ] = useState<UserBid[]>();
 
     // === effects ===
-
-    useEffect(() => { // TODO move to App.tsx
-        fetchUserId();
-    }, [auctionClient, currAcct]);
 
     useEffect(() => {
         fetchAuctions();
     }, [userId]);
 
     // === functions ===
-
-    const fetchUserId = async () => {
-        try {
-            const newUserId = await auctionClient.fetchUserId(currAcct.address);
-            setUserId(newUserId);
-        } catch (err) {
-            console.warn("[fetchUserId]", err); // TODO show error to user
-        }
-    };
 
     const fetchAuctions = async () =>
     {

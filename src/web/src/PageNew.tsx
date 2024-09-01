@@ -6,6 +6,7 @@ import { AppContext } from "./App";
 import { CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
+import { useFetchUserId } from "./hooks/useFetchUserId";
 
 const ONE_HOUR_MS = 3_600_000;
 const ONE_MINUTE_MS = 60_000;
@@ -89,7 +90,8 @@ const FormCreateAuction: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ userId, setUserId ] = useState<string|null>();
+    const userId = useFetchUserId();
+
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
@@ -140,20 +142,7 @@ const FormCreateAuction: React.FC<{
 
     // === effects ===
 
-    useEffect(() => { // TODO move to App.tsx
-        fetchUserId();
-    }, [auctionClient, currAcct]);
-
     // === functions ===
-
-    const fetchUserId = async () => {
-        try {
-            const newUserId = await auctionClient.fetchUserId(currAcct.address);
-            setUserId(newUserId);
-        } catch (err) {
-            console.warn("[fetchUserId]", err); // TODO show error to user
-        }
-    };
 
     const onSubmit = async () =>
     {

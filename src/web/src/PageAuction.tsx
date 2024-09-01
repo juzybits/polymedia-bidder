@@ -11,6 +11,7 @@ import { CardAuctionItems, CardTransaction } from "./components/cards";
 import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { PageNotFound } from "./PageNotFound";
+import { useFetchUserId } from "./hooks/useFetchUserId";
 
 type TabName = "items" | "bid" | "details" | "activity";
 
@@ -130,30 +131,15 @@ const SectionBid: React.FC<{
     auction,
 }) =>
 {
-    const currAcct = useCurrentAccount();
-
     const { auctionClient } = useOutletContext<AppContext>();
 
     const { coinMeta, errorCoinMeta: _ } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
 
-    const [ userId, setUserId ] = useState<string|null>();
+    const userId = useFetchUserId();
 
     // === effects ===
 
-    useEffect(() => { // TODO move to App.tsx
-        fetchUserId();
-    }, [auctionClient, currAcct]);
-
     // === functions ===
-
-    const fetchUserId = async () => {
-        if (!currAcct) {
-            setUserId(null);
-        } else {
-            const newUserId = await auctionClient.fetchUserId(currAcct.address);
-            setUserId(newUserId);
-        }
-    };
 
     // === html ===
 
