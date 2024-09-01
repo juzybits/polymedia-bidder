@@ -18,6 +18,7 @@ export const PageAuction: React.FC = () =>
 
     const { auctionClient, header } = useOutletContext<AppContext>();
 
+    const [ tab, setTab ] = useState<"info"|"bid"|"details"|"history">("info");
     const [ auction, setAuction ] = useState<AuctionObj|null>();
 
     // === effects ===
@@ -53,9 +54,35 @@ export const PageAuction: React.FC = () =>
     <div id="page-auction" className="page-regular">
 
         <div className="page-content">
-            <SectionInfo auction={auction} />
-            {auction.is_live && <SectionBid auction={auction} />}
-            <SectionAuctionHistory auction={auction} />
+
+            <div className="page-section">
+
+                <div className="section-title">{auction.name}</div>
+
+                {auction.description.length > 0 &&
+                <div className="section-description">
+                    {auction.description}
+                </div>}
+
+                <div className="content-tabbed">
+                    <div className="tabs-header">
+                        <div className="tab-title" onClick={() => setTab("info")}>Info</div>
+                        {auction.is_live && <div className="tab-title" onClick={() => setTab("bid")}>Bid</div>}
+                        <div className="tab-title" onClick={() => setTab("details")}>Details</div>
+                        <div className="tab-title" onClick={() => setTab("history")}>History</div>
+                    </div>
+
+                    <div className="tabs-content">
+                        {tab === "info" && <SectionInfo auction={auction} />}
+                        {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
+                        {tab === "details" && <SectionAuctionDetails auction={auction} />}
+                        {tab === "history" && <SectionAuctionHistory auction={auction} />}
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -67,10 +94,7 @@ const SectionInfo: React.FC<{
 }> = ({
     auction,
 }) => {
-    return <div className="page-section">
-        <div className="section-title">{auction.name}</div>
-        {auction.description.length > 0 &&
-        <div className="section-description">{auction.description}</div>}
+    return <div>
         <CardAuctionItems auction={auction} />
     </div>
 };
@@ -136,7 +160,7 @@ const SectionBid: React.FC<{
         }
     };
 
-    return <div className="page-section">
+    return <div>
         <div className="section-title">Bid</div>
 
         <div className="card">
@@ -153,6 +177,22 @@ const SectionBid: React.FC<{
         </div>
 
     </div>;
+};
+
+const SectionAuctionDetails: React.FC<{ // TODO
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    return <div>
+        <div className="section-title">Details</div>
+        <div className="card">
+            <div className="card-content">
+                <div>Auction ID: {auction.id}</div>
+                <div>Auction Name: {auction.name}</div>
+            </div>
+        </div>
+    </div>
 };
 
 const SectionAuctionHistory: React.FC<{
@@ -186,7 +226,7 @@ const SectionAuctionHistory: React.FC<{
 
     // === html ===
 
-    return <div className="page-section">
+    return <div>
         <div className="section-title">History</div>
         <div className="list-cards">
             {txs?.data.map(tx =>
