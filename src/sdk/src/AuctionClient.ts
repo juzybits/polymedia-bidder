@@ -516,7 +516,7 @@ export class AuctionClient extends SuiClientBase
      * Parse an `auction::anyone_bids` transaction.
      * Assumes the tx block contains only one `anyone_bids` call.
      */
-    public parseTxAnyoneBids( // TODO: support non-SUI bids, test with coin merge
+    public parseTxAnyoneBids(
         txRes: SuiTransactionBlockResponse,
     ): TxAnyoneBids | null
     {
@@ -532,7 +532,7 @@ export class AuctionClient extends SuiClientBase
         for (const tx of txData.txs)
         {
             // find the SplitCoins tx and parse the bid amount
-            if (isTxSplitCoins(tx) && tx.SplitCoins[0] === "GasCoin")
+            if (isTxSplitCoins(tx))
             {
                 const splitTxInputs = tx.SplitCoins[1]
                     .filter(arg => isArgInput(arg))
