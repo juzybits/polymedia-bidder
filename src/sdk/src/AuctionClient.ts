@@ -170,18 +170,22 @@ export class AuctionClient extends SuiClientBase
     public async fetchTxsAdminCreatesAuction(
         cursor: string | null | undefined,
     ) {
-        const filter = { MoveFunction: {
-            package: this.packageId, module: "auction", function: "admin_creates_auction"
-        }};
+        const filter: TransactionFilter = {
+            MoveFunction: {
+                package: this.packageId, module: "auction", function: "admin_creates_auction"
+            }
+        };
         return this.fetchAndParseTxs(filter, this.parseTxAdminCreatesAuction.bind(this), cursor);
     }
 
     public async fetchTxsAnyoneBids(
         cursor: string | null | undefined,
     ) {
-        const filter = { MoveFunction: {
-            package: this.packageId, module: "auction", function: "anyone_bids"
-        }};
+        const filter: TransactionFilter = {
+            MoveFunction: {
+                package: this.packageId, module: "auction", function: "anyone_bids"
+            }
+        };
         return this.fetchAndParseTxs(filter, this.parseTxAnyoneBids.bind(this), cursor);
     }
 
@@ -189,7 +193,7 @@ export class AuctionClient extends SuiClientBase
         auctionId: string,
         cursor: string | null | undefined,
     ) {
-        const filter = { ChangedObject: auctionId };
+        const filter: TransactionFilter = { ChangedObject: auctionId };
         return this.fetchAndParseTxs(filter, this.parseAuctionTx.bind(this), cursor);
     }
 
