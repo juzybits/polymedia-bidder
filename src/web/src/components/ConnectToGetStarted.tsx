@@ -10,7 +10,7 @@ export const ConnectToGetStarted: React.FC = () =>
     const currAcct = useCurrentAccount();
     const { mutate: disconnect } = useDisconnectWallet();
 
-    const { inProgress, openConnectModal, setShowMobileNav } = useOutletContext<AppContext>();
+    const { isWorking, openConnectModal, setShowMobileNav } = useOutletContext<AppContext>();
 
     // === functions ===
 
@@ -26,7 +26,7 @@ export const ConnectToGetStarted: React.FC = () =>
             <div className="section-description">
                 Connect your Sui wallet to get started.
             </div>
-            <button className="btn" disabled={inProgress} onClick={connectWallet}>
+            <button className="btn" disabled={isWorking} onClick={connectWallet}>
                 CONNECT
             </button>
         </div>

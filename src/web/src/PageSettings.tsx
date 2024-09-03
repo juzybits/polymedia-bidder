@@ -94,7 +94,7 @@ const SectionNetwork: React.FC = () => // TODO: style
 {
     // === state ===
 
-    const { inProgress, network, setNetwork } = useOutletContext<AppContext>();
+    const { isWorking, network, setNetwork } = useOutletContext<AppContext>();
 
     const onSwitchNetwork = (newNet: NetworkName) => {
         setNetwork(newNet);
@@ -109,7 +109,7 @@ const SectionNetwork: React.FC = () => // TODO: style
                 currentNetwork={network}
                 supportedNetworks={supportedNetworks}
                 onSwitch={onSwitchNetwork}
-                disabled={inProgress}
+                disabled={isWorking}
                 id="btn-network"
             />
         </div>

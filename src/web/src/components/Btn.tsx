@@ -11,12 +11,12 @@ export const Btn: React.FC<{
     children,
 }) =>
 {
-    const { inProgress } = useOutletContext<AppContext>();
+    const { isWorking } = useOutletContext<AppContext>();
 
     return (
         <button
             onClick={onClick}
-            className={`btn ${inProgress ? "loading" : ""}`}
+            className={`btn ${isWorking ? "working" : ""}`}
             disabled={disabled}
         >
             {children}

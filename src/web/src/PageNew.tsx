@@ -88,7 +88,7 @@ const FormCreateAuction: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient, inProgress, setInProgress } = useOutletContext<AppContext>();
+    const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
     const { userId, ..._user} = useFetchUserId();
 
@@ -152,7 +152,7 @@ const FormCreateAuction: React.FC<{
         }
         try {
             setSubmitErr(null);
-            setInProgress(true);
+            setIsWorking(true);
             const { resp: _, auctionObj } = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
@@ -170,7 +170,7 @@ const FormCreateAuction: React.FC<{
         } catch (err) {
             setSubmitErr(err instanceof Error ? err.message : String(err));
         } finally {
-            setInProgress(false);
+            setIsWorking(false);
         }
     };
 

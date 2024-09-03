@@ -79,7 +79,7 @@ const AppSuiProviders: React.FC = () => {
 
 export type AppContext = {
     network: NetworkName; setNetwork: ReactSetter<NetworkName>;
-    inProgress: boolean; setInProgress: ReactSetter<boolean>;
+    isWorking: boolean; setIsWorking: ReactSetter<boolean>;
     showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
     header: React.ReactNode;
@@ -111,7 +111,7 @@ const App: React.FC<{
         );
     }, [suiClient, packageId, walletSignTx]);
 
-    const [ inProgress, setInProgress ] = useState(false);
+    const [ isWorking, setIsWorking ] = useState(false);
     const [ showMobileNav, setShowMobileNav ] = useState(false);
     const [ showConnectModal, setShowConnectModal ] = useState(false);
     // const [ modalContent, setModalContent ] = useState<ReactNode>(null);
@@ -122,7 +122,7 @@ const App: React.FC<{
 
     const appContext: AppContext = {
         network, setNetwork,
-        inProgress, setInProgress,
+        isWorking, setIsWorking,
         showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,
         header: <Header />,
@@ -136,7 +136,7 @@ const App: React.FC<{
     if (showMobileNav) {
         layoutClasses.push("menu-open");
     }
-    if (inProgress) {
+    if (isWorking) {
         layoutClasses.push("disabled");
     }
 
