@@ -3,7 +3,7 @@ import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, newEmptyDisplay, ObjectDisplay, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 import { timeAgo } from "../lib/time";
 import { IconCheck } from "./icons";
@@ -138,14 +138,16 @@ export const CardTxAdminCreatesAuctionHome: React.FC<{
     tx,
 }) =>
 {
-    return <Link to={`/auction/${tx.auctionId}`} className="card">
+    const navigate = useNavigate();
+
+    return <div className="card link" onClick={() => { navigate(`/auction/${tx.auctionId}`); }}>
         <div>
             <span className="label">{timeAgo(tx.timestamp)} ago</span>
         </div>
         <div>Name: {tx.inputs.name}</div>
-        <div>Description: {tx.inputs.description}</div>
+        {tx.inputs.description.length > 0 && <div>Description: {tx.inputs.description}</div>}
         <div>Items: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
-    </Link>;
+    </div>;
 
 };
 
