@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -82,14 +82,17 @@ const FormCreateAuction: React.FC<{
 {
     // === state ===
 
+    const navigate = useNavigate();
+
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { auctionClient, inProgress, setInProgress } = useOutletContext<AppContext>();
 
     const { userId, ..._user} = useFetchUserId();
 
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
+    const [ submitErr, setSubmitErr ] = useState<string | null>(null);
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
 
@@ -147,7 +150,9 @@ const FormCreateAuction: React.FC<{
             return;
         }
         try {
-            const resp = await auctionClient.createAndShareAuction(
+            setSubmitErr(null);
+            setInProgress(true);
+            const { resp: _, auctionObj } = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,
@@ -160,9 +165,11 @@ const FormCreateAuction: React.FC<{
                 form.extension_period_minutes.val! * ONE_MINUTE_MS,
                 chosenItems,
             );
-            console.debug("resp:", resp);
+            navigate(`/auction/${auctionObj.reference.objectId}`);
         } catch (err) {
-            console.warn(err);
+            setSubmitErr(err instanceof Error ? err.message : String(err));
+        } finally {
+            setInProgress(false);
         }
     };
 
@@ -190,9 +197,13 @@ const FormCreateAuction: React.FC<{
             </>}
         </div>
 
-        <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
+        <button onClick={onSubmit} className={`btn ${inProgress ? "loading" : ""}`} disabled={disableSubmit}>
             CREATE AUCTION
         </button>
+
+        <div className="error">
+            {submitErr}
+        </div>
 
         <div className="chosen-items">
             <h2>Chosen items ({chosenItems.length})</h2>

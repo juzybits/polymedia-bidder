@@ -1,5 +1,6 @@
 import { bcs } from "@mysten/sui/bcs";
 import {
+    OwnedObjectRef,
     SuiClient,
     SuiObjectResponse,
     SuiTransactionBlockResponse,
@@ -649,7 +650,7 @@ export class AuctionClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: { id: string; type: string }[],
-    ): Promise<SuiTransactionBlockResponse>
+    ): Promise<{ resp: SuiTransactionBlockResponse, auctionObj: OwnedObjectRef }>
     {
         const tx = new Transaction();
 
@@ -657,7 +658,7 @@ export class AuctionClient extends SuiClientBase
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
             : UserModule.existing_user_request(tx, this.packageId, userObj);
 
-        const [reqArg1, auctionObj] = AuctionModule.admin_creates_auction(
+        const [reqArg1, auctionArg] = AuctionModule.admin_creates_auction(
             tx,
             this.packageId,
             type_coin,
@@ -680,7 +681,7 @@ export class AuctionClient extends SuiClientBase
                 this.packageId,
                 type_coin,
                 item.type,
-                auctionObj,
+                auctionArg,
                 item.id,
             );
         }
@@ -688,11 +689,21 @@ export class AuctionClient extends SuiClientBase
         TransferModule.public_share_object(
             tx,
             `${this.packageId}::auction::Auction<${type_coin}>`,
-            auctionObj,
+            auctionArg,
         );
 
         const resp = await this.signAndExecuteTransaction(tx);
-        return resp;
+
+        if (resp.effects?.status.status !== "success") {
+            throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        const auctionObj = resp.effects?.created?.find(o => isOwnerShared(o.owner));
+        if (!auctionObj) {
+            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        return { resp, auctionObj };
     }
 
     public async bid(
