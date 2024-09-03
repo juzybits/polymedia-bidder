@@ -5,6 +5,7 @@ import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
+import { timeAgo } from "../lib/time";
 import { IconCheck } from "./icons";
 
 // === cards ===
@@ -129,6 +130,23 @@ export const CardTransaction: React.FC<{
     return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
         {JSON.stringify(tx, null, 2)}
     </div>
+};
+
+export const CardTxAdminCreatesAuctionHome: React.FC<{
+    tx: TxAdminCreatesAuction;
+}> = ({
+    tx,
+}) =>
+{
+    return <Link to={`/auction/${tx.auctionId}`} className="card">
+        <div>
+            <span className="label">{timeAgo(tx.timestamp)} ago</span>
+        </div>
+        <div>Name: {tx.inputs.name}</div>
+        <div>Description: {tx.inputs.description}</div>
+        <div>Items: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
+    </Link>;
+
 };
 
 export const CardTxAdminCreatesAuction: React.FC<{
