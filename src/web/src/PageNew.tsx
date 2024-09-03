@@ -3,6 +3,7 @@ import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymed
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
+import { Btn } from "./components/Btn";
 import { CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
@@ -197,9 +198,9 @@ const FormCreateAuction: React.FC<{
             </>}
         </div>
 
-        <button onClick={onSubmit} className={`btn ${inProgress ? "loading" : ""}`} disabled={disableSubmit}>
+        <Btn onClick={onSubmit} disabled={disableSubmit}>
             CREATE AUCTION
-        </button>
+        </Btn>
 
         <div className="error">
             {submitErr}
