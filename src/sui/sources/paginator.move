@@ -1,7 +1,16 @@
 module bidder::paginator;
 
+// === imports ===
+
 use std::u64::{Self};
+use sui::package::{Self};
 use sui::table_vec::{TableVec};
+
+// === structs ===
+
+public struct PAGINATOR has drop {}
+
+// === functions ===
 
 public fun get_page<T: store + copy>(
     items: &TableVec<T>,
@@ -75,4 +84,13 @@ fun get_page_descending<T: store + copy>(
         else { end - 1 }; // otherwise, return the index just before the end index
 
     return (data, has_more, next_cursor)
+}
+
+// === initialization ===
+
+#[allow(lint(share_owned))]
+fun init(otw: PAGINATOR, ctx: &mut TxContext)
+{
+    let publisher = package::claim(otw, ctx);
+    transfer::public_transfer(publisher, ctx.sender());
 }
