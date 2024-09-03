@@ -8,11 +8,11 @@ export const PageDevDisplayAuction: React.FC = () =>
     useEffect(() =>
     {
         const svgRaw = makeDisplaySvg({
-            backgroundColor: "black",
             appName: "BIDDER",
             titleText: "AUCTION",
-            fontSize: "75px",
             descriptionText: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore",
+            titleFontSize: "150px",
+            descriptionFontSize: "70px",
         });
 
         const svgTrimmed = trimSvg(svgRaw);

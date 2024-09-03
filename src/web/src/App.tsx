@@ -15,8 +15,6 @@ import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
 import { IconHistory, IconNew, IconSettings } from "./components/icons";
 import { PageAuction } from "./PageAuction";
-import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
-import { PageDevDisplayUser } from "./PageDevDisplayUser";
 import { PageHistory } from "./PageHistory";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
@@ -37,8 +35,9 @@ export const AppRouter: React.FC = () => {
                 <Route path="/history" element={<PageHistory />} />
                 <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId" element={<PageAuction />} />
-                <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
+                {/* <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
                 <Route path="/dev/display/user" element={<PageDevDisplayUser />} />
+                <Route path="/dev/display/registry" element={<PageDevDisplayUserRegistry />} /> */}
             </Route>
         </Routes>
     </BrowserRouter>

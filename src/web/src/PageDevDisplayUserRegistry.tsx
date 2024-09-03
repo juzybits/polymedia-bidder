@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
 
-export const PageDevDisplayUser: React.FC = () =>
+export const PageDevDisplayUserRegistry: React.FC = () =>
 {
     const [svgDataUrl, setSvgDataUrl] = useState("");
 
@@ -9,8 +9,8 @@ export const PageDevDisplayUser: React.FC = () =>
     {
         const svgRaw = makeDisplaySvg({
             appName: "BIDDER",
-            titleText: "USER",
-            titleFontSize: "200px",
+            titleText: "USER REGISTRY",
+            titleFontSize: "160px",
         });
 
         const svgTrimmed = trimSvg(svgRaw);

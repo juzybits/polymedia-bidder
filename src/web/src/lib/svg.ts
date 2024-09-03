@@ -1,18 +1,18 @@
 export function makeDisplaySvg({
     textColor = "white",
-    backgroundColor = "#002436",
-    fontSize = "100px",
+    backgroundColor = "#0F4C75",
     fontFamily = "system-ui",
     titleText = "PLACEHOLDER",
-    titleFontSize = "1.5em",
+    titleFontSize = "150px",
     descriptionText = "",
-    descriptionFontSize = "1em",
+    descriptionFontSize = "100px",
     appName = "",
     appNameFontSize = "75px",
     appNameTextColor = "yellow",
     appNameBackgroundColor = "black",
 }): string
 {
+    const padding: string = "40px";
     return `
     <svg width="100%" height="100%" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="${backgroundColor}"/>
@@ -25,11 +25,10 @@ export function makeDisplaySvg({
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                gap: 0.5em;
+                gap: ${padding};
                 position: relative;
                 box-sizing: border-box;
-                padding: 0.66em;
-                font-size: ${fontSize};
+                padding: ${padding};
                 font-family: ${fontFamily};
                 color: ${textColor};
                 text-align: center;
@@ -40,16 +39,16 @@ export function makeDisplaySvg({
                 <b>${titleText}</b>
             </div>
 
-            ${descriptionText ??
+            ${descriptionText ?
             `<div style="font-size: ${descriptionFontSize}">
                 ${descriptionText}
-            </div>`}
+            </div>` : ''}
 
             ${appName ? `
             <div style="
                 position: absolute;
-                bottom: 0.5em;
-                right: 0.5em;
+                bottom: ${padding};
+                right: ${padding};
                 font-size: ${appNameFontSize};
                 text-align: right;
                 font-weight: bold;
