@@ -7,6 +7,10 @@ export function makeDisplaySvg({
     titleFontSize = "1.5em",
     descriptionText = "",
     descriptionFontSize = "1em",
+    appName = "",
+    appNameFontSize = "75px",
+    appNameTextColor = "yellow",
+    appNameBackgroundColor = "black",
 }): string
 {
     return `
@@ -21,7 +25,8 @@ export function makeDisplaySvg({
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                gap: 1em;
+                gap: 0.5em;
+                position: relative;
                 box-sizing: border-box;
                 padding: 0.66em;
                 font-size: ${fontSize};
@@ -34,7 +39,27 @@ export function makeDisplaySvg({
             <div style="font-size: ${titleFontSize}">
                 <b>${titleText}</b>
             </div>
-            ${descriptionText ? `<div style="font-size: ${descriptionFontSize}">${descriptionText}</div>` : ''}
+
+            ${descriptionText ??
+            `<div style="font-size: ${descriptionFontSize}">
+                ${descriptionText}
+            </div>`}
+
+            ${appName ? `
+            <div style="
+                position: absolute;
+                bottom: 0.5em;
+                right: 0.5em;
+                font-size: ${appNameFontSize};
+                text-align: right;
+                font-weight: bold;
+                color: ${appNameTextColor};
+                background-color: ${appNameBackgroundColor};
+                border: 9px solid ${appNameTextColor};
+                padding: 0 15px;
+            ">
+                ${appName}
+            </div>` : ''}
         </div>
       </foreignObject>
     </svg>

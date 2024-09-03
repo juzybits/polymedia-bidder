@@ -8,8 +8,9 @@ export const PageDevDisplayUser: React.FC = () =>
     useEffect(() =>
     {
         const svgRaw = makeDisplaySvg({
-            backgroundColor: "#002436",
-            titleText: "AUCTION USER REGISTRY",
+            backgroundColor: "#0b3f62",
+            appName: "BIDDER",
+            titleText: "USER",
             fontSize: "100px",
         });
 

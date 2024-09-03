@@ -16,7 +16,6 @@ import { Glitch } from "./components/Glitch";
 import { IconHistory, IconNew, IconSettings } from "./components/icons";
 import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction } from "./PageDevDisplayAuction";
-import { PageDevDisplayHistory } from "./PageDevDisplayHistory";
 import { PageDevDisplayUser } from "./PageDevDisplayUser";
 import { PageHistory } from "./PageHistory";
 import { PageHome } from "./PageHome";
@@ -39,7 +38,6 @@ export const AppRouter: React.FC = () => {
                 <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId" element={<PageAuction />} />
                 <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
-                <Route path="/dev/display/history" element={<PageDevDisplayHistory />} />
                 <Route path="/dev/display/user" element={<PageDevDisplayUser />} />
             </Route>
         </Routes>
