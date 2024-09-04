@@ -154,7 +154,7 @@ const SectionBid: React.FC<{
     if (errorCoinMeta || coinMeta === null) {
         content = <FullCardMsg>Failed to fetch coin metadata</FullCardMsg>;
     } else if (errorFetchUserId) { // userId may be null for new users
-        content = <FullCardMsg>Failed to fetch user object</FullCardMsg>;
+        content = <FullCardMsg>{errorFetchUserId}</FullCardMsg>;
     } else if (isLoading) {
         content = <FullCardMsg>Loading…</FullCardMsg>;
     } else {
