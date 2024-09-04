@@ -2,8 +2,10 @@ import { bcs } from "@mysten/sui/bcs";
 import {
     OwnedObjectRef,
     SuiClient,
+    SuiObjectChange,
     SuiObjectResponse,
     SuiTransactionBlockResponse,
+    SuiTransactionBlockResponseOptions,
     TransactionFilter
 } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
@@ -22,8 +24,10 @@ import {
     objResToType,
     SignTransaction,
     SuiClientBase,
+    SuiObjectChangeCreated,
     TransferModule,
     txResToData,
+    WaitForTxOptions,
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG } from "./config.js";
@@ -49,8 +53,10 @@ export class AuctionClient extends SuiClientBase
         signTransaction: SignTransaction,
         packageId: string,
         registryId: string,
+        txResponseOptions?: SuiTransactionBlockResponseOptions,
+        waitForTxOptions?: WaitForTxOptions,
     ) {
-        super(suiClient, signTransaction);
+        super(suiClient, signTransaction, txResponseOptions, waitForTxOptions);
         this.packageId = packageId;
         this.registryId = registryId;
         this.cache = {
@@ -205,7 +211,7 @@ export class AuctionClient extends SuiClientBase
     ) {
         const pagTxRes = await this.suiClient.queryTransactionBlocks({
             filter,
-            options: { showEffects: true, showInput: true, },
+            options: { showEffects: true, showObjectChanges: true, showInput: true, },
             cursor,
             order: "descending",
         });
@@ -368,9 +374,9 @@ export class AuctionClient extends SuiClientBase
         const type_coin = objType.split("<")[1].split(">")[0];
 
         return {
-            // === struct types ===
+            // struct types
             type_coin,
-            // === fields that map 1:1 to on-chain struct fields ===
+            // fields that map 1:1 to on-chain struct fields
             id: fields.id.id,
             name: fields.name,
             description: fields.description,
@@ -388,7 +394,7 @@ export class AuctionClient extends SuiClientBase
             minimum_bid: BigInt(fields.minimum_bid),
             minimum_increase_bps: Number(fields.minimum_increase_bps),
             extension_period_ms: Number(fields.extension_period_ms),
-            // === derived fields ===
+            // derived fields
             is_live: currentTimeMs >= beginTimeMs && currentTimeMs < endTimeMs,
             has_ended: currentTimeMs >= endTimeMs,
         };
@@ -410,8 +416,8 @@ export class AuctionClient extends SuiClientBase
         const allInputs = txData.inputs;
 
         // find the created auction object
-        const createdObjRef = txRes.effects?.created?.find(o => isOwnerShared(o.owner));
-        if (!createdObjRef) { return null; }
+        const auctionObjChange = this.extractAuctionObjChange(txRes);
+        if (!auctionObjChange) { return null; }
 
         let createTxInputs: Omit<TxAdminCreatesAuction["inputs"], "item_addrs"> | undefined;
         const item_addrs: string[] = []; // these come from `admin_adds_item` calls
@@ -468,7 +474,7 @@ export class AuctionClient extends SuiClientBase
             digest: txRes.digest,
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
-            auctionId: createdObjRef.reference.objectId,
+            auctionId: auctionObjChange.objectId,
             inputs: {
                 ...createTxInputs,
                 item_addrs,
@@ -483,8 +489,8 @@ export class AuctionClient extends SuiClientBase
         txRes: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | null
     {
-        const createdObjRef = txRes.effects?.created?.find(o => isOwnerShared(o.owner));
-        if (!createdObjRef) { return null; }
+        const auctionObjChange = this.extractAuctionObjChange(txRes);
+        if (!auctionObjChange) { return null; }
 
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(txRes); }
@@ -500,7 +506,7 @@ export class AuctionClient extends SuiClientBase
             digest: txRes.digest,
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
-            auctionId: createdObjRef.reference.objectId,
+            auctionId: auctionObjChange.objectId,
             inputs: {
                 type_coin,
                 name: getArgVal(inputs[1]),
@@ -636,6 +642,18 @@ export class AuctionClient extends SuiClientBase
         return null;
     }
 
+    /**
+     * Extract the created Auction object (if any) from a `SuiTransactionBlockResponse`.
+     */
+    public extractAuctionObjChange(
+        txRes: SuiTransactionBlockResponse,
+    ): SuiObjectChangeCreated | undefined
+    {
+        return txRes.objectChanges?.find(o =>
+            o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
+        ) as SuiObjectChangeCreated | undefined;
+    }
+
     // === module interactions ===
 
     public async createAndShareAuction(
@@ -650,7 +668,7 @@ export class AuctionClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: { id: string; type: string }[],
-    ): Promise<{ resp: SuiTransactionBlockResponse, auctionObj: OwnedObjectRef }>
+    ): Promise<{ resp: SuiTransactionBlockResponse, auctionObjChange: SuiObjectChangeCreated }>
     {
         const tx = new Transaction();
 
@@ -698,12 +716,12 @@ export class AuctionClient extends SuiClientBase
             throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        const auctionObj = resp.effects?.created?.find(o => isOwnerShared(o.owner));
-        if (!auctionObj) {
+        const auctionObjChange = this.extractAuctionObjChange(resp);
+        if (!auctionObjChange) {
             throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        return { resp, auctionObj };
+        return { resp, auctionObjChange };
     }
 
     public async bid(

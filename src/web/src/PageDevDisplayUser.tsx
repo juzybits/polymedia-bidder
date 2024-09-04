@@ -22,7 +22,7 @@ export const PageDevDisplayUser: React.FC = () =>
     }, []);
 
     return (
-    <div id="page-dev-display-history" className="page-regular">
+    <div id="page-dev-display-user" className="page-regular">
 
         <div className="page-content">
 
