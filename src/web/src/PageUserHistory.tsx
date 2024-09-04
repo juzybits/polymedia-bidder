@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { CardAuctionDetails, FullCardMsg } from "./components/cards";
+import { CardAuctionDetails, CardLoading, FullCardMsg } from "./components/cards";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 
 export const PageUserHistory: React.FC = () =>
@@ -30,7 +30,10 @@ export const PageUserHistory: React.FC = () =>
     } else if (userId === null) {
         content = <div className="card"><FullCardMsg>Nothing yet</FullCardMsg></div>;
     } else {
-        content = <SectionsHistory userId={userId} />;
+        content = <>
+            <SectionUserAuctions userId={userId} />
+            <SectionUserBids userId={userId} />
+        </>
     }
     return <>
         {header}
@@ -43,7 +46,7 @@ export const PageUserHistory: React.FC = () =>
     </>;
 };
 
-const SectionsHistory: React.FC<{
+const SectionUserAuctions: React.FC<{
     userId: string;
 }> = ({
     userId,
@@ -51,13 +54,10 @@ const SectionsHistory: React.FC<{
 {
     // === state ===
 
-    const currAcct = useCurrentAccount();
-    if (!currAcct) { return; }
+    const { auctionClient } = useOutletContext<AppContext>();
 
-    const { network, auctionClient } = useOutletContext<AppContext>();
-
-    const [ userAuctions, setUserAuctions ] = useState<AuctionObj[]>();
-    const [ userBids, setUserBids ] = useState<UserBid[]>();
+    const [ userAuctions, setUserAuctions ] = useState<AuctionObj[] | null | undefined>();
+    const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === effects ===
 
@@ -69,21 +69,29 @@ const SectionsHistory: React.FC<{
 
     const fetchAuctions = async () =>
     {
-        const newUserAuctions = await auctionClient.fetchUserAuctions(userId);
-        const newUserBids = await auctionClient.fetchUserBids(userId);
-        setUserAuctions(newUserAuctions);
-        setUserBids(newUserBids);
+        setErrFetch(null);
+        setUserAuctions(undefined);
+        try {
+            const newUserAuctions = await auctionClient.fetchUserAuctions(userId);
+            setUserAuctions(newUserAuctions);
+        } catch (err) {
+            setUserAuctions(null);
+            setErrFetch("Failed to fetch user auctions");
+            console.warn("[fetchAuctions]", err);
+        }
     };
 
     // === html ===
 
-    if (userAuctions === undefined || userBids === undefined) {
-        return <>
-            <div>Loading...</div>
-        </>;
+    if (errFetch) {
+        return <div className="card"><FullCardMsg>{errFetch}</FullCardMsg></div>;
     }
 
-    return <>
+    if (!userAuctions) {
+        return <CardLoading />;
+    }
+
+    return (
         <div className="page-section">
             <div className="section-title">
                 Your auctions
@@ -96,7 +104,56 @@ const SectionsHistory: React.FC<{
                 )}
             </div>
         </div>
+    );
+};
 
+
+const SectionUserBids: React.FC<{
+    userId: string;
+}> = ({
+    userId,
+}) => // TODO: pagination
+{
+    // === state ===
+
+    const { network, auctionClient } = useOutletContext<AppContext>();
+
+    const [ userBids, setUserBids ] = useState<UserBid[] | null | undefined>();
+    const [ errFetch, setErrFetch ] = useState<string | null>(null);
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchBids();
+    }, [userId]);
+
+    // === functions ===
+
+    const fetchBids = async () =>
+    {
+        setUserBids(undefined);
+        setErrFetch(null);
+        try {
+            const newUserBids = await auctionClient.fetchUserBids(userId);
+            setUserBids(newUserBids);
+        } catch (err) {
+            setUserBids(null);
+            setErrFetch("Failed to fetch user bids");
+            console.warn("[fetchBids]", err);
+        }
+    };
+
+    // === html ===
+
+    if (errFetch) {
+        return <div className="card"><FullCardMsg>{errFetch}</FullCardMsg></div>;
+    }
+
+    if (!userBids) {
+        return <CardLoading />;
+    }
+
+    return <>
         <div className="page-section">
             <div className="section-title">
                 Your bids

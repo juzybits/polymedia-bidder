@@ -235,6 +235,12 @@ export const ObjectLinkList: React.FC<{
     ))}</>;
 };
 
+export const CardLoading: React.FC = () => {
+    return <div className="card">
+        <div className="msg">Loading...</div>
+    </div>;
+};
+
 export const FullCardMsg: React.FC<{
     children: React.ReactNode;
 }> = ({
