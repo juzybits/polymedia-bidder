@@ -12,7 +12,7 @@ import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
-type TabName = "items" | "bid" | "details" | "activity";
+type TabName = "items" | "bid" | "details" | "history";
 
 const TabHeader: React.FC<{
     tabName: TabName;
@@ -100,14 +100,14 @@ export const PageAuction: React.FC = () =>
                     <TabHeader tabName="items" selectedTab={tab} setTab={setTab} />
                     {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} />}
                     <TabHeader tabName="details" selectedTab={tab} setTab={setTab} />
-                    <TabHeader tabName="activity" selectedTab={tab} setTab={setTab} />
+                    <TabHeader tabName="history" selectedTab={tab} setTab={setTab} />
                 </div>
 
                 <div className="tabs-content">
                     {tab === "items" && <SectionItems auction={auction} />}
                     {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
                     {tab === "details" && <SectionDetails auction={auction} />}
-                    {tab === "activity" && <SectionActivity auction={auction} />}
+                    {tab === "history" && <SectionHistory auction={auction} />}
                 </div>
 
             </div>
@@ -251,7 +251,7 @@ const SectionDetails: React.FC<{ // TODO
     );
 };
 
-const SectionActivity: React.FC<{
+const SectionHistory: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
