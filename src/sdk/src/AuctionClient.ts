@@ -643,7 +643,7 @@ export class AuctionClient extends SuiClientBase
     }
 
     /**
-     * Extract the created Auction object (if any) from a `SuiTransactionBlockResponse`.
+     * Extract the created Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
      */
     public extractAuctionObjChange(
         txRes: SuiTransactionBlockResponse,
@@ -668,7 +668,7 @@ export class AuctionClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: { id: string; type: string }[],
-    ): Promise<{ resp: SuiTransactionBlockResponse, auctionObjChange: SuiObjectChangeCreated }>
+    ): Promise<{ txRes: SuiTransactionBlockResponse, auctionObjChange: SuiObjectChangeCreated }>
     {
         const tx = new Transaction();
 
@@ -710,18 +710,18 @@ export class AuctionClient extends SuiClientBase
             auctionArg,
         );
 
-        const resp = await this.signAndExecuteTransaction(tx);
+        const txRes = await this.signAndExecuteTransaction(tx);
 
-        if (resp.effects?.status.status !== "success") {
-            throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
+        if (txRes.effects?.status.status !== "success") {
+            throw new Error(`Transaction failed: ${JSON.stringify(txRes, null, 2)}`);
         }
 
-        const auctionObjChange = this.extractAuctionObjChange(resp);
+        const auctionObjChange = this.extractAuctionObjChange(txRes);
         if (!auctionObjChange) {
-            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
+            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(txRes, null, 2)}`);
         }
 
-        return { resp, auctionObjChange };
+        return { txRes, auctionObjChange };
     }
 
     public async bid(
@@ -751,7 +751,7 @@ export class AuctionClient extends SuiClientBase
 
         UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
-        const resp = await this.signAndExecuteTransaction(tx);
-        return resp;
+        const txRes = await this.signAndExecuteTransaction(tx);
+        return txRes;
     }
 }

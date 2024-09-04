@@ -153,7 +153,7 @@ const FormCreateAuction: React.FC<{
         try {
             setSubmitErr(null);
             setIsWorking(true);
-            const { resp: _, auctionObjChange } = await auctionClient.createAndShareAuction(
+            const { txRes: _, auctionObjChange } = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,

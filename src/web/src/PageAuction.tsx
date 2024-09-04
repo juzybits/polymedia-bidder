@@ -195,14 +195,14 @@ const FormBid: React.FC<{
             return;
         }
         try {
-            const resp = await auctionClient.bid(
+            const txRes = await auctionClient.bid(
                 currAcct.address,
                 userId,
                 auction.id,
                 auction.type_coin,
                 form.amount.val!,
             );
-            console.debug("resp:", resp);
+            console.debug("txRes:", txRes);
         } catch (err) {
             console.warn(err);
         }
