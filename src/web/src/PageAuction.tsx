@@ -43,7 +43,7 @@ export const PageAuction: React.FC = () =>
     const { auctionClient, header } = useOutletContext<AppContext>();
 
     const [ tab, setTab ] = useState<TabName>("items");
-    const [ auction, setAuction ] = useState<AuctionObj|null>();
+    const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
 
     // === effects ===
@@ -56,6 +56,7 @@ export const PageAuction: React.FC = () =>
 
     const fetchAuction = async () => {
         setErr(null);
+        setAuction(undefined);
         try {
             const auction = await auctionClient.fetchAuction(auctionId);
             setAuction(auction);
@@ -68,14 +69,14 @@ export const PageAuction: React.FC = () =>
 
     // === html ===
 
-    if (auction === undefined) {
-        return <PageFullScreenMsg>LOADING…</PageFullScreenMsg>;
+    if (err) {
+        return <PageFullScreenMsg>{err.toUpperCase()}</PageFullScreenMsg>;
     }
     if (auction === null) {
         return <PageFullScreenMsg>AUCTION NOT FOUND</PageFullScreenMsg>;
     }
-    if (err) {
-        return <PageFullScreenMsg>{err.toUpperCase()}</PageFullScreenMsg>;
+    if (auction === undefined) {
+        return <PageFullScreenMsg>LOADING…</PageFullScreenMsg>;
     }
 
     // === html ===
@@ -137,9 +138,9 @@ const SectionBid: React.FC<{
 {
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const { coinMeta, ..._meta } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
+    const { coinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
 
-    const { userId, ..._user } = useFetchUserId();
+    const { userId, errorFetchUserId } = useFetchUserId();
 
     // === effects ===
 
@@ -149,13 +150,13 @@ const SectionBid: React.FC<{
 
     const isLoading = coinMeta === undefined || userId === undefined;
 
-    let content;
-    if (isLoading) {
-        content = <FullCardMsg>Loading…</FullCardMsg>;
-    } else if (coinMeta === null) {
+    let content: React.ReactNode;
+    if (errorCoinMeta || coinMeta === null) {
         content = <FullCardMsg>Failed to fetch coin metadata</FullCardMsg>;
-    } else if (userId === null) {
+    } else if (errorFetchUserId) { // userId may be null for new users
         content = <FullCardMsg>Failed to fetch user object</FullCardMsg>;
+    } else if (isLoading) {
+        content = <FullCardMsg>Loading…</FullCardMsg>;
     } else {
         content = <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />;
     }
@@ -181,6 +182,7 @@ const FormBid: React.FC<{
 
     const currAcct = useCurrentAccount();
     const { auctionClient } = useOutletContext<AppContext>();
+    const [ errSubmit, setErrSubmit ] = useState<string | null>(null);
 
     const form = {
         amount: useInputUnsignedBalance({
@@ -194,9 +196,11 @@ const FormBid: React.FC<{
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
     const disableSubmit = hasErrors || !currAcct;
 
+    // === effects ===
+
     // === functions ===
 
-    const onSubmit = async () =>
+    const onSubmit = async () => // TODO simulate tx to module catch error (e.g. someone else bid)
     {
         if (disableSubmit) {
             return;
@@ -211,7 +215,8 @@ const FormBid: React.FC<{
             );
             console.debug("txRes:", txRes);
         } catch (err) {
-            console.warn(err);
+            setErrSubmit("Failed to submit bid"); // TODO: parse module errors (e.g. someone else bid)
+            console.warn("[onSubmit]", err);
         }
     };
 
@@ -227,6 +232,9 @@ const FormBid: React.FC<{
             <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
                 BID
             </button>
+
+            {errSubmit &&
+            <div className="error">{errSubmit}</div>}
         </div>
     );
 };
@@ -253,7 +261,8 @@ const SectionActivity: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>>>();
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>> | null | undefined>();
+    const [ err, setErr ] = useState<string | null>(null);
 
     // === effects ===
 
@@ -264,18 +273,27 @@ const SectionActivity: React.FC<{
     // === functions ===
 
     const fetchRecentBids = async () => { // TODO: "load more" / "next page"
+        setErr(null);
+        setTxs(undefined);
         try {
             const newTxs = await auctionClient.fetchTxsByAuctionId(auction.id, null);
             setTxs(newTxs);
         } catch (err) {
-            console.warn("[fetchRecentBids]", err); // TODO show error to user
+            setTxs(null);
+            setErr("Failed to fetch recent bids");
+            console.warn("[fetchRecentBids]", err);
         }
     };
 
     // === html ===
 
-    return (
-        <div className="card">
+    let content: React.ReactNode;
+    if (err) {
+        content = <FullCardMsg>{err}</FullCardMsg>;
+    } else if (txs === undefined) {
+        content = <FullCardMsg>Loading…</FullCardMsg>;
+    } else {
+        content = (
             <div className="list-cards">
                 {txs?.data.map(tx =>
                     <div className="card" key={tx.digest}>
@@ -283,6 +301,12 @@ const SectionActivity: React.FC<{
                     </div>
                 )}
             </div>
+        );
+    }
+
+    return (
+        <div className="card">
+            {content}
         </div>
     );
 };
