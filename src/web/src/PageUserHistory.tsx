@@ -25,10 +25,6 @@ export const PageUserHistory: React.FC = () =>
         content = <ConnectToGetStarted />;
     } else if (errorFetchUserId) {
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
-    } else if (userId === undefined) {
-        content = <CardLoading />;
-    } else if (userId === null) {
-        content = <CardWithMsg>Nothing yet</CardWithMsg>;
     } else {
         content = <>
             <SectionUserAuctions userId={userId} />
@@ -47,7 +43,7 @@ export const PageUserHistory: React.FC = () =>
 };
 
 const SectionUserAuctions: React.FC<{
-    userId: string;
+    userId: string | null | undefined;
 }> = ({
     userId,
 }) => // TODO: pagination
@@ -71,6 +67,9 @@ const SectionUserAuctions: React.FC<{
     {
         setUserAuctions(undefined);
         setErrFetch(null);
+        if (!userId) {
+            return;
+        }
         try {
             const newUserAuctions = await auctionClient.fetchUserAuctions(userId);
             setUserAuctions(newUserAuctions);
@@ -82,19 +81,22 @@ const SectionUserAuctions: React.FC<{
 
     // === html ===
 
-    if (errFetch) {
-        return <CardWithMsg>{errFetch}</CardWithMsg>;
-    }
+    let content: React.ReactNode;
 
-    if (userAuctions === undefined) {
-        return <CardLoading />;
+    if (userId === undefined) {
+        content = <CardLoading />;
     }
-
-    return (
-        <div className="page-section">
-            <div className="section-title">
-                Your auctions
-            </div>
+    else if (userId === null || userAuctions?.length === 0) {
+        content = <CardWithMsg>No auctions yet</CardWithMsg>;
+    }
+    else if (errFetch) {
+        content = <CardWithMsg>{errFetch}</CardWithMsg>;
+    }
+    else if (userAuctions === undefined) {
+        content = <CardLoading />;
+    }
+    else {
+        content = (
             <div className="list-cards">
                 {userAuctions.map(auction =>
                     <div className="card" key={auction.id}>
@@ -102,13 +104,22 @@ const SectionUserAuctions: React.FC<{
                     </div>
                 )}
             </div>
+        );
+    }
+
+    return (
+        <div className="page-section">
+            <div className="section-title">
+                Your auctions
+            </div>
+            {content}
         </div>
     );
 };
 
 
 const SectionUserBids: React.FC<{
-    userId: string;
+    userId: string | null | undefined;
 }> = ({
     userId,
 }) => // TODO: pagination
@@ -132,6 +143,9 @@ const SectionUserBids: React.FC<{
     {
         setUserBids(undefined);
         setErrFetch(null);
+        if (!userId) {
+            return;
+        }
         try {
             const newUserBids = await auctionClient.fetchUserBids(userId);
             setUserBids(newUserBids);
@@ -143,19 +157,22 @@ const SectionUserBids: React.FC<{
 
     // === html ===
 
-    if (errFetch) {
-        return <CardWithMsg>{errFetch}</CardWithMsg>;
-    }
+    let content: React.ReactNode;
 
-    if (userBids === undefined) {
-        return <CardLoading />;
+    if (userId === undefined) {
+        content = <CardLoading />;
     }
-
-    return <>
-        <div className="page-section">
-            <div className="section-title">
-                Your bids
-            </div>
+    else if (userId === null || userBids?.length === 0) {
+        content = <CardWithMsg>No bids yet</CardWithMsg>;
+    }
+    else if (errFetch) {
+        content = <CardWithMsg>{errFetch}</CardWithMsg>;
+    }
+    else if (userBids === undefined) {
+        content = <CardLoading />;
+    }
+    else {
+        content = (
             <div className="list-cards">
                 {userBids.map(bid =>
                     <div key={bid.auction_id + bid.amount} className="card">
@@ -165,6 +182,15 @@ const SectionUserBids: React.FC<{
                     </div>
                 )}
             </div>
+        );
+    }
+
+    return <>
+        <div className="page-section">
+            <div className="section-title">
+                Your bids
+            </div>
+            {content}
         </div>
     </>;
 };
