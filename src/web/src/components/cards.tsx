@@ -79,17 +79,22 @@ export const CardAuctionItems: React.FC<{
         auction.item_addrs.map(addr => newItemPlaceholder(addr))
     );
 
-    // === functions ===
-
-    const fetchItems = async () => {
-        const newItems = await auctionClient.fetchItems(auction.item_addrs);
-        setItems(newItems);
-    };
-
     // === effects ===
+
     useEffect(() => {
         fetchItems();
     }, [auction.item_addrs, network]);
+
+    // === functions ===
+
+    const fetchItems = async () => {
+        try {
+            const newItems = await auctionClient.fetchItems(auction.item_addrs);
+            setItems(newItems);
+        } catch (err) {
+            console.warn("[fetchItems]", err);
+        }
+    };
 
     // === html ===
 

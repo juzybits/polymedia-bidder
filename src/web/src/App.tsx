@@ -15,10 +15,10 @@ import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
 import { IconHistory, IconNew, IconSettings } from "./components/icons";
 import { PageAuction } from "./PageAuction";
+import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHistory } from "./PageHistory";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
-import { PageNotFound } from "./PageNotFound";
 import { PageSettings } from "./PageSettings";
 import "./styles/App.less";
 

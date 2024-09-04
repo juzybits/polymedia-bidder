@@ -8,10 +8,9 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { CardAuctionDetails, CardAuctionItems, CardTransaction } from "./components/cards";
-import { FullScreenMsg } from "./components/FullScreenMsg";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { PageNotFound } from "./PageNotFound";
+import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 type TabName = "items" | "bid" | "details" | "activity";
 
@@ -45,6 +44,7 @@ export const PageAuction: React.FC = () =>
 
     const [ tab, setTab ] = useState<TabName>("items");
     const [ auction, setAuction ] = useState<AuctionObj|null>();
+    const [ err, setErr ] = useState<string | null>(null);
 
     // === effects ===
 
@@ -55,21 +55,26 @@ export const PageAuction: React.FC = () =>
     // === functions ===
 
     const fetchAuction = async () => {
+        setErr(null);
         try {
             const auction = await auctionClient.fetchAuction(auctionId);
             setAuction(auction);
         } catch (err) {
-            console.warn("[fetchAuction]", err); // TODO show error to user
+            setAuction(null);
+            setErr(err instanceof Error ? err.message : String(err));
         }
     };
 
     // === html ===
 
     if (auction === undefined) {
-        return <FullScreenMsg>LOADING…</FullScreenMsg>;
+        return <PageFullScreenMsg>LOADING…</PageFullScreenMsg>;
     }
     if (auction === null) {
-        return <FullScreenMsg>AUCTION NOT FOUND</FullScreenMsg>;
+        return <PageFullScreenMsg>AUCTION NOT FOUND</PageFullScreenMsg>;
+    }
+    if (err) {
+        return <PageFullScreenMsg>{err}</PageFullScreenMsg>;
     }
 
     // === html ===
