@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
-import { CardTxAdminCreatesAuctionHome } from "./components/cards";
+import { CardTxAdminCreatesAuctionShort } from "./components/cards";
 
 export const PageHome: React.FC = () =>
 {
@@ -75,7 +75,7 @@ const SectionRecentAuctions: React.FC = () =>
 
     return <>
         {txs?.data.map(tx => (
-            <CardTxAdminCreatesAuctionHome tx={tx} key={tx.digest} />
+            <CardTxAdminCreatesAuctionShort tx={tx} key={tx.digest} />
         ))}
     </>;
 };

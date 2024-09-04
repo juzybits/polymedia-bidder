@@ -127,7 +127,7 @@ export const CardTransaction: React.FC<{
     tx,
 }) => {
     if (tx.kind === "admin_creates_auction") {
-        return <CardTxAdminCreatesAuction tx={tx} />;
+        return <CardTxAdminCreatesAuctionFull tx={tx} />;
     }
     if (tx.kind === "anyone_bids") {
         return <CardTxAnyoneBids tx={tx} />;
@@ -137,7 +137,7 @@ export const CardTransaction: React.FC<{
     </div>
 };
 
-export const CardTxAdminCreatesAuctionHome: React.FC<{
+export const CardTxAdminCreatesAuctionShort: React.FC<{
     tx: TxAdminCreatesAuction;
 }> = ({
     tx,
@@ -156,7 +156,7 @@ export const CardTxAdminCreatesAuctionHome: React.FC<{
 
 };
 
-export const CardTxAdminCreatesAuction: React.FC<{
+export const CardTxAdminCreatesAuctionFull: React.FC<{
     tx: TxAdminCreatesAuction;
 }> = ({
     tx,
@@ -236,8 +236,18 @@ export const ObjectLinkList: React.FC<{
 };
 
 export const CardLoading: React.FC = () => {
+    return <CardWithMsg>Loading...</CardWithMsg>;
+};
+
+export const CardWithMsg: React.FC<{
+    children: React.ReactNode;
+}> = ({
+    children,
+}) => {
     return <div className="card">
-        <div className="msg">Loading...</div>
+        <FullCardMsg>
+            {children}
+        </FullCardMsg>
     </div>;
 };
 

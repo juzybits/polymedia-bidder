@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { CardAuctionDetails, CardLoading, FullCardMsg } from "./components/cards";
+import { CardAuctionDetails, CardLoading, CardWithMsg } from "./components/cards";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 
 export const PageUserHistory: React.FC = () =>
@@ -24,11 +24,11 @@ export const PageUserHistory: React.FC = () =>
     if (!currAcct) {
         content = <ConnectToGetStarted />;
     } else if (errorFetchUserId) {
-        content = <div className="card"><FullCardMsg>{errorFetchUserId}</FullCardMsg></div>;
+        content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
     } else if (userId === undefined) {
-        content = <div className="card"><FullCardMsg>Loading...</FullCardMsg></div>;
+        content = <CardLoading />;
     } else if (userId === null) {
-        content = <div className="card"><FullCardMsg>Nothing yet</FullCardMsg></div>;
+        content = <CardWithMsg>Nothing yet</CardWithMsg>;
     } else {
         content = <>
             <SectionUserAuctions userId={userId} />
@@ -83,7 +83,7 @@ const SectionUserAuctions: React.FC<{
     // === html ===
 
     if (errFetch) {
-        return <div className="card"><FullCardMsg>{errFetch}</FullCardMsg></div>;
+        return <CardWithMsg>{errFetch}</CardWithMsg>;
     }
 
     if (userAuctions === undefined) {
@@ -144,7 +144,7 @@ const SectionUserBids: React.FC<{
     // === html ===
 
     if (errFetch) {
-        return <div className="card"><FullCardMsg>{errFetch}</FullCardMsg></div>;
+        return <CardWithMsg>{errFetch}</CardWithMsg>;
     }
 
     if (userBids === undefined) {

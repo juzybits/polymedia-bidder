@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./components/cards";
+import { CardLoading, CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
@@ -270,7 +270,7 @@ const ItemGridSelector: React.FC<{
     // === html ===
 
     if (ownedItems === undefined) {
-        return <span>Loading...</span>;
+        return <CardLoading />;
     }
 
     return <>
