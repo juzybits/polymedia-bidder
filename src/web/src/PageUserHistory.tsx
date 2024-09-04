@@ -56,7 +56,7 @@ const SectionUserAuctions: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ userAuctions, setUserAuctions ] = useState<AuctionObj[] | null | undefined>();
+    const [ userAuctions, setUserAuctions ] = useState<AuctionObj[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === effects ===
@@ -69,13 +69,12 @@ const SectionUserAuctions: React.FC<{
 
     const fetchAuctions = async () =>
     {
-        setErrFetch(null);
         setUserAuctions(undefined);
+        setErrFetch(null);
         try {
             const newUserAuctions = await auctionClient.fetchUserAuctions(userId);
             setUserAuctions(newUserAuctions);
         } catch (err) {
-            setUserAuctions(null);
             setErrFetch("Failed to fetch user auctions");
             console.warn("[fetchAuctions]", err);
         }
@@ -87,7 +86,7 @@ const SectionUserAuctions: React.FC<{
         return <div className="card"><FullCardMsg>{errFetch}</FullCardMsg></div>;
     }
 
-    if (!userAuctions) {
+    if (userAuctions === undefined) {
         return <CardLoading />;
     }
 
@@ -118,7 +117,7 @@ const SectionUserBids: React.FC<{
 
     const { network, auctionClient } = useOutletContext<AppContext>();
 
-    const [ userBids, setUserBids ] = useState<UserBid[] | null | undefined>();
+    const [ userBids, setUserBids ] = useState<UserBid[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === effects ===
@@ -137,7 +136,6 @@ const SectionUserBids: React.FC<{
             const newUserBids = await auctionClient.fetchUserBids(userId);
             setUserBids(newUserBids);
         } catch (err) {
-            setUserBids(null);
             setErrFetch("Failed to fetch user bids");
             console.warn("[fetchBids]", err);
         }
@@ -149,7 +147,7 @@ const SectionUserBids: React.FC<{
         return <div className="card"><FullCardMsg>{errFetch}</FullCardMsg></div>;
     }
 
-    if (!userBids) {
+    if (userBids === undefined) {
         return <CardLoading />;
     }
 

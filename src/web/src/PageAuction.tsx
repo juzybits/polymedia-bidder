@@ -55,13 +55,12 @@ export const PageAuction: React.FC = () =>
     // === functions ===
 
     const fetchAuction = async () => {
-        setErr(null);
         setAuction(undefined);
+        setErr(null);
         try {
             const auction = await auctionClient.fetchAuction(auctionId);
             setAuction(auction);
         } catch (err) {
-            setAuction(null);
             setErr("Failed to fetch auction");
             console.warn("[fetchAuction]", err);
         }
@@ -261,8 +260,8 @@ const SectionHistory: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>> | null | undefined>();
-    const [ err, setErr ] = useState<string | null>(null);
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>> | undefined>();
+    const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === effects ===
 
@@ -273,14 +272,13 @@ const SectionHistory: React.FC<{
     // === functions ===
 
     const fetchRecentBids = async () => { // TODO: "load more" / "next page"
-        setErr(null);
         setTxs(undefined);
+        setErrFetch(null);
         try {
             const newTxs = await auctionClient.fetchTxsByAuctionId(auction.id, null);
             setTxs(newTxs);
         } catch (err) {
-            setTxs(null);
-            setErr("Failed to fetch recent bids");
+            setErrFetch("Failed to fetch recent bids");
             console.warn("[fetchRecentBids]", err);
         }
     };
@@ -288,8 +286,8 @@ const SectionHistory: React.FC<{
     // === html ===
 
     let content: React.ReactNode;
-    if (err) {
-        content = <FullCardMsg>{err}</FullCardMsg>;
+    if (errFetch) {
+        content = <FullCardMsg>{errFetch}</FullCardMsg>;
     } else if (txs === undefined) {
         content = <FullCardMsg>Loading…</FullCardMsg>;
     } else {
