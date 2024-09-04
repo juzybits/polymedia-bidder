@@ -235,6 +235,18 @@ export const ObjectLinkList: React.FC<{
     ))}</>;
 };
 
+export const FullCardMsg: React.FC<{
+    children: React.ReactNode;
+}> = ({
+    children,
+}) => {
+    return <div className="full-card-message">
+        <div className="msg">
+            {children}
+        </div>
+    </div>;
+};
+
 // === formatters ===
 
 export const ONE_HOUR_MS = 3_600_000;

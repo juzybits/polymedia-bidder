@@ -7,7 +7,7 @@ import { ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardAuctionDetails, CardAuctionItems, CardTransaction } from "./components/cards";
+import { CardAuctionDetails, CardAuctionItems, CardTransaction, FullCardMsg } from "./components/cards";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
@@ -148,13 +148,14 @@ const SectionBid: React.FC<{
     // === html ===
 
     const isLoading = coinMeta === undefined || userId === undefined;
-    const isError = coinMeta === null || userId === null;
 
     let content;
-    if (isError) {
-        content = <div>Error</div>;
-    } else if (isLoading) {
-        content = <div>Loading...</div>;
+    if (isLoading) {
+        content = <FullCardMsg>Loading…</FullCardMsg>;
+    } else if (coinMeta === null) {
+        content = <FullCardMsg>Failed to fetch coin metadata</FullCardMsg>;
+    } else if (userId === null) {
+        content = <FullCardMsg>Failed to fetch user object</FullCardMsg>;
     } else {
         content = <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />;
     }
