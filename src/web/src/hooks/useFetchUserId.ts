@@ -12,7 +12,7 @@ export const useFetchUserId = () =>
     const { auctionClient } = useOutletContext<AppContext>();
 
     const [ userId, setUserId ] = useState<string | null | undefined>();
-    const [ errorFetchUserId, setError ] = useState<Error | null>(null);
+    const [ errorFetchUserId, setError ] = useState<string | null>(null);
 
     // === effects ===
 
@@ -37,8 +37,9 @@ export const useFetchUserId = () =>
             const newUserId = await auctionClient.fetchUserId(currAcct.address);
             setUserId(newUserId);
         } catch (err) {
-            setError(err instanceof Error ? err : new Error(String(err)));
             setUserId(null);
+            setError("Failed to fetch user object");
+            console.warn("[fetchUserId]", err);
         }
     };
 

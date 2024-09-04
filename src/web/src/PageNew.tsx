@@ -168,7 +168,8 @@ const FormCreateAuction: React.FC<{
             );
             navigate(`/auction/${auctionObjChange.objectId}`);
         } catch (err) {
-            setSubmitErr(err instanceof Error ? err.message : String(err));
+            setSubmitErr("Failed to create auction");
+            console.warn("[onSubmit]", err);
         } finally {
             setIsWorking(false);
         }

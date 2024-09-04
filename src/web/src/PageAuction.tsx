@@ -61,7 +61,8 @@ export const PageAuction: React.FC = () =>
             setAuction(auction);
         } catch (err) {
             setAuction(null);
-            setErr(err instanceof Error ? err.message : String(err));
+            setErr("Failed to fetch auction");
+            console.warn("[fetchAuction]", err);
         }
     };
 
@@ -74,7 +75,7 @@ export const PageAuction: React.FC = () =>
         return <PageFullScreenMsg>AUCTION NOT FOUND</PageFullScreenMsg>;
     }
     if (err) {
-        return <PageFullScreenMsg>{err}</PageFullScreenMsg>;
+        return <PageFullScreenMsg>{err.toUpperCase()}</PageFullScreenMsg>;
     }
 
     // === html ===
