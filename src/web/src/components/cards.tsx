@@ -40,6 +40,20 @@ export const CardSuiItem: React.FC<{
     );
 };
 
+const CardSuiItemHiddenCount: React.FC<{
+    hiddenItemCount: number;
+}> = ({
+    hiddenItemCount,
+}) => {
+    return <div className="sui-item">
+        <div className="item-img">
+            <div>
+                {hiddenItemCount} more item{hiddenItemCount > 1 ? "s" : ""}…
+            </div>
+        </div>
+    </div>;
+};
+
 export const CardAuctionDetails: React.FC<{
     auction: AuctionObj;
 }> = ({
@@ -147,7 +161,10 @@ export const CardAuctionItems: React.FC<{
                 </div>
             ))}
             {hiddenItemCount > 0 &&
-            <div>And {hiddenItemCount} more item{hiddenItemCount > 1 ? "s" : ""}...</div>}
+                <div className="grid-item card">
+                    <CardSuiItemHiddenCount hiddenItemCount={hiddenItemCount} />
+                </div>
+            }
         </div>
     );
 };
