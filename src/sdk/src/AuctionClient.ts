@@ -37,11 +37,6 @@ import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid, UserBidBcs } 
 import { UserModule } from "./UserModule.js";
 
 /**
- * The maximum number of objects that can be fetched from the RPC in a single request.
- */
-const MAX_OBJECTS_PER_REQUEST = 50;
-
-/**
  * Execute transactions on the bidder::auction Sui module.
  */
 export class AuctionClient extends SuiClientBase
@@ -88,47 +83,15 @@ export class AuctionClient extends SuiClientBase
         useCache = true,
     ): Promise<AuctionObj[]>
     {
-        const auctions: AuctionObj[] = [];
-        const uncachedAuctionIds: string[] = [];
-
-        for (const id of auctionIds) {
-            const cachedAuction = useCache ? this.cache.auctions.get(id) : undefined;
-            if (cachedAuction) {
-                auctions.push(cachedAuction);
-            } else {
-                uncachedAuctionIds.push(id);
-            }
-        }
-
-        if (uncachedAuctionIds.length === 0) {
-            return auctions;
-        }
-
-        const idChunks = chunkArray(uncachedAuctionIds, MAX_OBJECTS_PER_REQUEST);
-        const allResults = await Promise.allSettled(
-            idChunks.map(ids => this.suiClient.multiGetObjects({
+        return this.fetchAndParseObjects<AuctionObj>(
+            auctionIds,
+            useCache ? this.cache.auctions : null,
+            (ids) => this.suiClient.multiGetObjects({
                 ids,
                 options: { showContent: true },
-            }))
+            }),
+            this.parseAuctionObj.bind(this)
         );
-        for (const result of allResults)
-        {
-            if (result.status === "fulfilled")
-            {
-                const pagObjRes = result.value;
-                for (const objRes of pagObjRes)
-                {
-                    const auction = this.parseAuctionObj(objRes);
-                    if (auction) {
-                        auctions.push(auction);
-                        this.cache.auctions.set(auction.id, auction);
-                    }
-                }
-            } else {
-                console.warn(`[fetchAuctions] multiGetObjects() failed: ${result.reason}`);
-            }
-        }
-        return auctions;
     }
 
     public async fetchItem(
@@ -145,45 +108,15 @@ export class AuctionClient extends SuiClientBase
         useCache = true,
     ): Promise<SuiItem[]>
     {
-        const items: SuiItem[] = [];
-        const uncachedItemIds: string[] = [];
-
-        for (const id of itemIds) {
-            const cachedItem = useCache ? this.cache.items.get(id) : undefined;
-            if (cachedItem) {
-                items.push(cachedItem);
-            } else {
-                uncachedItemIds.push(id);
-            }
-        }
-
-        if (uncachedItemIds.length === 0) {
-            return items;
-        }
-
-        const idChunks = chunkArray(uncachedItemIds, MAX_OBJECTS_PER_REQUEST);
-        const allResults = await Promise.allSettled(
-            idChunks.map(ids => this.suiClient.multiGetObjects({
+        return this.fetchAndParseObjects<SuiItem>(
+            itemIds,
+            useCache ? this.cache.items : null,
+            (ids) => this.suiClient.multiGetObjects({
                 ids,
                 options: { showContent: true, showDisplay: true, showType: true },
-            }))
+            }),
+            objResToSuiItem,
         );
-        for (const result of allResults)
-        {
-            if (result.status === "fulfilled")
-            {
-                const pagObjRes = result.value;
-                for (const objRes of pagObjRes)
-                {
-                    const item = objResToSuiItem(objRes);
-                    items.push(item);
-                    this.cache.items.set(item.id, item);
-                }
-            } else {
-                console.warn(`[fetchItems] multiGetObjects() failed: ${result.reason}`);
-            }
-        }
-        return items;
     }
 
     public async fetchOwnedItems(
