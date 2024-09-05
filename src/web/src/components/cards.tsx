@@ -67,65 +67,12 @@ export const CardAuctionDetails: React.FC<{
     </>;
 };
 
-export const CardAuctionItems: React.FC<{
-    auction: AuctionObj;
-}> = ({
-    auction,
-}) =>
-{
-    const { network, auctionClient } = useOutletContext<AppContext>();
-
-    const [ items, setItems ] = useState<SuiItem[]>(
-        auction.item_addrs.map(addr => newItemPlaceholder(addr))
-    );
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchItems();
-    }, [auction.item_addrs, network]);
-
-    // === functions ===
-
-    const fetchItems = async () => {
-        try {
-            const newItems = await auctionClient.fetchItems(auction.item_addrs);
-            setItems(newItems);
-        } catch (err) {
-            console.warn("[fetchItems]", err);
-        }
-    };
-
-    // === html ===
-
-    // const beginTime = new Date(auction.begin_time_ms).toLocaleString();
-    // const endTime = new Date(auction.end_time_ms).toLocaleString();
-
-    return <>
-        {/* <div className="auction-title">
-            <h3>{auction.name}</h3>
-        </div>
-
-        {auction.description.length > 0 &&
-        <div className="auction-description">
-            <p>{auction.description}</p>
-        </div>} */}
-
-        <div className="grid">
-            {items.map((item, idx) => (
-                <div className="grid-item card" key={idx}>
-                    <CardSuiItem item={item} />
-                </div>
-            ))}
-        </div>
-    </>;
-};
-
 export const CardTransaction: React.FC<{
     tx: TxAdminCreatesAuction | TxAnyoneBids;
 }> = ({
     tx,
-}) => {
+}) =>
+{
     if (tx.kind === "admin_creates_auction") {
         return <CardTxAdminCreatesAuctionFull tx={tx} />;
     }
@@ -143,17 +90,58 @@ export const CardTxAdminCreatesAuctionShort: React.FC<{
     tx,
 }) =>
 {
-    const navigate = useNavigate();
+    return (
+        <Link to={`/auction/${tx.auctionId}`} className="card link">
+            <div>
+                <span className="label">{timeAgo(tx.timestamp)} ago</span>
+            </div>
+            <div>Name: {tx.inputs.name}</div>
+            {tx.inputs.description.length > 0 && <div>Description: {tx.inputs.description}</div>}
+            <CardAuctionItems item_addrs={tx.inputs.item_addrs} />
+        </Link>
+    );
+};
 
-    return <div className="card link" onClick={() => { navigate(`/auction/${tx.auctionId}`); }}>
-        <div>
-            <span className="label">{timeAgo(tx.timestamp)} ago</span>
+export const CardAuctionItems: React.FC<{
+    item_addrs: string[];
+}> = ({
+    item_addrs,
+}) =>
+{
+    // === state ===
+
+    const { network, auctionClient } = useOutletContext<AppContext>();
+
+    const [ items, setItems ] = useState<SuiItem[]>(
+        item_addrs.map(addr => newItemPlaceholder(addr))
+    );
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchItems();
+    }, [item_addrs, network]);
+
+    // === functions ===
+
+    const fetchItems = async () => {
+        try {
+            const newItems = await auctionClient.fetchItems(item_addrs);
+            setItems(newItems);
+        } catch (err) {
+            console.warn("[fetchItems]", err);
+        }
+    };
+
+    return (
+        <div className="grid">
+            {items.map((item, idx) => (
+                <div className="grid-item card" key={idx}>
+                    <CardSuiItem item={item} />
+                </div>
+            ))}
         </div>
-        <div>Name: {tx.inputs.name}</div>
-        {tx.inputs.description.length > 0 && <div>Description: {tx.inputs.description}</div>}
-        <div>Items: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
-    </div>;
-
+    );
 };
 
 export const CardTxAdminCreatesAuctionFull: React.FC<{

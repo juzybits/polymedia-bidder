@@ -124,7 +124,7 @@ const SectionItems: React.FC<{
 }) => {
     return (
         <div className="card">
-            <CardAuctionItems auction={auction} />
+            <CardAuctionItems item_addrs={auction.item_addrs} />
         </div>
     );
 };
