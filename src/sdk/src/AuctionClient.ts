@@ -148,54 +148,45 @@ export class AuctionClient extends SuiClientBase
     public async fetchTxsAdminCreatesAuction(
         cursor: string | null | undefined,
     ) {
-        const filter: TransactionFilter = {
-            MoveFunction: {
-                package: this.packageId, module: "auction", function: "admin_creates_auction"
+        return this.fetchAndParseTxs(
+            this.parseTxAdminCreatesAuction.bind(this),
+            {
+                filter: { MoveFunction: {
+                    package: this.packageId, module: "auction", function: "admin_creates_auction" }
+                },
+                options: { showEffects: true, showObjectChanges: true, showInput: true },
+                cursor,
             }
-        };
-        return this.fetchAndParseTxs(filter, this.parseTxAdminCreatesAuction.bind(this), cursor);
+        );
     }
 
     public async fetchTxsAnyoneBids(
         cursor: string | null | undefined,
     ) {
-        const filter: TransactionFilter = {
-            MoveFunction: {
-                package: this.packageId, module: "auction", function: "anyone_bids"
-            }
-        };
-        return this.fetchAndParseTxs(filter, this.parseTxAnyoneBids.bind(this), cursor);
+        return this.fetchAndParseTxs(
+            this.parseTxAnyoneBids.bind(this),
+            {
+                filter: { MoveFunction: {
+                    package: this.packageId, module: "auction", function: "anyone_bids" }
+                },
+                options: { showEffects: true, showObjectChanges: true, showInput: true },
+                cursor,
+            },
+        );
     }
 
     public async fetchTxsByAuctionId(
         auctionId: string,
         cursor: string | null | undefined,
     ) {
-        const filter: TransactionFilter = { ChangedObject: auctionId };
-        return this.fetchAndParseTxs(filter, this.parseAuctionTx.bind(this), cursor);
-    }
-
-    protected async fetchAndParseTxs<T>(
-        filter: TransactionFilter,
-        txResParser: (txRes: SuiTransactionBlockResponse) => T | null,
-        cursor: string | null | undefined,
-    ) {
-        const pagTxRes = await this.suiClient.queryTransactionBlocks({
-            filter,
-            options: { showEffects: true, showObjectChanges: true, showInput: true, },
-            cursor,
-            order: "descending",
-        });
-
-        const results = {
-            cursor: pagTxRes.nextCursor,
-            hasNextPage: pagTxRes.hasNextPage,
-            data: pagTxRes.data
-                .map(txRes => txResParser(txRes))
-                .filter(result => result !== null),
-        };
-
-        return results;
+        return this.fetchAndParseTxs(
+            this.parseAuctionTx.bind(this),
+            {
+                filter: { ChangedObject: auctionId },
+                options: { showEffects: true, showObjectChanges: true, showInput: true },
+                cursor,
+            },
+        );
     }
 
     public async fetchConfig()
