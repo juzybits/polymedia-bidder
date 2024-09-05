@@ -39,6 +39,8 @@ export const PageNew: React.FC = () =>
 
     // === html ===
 
+    const disableAddItem = chosenItems.length >= cnf.MAX_ITEMS;
+
     return <>
     {header}
     <div id="page-new" className="page-regular">
@@ -61,7 +63,7 @@ export const PageNew: React.FC = () =>
                     <div className="section-title">
                         Items
                     </div>
-                    <ItemGridSelector addOrRemoveItem={addOrRemoveItem} isChosenItem={isChosenItem} />
+                    <ItemGridSelector addOrRemoveItem={addOrRemoveItem} isChosenItem={isChosenItem} disableAddItem={disableAddItem} />
                 </div>
             </>}
 
@@ -225,9 +227,11 @@ const FormCreateAuction: React.FC<{
 const ItemGridSelector: React.FC<{
     addOrRemoveItem: (item: SuiItem) => void;
     isChosenItem: (item: SuiItem) => boolean;
+    disableAddItem: boolean;
 }> = ({
     addOrRemoveItem,
     isChosenItem,
+    disableAddItem,
 }) =>
 {
     // === state ===
@@ -286,7 +290,11 @@ const ItemGridSelector: React.FC<{
                     isChosen={isChosen}
                     extra={
                         <div className="item-button">
-                            <button className={`btn ${isChosen ? "red" : ""}`} onClick={() => addOrRemoveItem(item)}>
+                            <button
+                                className={`btn ${isChosen ? "red" : ""}`}
+                                onClick={() => addOrRemoveItem(item)}
+                                disabled={!isChosen && disableAddItem}
+                            >
                                 {isChosen ? "REMOVE" : "ADD"}
                             </button>
                         </div>
