@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
-import { CardTxAdminCreatesAuctionShort } from "./components/cards";
+import { CardLoading, CardTxAdminCreatesAuctionShort, CardWithMsg } from "./components/cards";
 
 export const PageHome: React.FC = () =>
 {
@@ -27,12 +27,7 @@ export const PageHome: React.FC = () =>
                 </div>
             </div>
 
-            <div className="page-section">
-                <div className="section-title">
-                    Recent auctions
-                </div>
-                <SectionRecentAuctions />
-            </div>
+            <SectionRecentAuctions />
 
         </div>
 
@@ -47,10 +42,14 @@ const SectionRecentAuctions: React.FC = () =>
     const { auctionClient } = useOutletContext<AppContext>();
 
     const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsAdminCreatesAuction"]>>>();
+    const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === functions ===
 
-    const fetchRecentAuctions = async () => { // TODO: "load more" / "next page"
+    const fetchRecentAuctions = async () => // TODO: "load more" / "next page"
+    {
+        setTxs(undefined);
+        setErrFetch(null);
         try {
             const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
             const allItemAddrs = newTxs.data.flatMap(tx => tx.inputs.item_addrs);
@@ -58,27 +57,43 @@ const SectionRecentAuctions: React.FC = () =>
             await auctionClient.fetchItems(uniqItemAddrs, true); // populate cache
             setTxs(newTxs);
         } catch (err) {
-            console.warn("[fetchRecentAuctions]", err); // TODO show error to user
+            setErrFetch("Failed to fetch recent auctions");
+            console.warn("[fetchRecentAuctions]", err);
         }
     };
-
-    // const fetchConfig = async () => {
-    //     const config = await auctionClient.fetchConfig();
-    //     console.log(JSON.stringify(config, null, 2));
-    // };
 
     // === effects ===
 
     useEffect(() => {
         fetchRecentAuctions();
-        // fetchConfig();
     }, []);
 
     // === html ===
 
-    return <>
-        {txs?.data.map(tx => (
-            <CardTxAdminCreatesAuctionShort tx={tx} key={tx.digest} />
-        ))}
-    </>;
+    let content: React.ReactNode;
+    if (txs === undefined) {
+        content = <CardLoading />;
+    } else if (errFetch) {
+        content = <CardWithMsg>{errFetch}</CardWithMsg>;
+    } else {
+        content = <div className="list-cards">
+            {txs.data.map(tx => (
+                <CardTxAdminCreatesAuctionShort tx={tx} key={tx.digest} />
+            ))}
+        </div>;
+    }
+
+    return (
+        <div className="page-section">
+            <div className="section-title">
+                Recent auctions
+            </div>
+            {content}
+        </div>
+    );
 };
+
+// const fetchConfig = async () => {
+//     const config = await auctionClient.fetchConfig();
+//     console.log(JSON.stringify(config, null, 2));
+// };
