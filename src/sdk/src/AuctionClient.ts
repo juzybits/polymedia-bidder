@@ -11,6 +11,7 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
+    chunkArray,
     devInspectAndGetReturnValues,
     getArgVal,
     getCoinOfValue,
@@ -34,6 +35,11 @@ import { AUCTION_CONFIG } from "./config.js";
 import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
 import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
+
+/**
+ * The maximum number of objects that can be fetched from the RPC in a single request.
+ */
+const MAX_OBJECTS_PER_REQUEST = 50;
 
 /**
  * Execute transactions on the bidder::auction Sui module.
@@ -118,7 +124,7 @@ export class AuctionClient extends SuiClientBase
         return items.length > 0 ? items[0] : null;
     }
 
-    public async fetchItems( // MAYBE add pagination
+    public async fetchItems(
         itemIds: string[],
         useCache = true,
     ): Promise<SuiItem[]>
@@ -134,15 +140,31 @@ export class AuctionClient extends SuiClientBase
                 uncachedItemIds.push(id);
             }
         }
-        if (uncachedItemIds.length > 0) {
-            const pagObjRes = await this.suiClient.multiGetObjects({
-                ids: uncachedItemIds,
+
+        if (uncachedItemIds.length === 0) {
+            return items;
+        }
+
+        const idChunks = chunkArray(uncachedItemIds, MAX_OBJECTS_PER_REQUEST);
+        const allResults = await Promise.allSettled(
+            idChunks.map(ids => this.suiClient.multiGetObjects({
+                ids,
                 options: { showContent: true, showDisplay: true, showType: true },
-            });
-            for (const objRes of pagObjRes) {
-                const item = objResToSuiItem(objRes);
-                items.push(item);
-                this.cache.items.set(item.id, item);
+            }))
+        );
+        for (const result of allResults)
+        {
+            if (result.status === "fulfilled")
+            {
+                const pagObjRes = result.value;
+                for (const objRes of pagObjRes)
+                {
+                    const item = objResToSuiItem(objRes);
+                    items.push(item);
+                    this.cache.items.set(item.id, item);
+                }
+            } else {
+                console.warn(`[fetchItems] multiGetObjects() failed: ${result.reason}`);
             }
         }
         return items;
