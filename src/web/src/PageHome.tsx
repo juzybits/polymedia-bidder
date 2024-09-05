@@ -53,6 +53,9 @@ const SectionRecentAuctions: React.FC = () =>
     const fetchRecentAuctions = async () => { // TODO: "load more" / "next page"
         try {
             const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
+            const allItemAddrs = newTxs.data.flatMap(tx => tx.inputs.item_addrs);
+            const uniqItemAddrs = [...new Set(allItemAddrs)];
+            await auctionClient.fetchItems(uniqItemAddrs, true); // populate cache
             setTxs(newTxs);
         } catch (err) {
             console.warn("[fetchRecentAuctions]", err); // TODO show error to user
