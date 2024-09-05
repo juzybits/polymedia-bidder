@@ -83,7 +83,7 @@ export class AuctionClient extends SuiClientBase
         return auctions.length > 0 ? auctions[0] : null;
     }
 
-    public async fetchAuctions( // MAYBE add pagination
+    public async fetchAuctions(
         auctionIds: string[],
         useCache = true,
     ): Promise<AuctionObj[]>
@@ -99,17 +99,33 @@ export class AuctionClient extends SuiClientBase
                 uncachedAuctionIds.push(id);
             }
         }
-        if (uncachedAuctionIds.length > 0) {
-            const pagObjRes = await this.suiClient.multiGetObjects({
-                ids: uncachedAuctionIds,
+
+        if (uncachedAuctionIds.length === 0) {
+            return auctions;
+        }
+
+        const idChunks = chunkArray(uncachedAuctionIds, MAX_OBJECTS_PER_REQUEST);
+        const allResults = await Promise.allSettled(
+            idChunks.map(ids => this.suiClient.multiGetObjects({
+                ids,
                 options: { showContent: true },
-            });
-            for (const objRes of pagObjRes) {
-                const auction = this.parseAuctionObj(objRes);
-                if (auction) {
-                    auctions.push(auction);
-                    this.cache.auctions.set(auction.id, auction);
+            }))
+        );
+        for (const result of allResults)
+        {
+            if (result.status === "fulfilled")
+            {
+                const pagObjRes = result.value;
+                for (const objRes of pagObjRes)
+                {
+                    const auction = this.parseAuctionObj(objRes);
+                    if (auction) {
+                        auctions.push(auction);
+                        this.cache.auctions.set(auction.id, auction);
+                    }
                 }
+            } else {
+                console.warn(`[fetchAuctions] multiGetObjects() failed: ${result.reason}`);
             }
         }
         return auctions;
