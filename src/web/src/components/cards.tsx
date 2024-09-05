@@ -86,8 +86,10 @@ export const CardTransaction: React.FC<{
 
 export const CardTxAdminCreatesAuctionShort: React.FC<{
     tx: TxAdminCreatesAuction;
+    maxItems?: number;
 }> = ({
     tx,
+    maxItems,
 }) =>
 {
     return (
@@ -97,15 +99,17 @@ export const CardTxAdminCreatesAuctionShort: React.FC<{
             </div>
             <div>Name: {tx.inputs.name}</div>
             {tx.inputs.description.length > 0 && <div>Description: {tx.inputs.description}</div>}
-            <CardAuctionItems item_addrs={tx.inputs.item_addrs} />
+            <CardAuctionItems item_addrs={tx.inputs.item_addrs} maxItems={maxItems} />
         </Link>
     );
 };
 
 export const CardAuctionItems: React.FC<{
     item_addrs: string[];
+    maxItems?: number;
 }> = ({
     item_addrs,
+    maxItems = item_addrs.length,
 }) =>
 {
     // === state ===
@@ -115,6 +119,8 @@ export const CardAuctionItems: React.FC<{
     const [ items, setItems ] = useState<SuiItem[]>(
         item_addrs.map(addr => newItemPlaceholder(addr))
     );
+
+    const hiddenItemCount = Math.max(0, item_addrs.length - maxItems);
 
     // === effects ===
 
@@ -126,7 +132,7 @@ export const CardAuctionItems: React.FC<{
 
     const fetchItems = async () => {
         try {
-            const newItems = await auctionClient.fetchItems(item_addrs);
+            const newItems = await auctionClient.fetchItems(item_addrs.slice(0, maxItems));
             setItems(newItems);
         } catch (err) {
             console.warn("[fetchItems]", err);
@@ -140,6 +146,8 @@ export const CardAuctionItems: React.FC<{
                     <CardSuiItem item={item} />
                 </div>
             ))}
+            {hiddenItemCount > 0 &&
+            <div>And {hiddenItemCount} more item{hiddenItemCount > 1 ? "s" : ""}...</div>}
         </div>
     );
 };

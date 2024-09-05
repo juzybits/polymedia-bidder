@@ -35,6 +35,8 @@ export const PageHome: React.FC = () =>
     </>;
 };
 
+const MAX_ITEMS_PER_AUCTION = 3;
+
 const SectionRecentAuctions: React.FC = () =>
 {
     // === state ===
@@ -50,11 +52,15 @@ const SectionRecentAuctions: React.FC = () =>
     {
         setTxs(undefined);
         setErrFetch(null);
-        try {
+        try
+        {
+            // fetch recent txs
             const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
-            const allItemAddrs = newTxs.data.flatMap(tx => tx.inputs.item_addrs);
-            const uniqItemAddrs = [...new Set(allItemAddrs)];
-            await auctionClient.fetchItems(uniqItemAddrs, true); // populate cache
+            // fetch all the auctioned objects that will be displayed, and populate the cache
+            const itemAddrs = newTxs.data.flatMap(tx => tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION));
+            const uniqItemAddrs = [...new Set(itemAddrs)];
+            await auctionClient.fetchItems(uniqItemAddrs, true);
+            // now that the cache is populated, display the txs
             setTxs(newTxs);
         } catch (err) {
             setErrFetch("Failed to fetch recent auctions");
@@ -78,7 +84,7 @@ const SectionRecentAuctions: React.FC = () =>
     } else {
         content = <div className="list-cards">
             {txs.data.map(tx => (
-                <CardTxAdminCreatesAuctionShort tx={tx} key={tx.digest} />
+                <CardTxAdminCreatesAuctionShort tx={tx} key={tx.digest} maxItems={MAX_ITEMS_PER_AUCTION} />
             ))}
         </div>;
     }
