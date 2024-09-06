@@ -365,8 +365,7 @@ export class AuctionClient extends SuiClientBase
 
     /**
      * Parse an `auction::admin_creates_auction` transaction.
-     * Assumes the tx block contains only one `admin_creates_auction` call,
-     * and one or more `object_bag::add()` calls.
+     * Assumes the tx block contains only one `admin_creates_auction` call.
      */
     public parseTxAdminCreatesAuction(
         txRes: SuiTransactionBlockResponse,
@@ -381,57 +380,41 @@ export class AuctionClient extends SuiClientBase
         const auctionObjChange = this.extractAuctionObjChange(txRes);
         if (!auctionObjChange) { return null; }
 
-        let createTxInputs: Omit<TxAdminCreatesAuction["inputs"], "item_addrs"> | undefined;
-        const item_addrs: string[] = []; // these come from `object_bag::add()` calls
+        let createTxInputs: TxAdminCreatesAuction["inputs"] | undefined;
 
         for (const tx of txData.txs)
         {
-            if (!isTxMoveCall(tx) ||
+            // find the `admin_creates_auction` tx
+            if (
+                !isTxMoveCall(tx) ||
                 !tx.MoveCall.arguments ||
-                !tx.MoveCall.type_arguments
+                !tx.MoveCall.type_arguments ||
+                tx.MoveCall.package !== this.packageId ||
+                tx.MoveCall.module !== "auction" ||
+                tx.MoveCall.function !== "admin_creates_auction"
             ) {
                 continue;
             }
 
-            // find the object_bag::add() txs and parse the inputs
-            if (
-                tx.MoveCall.package === "0x0000000000000000000000000000000000000000000000000000000000000002" &&
-                tx.MoveCall.module === "object_bag" &&
-                tx.MoveCall.function === "add"
-            ) {
-                const txInputs = tx.MoveCall.arguments
-                    .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+            // parse the tx inputs
+            const txInputs = tx.MoveCall.arguments
+                .filter(arg => isArgInput(arg))
+                .map(arg => allInputs[arg.Input]);
 
-                if (txInputs.length !== 2) { return null; }
+            if (txInputs.length !== 10) { return null; }
 
-                item_addrs.push(getArgVal(txInputs[1]));
-            }
-
-            // find the `admin_creates_auction` tx and parse the inputs
-            if (
-                tx.MoveCall.package === this.packageId &&
-                tx.MoveCall.module === "auction" &&
-                tx.MoveCall.function === "admin_creates_auction"
-            ) {
-                const txInputs = tx.MoveCall.arguments
-                    .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
-
-                if (txInputs.length !== 10) { return null; }
-
-                createTxInputs = {
-                    type_coin: tx.MoveCall.type_arguments[0],
-                    name: getArgVal(txInputs[0]),
-                    description: getArgVal(txInputs[1]),
-                    pay_addr: getArgVal(txInputs[2]),
-                    begin_delay_ms: getArgVal(txInputs[3]),
-                    duration_ms: getArgVal(txInputs[4]),
-                    minimum_bid: getArgVal(txInputs[5]),
-                    minimum_increase_bps: getArgVal<number>(txInputs[6]),
-                    extension_period_ms: getArgVal(txInputs[7]),
-                };
-            }
+            createTxInputs = {
+                type_coin: tx.MoveCall.type_arguments[0],
+                name: getArgVal(txInputs[0]),
+                description: getArgVal(txInputs[1]),
+                item_addrs: getArgVal(txInputs[2]),
+                pay_addr: getArgVal(txInputs[3]),
+                begin_delay_ms: getArgVal(txInputs[4]),
+                duration_ms: getArgVal(txInputs[5]),
+                minimum_bid: getArgVal(txInputs[6]),
+                minimum_increase_bps: getArgVal<number>(txInputs[7]),
+                extension_period_ms: getArgVal(txInputs[8]),
+            };
         }
 
         if (!createTxInputs) { return null; }
@@ -442,10 +425,7 @@ export class AuctionClient extends SuiClientBase
             timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
             sender: txData.sender,
             auctionId: auctionObjChange.objectId,
-            inputs: {
-                ...createTxInputs,
-                item_addrs,
-            },
+            inputs: createTxInputs,
         };
     }
 

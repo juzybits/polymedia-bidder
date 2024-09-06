@@ -50,13 +50,13 @@ export type TxAdminCreatesAuction = {
         type_coin: string;
         name: string;
         description: string;
+        item_addrs: string[];
         pay_addr: string;
         begin_delay_ms: number;
         duration_ms: number;
         minimum_bid: bigint;
         minimum_increase_bps: number;
         extension_period_ms: number;
-        item_addrs: string[];
     };
 };
 
