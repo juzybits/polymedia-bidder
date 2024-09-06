@@ -29,7 +29,7 @@ export const PageUserHistory: React.FC = () =>
         content = <>
             <SectionUserAuctions userId={userId} />
             <SectionUserBids userId={userId} />
-        </>
+        </>;
     }
     return <>
         {header}

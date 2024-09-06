@@ -27,12 +27,12 @@ export function timeAgo(
     let timeCol = Math.abs(now - timestamp);
 
     let timeUnit: [string, number][];
-    if (timeCol >= maxTimeUnit && maxTimeUnit >= TimeUnit.ONE_DAY) {
+    if (timeCol >= Number(maxTimeUnit) && Number(maxTimeUnit) >= Number(TimeUnit.ONE_DAY)) {
         timeUnit = [
             [TIME_LABEL.day[dateKeyType], TimeUnit.ONE_DAY],
             [TIME_LABEL.hour[dateKeyType], TimeUnit.ONE_HOUR],
         ];
-    } else if (timeCol >= TimeUnit.ONE_HOUR) {
+    } else if (timeCol >= Number(TimeUnit.ONE_HOUR)) {
         timeUnit = [
             [TIME_LABEL.hour[dateKeyType], TimeUnit.ONE_HOUR],
             [TIME_LABEL.min[dateKeyType], TimeUnit.ONE_MINUTE],

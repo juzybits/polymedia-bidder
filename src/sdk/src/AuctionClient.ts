@@ -615,7 +615,7 @@ export class AuctionClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: { id: string; type: string }[],
-    ): Promise<{ txRes: SuiTransactionBlockResponse, auctionObjChange: SuiObjectChangeCreated }>
+    ): Promise<{ txRes: SuiTransactionBlockResponse; auctionObjChange: SuiObjectChangeCreated }>
     {
         const tx = new Transaction();
 

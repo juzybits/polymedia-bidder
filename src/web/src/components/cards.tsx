@@ -95,7 +95,7 @@ export const CardTransaction: React.FC<{
     }
     return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
         {JSON.stringify(tx, null, 2)}
-    </div>
+    </div>;
 };
 
 export const CardTxAdminCreatesAuctionShort: React.FC<{

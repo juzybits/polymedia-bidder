@@ -42,7 +42,7 @@ export function makeDisplaySvg({
             ${descriptionText ?
             `<div style="font-size: ${descriptionFontSize}">
                 ${descriptionText}
-            </div>` : ''}
+            </div>` : ""}
 
             ${appName ? `
             <div style="
@@ -58,7 +58,7 @@ export function makeDisplaySvg({
                 padding: 0 15px;
             ">
                 ${appName}
-            </div>` : ''}
+            </div>` : ""}
         </div>
       </foreignObject>
     </svg>
