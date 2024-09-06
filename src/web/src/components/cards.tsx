@@ -108,11 +108,14 @@ export const CardTxAdminCreatesAuctionShort: React.FC<{
 {
     return (
         <Link to={`/auction/${tx.auctionId}`} className="card link">
-            <div>
-                <span className="label">{timeAgo(tx.timestamp)} ago</span>
+            <div className="card-auction-title">
+                <div className="title-name">{tx.inputs.name}</div>
+                <span className="title-date">{timeAgo(tx.timestamp)}</span>
             </div>
-            <div>Name: {tx.inputs.name}</div>
-            {tx.inputs.description.length > 0 && <div>Description: {tx.inputs.description}</div>}
+
+            {tx.inputs.description.length > 0 &&
+            <div>{tx.inputs.description}</div>}
+
             <CardAuctionItems item_addrs={tx.inputs.item_addrs} maxItems={maxItems} />
         </Link>
     );

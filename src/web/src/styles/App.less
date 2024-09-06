@@ -305,6 +305,27 @@ footer {
             text-decoration: underline;
         }
     }
+    .card-auction-title {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: @gap-10;
+        .title-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            .break-word;
+        }
+        .title-date {
+            flex-shrink: 0;
+            padding: 0.5em 0.75em;
+            font-size: 0.9em;
+            color: #bbb;
+            background-color: @color-border-gray;
+            border: @border-gray;
+            border-radius: @border-radius;
+        }
+    }
 }
 a.card, .card.link {
     &:hover {
