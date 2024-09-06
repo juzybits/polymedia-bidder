@@ -366,7 +366,7 @@ export class AuctionClient extends SuiClientBase
     /**
      * Parse an `auction::admin_creates_auction` transaction.
      * Assumes the tx block contains only one `admin_creates_auction` call,
-     * and possibly one or more `admin_adds_item` calls.
+     * and one or more `object_bag::add()` calls.
      */
     public parseTxAdminCreatesAuction(
         txRes: SuiTransactionBlockResponse,
@@ -634,10 +634,28 @@ export class AuctionClient extends SuiClientBase
     {
         const tx = new Transaction();
 
+        // create the item bag and fill it with the items to auction
+        const [itemBagArg] = tx.moveCall({
+            target: "0x2::object_bag::new",
+        });
+        for (const item of itemsToAuction) {
+            tx.moveCall({
+                target: "0x2::object_bag::add",
+                typeArguments: [ "address", item.type ],
+                arguments: [
+                    itemBagArg,
+                    tx.pure.address(item.id),
+                    tx.object(item.id),
+                ],
+            });
+        }
+
+        // create the user request
         const [reqArg0] = !userObj
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
             : UserModule.existing_user_request(tx, this.packageId, userObj);
 
+        // create the auction
         const [reqArg1, auctionArg] = AuctionModule.admin_creates_auction(
             tx,
             this.packageId,
@@ -645,6 +663,8 @@ export class AuctionClient extends SuiClientBase
             reqArg0,
             name,
             description,
+            itemsToAuction.map(item => item.id),
+            itemBagArg,
             pay_addr,
             begin_time_ms,
             duration_ms,
@@ -653,19 +673,10 @@ export class AuctionClient extends SuiClientBase
             extension_period_ms,
         );
 
+        // destroy the user request
         UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
-        for (const item of itemsToAuction) {
-            AuctionModule.admin_adds_item(
-                tx,
-                this.packageId,
-                type_coin,
-                item.type,
-                auctionArg,
-                item.id,
-            );
-        }
-
+        // share the auction object
         TransferModule.public_share_object(
             tx,
             `${this.packageId}::auction::Auction<${type_coin}>`,

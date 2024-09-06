@@ -14,6 +14,8 @@ export const AuctionModule =
         request: ObjectArg,
         name: string,
         description: string,
+        item_addrs: string[],
+        item_bag: ObjectArg,
         pay_addr: string,
         begin_delay_ms: number,
         duration_ms: number,
@@ -29,32 +31,14 @@ export const AuctionModule =
                 objectArg(tx, request),
                 tx.pure.string(name),
                 tx.pure.string(description),
+                tx.pure.vector("address", item_addrs),
+                objectArg(tx, item_bag),
                 tx.pure.address(pay_addr),
                 tx.pure.u64(begin_delay_ms),
                 tx.pure.u64(duration_ms),
                 tx.pure.u64(minimum_bid),
                 tx.pure.u64(minimum_increase_bps),
                 tx.pure.u64(extension_period_ms),
-                tx.object(SUI_CLOCK_OBJECT_ID),
-            ],
-        });
-    },
-
-    admin_adds_item: (
-        tx: Transaction,
-        packageId: string,
-        type_coin: string,
-        itemType: string,
-        auction: ObjectArg,
-        item: ObjectArg,
-    ): TransactionResult =>
-    {
-        return tx.moveCall({
-            target: `${packageId}::auction::admin_adds_item`,
-            typeArguments: [ type_coin, itemType ],
-            arguments: [
-                objectArg(tx, auction),
-                objectArg(tx, item),
                 tx.object(SUI_CLOCK_OBJECT_ID),
             ],
         });
