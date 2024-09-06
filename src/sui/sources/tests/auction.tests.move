@@ -556,8 +556,8 @@ fun test_admin_creates_auction_e_wrong_name_too_long()
 }
 
 #[test]
-#[expected_failure(abort_code = auction::E_MISSING_ITEMS)]
-fun test_admin_creates_auction_e_missing_items()
+#[expected_failure(abort_code = auction::E_NOT_ENOUGH_ITEMS)]
+fun test_admin_creates_auction_e_not_enough_items()
 {
     // ADMIN tries to create an auction without any items
     let mut args = auction_args();
@@ -582,8 +582,8 @@ fun test_admin_creates_auction_e_too_many_items()
 }
 
 #[test]
-#[expected_failure(abort_code = auction::E_WRONG_ITEMS)]
-fun test_admin_creates_auction_e_wrong_items_missing()
+#[expected_failure(abort_code = auction::E_ITEM_LENGTH_MISMATCH)]
+fun test_admin_creates_auction_e_item_length_mismatch()
 {
     // ADMIN tries to create an auction with a different number of items than the number of item_addrs
     let mut runner = begin();
@@ -616,11 +616,12 @@ fun test_admin_creates_auction_e_wrong_items_missing()
 }
 
 #[test]
-#[expected_failure(abort_code = auction::E_WRONG_ITEMS)]
-fun test_admin_creates_auction_e_wrong_items_mismatch()
+#[expected_failure(abort_code = auction::E_MISSING_ITEM)]
+fun test_admin_creates_auction_e_missing_item()
 {
-    // ADMIN tries to create an auction with the same item_addrs.length() == item_bag.length(),
-    // but the items are not the same
+    // ADMIN tries to create an auction where:
+    // - item_addrs.length() == item_bag.length(),
+    // - BUT not all item_addrs are in item_bag
     let mut runner = begin();
     let args = auction_args();
     let request = runner.new_user_request(ADMIN);
@@ -628,6 +629,46 @@ fun test_admin_creates_auction_e_wrong_items_mismatch()
     let (mut item_addrs, item_bag) = new_items(5, runner.scen.ctx());
     item_addrs.pop_back();
     item_addrs.push_back(@0x123);
+
+    let (request, auction) = auction::admin_creates_auction<SUI>(
+        request,
+        args.name,
+        args.description,
+        item_addrs,
+        item_bag,
+        args.pay_addr,
+        args.begin_time_ms,
+        args.duration_ms,
+        args.minimum_bid,
+        args.minimum_increase_bps,
+        args.extension_period_ms,
+        &runner.clock,
+        runner.scen.ctx(),
+    );
+
+    runner.destroy_user_request(request);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_DUPLICATE_ITEM_ADDRESSES)]
+fun test_admin_creates_auction_e_duplicate_item_addresses()
+{
+    // ADMIN tries to create an auction where:
+    // - item_addrs.length() == item_bag.length(),
+    // - and all item_addrs are in item_bag,
+    // - BUT item_addrs contains duplicates
+    let mut runner = begin();
+    let args = auction_args();
+    let request = runner.new_user_request(ADMIN);
+
+    let (mut item_addrs, item_bag) = new_items(5, runner.scen.ctx());
+    // replace the last address with the first one TODO: this doesn't fail!
+    let first_addr = item_addrs[0];
+    item_addrs.pop_back();
+    item_addrs.push_back(first_addr);
 
     let (request, auction) = auction::admin_creates_auction<SUI>(
         request,
