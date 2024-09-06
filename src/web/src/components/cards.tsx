@@ -191,6 +191,10 @@ export const bpsToPct = (bps: number): string => {
     return `${bps / 100}%`;
 };
 
+export const shortenDigest = (digest: string): string => {
+    return digest.slice(0, 6) + "…" + digest.slice(-4);
+};
+
 // === helpers ===
 
 export function newItemPlaceholder(addr: string): SuiItem {

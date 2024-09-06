@@ -7,7 +7,7 @@ import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { Balance, bpsToPct, CardAuctionItems, FullCardMsg, msToDate, msToMinutes, ObjectLinkList } from "./components/cards";
+import { Balance, bpsToPct, CardAuctionItems, FullCardMsg, msToDate, msToMinutes, ObjectLinkList, shortenDigest } from "./components/cards";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
@@ -295,7 +295,7 @@ const SectionHistory: React.FC<{
         content = (
             <div className="list-cards">
                 {txs?.data.map(tx =>
-                    <CardTransaction tx={tx} />
+                    <CardTransaction tx={tx} key={tx.digest} />
                 )}
             </div>
         );
@@ -319,8 +319,8 @@ const CardAuctionDetails: React.FC<{ // TODO
         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
         {/* <div>Name: {auction.name}</div>
         <div>Description: {auction.description}</div> */}
-        <div>Auctioned items: <ObjectLinkList ids={auction.item_addrs} /></div>
-        <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
+        <div>Items: <ObjectLinkList ids={auction.item_addrs} /></div>
+        {/* <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div> */}
         <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
         <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
         <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
@@ -342,7 +342,7 @@ const CardTransaction: React.FC<{
 }) =>
 {
     if (tx.kind === "admin_creates_auction") {
-        return <CardTxAdminCreatesAuction tx={tx} maxItems={3} />;
+        return <CardTxAdminCreatesAuction tx={tx} />;
     }
     if (tx.kind === "anyone_bids") {
         return <CardTxAnyoneBids tx={tx} />;
@@ -354,24 +354,20 @@ const CardTransaction: React.FC<{
 
 const CardTxAdminCreatesAuction: React.FC<{
     tx: TxAdminCreatesAuction;
-    maxItems?: number;
 }> = ({
     tx,
-    maxItems,
 }) =>
 {
+    const { network } = useOutletContext<AppContext>();
     return (
-        <Link to={`/auction/${tx.auctionId}`} className="card link">
+        <div className="card">
             <div className="card-auction-title">
-                <div className="title-name">{tx.inputs.name}</div>
+                <div className="title-name">CREATED</div>
                 <span className="title-date">{timeAgo(tx.timestamp)}</span>
             </div>
-
-            {tx.inputs.description.length > 0 &&
-            <div>{tx.inputs.description}</div>}
-
-            <CardAuctionItems item_addrs={tx.inputs.item_addrs} maxItems={maxItems} />
-        </Link>
+            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
+        </div>
     );
 };
 
@@ -385,13 +381,13 @@ const CardTxAnyoneBids: React.FC<{
         <div className="card">
             <div className="card-auction-title">
                 <div className="title-name">
-                    <LinkToPolymedia addr={tx.sender} kind="address" network={network} />
-                    &nbsp;BID&nbsp;
+                    BID&nbsp;
                     {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}
                 </div>
                 <span className="title-date">{timeAgo(tx.timestamp)}</span>
             </div>
-            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
+            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
         </div>
     );
 };
