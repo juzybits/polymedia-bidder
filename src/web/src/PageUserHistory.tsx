@@ -1,12 +1,14 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserBid } from "@polymedia/auction-sdk";
+import { shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { Balance, bpsToPct, CardLoading, CardWithMsg, msToDate, msToMinutes, ObjectLinkList } from "./components/cards";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { timeAgo } from "./lib/time";
 
 export const PageUserHistory: React.FC = () =>
 {
@@ -99,9 +101,7 @@ const SectionUserAuctions: React.FC<{
         content = (
             <div className="list-cards">
                 {userAuctions.map(auction =>
-                    <div className="card" key={auction.id}>
-                        <CardAuctionDetails auction={auction} />
-                    </div>
+                    <CardUserAuction auction={auction} key={auction.id} />
                 )}
             </div>
         );
@@ -175,11 +175,7 @@ const SectionUserBids: React.FC<{
         content = (
             <div className="list-cards">
                 {userBids.map(bid =>
-                    <div key={bid.auction_id + bid.amount} className="card">
-                        <div><LinkToPolymedia addr={bid.auction_id} kind="object" network={network} /></div>
-                        <div>Time: {new Date(bid.time).toLocaleString()}</div>
-                        <div>Amount: {bid.amount.toString()}</div> {/* TODO: fetch auction then calculate amount based on currency decimals */}
-                    </div>
+                    <CardUserBid bid={bid} key={bid.auction_id + bid.amount} />
                 )}
             </div>
         );
@@ -195,29 +191,45 @@ const SectionUserBids: React.FC<{
     </>;
 };
 
-const CardAuctionDetails: React.FC<{ // TODO
+const CardUserAuction: React.FC<{ // TODO show more info
     auction: AuctionObj;
 }> = ({
     auction,
-}) => {
+}) =>
+{
     const { network } = useOutletContext<AppContext>();
-    return <>
-        <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
-        <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
-        {/* <div>Name: {auction.name}</div>
-        <div>Description: {auction.description}</div> */}
-        <div>Auctioned items: <ObjectLinkList ids={auction.item_addrs} /></div>
-        <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
-        <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
-        <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
-        <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
-        <div>Leader amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
-        <div>Start time: {msToDate(auction.begin_time_ms)}</div>
-        <div>End time: {msToDate(auction.end_time_ms)}</div>
-        <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
-        <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
-        <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
-        <div>Is live: {auction.is_live ? "yes" : "no"}</div>
-        <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
-    </>;
+    return (
+        <Link to={`/auction/${auction.id}`} className="card">
+            <div className="card-auction-title">
+                <div className="title-name">
+                    {auction.name}
+                </div>
+                <div className="title-date">
+                    {timeAgo(auction.begin_time_ms)}
+                </div>
+            </div>
+            <div>{auction.description}</div>
+        </Link>
+    );
+};
+
+const CardUserBid: React.FC<{ // TODO: fetch auction, then show auction name, and convert amount to <Balance />
+    bid: UserBid;
+}> = ({
+    bid,
+}) =>
+{
+    return (
+        <Link to={`/auction/${bid.auction_id}`} className="card">
+            <div className="card-auction-title">
+                <div className="title-name">
+                    {shortenAddress(bid.auction_id)}
+                </div>
+                <div className="title-date">
+                    {timeAgo(bid.time)}
+                </div>
+            </div>
+            <div>Amount: {bid.amount.toString()}</div>
+        </Link>
+    );
 };
