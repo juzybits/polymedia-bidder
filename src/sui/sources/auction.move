@@ -7,7 +7,7 @@ use sui::balance::{Self, Balance};
 use sui::clock::Clock;
 use sui::coin::{Self, Coin};
 use sui::display;
-use sui::object_bag::{Self, ObjectBag};
+use sui::object_bag::{ObjectBag};
 use sui::package;
 
 use bidder::user::{Self, UserRequest};
@@ -18,14 +18,16 @@ const E_WRONG_NAME: u64 = 5000;
 const E_WRONG_TIME: u64 = 5001;
 const E_WRONG_ADMIN: u64 = 5002;
 const E_WRONG_ADDRESS: u64 = 5003;
-const E_WRONG_DURATION: u64 = 5004;
-const E_TOO_MANY_ITEMS: u64 = 5005;
-const E_WRONG_COIN_VALUE: u64 = 5006;
-const E_WRONG_DESCRIPTION: u64 = 5007;
-const E_WRONG_MINIMUM_BID: u64 = 5008;
-const E_WRONG_MINIMUM_INCREASE: u64 = 5009;
-const E_WRONG_EXTENSION_PERIOD: u64 = 5010;
-const E_CANT_RECLAIM_WITH_BIDS: u64 = 5011;
+const E_WRONG_ITEMS: u64 = 5004;
+const E_MISSING_ITEMS: u64 = 5005;
+const E_TOO_MANY_ITEMS: u64 = 5006;
+const E_WRONG_DURATION: u64 = 5007;
+const E_WRONG_COIN_VALUE: u64 = 5008;
+const E_WRONG_DESCRIPTION: u64 = 5009;
+const E_WRONG_MINIMUM_BID: u64 = 5010;
+const E_WRONG_MINIMUM_INCREASE: u64 = 5011;
+const E_WRONG_EXTENSION_PERIOD: u64 = 5011;
+const E_CANT_RECLAIM_WITH_BIDS: u64 = 5012;
 
 // === constants ===
 
@@ -90,6 +92,8 @@ public fun admin_creates_auction<CoinType>(
     mut request: UserRequest,
     name: vector<u8>,
     description: vector<u8>,
+    item_addrs: vector<address>,
+    item_bag: ObjectBag,
     pay_addr: address,
     begin_delay_ms: u64,
     duration_ms: u64,
@@ -123,12 +127,19 @@ public fun admin_creates_auction<CoinType>(
     assert!( extension_period_ms >= MIN_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
     assert!( extension_period_ms <= MAX_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
 
+    assert!( item_addrs.length() > 0, E_MISSING_ITEMS );
+    assert!( item_addrs.length() <= MAX_ITEMS, E_TOO_MANY_ITEMS );
+    assert!( item_addrs.length() == item_bag.length(), E_WRONG_ITEMS );
+    item_addrs.length().do!(|i| {
+        assert!( item_bag.contains(item_addrs[i]), E_WRONG_ITEMS );
+    });
+
     let auction = Auction {
         id: object::new(ctx),
         name: name.to_string(),
         description: description.to_string(),
-        item_addrs: vector::empty(),
-        item_bag: object_bag::new(ctx),
+        item_addrs,
+        item_bag,
         admin_addr: ctx.sender(),
         pay_addr,
         lead_addr: ZERO_ADDRESS,
@@ -144,22 +155,6 @@ public fun admin_creates_auction<CoinType>(
     request.borrow_mut_user().add_created(auction.id.to_address());
 
     return (request, auction)
-}
-
-/// Admin can add items to the auction any time before the auction ends
-public fun admin_adds_item<CoinType, ItemType: key+store>(
-    auction: &mut Auction<CoinType>,
-    item: ItemType,
-    clock: &Clock,
-    ctx: &mut TxContext,
-) {
-    assert!( !auction.has_ended(clock), E_WRONG_TIME );
-    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
-    assert!( auction.item_bag.length() < MAX_ITEMS, E_TOO_MANY_ITEMS );
-
-    let item_addr = object::id_address(&item);
-    auction.item_addrs.push_back(item_addr);
-    auction.item_bag.add(item_addr, item);
 }
 
 /// Anyone can bid for an item, as long as the auction hasn't ended.

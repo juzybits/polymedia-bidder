@@ -5,6 +5,7 @@ use std::string::{String};
 use sui::clock::{Self, Clock};
 use sui::coin::{Coin};
 use sui::coin::{Self};
+use sui::object_bag::{Self};
 use sui::sui::{SUI};
 use sui::test_scenario::{Self, Scenario};
 use sui::test_utils::{Self, assert_eq};
@@ -168,10 +169,18 @@ public fun admin_creates_auction(
 {
     runner.scen.next_tx(sender);
 
-    let (request, mut auction) = auction::admin_creates_auction<SUI>(
+    let item = runner.new_item();
+    let mut item_addrs = vector::empty();
+    let mut item_bag = object_bag::new(runner.scen.ctx());
+    item_addrs.push_back(object::id_address(&item));
+    item_bag.add(object::id_address(&item), item);
+
+    let (request, auction) = auction::admin_creates_auction<SUI>(
         request,
         args.name,
         args.description,
+        item_addrs,
+        item_bag,
         args.pay_addr,
         args.begin_time_ms,
         args.duration_ms,
@@ -184,23 +193,7 @@ public fun admin_creates_auction(
 
     runner.destroy_user_request(request);
 
-    runner.admin_adds_item(sender, &mut auction);
-
     return auction
-}
-
-public fun admin_adds_item(
-    runner: &mut TestRunner,
-    sender: address,
-    auction: &mut Auction<SUI>,
-) {
-    runner.scen.next_tx(sender);
-    let item = runner.new_item();
-    auction.admin_adds_item(
-        item,
-        &runner.clock,
-        runner.scen.ctx(),
-    );
 }
 
 public fun anyone_bids(
@@ -542,62 +535,6 @@ fun test_admin_creates_auction_e_wrong_name_too_long()
     let mut args = auction_args();
     args.name = b"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
     let (runner, auction) = begin_with_auction(args);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-// === tests: admin_adds_item ===
-
-#[test]
-fun test_admin_adds_item_ok()
-{
-    // ADMIN creates auction with 1 item
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-    assert_eq( auction.item_addrs().length(), 1 );
-
-    // ADMIN adds 3 more items
-    runner.admin_adds_item(ADMIN, &mut auction);
-    runner.admin_adds_item(ADMIN, &mut auction);
-    runner.admin_adds_item(ADMIN, &mut auction);
-    assert_eq( auction.item_addrs().length(), 4 );
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-#[expected_failure(abort_code = auction::E_WRONG_TIME)]
-fun test_admin_adds_item_e_wrong_time()
-{
-    // ADMIN tries to add an item after the auction has ended
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-    runner.set_clock_to_auction_end_time(&mut auction);
-    runner.admin_adds_item(ADMIN, &mut auction);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-#[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
-fun test_admin_adds_item_e_wrong_admin()
-{
-    // RANDO tries to add an item to someone else's auction
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-    runner.admin_adds_item(RANDO, &mut auction);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-#[expected_failure(abort_code = auction::E_TOO_MANY_ITEMS)]
-fun test_admin_adds_item_e_too_many_items()
-{
-    // ADMIN tries to add 100 items to the auction (limit is 50)
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-    100u8.do!(|_i| runner.admin_adds_item(ADMIN, &mut auction));
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
