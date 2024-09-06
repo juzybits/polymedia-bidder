@@ -1,15 +1,16 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
-import { AuctionClient, AuctionObj } from "@polymedia/auction-sdk";
+import { AuctionClient, AuctionObj, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
-import { ReactSetter } from "@polymedia/suitcase-react";
+import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardAuctionDetails, CardAuctionItems, CardTransaction, FullCardMsg } from "./components/cards";
+import { Balance, bpsToPct, CardAuctionItems, FullCardMsg, msToDate, msToMinutes, ObjectLinkList } from "./components/cards";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { timeAgo } from "./lib/time";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 type TabName = "items" | "bid" | "details" | "history";
@@ -303,6 +304,94 @@ const SectionHistory: React.FC<{
     return (
         <div className="card">
             {content}
+        </div>
+    );
+};
+
+const CardAuctionDetails: React.FC<{ // TODO
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    const { network } = useOutletContext<AppContext>();
+    return <>
+        <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
+        <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
+        {/* <div>Name: {auction.name}</div>
+        <div>Description: {auction.description}</div> */}
+        <div>Auctioned items: <ObjectLinkList ids={auction.item_addrs} /></div>
+        <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
+        <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
+        <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
+        <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
+        <div>Leader amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
+        <div>Start time: {msToDate(auction.begin_time_ms)}</div>
+        <div>End time: {msToDate(auction.end_time_ms)}</div>
+        <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
+        <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
+        <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
+        <div>Is live: {auction.is_live ? "yes" : "no"}</div>
+        <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
+    </>;
+};
+
+const CardTransaction: React.FC<{
+    tx: TxAdminCreatesAuction | TxAnyoneBids;
+}> = ({
+    tx,
+}) =>
+{
+    if (tx.kind === "admin_creates_auction") {
+        return <CardTxAdminCreatesAuction tx={tx} maxItems={3} />;
+    }
+    if (tx.kind === "anyone_bids") {
+        return <CardTxAnyoneBids tx={tx} />;
+    }
+    return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+        {JSON.stringify(tx, null, 2)}
+    </div>;
+};
+
+const CardTxAdminCreatesAuction: React.FC<{
+    tx: TxAdminCreatesAuction;
+    maxItems?: number;
+}> = ({
+    tx,
+    maxItems,
+}) =>
+{
+    return (
+        <Link to={`/auction/${tx.auctionId}`} className="card link">
+            <div className="card-auction-title">
+                <div className="title-name">{tx.inputs.name}</div>
+                <span className="title-date">{timeAgo(tx.timestamp)}</span>
+            </div>
+
+            {tx.inputs.description.length > 0 &&
+            <div>{tx.inputs.description}</div>}
+
+            <CardAuctionItems item_addrs={tx.inputs.item_addrs} maxItems={maxItems} />
+        </Link>
+    );
+};
+
+const CardTxAnyoneBids: React.FC<{
+    tx: TxAnyoneBids;
+}> = ({
+    tx,
+}) => {
+    const { network } = useOutletContext<AppContext>();
+    return (
+        <div className="card">
+            <div className="card-auction-title">
+                <div className="title-name">
+                    <LinkToPolymedia addr={tx.sender} kind="address" network={network} />
+                    &nbsp;BID&nbsp;
+                    {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}
+                </div>
+                <span className="title-date">{timeAgo(tx.timestamp)}</span>
+            </div>
+            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
         </div>
     );
 };

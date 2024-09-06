@@ -1,9 +1,10 @@
-import { AuctionClient } from "@polymedia/auction-sdk";
+import { AuctionClient, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
-import { CardLoading, CardTxAdminCreatesAuction, CardWithMsg } from "./components/cards";
+import { CardAuctionItems, CardLoading, CardWithMsg } from "./components/cards";
+import { timeAgo } from "./lib/time";
 
 export const PageHome: React.FC = () =>
 {
@@ -96,6 +97,29 @@ const SectionRecentAuctions: React.FC = () =>
             </div>
             {content}
         </div>
+    );
+};
+
+const CardTxAdminCreatesAuction: React.FC<{
+    tx: TxAdminCreatesAuction;
+    maxItems?: number;
+}> = ({
+    tx,
+    maxItems,
+}) =>
+{
+    return (
+        <Link to={`/auction/${tx.auctionId}`} className="card link">
+            <div className="card-auction-title">
+                <div className="title-name">{tx.inputs.name}</div>
+                <span className="title-date">{timeAgo(tx.timestamp)}</span>
+            </div>
+
+            {tx.inputs.description.length > 0 &&
+            <div>{tx.inputs.description}</div>}
+
+            <CardAuctionItems item_addrs={tx.inputs.item_addrs} maxItems={maxItems} />
+        </Link>
     );
 };
 
