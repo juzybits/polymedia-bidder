@@ -199,7 +199,7 @@ const FormBid: React.FC<{
 
     // === functions ===
 
-    const onSubmit = async () => // TODO simulate tx to module catch error (e.g. someone else bid)
+    const onSubmit = async () => // TODO: parse AUCTION_ERRORS from response + dryRunTransactionBlock() to catch errors (e.g. someone else bid)
     {
         if (disableSubmit) {
             return;
