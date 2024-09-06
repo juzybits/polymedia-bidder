@@ -211,6 +211,38 @@ public fun admin_creates_auction(
     return auction
 }
 
+public fun admin_creates_auction_with_items(
+    runner: &mut TestRunner,
+    sender: address,
+    request: UserRequest,
+    args: AuctionArgs,
+    item_addrs: vector<address>,
+    item_bag: ObjectBag,
+): Auction<SUI>
+{
+    runner.scen.next_tx(sender);
+
+    let (request, auction) = auction::admin_creates_auction<SUI>(
+        request,
+        args.name,
+        args.description,
+        item_addrs,
+        item_bag,
+        args.pay_addr,
+        args.begin_time_ms,
+        args.duration_ms,
+        args.minimum_bid,
+        args.minimum_increase_bps,
+        args.extension_period_ms,
+        &runner.clock,
+        runner.scen.ctx(),
+    );
+
+    runner.destroy_user_request(request);
+
+    return auction
+}
+
 public fun anyone_bids(
     runner: &mut TestRunner,
     sender: address,
@@ -587,29 +619,12 @@ fun test_admin_creates_auction_e_item_length_mismatch()
 {
     // ADMIN tries to create an auction with a different number of items than the number of item_addrs
     let mut runner = begin();
-    let args = auction_args();
-    let request = runner.new_user_request(ADMIN);
-
     let (mut item_addrs, item_bag) = new_items(5, runner.scen.ctx());
-    item_addrs.pop_back();
+    item_addrs.push_back(@0x123);
 
-    let (request, auction) = auction::admin_creates_auction<SUI>(
-        request,
-        args.name,
-        args.description,
-        item_addrs,
-        item_bag,
-        args.pay_addr,
-        args.begin_time_ms,
-        args.duration_ms,
-        args.minimum_bid,
-        args.minimum_increase_bps,
-        args.extension_period_ms,
-        &runner.clock,
-        runner.scen.ctx(),
-    );
-
-    runner.destroy_user_request(request);
+    let request = runner.new_user_request(ADMIN);
+    let args = auction_args();
+    let auction = runner.admin_creates_auction_with_items(ADMIN, request, args, item_addrs, item_bag);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -623,30 +638,14 @@ fun test_admin_creates_auction_e_missing_item()
     // - item_addrs.length() == item_bag.length(),
     // - BUT not all item_addrs are in item_bag
     let mut runner = begin();
-    let args = auction_args();
-    let request = runner.new_user_request(ADMIN);
-
     let (mut item_addrs, item_bag) = new_items(5, runner.scen.ctx());
+    // replace the last address with a random one
     item_addrs.pop_back();
     item_addrs.push_back(@0x123);
 
-    let (request, auction) = auction::admin_creates_auction<SUI>(
-        request,
-        args.name,
-        args.description,
-        item_addrs,
-        item_bag,
-        args.pay_addr,
-        args.begin_time_ms,
-        args.duration_ms,
-        args.minimum_bid,
-        args.minimum_increase_bps,
-        args.extension_period_ms,
-        &runner.clock,
-        runner.scen.ctx(),
-    );
-
-    runner.destroy_user_request(request);
+    let request = runner.new_user_request(ADMIN);
+    let args = auction_args();
+    let auction = runner.admin_creates_auction_with_items(ADMIN, request, args, item_addrs, item_bag);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -661,32 +660,15 @@ fun test_admin_creates_auction_e_duplicate_item_addresses()
     // - and all item_addrs are in item_bag,
     // - BUT item_addrs contains duplicates
     let mut runner = begin();
-    let args = auction_args();
-    let request = runner.new_user_request(ADMIN);
-
     let (mut item_addrs, item_bag) = new_items(5, runner.scen.ctx());
-    // replace the last address with the first one TODO: this doesn't fail!
+    // replace the last address with the first one
     let first_addr = item_addrs[0];
     item_addrs.pop_back();
     item_addrs.push_back(first_addr);
 
-    let (request, auction) = auction::admin_creates_auction<SUI>(
-        request,
-        args.name,
-        args.description,
-        item_addrs,
-        item_bag,
-        args.pay_addr,
-        args.begin_time_ms,
-        args.duration_ms,
-        args.minimum_bid,
-        args.minimum_increase_bps,
-        args.extension_period_ms,
-        &runner.clock,
-        runner.scen.ctx(),
-    );
-
-    runner.destroy_user_request(request);
+    let request = runner.new_user_request(ADMIN);
+    let args = auction_args();
+    let auction = runner.admin_creates_auction_with_items(ADMIN, request, args, item_addrs, item_bag);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
