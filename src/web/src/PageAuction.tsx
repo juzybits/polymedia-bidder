@@ -200,22 +200,40 @@ const FormBid: React.FC<{
 
     // === functions ===
 
-    const onSubmit = async () => // TODO: parse AUCTION_ERRORS from response + dryRunTransactionBlock() to catch errors (e.g. someone else bid)
+    const onSubmit = async () =>
     {
         if (disableSubmit) {
             return;
         }
+        setErrSubmit(null);
         try {
-            const txRes = await auctionClient.bid(
-                currAcct.address,
-                userId,
-                auction.id,
-                auction.type_coin,
-                form.amount.val!,
-            );
-            console.debug("txRes:", txRes);
+            for (const dryRun of [true, false])
+            {
+                const txRes = await auctionClient.bid(
+                    currAcct.address,
+                    userId,
+                    auction.id,
+                    auction.type_coin,
+                    form.amount.val!,
+                    dryRun,
+                );
+                if (txRes.effects?.status.status !== "success")
+                {
+                    console.debug("txRes:", txRes.effects?.status.error);
+                    const errCode = auctionClient.parseErrorCode(txRes);
+                    const errStr = (() => {
+                        switch (errCode) { // TODO: refetch auction
+                            case "E_WRONG_TIME": return "The auction is not live yet!";
+                            case "E_WRONG_COIN_VALUE": return "Someone placed a higher bid!";
+                            default: return errCode;
+                        }
+                    })();
+                    setErrSubmit(errStr);
+                    break;
+                }
+            }
         } catch (err) {
-            setErrSubmit("Failed to submit bid"); // TODO: parse module errors (e.g. someone else bid)
+            setErrSubmit("Failed to submit bid");
             console.warn("[onSubmit]", err);
         }
     };

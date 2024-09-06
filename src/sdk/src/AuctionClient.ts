@@ -31,7 +31,7 @@ import {
     WaitForTxOptions,
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
-import { AUCTION_CONFIG } from "./config.js";
+import { AUCTION_CONFIG, AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
 import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
@@ -683,16 +683,17 @@ export class AuctionClient extends SuiClientBase
     }
 
     public async bid(
-        owner: string,
+        sender: string,
         userObj: ObjectArg | null,
         auctionId: string,
         type_coin: string,
         amount: bigint,
+        dryRun?: boolean,
     ): Promise<SuiTransactionBlockResponse>
     {
         const tx = new Transaction();
 
-        const [pay_coin] = await getCoinOfValue(this.suiClient, tx, owner, type_coin, amount);
+        const [pay_coin] = await getCoinOfValue(this.suiClient, tx, sender, type_coin, amount);
 
         const [reqArg0] = !userObj
             ? UserModule.new_user_request(tx, this.packageId, this.registryId)
@@ -709,7 +710,23 @@ export class AuctionClient extends SuiClientBase
 
         UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
-        const txRes = await this.signAndExecuteTransaction(tx);
-        return txRes;
+        if (dryRun) {
+            const results = await this.suiClient.devInspectTransactionBlock({
+                sender,
+                transactionBlock: tx,
+            });
+            return { digest: "", ...results };
+        } else {
+            return await this.signAndExecuteTransaction(tx);
+        }
+    }
+
+    // === errors ===
+
+    public parseErrorCode(
+        txRes: SuiTransactionBlockResponse,
+    ): string
+    {
+        return super.parseErrorCode(txRes, AUCTION_ERRORS);
     }
 }
