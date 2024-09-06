@@ -23,6 +23,7 @@ import {
     objResToFields,
     objResToId,
     objResToType,
+    parseTxError,
     SignTransaction,
     SuiClientBase,
     SuiObjectChangeCreated,
@@ -727,6 +728,13 @@ export class AuctionClient extends SuiClientBase
         txRes: SuiTransactionBlockResponse,
     ): string
     {
-        return super.parseErrorCode(txRes, AUCTION_ERRORS);
+        if (!txRes.effects?.status.error) {
+            return "unknown error";
+        }
+        const error = parseTxError(txRes.effects.status.error);
+        if (!error || error.packageId !== this.packageId || !(error.code in AUCTION_ERRORS)) {
+            return txRes.effects.status.error;
+        }
+        return AUCTION_ERRORS[error.code];
     }
 }
