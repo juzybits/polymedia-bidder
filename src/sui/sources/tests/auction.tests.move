@@ -41,6 +41,7 @@ const RANDO: address = @0xbabe;
 public struct AuctionArgs has drop {
     name: vector<u8>,
     description: vector<u8>,
+    item_count: u64,
     pay_addr: address,
     begin_time_ms: u64,
     duration_ms: u64,
@@ -53,6 +54,7 @@ public fun auction_args(): AuctionArgs {
     AuctionArgs {
         name: b"the auction",
         description: b"the description",
+        item_count: 3,
         pay_addr: PAYEE,
         begin_time_ms: 0,
         duration_ms: 1 * 3600 * 1000, // 1 hour
@@ -169,11 +171,14 @@ public fun admin_creates_auction(
 {
     runner.scen.next_tx(sender);
 
-    let item = runner.new_item();
+
     let mut item_addrs = vector::empty();
     let mut item_bag = object_bag::new(runner.scen.ctx());
-    item_addrs.push_back(object::id_address(&item));
-    item_bag.add(object::id_address(&item), item);
+    args.item_count.do!(|_i| {
+        let item = runner.new_item();
+        item_addrs.push_back(object::id_address(&item));
+        item_bag.add(object::id_address(&item), item);
+    });
 
     let (request, auction) = auction::admin_creates_auction<SUI>(
         request,
@@ -325,8 +330,8 @@ fun test_admin_creates_auction_ok()
 
     assert_eq( auction.name(), args.name.to_string() );
     assert_eq( auction.description(), args.description.to_string() );
-    assert_eq( auction.item_addrs().length(), 1 );
-    assert_eq( auction.item_bag().length(), 1 );
+    assert_eq( auction.item_addrs().length(), 3 );
+    assert_eq( auction.item_bag().length(), 3 );
     assert_eq( auction.admin_addr(), ADMIN );
     assert_eq( auction.pay_addr(), args.pay_addr );
     assert_eq( auction.lead_addr(), @0x0 );
