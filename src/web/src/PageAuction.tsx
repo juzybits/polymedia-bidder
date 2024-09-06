@@ -294,9 +294,7 @@ const SectionHistory: React.FC<{
         content = (
             <div className="list-cards">
                 {txs?.data.map(tx =>
-                    <div className="card" key={tx.digest}>
-                        <CardTransaction tx={tx} />
-                    </div>
+                    <CardTransaction tx={tx} />
                 )}
             </div>
         );

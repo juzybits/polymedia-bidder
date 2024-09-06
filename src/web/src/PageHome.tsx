@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
-import { CardLoading, CardTxAdminCreatesAuctionShort, CardWithMsg } from "./components/cards";
+import { CardLoading, CardTxAdminCreatesAuction, CardWithMsg } from "./components/cards";
 
 export const PageHome: React.FC = () =>
 {
@@ -84,7 +84,7 @@ const SectionRecentAuctions: React.FC = () =>
     } else {
         content = <div className="list-cards">
             {txs.data.map(tx => (
-                <CardTxAdminCreatesAuctionShort tx={tx} key={tx.digest} maxItems={MAX_ITEMS_PER_AUCTION} />
+                <CardTxAdminCreatesAuction tx={tx} key={tx.digest} maxItems={MAX_ITEMS_PER_AUCTION} />
             ))}
         </div>;
     }
