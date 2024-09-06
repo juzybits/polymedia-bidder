@@ -284,7 +284,7 @@ const ItemGridSelector: React.FC<{
             const isChosen = isChosenItem(item);
             return (
             <div className="grid-item card" key={item.id}
-                // onClick={() => { showItemInfo(item); TODO: "flip" card and show ID etc }}
+                onClick={() => (isChosen || !disableAddItem) && addOrRemoveItem(item)}
             >
                 <CardSuiItem item={item}
                     isChosen={isChosen}
@@ -292,7 +292,6 @@ const ItemGridSelector: React.FC<{
                         <div className="item-button">
                             <button
                                 className={`btn ${isChosen ? "red" : ""}`}
-                                onClick={() => addOrRemoveItem(item)}
                                 disabled={!isChosen && disableAddItem}
                             >
                                 {isChosen ? "REMOVE" : "ADD"}
