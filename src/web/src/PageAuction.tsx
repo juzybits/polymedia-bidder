@@ -16,7 +16,7 @@ import { timeAgo } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
-type TabName = "items" | "bid" | "details" | "history";
+type TabName = "items" | "bid" | "details" | "history" | "admin";
 
 const TabHeader: React.FC<{
     tabName: TabName;
@@ -41,6 +41,8 @@ export const PageAuction: React.FC = () =>
 {
     // === state ===
 
+    const currAcct = useCurrentAccount();
+
     const { auctionId } = useParams();
     if (!auctionId) { return <PageNotFound />; };
 
@@ -49,6 +51,8 @@ export const PageAuction: React.FC = () =>
     const [ tab, setTab ] = useState<TabName>("bid");
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
+
+    const isAdmin = currAcct?.address === auction?.admin_addr;
 
     // === effects ===
 
@@ -104,6 +108,7 @@ export const PageAuction: React.FC = () =>
                     {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} />}
                     <TabHeader tabName="details" selectedTab={tab} setTab={setTab} />
                     <TabHeader tabName="history" selectedTab={tab} setTab={setTab} />
+                    {isAdmin && <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} />}
                 </div>
 
                 <div className="tabs-content">
@@ -111,6 +116,7 @@ export const PageAuction: React.FC = () =>
                     {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
                     {tab === "details" && <SectionDetails auction={auction} />}
                     {tab === "history" && <SectionHistory auction={auction} />}
+                    {tab === "admin" && <SectionAdmin auction={auction} />}
                 </div>
 
             </div>
@@ -346,6 +352,18 @@ const SectionHistory: React.FC<{
     return (
         <div className="card">
             {content}
+        </div>
+    );
+};
+
+const SectionAdmin: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    return (
+        <div className="card">
+            TODO
         </div>
     );
 };
