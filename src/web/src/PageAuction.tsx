@@ -7,7 +7,9 @@ import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
+import { Btn } from "./components/Btn";
 import { Balance, bpsToPct, CardAuctionItems, CardWithMsg, FullCardMsg, msToDate, msToMinutes, ObjectLinkList, shortenDigest } from "./components/cards";
+import { BtnConnect, ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
@@ -43,7 +45,7 @@ export const PageAuction: React.FC = () =>
 
     const { auctionClient, header } = useOutletContext<AppContext>();
 
-    const [ tab, setTab ] = useState<TabName>("items");
+    const [ tab, setTab ] = useState<TabName>("bid");
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
 
@@ -198,17 +200,16 @@ const FormBid: React.FC<{
     const { auctionClient } = useOutletContext<AppContext>();
     const [ errSubmit, setErrSubmit ] = useState<string | null>(null);
 
-    const form = {
-        amount: useInputUnsignedBalance({
-            label: `Amount (${coinMeta.symbol})`,
-            decimals: coinMeta.decimals,
-            min: auction.minimum_bid,
-            html: { value: balanceToString(auction.minimum_bid, coinMeta.decimals), required: true },
-        }),
-    };
+    const input_amount = useInputUnsignedBalance({
+        label: `Amount (${coinMeta.symbol})`,
+        decimals: coinMeta.decimals,
+        min: auction.minimum_bid,
+        html: { value: balanceToString(auction.minimum_bid, coinMeta.decimals), required: true, disabled: !currAcct },
+    });
 
-    const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = hasErrors || !currAcct;
+    const hasInputError = input_amount.err !== undefined;
+    const disableSubmit = hasInputError || !currAcct;
+    const showBtnConnect = !currAcct;
 
     // === effects ===
 
@@ -228,7 +229,7 @@ const FormBid: React.FC<{
                     userId,
                     auction.id,
                     auction.type_coin,
-                    form.amount.val!,
+                    input_amount.val!,
                     dryRun,
                 );
                 if (txRes.effects?.status.status !== "success")
@@ -256,14 +257,12 @@ const FormBid: React.FC<{
 
     return (
         <div className="form">
-            {Object.entries(form).map(([name, input]) => (
-                <React.Fragment key={name}>
-                    {input.input}
-                </React.Fragment>
-            ))}
-            <button onClick={onSubmit} className="btn" disabled={disableSubmit}>
-                BID
-            </button>
+
+            {input_amount.input}
+
+            {showBtnConnect
+            ? <BtnConnect />
+            : <Btn disabled={disableSubmit} onClick={onSubmit}>BID</Btn>}
 
             {errSubmit &&
             <div className="error">{errSubmit}</div>}

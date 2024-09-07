@@ -5,6 +5,18 @@ import { AppContext } from "../App";
 
 export const ConnectToGetStarted: React.FC = () =>
 {
+    return (
+        <div className="page-section card">
+            <div className="section-description">
+                Connect your Sui wallet to get started.
+            </div>
+            <BtnConnect />
+        </div>
+    );
+};
+
+export const BtnConnect: React.FC = () =>
+{
     // === state ===
 
     const currAcct = useCurrentAccount();
@@ -12,23 +24,14 @@ export const ConnectToGetStarted: React.FC = () =>
 
     const { isWorking, openConnectModal, setShowMobileNav } = useOutletContext<AppContext>();
 
-    // === functions ===
-
     const connectWallet = () => {
         currAcct ? disconnect() : openConnectModal();
         setShowMobileNav(false);
     };
 
-    // === html ===
-
     return (
-        <div className="page-section card">
-            <div className="section-description">
-                Connect your Sui wallet to get started.
-            </div>
-            <button className="btn" disabled={isWorking} onClick={connectWallet}>
-                CONNECT
-            </button>
-        </div>
+        <button className="btn" disabled={isWorking} onClick={connectWallet}>
+            CONNECT
+        </button>
     );
 };
