@@ -184,6 +184,8 @@ const SectionBid: React.FC<{
     return content;
 };
 
+type SubmitRes = { ok: null } | { ok: true } | { ok: false; err: string | null; }
+
 const FormBid: React.FC<{
     auction: AuctionObj;
     coinMeta: CoinMetadata;
@@ -198,7 +200,7 @@ const FormBid: React.FC<{
 
     const currAcct = useCurrentAccount();
     const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
-    const [ errSubmit, setErrSubmit ] = useState<string | null>(null);
+    const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const input_amount = useInputUnsignedBalance({
         label: `Amount (${coinMeta.symbol})`,
@@ -232,7 +234,7 @@ const FormBid: React.FC<{
             return;
         }
         try {
-            setErrSubmit(null);
+            setSubmitRes({ ok: null });
             setIsWorking(true);
             for (const dryRun of [true, false])
             {
@@ -244,14 +246,16 @@ const FormBid: React.FC<{
                     input_amount.val!,
                     dryRun,
                 );
-                if (txRes.effects?.status.status !== "success")
-                {
-                    setErrSubmit(errToString(txRes.effects?.status.error));
+                if (txRes.effects?.status.status !== "success") {
+                    setSubmitRes({ ok: false, err: errToString(txRes.effects?.status.error) });
                     break;
+                }
+                else if (!dryRun) {
+                    setSubmitRes({ ok: true });
                 }
             }
         } catch (err) {
-            setErrSubmit(errToString(err instanceof Error ? err.message : String(err)));
+            setSubmitRes({ ok: false, err: errToString(err instanceof Error ? err.message : String(err)) });
             console.warn("[onSubmit]", err);
         } finally {
             setIsWorking(false);
@@ -269,8 +273,11 @@ const FormBid: React.FC<{
             ? <BtnConnect />
             : <Btn disabled={disableSubmit} onClick={onSubmit}>BID</Btn>}
 
-            {errSubmit &&
-            <div className="error">{errSubmit}</div>}
+            {submitRes.ok === true &&
+            <div className="success">Bid submitted!</div>}
+
+            {submitRes.ok === false && submitRes.err &&
+            <div className="error">{submitRes.err}</div>}
         </div>
     );
 };
