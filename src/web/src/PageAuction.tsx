@@ -240,7 +240,7 @@ const FormBid: React.FC<{
             setSubmitRes({ ok: null });
             for (const dryRun of [true, false])
             {
-                const txRes = await auctionClient.bid(
+                const resp = await auctionClient.bid(
                     currAcct.address,
                     userId,
                     auction.id,
@@ -248,8 +248,8 @@ const FormBid: React.FC<{
                     input_amount.val!,
                     dryRun,
                 );
-                if (txRes.effects?.status.status !== "success") {
-                    throw new Error(txRes.effects?.status.error);
+                if (resp.effects?.status.status !== "success") {
+                    throw new Error(resp.effects?.status.error);
                 }
                 setSubmitRes({ ok: true });
             }

@@ -357,16 +357,16 @@ export class AuctionClient extends SuiClientBase
      * Assumes the tx block contains only one `admin_creates_auction` call.
      */
     public parseTxAdminCreatesAuction(
-        txRes: SuiTransactionBlockResponse,
+        resp: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | null
     {
         let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(txRes); }
+        try { txData = txResToData(resp); }
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
         // find the created auction object
-        const auctionObjChange = this.extractAuctionObjChange(txRes);
+        const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) { return null; }
 
         let createTxInputs: TxAdminCreatesAuction["inputs"] | undefined;
@@ -410,8 +410,8 @@ export class AuctionClient extends SuiClientBase
 
         return {
             kind: "admin_creates_auction",
-            digest: txRes.digest,
-            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
             auctionId: auctionObjChange.objectId,
             inputs: createTxInputs,
@@ -422,14 +422,14 @@ export class AuctionClient extends SuiClientBase
      * A simpler but less correct approach as it makes more assumptions about the tx block.
      */
     public parseTxAdminCreatesAuctionSimpler(
-        txRes: SuiTransactionBlockResponse,
+        resp: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | null
     {
-        const auctionObjChange = this.extractAuctionObjChange(txRes);
+        const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) { return null; }
 
         let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(txRes); }
+        try { txData = txResToData(resp); }
         catch (_err) { return null; }
         const inputs = txData.inputs;
 
@@ -439,8 +439,8 @@ export class AuctionClient extends SuiClientBase
 
         return {
             kind: "admin_creates_auction",
-            digest: txRes.digest,
-            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
             auctionId: auctionObjChange.objectId,
             inputs: {
@@ -464,11 +464,11 @@ export class AuctionClient extends SuiClientBase
      * Assumes the tx block contains only one `anyone_bids` call.
      */
     public parseTxAnyoneBids(
-        txRes: SuiTransactionBlockResponse,
+        resp: SuiTransactionBlockResponse,
     ): TxAnyoneBids | null
     {
         let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(txRes); }
+        try { txData = txResToData(resp); }
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
@@ -512,8 +512,8 @@ export class AuctionClient extends SuiClientBase
 
         return {
             kind: "anyone_bids",
-            digest: txRes.digest,
-            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
             inputs: {
                 type_coin,
@@ -527,11 +527,11 @@ export class AuctionClient extends SuiClientBase
      * A simpler but less correct approach as it makes more assumptions about the tx block.
      */
     public parseTxAnyoneBidsSimpler(
-        txRes: SuiTransactionBlockResponse,
+        resp: SuiTransactionBlockResponse,
     ): TxAnyoneBids | null
     {
         let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(txRes); }
+        try { txData = txResToData(resp); }
         catch (_err) { return null; }
         const inputs = txData.inputs;
 
@@ -541,8 +541,8 @@ export class AuctionClient extends SuiClientBase
 
         return {
             kind: "anyone_bids",
-            digest: txRes.digest,
-            timestamp: txRes.timestampMs ? parseInt(txRes.timestampMs) : 0,
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
             inputs: {
                 type_coin,
@@ -556,11 +556,11 @@ export class AuctionClient extends SuiClientBase
      * Parse various transactions on the `auction` module.
      */
     public parseAuctionTx(
-        txRes: SuiTransactionBlockResponse,
+        resp: SuiTransactionBlockResponse,
     ): TxAdminCreatesAuction | TxAnyoneBids | null
     {
         let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(txRes); }
+        try { txData = txResToData(resp); }
         catch (_err) { return null; }
 
         for (const tx of txData.txs) {
@@ -568,10 +568,10 @@ export class AuctionClient extends SuiClientBase
                 continue;
             }
             if (tx.MoveCall.function === "admin_creates_auction") {
-                return this.parseTxAdminCreatesAuction(txRes);
+                return this.parseTxAdminCreatesAuction(resp);
             }
             if (tx.MoveCall.function === "anyone_bids") {
-                return this.parseTxAnyoneBids(txRes);
+                return this.parseTxAnyoneBids(resp);
             }
         }
 
@@ -582,10 +582,10 @@ export class AuctionClient extends SuiClientBase
      * Extract the created Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
      */
     public extractAuctionObjChange(
-        txRes: SuiTransactionBlockResponse,
+        resp: SuiTransactionBlockResponse,
     ): SuiObjectChangeCreated | undefined
     {
-        return txRes.objectChanges?.find(o =>
+        return resp.objectChanges?.find(o =>
             o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
         ) as SuiObjectChangeCreated | undefined;
     }
@@ -604,7 +604,7 @@ export class AuctionClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: { id: string; type: string }[],
-    ): Promise<{ txRes: SuiTransactionBlockResponse; auctionObjChange: SuiObjectChangeCreated }>
+    ): Promise<{ resp: SuiTransactionBlockResponse; auctionObjChange: SuiObjectChangeCreated }>
     {
         const tx = new Transaction();
 
@@ -657,18 +657,18 @@ export class AuctionClient extends SuiClientBase
             auctionArg,
         );
 
-        const txRes = await this.signAndExecuteTransaction(tx);
+        const resp = await this.signAndExecuteTransaction(tx);
 
-        if (txRes.effects?.status.status !== "success") {
-            throw new Error(`Transaction failed: ${JSON.stringify(txRes, null, 2)}`);
+        if (resp.effects?.status.status !== "success") {
+            throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        const auctionObjChange = this.extractAuctionObjChange(txRes);
+        const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) {
-            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(txRes, null, 2)}`);
+            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        return { txRes, auctionObjChange };
+        return { resp, auctionObjChange };
     }
 
     public async bid(

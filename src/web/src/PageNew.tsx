@@ -167,7 +167,7 @@ const FormCreateAuction: React.FC<{
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
-            const { txRes, auctionObjChange } = await auctionClient.createAndShareAuction(
+            const { resp, auctionObjChange } = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,
@@ -180,8 +180,8 @@ const FormCreateAuction: React.FC<{
                 form.extension_period_minutes.val! * ONE_MINUTE_MS,
                 chosenItems,
             );
-            if (txRes.effects?.status.status !== "success") {
-                throw new Error(txRes.effects?.status.error);
+            if (resp.effects?.status.status !== "success") {
+                throw new Error(resp.effects?.status.error);
             }
             setSubmitRes({ ok: true });
             navigate(`/auction/${auctionObjChange.objectId}`);
