@@ -7,7 +7,7 @@ import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { Balance, bpsToPct, CardAuctionItems, FullCardMsg, msToDate, msToMinutes, ObjectLinkList, shortenDigest } from "./components/cards";
+import { Balance, bpsToPct, CardAuctionItems, CardWithMsg, FullCardMsg, msToDate, msToMinutes, ObjectLinkList, shortenDigest } from "./components/cards";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
@@ -152,20 +152,23 @@ const SectionBid: React.FC<{
 
     let content: React.ReactNode;
     if (errorCoinMeta || coinMeta === null) {
-        content = <FullCardMsg>Failed to fetch coin metadata</FullCardMsg>;
+        content = <CardWithMsg>Failed to fetch coin metadata</CardWithMsg>;
     } else if (errorFetchUserId) { // userId may be null for new users
-        content = <FullCardMsg>{errorFetchUserId}</FullCardMsg>;
+        content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
     } else if (isLoading) {
-        content = <FullCardMsg>Loading…</FullCardMsg>;
+        content = <CardWithMsg>Loading…</CardWithMsg>;
     } else {
-        content = <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />;
+        content = <>
+            <div className="card">
+                <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />
+            </div>
+            <div className="card">
+                <div className="card-title">Top bid</div>
+            </div>
+        </>;
     }
 
-    return (
-        <div className="card">
-            {content}
-        </div>
-    );
+    return content;
 };
 
 const FormBid: React.FC<{
@@ -379,9 +382,9 @@ const CardTxAdminCreatesAuction: React.FC<{
     const { network } = useOutletContext<AppContext>();
     return (
         <div className="card">
-            <div className="card-auction-title">
-                <div className="title-name">CREATED</div>
-                <span className="title-date">{timeAgo(tx.timestamp)}</span>
+            <div className="card-header">
+                <div className="card-title">CREATED</div>
+                <span className="header-label">{timeAgo(tx.timestamp)}</span>
             </div>
             <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
             <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
@@ -397,7 +400,7 @@ const CardTxAnyoneBids: React.FC<{
     const { network } = useOutletContext<AppContext>();
     return (
         <div className="card">
-            <div className="card-auction-title">
+            <div className="card-header">
                 <div className="title-name">
                     BID&nbsp;
                     {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}

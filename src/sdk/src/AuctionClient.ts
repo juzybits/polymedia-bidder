@@ -130,6 +130,7 @@ export class AuctionClient extends SuiClientBase
             const item = objResToSuiItem(objRes);
             if (item.hasPublicTransfer) {
                 items.push(item);
+                this.cache.items.set(item.id, item);
             }
         }
         return {
@@ -249,7 +250,7 @@ export class AuctionClient extends SuiClientBase
 
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
             [
-                bcs.vector(bcs.Address),
+                bcs.vector(UserAuctionBcs),
                 bcs.Bool,
                 bcs.U64,
             ],

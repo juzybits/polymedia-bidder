@@ -200,13 +200,13 @@ const CardUserAuction: React.FC<{ // TODO: fetch auction, then show auction name
     const { network } = useOutletContext<AppContext>();
     return (
         <Link to={`/auction/${auction.auction_addr}`} className="card">
-            <div className="card-auction-title">
-                <div className="title-name">
+            <div className="card-header">
+                <div className="card-title">
                     {shortenAddress(auction.auction_addr)}
                 </div>
-                <div className="title-date">
+                <span className="header-label">
                     {timeAgo(auction.time)}
-                </div>
+                </span>
             </div>
         </Link>
     );
@@ -220,13 +220,13 @@ const CardUserBid: React.FC<{ // TODO: fetch auction, then show auction name, an
 {
     return (
         <Link to={`/auction/${bid.auction_addr}`} className="card">
-            <div className="card-auction-title">
-                <div className="title-name">
+            <div className="card-header">
+                <div className="card-title">
                     {shortenAddress(bid.auction_addr)}
                 </div>
-                <div className="title-date">
+                <span className="header-label">
                     {timeAgo(bid.time)}
-                </div>
+                </span>
             </div>
             <div>Amount: {bid.amount.toString()}</div>
         </Link>
