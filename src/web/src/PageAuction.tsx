@@ -136,7 +136,9 @@ const SectionBid: React.FC<{
     auction,
 }) =>
 {
-    const { auctionClient } = useOutletContext<AppContext>();
+    const currAcct = useCurrentAccount();
+
+    const { auctionClient, network } = useOutletContext<AppContext>();
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
 
@@ -163,7 +165,16 @@ const SectionBid: React.FC<{
                 <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />
             </div>
             <div className="card">
-                <div className="card-title">Top bid</div>
+                {auction.lead_value > 0
+                ? <>
+                    <div className="card-title">Top bid</div>
+                    <div>Amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
+                    <div>
+                        Sender: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
+                        {currAcct?.address === auction.lead_addr && <span className="text-green"> (you)</span>}
+                    </div>
+                </>
+                : <div className="card-title">No bids yet</div>}
             </div>
         </>;
     }
@@ -401,11 +412,11 @@ const CardTxAnyoneBids: React.FC<{
     return (
         <div className="card">
             <div className="card-header">
-                <div className="title-name">
+                <div className="card-title">
                     BID&nbsp;
                     {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}
                 </div>
-                <span className="title-date">{timeAgo(tx.timestamp)}</span>
+                <span className="header-label">{timeAgo(tx.timestamp)}</span>
             </div>
             <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
             <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
