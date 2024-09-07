@@ -337,6 +337,7 @@ public fun admin_sets_pay_addr(
     runner.scen.next_tx(sender);
     auction.admin_sets_pay_addr(
         new_pay_addr,
+        &runner.clock,
         runner.scen.ctx(),
     );
 }
@@ -688,6 +689,7 @@ fun test_anyone_bids_ok()
     assert_eq( minimum_bid_1, 1000 );
     assert_eq( auction.begin_time_ms(), runner.clock.timestamp_ms() );
     assert_eq( auction.has_leader(), false );
+    assert_eq( auction.has_balance(), false );
     // bid
     runner.anyone_bids(BIDDER_1, true, &mut auction, minimum_bid_1);
     // check outcome
@@ -696,6 +698,7 @@ fun test_anyone_bids_ok()
     let minimum_bid_2 = auction.minimum_bid();
     assert_eq( minimum_bid_2, 1010 ); // 1% higher
     assert_eq( auction.has_leader(), true );
+    assert_eq( auction.has_balance(), true );
 
     // BIDDER_2 bids a millisecond before the auction ends
     runner.clock.set_for_testing(auction.end_time_ms() - 1);
@@ -1009,6 +1012,9 @@ fun test_admin_cancels_auction_ok_with_bids()
     // auction has no leader/winner
     assert_eq( auction.has_leader(), false );
 
+    // auction has no balance
+    assert_eq( auction.has_balance(), false );
+
     // ADMIN can recover the item
     let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
 
@@ -1165,11 +1171,34 @@ fun test_admin_reclaims_item_e_cant_reclaim_with_bids()
 // === tests: admin_sets_pay_addr ===
 
 #[test]
-fun test_admin_set_pay_addr_ok()
+fun test_admin_sets_pay_addr_ok_before_end_time()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
-    // ADMIN changes pay_addr
+    // ADMIN can change pay_addr because the auction hasn't ended
+    let new_pay_addr = @0x123;
+    runner.admin_sets_pay_addr(ADMIN, &mut auction, new_pay_addr);
+
+    // new_pay_addr will get the money when the auction is over
+    assert_eq( auction.pay_addr(), new_pay_addr );
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+fun test_admin_sets_pay_addr_ok_after_end_time()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // BIDDER_1 bids
+    let bid_value = 1000;
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
+
+    // auction ends with bids
+    runner.set_clock_to_auction_end_time(&mut auction);
+
+    // ADMIN can change pay_addr after the auction has ended, because there are bids
     let new_pay_addr = @0x123;
     runner.admin_sets_pay_addr(ADMIN, &mut auction, new_pay_addr);
 
@@ -1182,13 +1211,31 @@ fun test_admin_set_pay_addr_ok()
 
 #[test]
 #[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
-fun test_admin_set_pay_addr_e_wrong_admin()
+fun test_admin_sets_pay_addr_e_wrong_admin()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
     // RANDO tries to change pay_addr
     let new_pay_addr = @0x123;
     runner.admin_sets_pay_addr(RANDO, &mut auction, new_pay_addr);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_POINTLESS_PAY_ADDR_CHANGE)]
+fun test_admin_sets_pay_addr_e_pointless_pay_addr_change()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // ADMIN ends without bids
+    runner.set_clock_to_auction_end_time(&mut auction);
+
+    // ADMIN tries to change pay_addr, which is pointless because the auction ended without bids,
+    // so no funds will ever be sent to the pay_addr
+    let new_pay_addr = @0x123;
+    runner.admin_sets_pay_addr(ADMIN, &mut auction, new_pay_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);

@@ -30,6 +30,7 @@ const E_NOT_ENOUGH_ITEMS: u64 = 5012;
 const E_TOO_MANY_ITEMS: u64 = 5013;
 const E_MISSING_ITEM: u64 = 5014;
 const E_DUPLICATE_ITEM_ADDRESSES: u64 = 5015;
+const E_POINTLESS_PAY_ADDR_CHANGE: u64 = 5016;
 
 // === constants ===
 
@@ -182,7 +183,7 @@ public fun anyone_bids<CoinType>(
     assert!( pay_coin.value() >= auction.minimum_bid, E_WRONG_COIN_VALUE );
 
     // send the auction balance to the previous leader, who has just been outbid
-    if (auction.lead_value() > 0) {
+    if (auction.has_balance()) {
         let lead_addr = auction.lead_addr;
         auction.withdraw_balance(lead_addr, ctx);
     };
@@ -239,7 +240,7 @@ public fun anyone_pays_funds<CoinType>(
 ) {
     assert!( auction.has_ended(clock), E_WRONG_TIME );
 
-    if (auction.lead_value() > 0) {
+    if (auction.has_balance()) {
         let pay_addr = auction.pay_addr;
         auction.withdraw_balance(pay_addr, ctx);
     }
@@ -268,7 +269,7 @@ public fun admin_cancels_auction<CoinType>(
 
     auction.admin_ends_auction_early(clock, ctx);
 
-    if (auction.lead_value() > 0) {
+    if (auction.has_balance()) {
         // return funds to leader
         let lead_addr = auction.lead_addr;
         auction.withdraw_balance(lead_addr, ctx);
@@ -299,9 +300,11 @@ public fun admin_reclaims_item<CoinType, ItemType: key+store>(
 public fun admin_sets_pay_addr<CoinType>(
     auction: &mut Auction<CoinType>,
     pay_addr: address,
+    clock: &Clock,
     ctx: &mut TxContext,
 ) {
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( !auction.has_ended(clock) || auction.has_balance(), E_POINTLESS_PAY_ADDR_CHANGE );
     auction.pay_addr = pay_addr;
 }
 
@@ -337,6 +340,12 @@ public fun has_leader<CoinType>(
     auction: &Auction<CoinType>,
 ): bool {
     return auction.lead_addr != ZERO_ADDRESS
+}
+
+public fun has_balance<CoinType>(
+    auction: &Auction<CoinType>,
+): bool {
+    return auction.lead_value() > 0
 }
 
 // === public-view accessors: auction ===
