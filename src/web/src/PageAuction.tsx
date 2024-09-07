@@ -360,12 +360,59 @@ const SectionAdmin: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
-}) => {
-    return (
+}) =>
+{
+    // === state ===
+
+    const { isWorking } = useOutletContext<AppContext>();
+
+    // === functions ===
+
+    const submitEndAuction = async () => { console.log("TODO"); };
+
+    const submitCancelAuction = async () => { console.log("TODO"); };
+
+    const submitSetPayAddr = async () => { console.log("TODO"); };
+
+    // === html ===
+
+    return <>
         <div className="card">
-            TODO
+            <div className="card-title">End auction</div>
+            {/* Enabled if:
+                - Auction is live
+                - auction.lead_value() > 0 ||  auction.has_leader()
+             */}
+            <div>You can end the auction early and send the items to the current leader.</div>
+            <div>TODO: admin_ends_auction_early + anyone_sends_item_to_winner + anyone_pays_funds</div>
+            <div>
+                <Btn onClick={submitEndAuction}>END AUCTION</Btn>
+            </div>
         </div>
-    );
+        <div className="card">
+            <div className="card-title">Cancel auction</div>
+            {/* Enabled if:
+                - !auction.has_ended()
+             */}
+            <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
+            <div>TODO: admin_cancels_auction + admin_reclaims_item</div>
+            <div>
+                <Btn onClick={submitCancelAuction}>CANCEL AUCTION</Btn>
+            </div>
+        </div>
+        <div className="card">
+            <div className="card-title">Set pay address</div>
+            {/* Enabled if:
+                - !auction.has_ended() || auction.has_balance()
+             */}
+            <div>You can change the payment address for the auction.</div>
+            <div>TODO: admin_sets_pay_addr</div>
+            <div>
+                <Btn onClick={submitSetPayAddr}>SET ADDRESS</Btn>
+            </div>
+        </div>
+
+    </>;
 };
 
 const CardAuctionDetails: React.FC<{ // TODO

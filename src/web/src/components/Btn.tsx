@@ -3,15 +3,16 @@ import { AppContext } from "../App";
 
 export const Btn: React.FC<{
     onClick: () => void;
-    disabled: boolean;
     children: React.ReactNode;
+    disabled?: boolean;
 }> = ({
     onClick,
-    disabled,
     children,
+    disabled = undefined,
 }) =>
 {
     const { isWorking } = useOutletContext<AppContext>();
+    disabled = disabled || isWorking;
 
     return (
         <button
