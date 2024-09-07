@@ -29,13 +29,19 @@ public struct UserRegistry has key {
 /// stores all auctions created and all bids placed by an address
 public struct User has key {
     id: UID,
-    created: TableVec<address>,
+    created: TableVec<UserAuction>,
     bids: TableVec<UserBid>,
+}
+
+/// an auction and its creation time
+public struct UserAuction has store, copy {
+    auction_addr: address,
+    time: u64,
 }
 
 /// a bid on an auction
 public struct UserBid has store, copy {
-    auction_id: address,
+    auction_addr: address,
     time: u64,
     amount: u64,
 }
@@ -47,7 +53,7 @@ public fun get_created_page(
     ascending: bool,
     cursor: u64,
     limit: u64,
-): (vector<address>, bool, u64)
+): (vector<UserAuction>, bool, u64)
 {
     return paginator::get_page(&user.created, ascending, cursor, limit)
 }
@@ -72,7 +78,7 @@ public fun users(
 
 public fun created(
     user: &User,
-): &TableVec<address> {
+): &TableVec<UserAuction> {
     &user.created
 }
 
@@ -126,27 +132,25 @@ public fun destroy_user_request(
 public(package) fun add_created(
     user: &mut User,
     auction_addr: address,
+    time: u64,
 ) {
-    user.created.push_back(auction_addr);
+    user.created.push_back(UserAuction {
+        auction_addr,
+        time,
+    });
 }
 
 public(package) fun add_bid(
     user: &mut User,
-    bid: UserBid,
-) {
-    user.bids.push_back(bid);
-}
-
-public(package) fun new_bid(
     auction_addr: address,
     time: u64,
     amount: u64,
-): UserBid {
-    return UserBid {
-        auction_id: auction_addr,
+) {
+    user.bids.push_back(UserBid {
+        auction_addr,
         time,
         amount,
-    }
+    });
 }
 
 // === private functions ===

@@ -70,19 +70,29 @@ export type TxAnyoneBids = {
     sender: string;
     inputs: {
         type_coin: string;
-        auction_id: string;
+        auction_addr: string;
         amount: bigint;
     };
 };
 
-export const UserBidBcs = bcs.struct("Bid", {
-    auction_id: bcs.Address,
+export const UserAuctionBcs = bcs.struct("UserAuction", {
+    auction_addr: bcs.Address,
+    time: bcs.U64,
+});
+
+export type UserAuction = {
+    auction_addr: string;
+    time: number;
+};
+
+export const UserBidBcs = bcs.struct("UserBid", {
+    auction_addr: bcs.Address,
     time: bcs.U64,
     amount: bcs.U64,
 });
 
 export type UserBid = {
-    auction_id: string;
+    auction_addr: string;
     time: number;
     amount: bigint;
 };

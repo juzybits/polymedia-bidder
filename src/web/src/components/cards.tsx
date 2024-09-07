@@ -256,7 +256,7 @@ const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http:
 //         <div>timestamp: {msToDate(tx.timestamp)}</div>
 //         <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
 //         <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
-//         <div>auction_id: <LinkToPolymedia addr={tx.inputs.auction_id} kind="object" network={network} /></div>
+//         <div>auction_addr: <LinkToPolymedia addr={tx.inputs.auction_addr} kind="object" network={network} /></div>
 //         <div>amount: <Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} /></div>
 //     </>;
 // };

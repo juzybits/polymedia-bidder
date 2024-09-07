@@ -1,23 +1,16 @@
 import { bcs } from "@mysten/sui/bcs";
 import {
-    OwnedObjectRef,
-    SuiClient,
-    SuiObjectChange,
-    SuiObjectResponse,
+    SuiClient, SuiObjectResponse,
     SuiTransactionBlockResponse,
-    SuiTransactionBlockResponseOptions,
-    TransactionFilter
+    SuiTransactionBlockResponseOptions
 } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
-    chunkArray,
     devInspectAndGetReturnValues,
     getArgVal,
     getCoinOfValue,
-    isArgInput,
-    isOwnerShared,
-    isTxMoveCall,
+    isArgInput, isTxMoveCall,
     isTxSplitCoins,
     ObjectArg,
     objResToFields,
@@ -29,12 +22,12 @@ import {
     SuiObjectChangeCreated,
     TransferModule,
     txResToData,
-    WaitForTxOptions,
+    WaitForTxOptions
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG, AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
-import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserBid, UserBidBcs } from "./types.js";
+import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 /**
@@ -232,12 +225,12 @@ export class AuctionClient extends SuiClientBase
         return null;
     }
 
-    public async fetchUserAuctionIds(
-        user_id: string,
+    public async fetchUserAuctions(
+        user_addr: string,
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
-    ): Promise<string[]>
+    ): Promise<UserAuction[]>
     {
         const tx = new Transaction();
 
@@ -248,7 +241,7 @@ export class AuctionClient extends SuiClientBase
         UserModule.get_created_page(
             tx,
             this.packageId,
-            user_id,
+            user_addr,
             order === "ascending",
             cursor,
             limit,
@@ -261,22 +254,16 @@ export class AuctionClient extends SuiClientBase
                 bcs.U64,
             ],
         ]);
-        return blockReturns[0][0] as string[];
-    }
-
-    public async fetchUserAuctions(
-        user_id: string,
-        order: "ascending" | "descending" = "descending",
-        cursor?: number,
-        limit = 50,
-    ): Promise<AuctionObj[]>
-    {
-        const auctionIds = await this.fetchUserAuctionIds(user_id, order, cursor, limit);
-        return await this.fetchAuctions(auctionIds);
+        const auctionsRaw = blockReturns[0][0] as (typeof UserAuctionBcs.$inferType)[];
+        const auctionsTyped: UserAuction[] = auctionsRaw.map(auction => ({
+            auction_addr: auction.auction_addr,
+            time: Number(auction.time),
+        }));
+        return auctionsTyped;
     }
 
     public async fetchUserBids(
-        user_id: string,
+        user_addr: string,
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
@@ -291,7 +278,7 @@ export class AuctionClient extends SuiClientBase
         UserModule.get_bids_page(
             tx,
             this.packageId,
-            user_id,
+            user_addr,
             order === "ascending",
             cursor,
             limit,
@@ -306,7 +293,7 @@ export class AuctionClient extends SuiClientBase
         ]);
         const bidsRaw = blockReturns[0][0] as (typeof UserBidBcs.$inferType)[];
         const bidsTyped: UserBid[] = bidsRaw.map(bid => ({
-            auction_id: bid.auction_id,
+            auction_addr: bid.auction_addr,
             time: Number(bid.time),
             amount: BigInt(bid.amount),
         }));
@@ -486,7 +473,7 @@ export class AuctionClient extends SuiClientBase
 
         let amount: bigint | undefined;
         let type_coin: string | undefined;
-        let auction_id: string | undefined;
+        let auction_addr: string | undefined;
 
         for (const tx of txData.txs)
         {
@@ -516,11 +503,11 @@ export class AuctionClient extends SuiClientBase
                 if (bidTxInputs.length !== 2) { return null; }
 
                 type_coin = tx.MoveCall.type_arguments[0];
-                auction_id = getArgVal(bidTxInputs[0]);
+                auction_addr = getArgVal(bidTxInputs[0]);
             }
         }
 
-        if (!amount || !type_coin || !auction_id) { return null; }
+        if (!amount || !type_coin || !auction_addr) { return null; }
 
         return {
             kind: "anyone_bids",
@@ -529,7 +516,7 @@ export class AuctionClient extends SuiClientBase
             sender: txData.sender,
             inputs: {
                 type_coin,
-                auction_id,
+                auction_addr,
                 amount,
             },
         };
@@ -558,7 +545,7 @@ export class AuctionClient extends SuiClientBase
             sender: txData.sender,
             inputs: {
                 type_coin,
-                auction_id: getArgVal(inputs[2]),
+                auction_addr: getArgVal(inputs[2]),
                 amount: getArgVal(inputs[0]),
             },
         };

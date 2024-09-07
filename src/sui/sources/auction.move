@@ -10,7 +10,7 @@ use sui::display;
 use sui::object_bag::{ObjectBag};
 use sui::package;
 
-use bidder::user::{Self, UserRequest};
+use bidder::user::{UserRequest};
 
 // === errors ===
 
@@ -162,7 +162,10 @@ public fun admin_creates_auction<CoinType>(
     };
 
     // update user history
-    request.borrow_mut_user().add_created(auction.id.to_address());
+    request.borrow_mut_user().add_created(
+        auction.id.to_address(),
+        clock.timestamp_ms(),
+    );
 
     return (request, auction)
 }
@@ -204,12 +207,10 @@ public fun anyone_bids<CoinType>(
     };
 
     // update user history
-    let bid = user::new_bid(
+    request.borrow_mut_user().add_bid(
         auction.id.to_address(),
         current_time_ms,
-        auction.lead_value(),
-    );
-    request.borrow_mut_user().add_bid(bid);
+        auction.lead_value(),);
 
     return request
 }

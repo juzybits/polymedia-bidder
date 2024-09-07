@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AuctionObj, UserBid } from "@polymedia/auction-sdk";
+import { AuctionObj, UserAuction, UserBid } from "@polymedia/auction-sdk";
 import { shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
@@ -54,7 +54,7 @@ const SectionUserAuctions: React.FC<{
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ userAuctions, setUserAuctions ] = useState<AuctionObj[] | undefined>();
+    const [ userAuctions, setUserAuctions ] = useState<UserAuction[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === effects ===
@@ -101,7 +101,7 @@ const SectionUserAuctions: React.FC<{
         content = (
             <div className="list-cards">
                 {userAuctions.map(auction =>
-                    <CardUserAuction auction={auction} key={auction.id} />
+                    <CardUserAuction auction={auction} key={auction.auction_addr} />
                 )}
             </div>
         );
@@ -175,7 +175,7 @@ const SectionUserBids: React.FC<{
         content = (
             <div className="list-cards">
                 {userBids.map(bid =>
-                    <CardUserBid bid={bid} key={bid.auction_id + bid.amount} />
+                    <CardUserBid bid={bid} key={bid.auction_addr + bid.amount} />
                 )}
             </div>
         );
@@ -191,24 +191,23 @@ const SectionUserBids: React.FC<{
     </>;
 };
 
-const CardUserAuction: React.FC<{ // TODO show more info
-    auction: AuctionObj;
+const CardUserAuction: React.FC<{ // TODO: fetch auction, then show auction name, and convert amount to <Balance />
+    auction: UserAuction;
 }> = ({
     auction,
 }) =>
 {
     const { network } = useOutletContext<AppContext>();
     return (
-        <Link to={`/auction/${auction.id}`} className="card">
+        <Link to={`/auction/${auction.auction_addr}`} className="card">
             <div className="card-auction-title">
                 <div className="title-name">
-                    {auction.name}
+                    {shortenAddress(auction.auction_addr)}
                 </div>
                 <div className="title-date">
-                    {timeAgo(auction.begin_time_ms)}
+                    {timeAgo(auction.time)}
                 </div>
             </div>
-            <div>{auction.description}</div>
         </Link>
     );
 };
@@ -220,10 +219,10 @@ const CardUserBid: React.FC<{ // TODO: fetch auction, then show auction name, an
 }) =>
 {
     return (
-        <Link to={`/auction/${bid.auction_id}`} className="card">
+        <Link to={`/auction/${bid.auction_addr}`} className="card">
             <div className="card-auction-title">
                 <div className="title-name">
-                    {shortenAddress(bid.auction_id)}
+                    {shortenAddress(bid.auction_addr)}
                 </div>
                 <div className="title-date">
                     {timeAgo(bid.time)}
