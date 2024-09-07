@@ -13,6 +13,7 @@ import { BtnConnect, ConnectToGetStarted } from "./components/ConnectToGetStarte
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
+import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 type TabName = "items" | "bid" | "details" | "history";
@@ -184,8 +185,6 @@ const SectionBid: React.FC<{
     return content;
 };
 
-type SubmitRes = { ok: null } | { ok: true } | { ok: false; err: string | null; }
-
 const FormBid: React.FC<{
     auction: AuctionObj;
     coinMeta: CoinMetadata;
@@ -217,15 +216,18 @@ const FormBid: React.FC<{
 
     // === functions ===
 
-    const errToString = (err: string | undefined) =>
+    const errToString = (err: unknown): string | null =>
     {
         if (!err) { return "Failed to submit bid"; }
-        const errCode = auctionClient.parseErrorCode(err);
-        if (errCode === "E_WRONG_TIME") { return "The auction is not live yet!"; }
-        if (errCode === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid!"; }
-        if (errCode.includes("InsufficientCoinBalance")) { return `You don't have enough ${coinMeta.symbol}!`; }
-        if (errCode.includes("Rejected from user")) { return null; }
-        return errCode;
+
+        const str = err instanceof Error ? err.message : String(err);
+        if (str.includes("Rejected from user")) { return null; }
+        if (str.includes("InsufficientCoinBalance")) { return `You don't have enough ${coinMeta.symbol}!`; }
+
+        const code = auctionClient.parseErrorCode(str);
+        if (code === "E_WRONG_TIME") { return "The auction is not live yet!"; }
+        if (code === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid!"; }
+        return code;
     };
 
     const onSubmit = async () =>
@@ -234,8 +236,8 @@ const FormBid: React.FC<{
             return;
         }
         try {
-            setSubmitRes({ ok: null });
             setIsWorking(true);
+            setSubmitRes({ ok: null });
             for (const dryRun of [true, false])
             {
                 const txRes = await auctionClient.bid(
@@ -247,15 +249,12 @@ const FormBid: React.FC<{
                     dryRun,
                 );
                 if (txRes.effects?.status.status !== "success") {
-                    setSubmitRes({ ok: false, err: errToString(txRes.effects?.status.error) });
-                    break;
+                    throw new Error(txRes.effects?.status.error);
                 }
-                else if (!dryRun) {
-                    setSubmitRes({ ok: true });
-                }
+                setSubmitRes({ ok: true });
             }
         } catch (err) {
-            setSubmitRes({ ok: false, err: errToString(err instanceof Error ? err.message : String(err)) });
+            setSubmitRes({ ok: false, err: errToString(err) });
             console.warn("[onSubmit]", err);
         } finally {
             setIsWorking(false);

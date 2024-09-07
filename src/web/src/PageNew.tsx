@@ -8,6 +8,7 @@ import { CardLoading, CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./componen
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { SubmitRes } from "./lib/types";
 
 export const PageNew: React.FC = () =>
 {
@@ -95,7 +96,7 @@ const FormCreateAuction: React.FC<{
     const { userId, ..._user} = useFetchUserId();
 
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
-    const [ submitErr, setSubmitErr ] = useState<string | null>(null);
+    const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
 
@@ -141,11 +142,22 @@ const FormCreateAuction: React.FC<{
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
-    const disableSubmit = chosenItems.length === 0 || hasErrors || userId === undefined;
+    const disableSubmit = chosenItems.length === 0 || hasErrors || isWorking || userId === undefined;
 
     // === effects ===
 
     // === functions ===
+
+    const errToString = (err: unknown): string | null =>
+    {
+        if (!err) { return "Failed to create auction"; }
+
+        const str = err instanceof Error ? err.message : String(err);
+        if (str.includes("Rejected from user")) { return null; }
+
+        const code = auctionClient.parseErrorCode(str);
+        return code;
+    };
 
     const onSubmit = async () =>
     {
@@ -153,9 +165,9 @@ const FormCreateAuction: React.FC<{
             return;
         }
         try {
-            setSubmitErr(null);
             setIsWorking(true);
-            const { txRes: _, auctionObjChange } = await auctionClient.createAndShareAuction(
+            setSubmitRes({ ok: null });
+            const { txRes, auctionObjChange } = await auctionClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,
@@ -168,9 +180,13 @@ const FormCreateAuction: React.FC<{
                 form.extension_period_minutes.val! * ONE_MINUTE_MS,
                 chosenItems,
             );
+            if (txRes.effects?.status.status !== "success") {
+                throw new Error(txRes.effects?.status.error);
+            }
+            setSubmitRes({ ok: true });
             navigate(`/auction/${auctionObjChange.objectId}`);
         } catch (err) {
-            setSubmitErr("Failed to create auction");
+            setSubmitRes({ ok: false, err: errToString(err) });
             console.warn("[onSubmit]", err);
         } finally {
             setIsWorking(false);
@@ -205,9 +221,8 @@ const FormCreateAuction: React.FC<{
             CREATE AUCTION
         </Btn>
 
-        <div className="error">
-            {submitErr}
-        </div>
+        {submitRes.ok === false && submitRes.err &&
+        <div className="error">{submitRes.err}</div>}
 
         <div className="chosen-items">
             <h2>Chosen items ({chosenItems.length})</h2>
