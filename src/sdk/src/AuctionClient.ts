@@ -184,24 +184,24 @@ export class AuctionClient extends SuiClientBase
         );
     }
 
-    public async fetchConfig()
-    {
-        const tx = new Transaction();
+    // public async fetchConfig()
+    // {
+    //     const tx = new Transaction();
 
-        const fun_names = Object.keys(AUCTION_CONFIG).map(key => key.toLowerCase());
-        for (const fun_name of fun_names) {
-            tx.moveCall({ target: `${this.packageId}::auction::${fun_name}` });
-        }
+    //     const fun_names = Object.keys(AUCTION_CONFIG).map(key => key.toLowerCase());
+    //     for (const fun_name of fun_names) {
+    //         tx.moveCall({ target: `${this.packageId}::auction::${fun_name}` });
+    //     }
 
-        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx,
-            Object.keys(AUCTION_CONFIG).map(() => [bcs.U64])
-        );
-        const values = blockReturns.map(val => val[0]); // eslint-disable-line @typescript-eslint/no-unsafe-return
+    //     const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx,
+    //         Object.keys(AUCTION_CONFIG).map(() => [bcs.U64])
+    //     );
+    //     const values = blockReturns.map(val => val[0]); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
-        return Object.fromEntries(
-            fun_names.map( (key, idx) => [key, Number(values[idx])] )
-        );
-    }
+    //     return Object.fromEntries(
+    //         fun_names.map( (key, idx) => [key, Number(values[idx])] )
+    //     );
+    // }
 
     public async fetchUserId(
         owner: string,

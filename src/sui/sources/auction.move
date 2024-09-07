@@ -370,21 +370,6 @@ public fun max_name_length(): u64 { MAX_NAME_LENGTH }
 public fun min_description_length(): u64 { MIN_DESCRIPTION_LENGTH }
 public fun max_description_length(): u64 { MAX_DESCRIPTION_LENGTH }
 
-// === public-view accessors: errors ===
-
-public fun e_wrong_name(): u64 { E_WRONG_NAME }
-public fun e_wrong_time(): u64 { E_WRONG_TIME }
-public fun e_wrong_admin(): u64 { E_WRONG_ADMIN }
-public fun e_wrong_address(): u64 { E_WRONG_ADDRESS }
-public fun e_wrong_duration(): u64 { E_WRONG_DURATION }
-public fun e_too_many_items(): u64 { E_TOO_MANY_ITEMS }
-public fun e_wrong_coin_value(): u64 { E_WRONG_COIN_VALUE }
-public fun e_wrong_description(): u64 { E_WRONG_DESCRIPTION }
-public fun e_wrong_minimum_bid(): u64 { E_WRONG_MINIMUM_BID }
-public fun e_wrong_minimum_increase(): u64 { E_WRONG_MINIMUM_INCREASE }
-public fun e_wrong_extension_period(): u64 { E_WRONG_EXTENSION_PERIOD }
-public fun e_cant_reclaim_with_bids(): u64 { E_CANT_RECLAIM_WITH_BIDS }
-
 // === initialization ===
 
 fun init(otw: AUCTION, ctx: &mut TxContext)
