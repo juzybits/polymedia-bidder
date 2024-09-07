@@ -197,7 +197,7 @@ const FormBid: React.FC<{
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
     const [ errSubmit, setErrSubmit ] = useState<string | null>(null);
 
     const input_amount = useInputUnsignedBalance({
@@ -208,20 +208,32 @@ const FormBid: React.FC<{
     });
 
     const hasInputError = input_amount.err !== undefined;
-    const disableSubmit = hasInputError || !currAcct;
+    const disableSubmit = hasInputError || isWorking || !currAcct;
     const showBtnConnect = !currAcct;
 
     // === effects ===
 
     // === functions ===
 
+    const errToString = (err: string | undefined) =>
+    {
+        if (!err) { return "Failed to submit bid"; }
+        const errCode = auctionClient.parseErrorCode(err);
+        if (errCode === "E_WRONG_TIME") { return "The auction is not live yet!"; }
+        if (errCode === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid!"; }
+        if (errCode.includes("InsufficientCoinBalance")) { return `You don't have enough ${coinMeta.symbol}!`; }
+        if (errCode.includes("Rejected from user")) { return null; }
+        return errCode;
+    };
+
     const onSubmit = async () =>
     {
         if (disableSubmit) {
             return;
         }
-        setErrSubmit(null);
         try {
+            setErrSubmit(null);
+            setIsWorking(true);
             for (const dryRun of [true, false])
             {
                 const txRes = await auctionClient.bid(
@@ -234,22 +246,15 @@ const FormBid: React.FC<{
                 );
                 if (txRes.effects?.status.status !== "success")
                 {
-                    console.debug("txRes:", txRes.effects?.status.error);
-                    const errCode = auctionClient.parseErrorCode(txRes);
-                    const errStr = (() => {
-                        switch (errCode) { // TODO: refetch auction
-                            case "E_WRONG_TIME": return "The auction is not live yet!";
-                            case "E_WRONG_COIN_VALUE": return "Someone placed a higher bid!";
-                            default: return errCode;
-                        }
-                    })();
-                    setErrSubmit(errStr);
+                    setErrSubmit(errToString(txRes.effects?.status.error));
                     break;
                 }
             }
         } catch (err) {
-            setErrSubmit("Failed to submit bid");
+            setErrSubmit(errToString(err instanceof Error ? err.message : String(err)));
             console.warn("[onSubmit]", err);
+        } finally {
+            setIsWorking(false);
         }
     };
 

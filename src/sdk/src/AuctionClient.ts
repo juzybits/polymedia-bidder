@@ -713,15 +713,12 @@ export class AuctionClient extends SuiClientBase
     // === errors ===
 
     public parseErrorCode(
-        txRes: SuiTransactionBlockResponse,
+        err: string,
     ): string
     {
-        if (!txRes.effects?.status.error) {
-            return "unknown error";
-        }
-        const error = parseTxError(txRes.effects.status.error);
+        const error = parseTxError(err);
         if (!error || error.packageId !== this.packageId || !(error.code in AUCTION_ERRORS)) {
-            return txRes.effects.status.error;
+            return err;
         }
         return AUCTION_ERRORS[error.code];
     }
