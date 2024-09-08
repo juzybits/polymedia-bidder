@@ -249,7 +249,7 @@ const FormBid: React.FC<{
                 const resp = await auctionClient.bid(
                     currAcct.address,
                     userId,
-                    auction.id,
+                    auction.addr,
                     auction.type_coin,
                     input_amount.val!,
                     dryRun,
@@ -324,7 +324,7 @@ const SectionHistory: React.FC<{
         setTxs(undefined);
         setErrFetch(null);
         try {
-            const newTxs = await auctionClient.fetchTxsByAuctionId(auction.id, null);
+            const newTxs = await auctionClient.fetchTxsByAuctionId(auction.addr, null);
             setTxs(newTxs);
         } catch (err) {
             setErrFetch("Failed to fetch recent bids");
@@ -422,12 +422,12 @@ const CardAuctionDetails: React.FC<{ // TODO
 }) => {
     const { network } = useOutletContext<AppContext>();
     return <>
-        <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
+        <div>Auction: <LinkToPolymedia addr={auction.addr} kind="object" network={network} /></div>
         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
         {/* <div>Name: {auction.name}</div>
         <div>Description: {auction.description}</div> */}
         <div>Items: <ObjectLinkList ids={auction.item_addrs} /></div>
-        {/* <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div> */}
+        <div>Item bag: <LinkToPolymedia addr={auction.item_bag.addr} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
         <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
         <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
         <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>

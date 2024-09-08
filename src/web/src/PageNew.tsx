@@ -25,9 +25,9 @@ export const PageNew: React.FC = () =>
     const addOrRemoveItem = (item: SuiItem): void =>
     {
         setChosenItems(prev => {
-            const exists = prev.some(i => i.id === item.id);
+            const exists = prev.some(i => i.addr === item.addr);
             if (exists) {
-                return prev.filter(i => i.id !== item.id);
+                return prev.filter(i => i.addr !== item.addr);
             } else {
                 return [...prev, item];
             }
@@ -35,7 +35,7 @@ export const PageNew: React.FC = () =>
     };
 
     const isChosenItem = (item: SuiItem): boolean => {
-        return chosenItems.some(i => i.id === item.id);
+        return chosenItems.some(i => i.addr === item.addr);
     };
 
     // === html ===
@@ -229,7 +229,7 @@ const FormCreateAuction: React.FC<{
 
             <div className="list-cards">
             {chosenItems.map(item =>
-                <CardSuiItem item={item} key={item.id} onClick={() => addOrRemoveItem(item)} />
+                <CardSuiItem item={item} key={item.addr} onClick={() => addOrRemoveItem(item)} />
             )}
             </div>
         </div>
@@ -298,7 +298,7 @@ const ItemGridSelector: React.FC<{
         {
             const isChosen = isChosenItem(item);
             return (
-            <div className="grid-item card" key={item.id}
+            <div className="grid-item card" key={item.addr}
                 onClick={() => (isChosen || !disableAddItem) && addOrRemoveItem(item)}
             >
                 <CardSuiItem item={item}

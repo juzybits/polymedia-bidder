@@ -7,13 +7,13 @@ export type AuctionObj = {
     // === struct types ===
     type_coin: string;
     // === fields that map 1:1 to on-chain struct fields ===
-    id: string;
+    addr: string;
     name: string;
     description: string;
     /** addresses of the auctioned items */
     item_addrs: string[];
     /** auctioned items are stored as dynamic fields in this bag */
-    item_bag: { id: string; size: number };
+    item_bag: { addr: string; size: number };
     /** auction creator and manager */
     admin_addr: string;
     /** recipient of the winning bid funds */
