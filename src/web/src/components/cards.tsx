@@ -201,7 +201,7 @@ export function newItemPlaceholder(addr: string): SuiItem {
     const display = newEmptyDisplay();
     display.image_url = svgNoImage; // TODO: use "Loading..." image
     return {
-        addr: addr,
+        id: addr,
         type: "_placeholder_",
         display,
         fields: {},
@@ -225,12 +225,12 @@ const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http:
 // }) => {
 //     const { network } = useOutletContext<AppContext>();
 //     return <>
-        // <div>Auction: <LinkToPolymedia addr={auction.addr} kind="object" network={network} /></div>
+//         <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
 //         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
 //         {/* <div>Name: {auction.name}</div>
 //         <div>Description: {auction.description}</div> */}
 //         <div>Auctioned items: <ObjectLinkList ids={auction.item_addrs} /></div>
-//         <div>Item bag: <LinkToPolymedia addr={auction.item_bag.addr} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
+//         <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
 //         <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
 //         <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
 //         <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>

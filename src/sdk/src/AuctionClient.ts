@@ -130,7 +130,7 @@ export class AuctionClient extends SuiClientBase
             const item = objResToSuiItem(objRes);
             if (item.hasPublicTransfer) {
                 items.push(item);
-                this.cache.items.set(item.addr, item);
+                this.cache.items.set(item.id, item);
             }
         }
         return {
@@ -328,12 +328,12 @@ export class AuctionClient extends SuiClientBase
             // struct types
             type_coin,
             // fields that map 1:1 to on-chain struct fields
-            addr: fields.id.id,
+            id: fields.id.id,
             name: fields.name,
             description: fields.description,
             item_addrs: fields.item_addrs,
             item_bag: {
-                addr: fields.item_bag.fields.id.id,
+                id: fields.item_bag.fields.id.id,
                 size: fields.item_bag.fields.size,
             },
             admin_addr: fields.admin_addr,
@@ -603,7 +603,7 @@ export class AuctionClient extends SuiClientBase
         minimum_bid: bigint,
         minimum_increase_bps: number,
         extension_period_ms: number,
-        itemsToAuction: { addr: string; type: string }[],
+        itemsToAuction: { id: string; type: string }[],
     ): Promise<{ resp: SuiTransactionBlockResponse; auctionObjChange: SuiObjectChangeCreated }>
     {
         const tx = new Transaction();
@@ -618,8 +618,8 @@ export class AuctionClient extends SuiClientBase
                 typeArguments: [ "address", item.type ],
                 arguments: [
                     itemBagArg,
-                    tx.pure.address(item.addr),
-                    tx.object(item.addr),
+                    tx.pure.address(item.id),
+                    tx.object(item.id),
                 ],
             });
         }
@@ -637,7 +637,7 @@ export class AuctionClient extends SuiClientBase
             reqArg0,
             name,
             description,
-            itemsToAuction.map(item => item.addr),
+            itemsToAuction.map(item => item.id),
             itemBagArg,
             pay_addr,
             begin_time_ms,

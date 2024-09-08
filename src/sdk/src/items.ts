@@ -10,7 +10,7 @@ import {
 const MAX_NAME_LENGTH = 100;
 
 export type SuiItem = {
-    addr: ReturnType<typeof objResToId>;
+    id: ReturnType<typeof objResToId>;
     type: ReturnType<typeof objResToType>;
     display: ReturnType<typeof objResToDisplay>;
     fields: ReturnType<typeof objResToFields>;
@@ -42,7 +42,7 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
         throw Error(`response data is not a moveObject: ${JSON.stringify(objRes, null, 2)}`);
     }
 
-    const addr = objRes.data.objectId;
+    const id = objRes.data.objectId;
     const type = objRes.data.content.type;
     const display = objResToDisplay(objRes);
     const fields = objRes.data.content.fields as Record<string, any>;
@@ -51,6 +51,6 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const nameShort = nameFull.length <= MAX_NAME_LENGTH
         ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
     const desc = display.description?.trim() ?? fields.description ?? null;
-    return { addr, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc };
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc };
 }
 /* eslint-enable */
