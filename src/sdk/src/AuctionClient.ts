@@ -12,7 +12,7 @@ import {
     getCoinOfValue,
     isArgInput, isTxMoveCall,
     isTxSplitCoins,
-    ObjectArg,
+    ObjectInput,
     objResToFields,
     objResToId,
     objResToType,
@@ -594,7 +594,7 @@ export class AuctionClient extends SuiClientBase
 
     public async createAndShareAuction(
         type_coin: string,
-        userObj: ObjectArg | null,
+        userObj: ObjectInput | null,
         name: string,
         description: string,
         pay_addr: string,
@@ -673,7 +673,7 @@ export class AuctionClient extends SuiClientBase
 
     public async bid(
         sender: string,
-        userObj: ObjectArg | null,
+        userObj: ObjectInput | null,
         auctionId: string,
         type_coin: string,
         amount: bigint,

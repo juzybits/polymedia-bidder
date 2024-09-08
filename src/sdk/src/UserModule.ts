@@ -1,5 +1,5 @@
 import { Transaction, TransactionResult } from "@mysten/sui/transactions";
-import { ObjectArg, objectArg } from "@polymedia/suitcase-core";
+import { ObjectInput, objectArg } from "@polymedia/suitcase-core";
 
 /**
  * Build transactions for the bidder::user Sui module.
@@ -9,7 +9,7 @@ export const UserModule =
     get_auctions: (
         tx: Transaction,
         packageId: string,
-        history: ObjectArg,
+        history: ObjectInput,
         creator_addr: string,
         ascending: boolean,
         cursor: number,
@@ -31,7 +31,7 @@ export const UserModule =
     get_created_page: (
         tx: Transaction,
         packageId: string,
-        user: ObjectArg,
+        user: ObjectInput,
         ascending: boolean,
         cursor: number,
         limit: number,
@@ -50,7 +50,7 @@ export const UserModule =
     get_bids_page: (
         tx: Transaction,
         packageId: string,
-        user: ObjectArg,
+        user: ObjectInput,
         ascending: boolean,
         cursor: number,
         limit: number,
@@ -69,7 +69,7 @@ export const UserModule =
     created: (
         tx: Transaction,
         packageId: string,
-        user: ObjectArg,
+        user: ObjectInput,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::created`,
@@ -82,7 +82,7 @@ export const UserModule =
     bids: (
         tx: Transaction,
         packageId: string,
-        user: ObjectArg,
+        user: ObjectInput,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::bids`,
@@ -108,7 +108,7 @@ export const UserModule =
     existing_user_request: (
         tx: Transaction,
         packageId: string,
-        user: ObjectArg,
+        user: ObjectInput,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::existing_user_request`,
@@ -121,7 +121,7 @@ export const UserModule =
     destroy_user_request: (
         tx: Transaction,
         packageId: string,
-        request: ObjectArg,
+        request: ObjectInput,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::destroy_user_request`,

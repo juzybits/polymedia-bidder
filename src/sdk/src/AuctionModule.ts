@@ -1,6 +1,6 @@
 import { Transaction, TransactionResult } from "@mysten/sui/transactions";
 import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
-import { ObjectArg, objectArg } from "@polymedia/suitcase-core";
+import { ObjectInput, objectArg } from "@polymedia/suitcase-core";
 
 /**
  * Build transactions for the bidder::auction Sui module.
@@ -11,11 +11,11 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        request: ObjectArg,
+        request: ObjectInput,
         name: string,
         description: string,
         item_addrs: string[],
-        item_bag: ObjectArg,
+        item_bag: ObjectInput,
         pay_addr: string,
         begin_delay_ms: number,
         duration_ms: number,
@@ -48,9 +48,9 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        request: ObjectArg,
-        auction: ObjectArg,
-        pay_coin: ObjectArg,
+        request: ObjectInput,
+        auction: ObjectInput,
+        pay_coin: ObjectInput,
     ): TransactionResult =>
     {
         return tx.moveCall({
@@ -69,7 +69,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        auction: ObjectArg,
+        auction: ObjectInput,
         item_addr: string,
     ): TransactionResult =>
     {
@@ -88,7 +88,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        auction: ObjectArg,
+        auction: ObjectInput,
     ): TransactionResult =>
     {
         return tx.moveCall({
@@ -105,7 +105,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        auction: ObjectArg,
+        auction: ObjectInput,
     ): TransactionResult =>
     {
         return tx.moveCall({
@@ -122,7 +122,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        auction: ObjectArg,
+        auction: ObjectInput,
     ): TransactionResult =>
     {
         return tx.moveCall({
@@ -139,7 +139,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        auction: ObjectArg,
+        auction: ObjectInput,
         item_addr: string,
     ): TransactionResult =>
     {
@@ -158,7 +158,7 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
-        auction: ObjectArg,
+        auction: ObjectInput,
         pay_addr: string,
     ): TransactionResult =>
     {
