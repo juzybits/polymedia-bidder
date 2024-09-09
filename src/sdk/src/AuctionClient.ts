@@ -22,7 +22,8 @@ import {
     SuiObjectChangeCreated,
     TransferModule,
     txResToData,
-    WaitForTxOptions
+    WaitForTxOptions,
+    ZERO_ADDRESS
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_CONFIG, AUCTION_ERRORS } from "./config.js";
@@ -324,6 +325,7 @@ export class AuctionClient extends SuiClientBase
         // example objType: "0x12345::auction::Auction<0x2::sui::SUI>"
         const type_coin = objType.split("<")[1].split(">")[0];
 
+        const lead_addr = normalizeSuiAddress(fields.lead_addr);
         return {
             // struct types
             type_coin,
@@ -338,7 +340,7 @@ export class AuctionClient extends SuiClientBase
             },
             admin_addr: fields.admin_addr,
             pay_addr: fields.pay_addr,
-            lead_addr: normalizeSuiAddress(fields.lead_addr),
+            lead_addr,
             lead_value: BigInt(fields.lead_bal),
             begin_time_ms: beginTimeMs,
             end_time_ms: endTimeMs,
@@ -348,6 +350,7 @@ export class AuctionClient extends SuiClientBase
             // derived fields
             is_live: currentTimeMs >= beginTimeMs && currentTimeMs < endTimeMs,
             has_ended: currentTimeMs >= endTimeMs,
+            has_leader: lead_addr !== ZERO_ADDRESS,
         };
     }
     /* eslint-enable */
