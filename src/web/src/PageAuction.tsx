@@ -56,8 +56,6 @@ export const PageAuction: React.FC = () =>
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
 
-    const isAdmin = currAcct?.address === auction?.admin_addr;
-
     // === effects ===
 
     useEffect(() => {
@@ -92,6 +90,8 @@ export const PageAuction: React.FC = () =>
 
     // === html ===
 
+    const isAdmin = currAcct?.address === auction?.admin_addr;
+
     return <>
     {header}
     <div id="page-auction" className="page-regular">
@@ -106,6 +106,8 @@ export const PageAuction: React.FC = () =>
                 <div className="section-description">
                     {auction.description}
                 </div>}
+
+                <CardFinalize auction={auction} />
 
                 <div className="tabs-header">
                     <TabHeader tabName="items" selectedTab={tab} setTab={setTab} icon={<IconItems />} />
@@ -129,6 +131,67 @@ export const PageAuction: React.FC = () =>
 
     </div>
     </>;
+};
+
+const CardFinalize: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+
+    // === state ===
+
+    const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
+
+    const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
+
+    const isClaimable = auction.has_ended && ( auction.has_balance || auction.item_bag.size > 0 );
+
+    // === functions ===
+
+    const errToString = (err: unknown): string | null =>
+    {
+        if (!err) { return "Failed to finalize auction"; }
+
+        const str = err instanceof Error ? err.message : String(err);
+        if (str.includes("Rejected from user")) { return null; }
+
+        const code = auctionClient.parseErrorCode(str);
+        if (code === "E_WRONG_TIME") { return "The auction has not ended yet!"; }
+        if (code === "E_WRONG_ADDRESS") { return "The auction has no leader!"; }
+        return code;
+    };
+
+    const finalizeAuction = async () =>
+    {
+        try {
+            setIsWorking(true);
+            setSubmitRes({ ok: null });
+            const resp = await auctionClient.payFundsAndSendItemsToWinner(
+                auction.id, auction.type_coin, auction.item_addrs,
+            );
+            if (resp.effects?.status.status !== "success") {
+                throw new Error(resp.effects?.status.error);
+            }
+        } catch (err) {
+            setSubmitRes({ ok: false, err: errToString(err) });
+            console.warn("[finalizeAuction]", err);
+        } finally {
+            setIsWorking(false);
+        }
+    };
+
+    // === html ===
+
+    if (!isClaimable) { return null; }
+
+    return <div className="card">
+        <div className="card-title">Auction ended!</div>
+        <div>Click the button to send the items to the winner and transfer the funds to the seller.</div>
+        <div>
+            <Btn onClick={finalizeAuction}>FINALIZE</Btn>
+        </div>
+    </div>;
 };
 
 const SectionItems: React.FC<{

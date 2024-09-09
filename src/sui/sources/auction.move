@@ -216,6 +216,20 @@ public fun anyone_bids<CoinType>(
     return request
 }
 
+/// Transfer the funds to auction.pay_addr after the auction ends.
+public fun anyone_pays_funds<CoinType>(
+    auction: &mut Auction<CoinType>,
+    clock: &Clock,
+    ctx: &mut TxContext,
+) {
+    assert!( auction.has_ended(clock), E_WRONG_TIME );
+
+    if (auction.has_balance()) {
+        let pay_addr = auction.pay_addr;
+        auction.withdraw_balance(pay_addr, ctx);
+    }
+}
+
 /// Anyone can transfer the items to the winner of the auction after it ends.
 public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
     auction: &mut Auction<CoinType>,
@@ -230,20 +244,6 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
         let item = auction.item_bag.remove<address, ItemType>(item_addr);
         transfer::public_transfer(item, auction.lead_addr);
     };
-}
-
-/// Transfer the funds to auction.pay_addr after the auction ends.
-public fun anyone_pays_funds<CoinType>(
-    auction: &mut Auction<CoinType>,
-    clock: &Clock,
-    ctx: &mut TxContext,
-) {
-    assert!( auction.has_ended(clock), E_WRONG_TIME );
-
-    if (auction.has_balance()) {
-        let pay_addr = auction.pay_addr;
-        auction.withdraw_balance(pay_addr, ctx);
-    }
 }
 
 /// Admin can cancel the auction at any time and return the funds to the leader (if any).
