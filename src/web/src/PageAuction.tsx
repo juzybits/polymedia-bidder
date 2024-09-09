@@ -381,18 +381,6 @@ const SectionAdmin: React.FC<{
 
     return <>
         <div className="card">
-            <div className="card-title">End auction</div>
-            {/* Enabled if:
-                - Auction is live
-                - auction.lead_value() > 0 ||  auction.has_leader()
-             */}
-            <div>You can end the auction early and send the items to the current leader.</div>
-            <div>TODO: admin_ends_auction_early + anyone_sends_item_to_winner + anyone_pays_funds</div>
-            <div>
-                <Btn onClick={submitEndAuction}>END AUCTION</Btn>
-            </div>
-        </div>
-        <div className="card">
             <div className="card-title">Cancel auction</div>
             {/* Enabled if:
                 - !auction.has_ended()
