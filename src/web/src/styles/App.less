@@ -70,7 +70,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: right;
-    gap: 1em 2.5em;
+    gap: @gap-10 @gap-25;
     padding: 0 @gap-10*1.25;
     height: 62px;
     width: 100%;
@@ -260,18 +260,30 @@ footer {
         .tabs-header {
             display: flex;
             flex-direction: row;
-            gap: @gap-10 @gap-20;
+            gap: @gap-10 @gap-25;
             flex-wrap: wrap;
             padding: @gap-10 0 @gap-025 @gap-025;
             width: 100%;
             font-size: 1.1em;
+            @media (max-width: @screen-medium) {
+                justify-content: center;
+            }
+            @media (max-width: @screen-small) {
+                column-gap: 0;
+                justify-content: space-around;
+            }
             .tab-title {
                 cursor: pointer;
                 font-weight: bold;
                 text-transform: uppercase;
+                display: flex;
+                align-items: center;
                 &.selected {
-                    color: @color-blue;
-                    border-bottom: 2px solid @color-blue;
+                    // color: @color-blue;
+                    // border-bottom: 2px solid @color-blue;
+                    .icon {
+                        fill: @color-blue;
+                    }
                 }
             }
         }

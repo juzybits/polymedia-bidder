@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
-import { IconHistory, IconNew, IconSettings } from "./components/icons";
+import { IconHistory, IconNew, IconGears } from "./components/icons";
 import { PageAuction } from "./PageAuction";
 import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHome } from "./PageHome";
@@ -169,7 +169,7 @@ const Header: React.FC = () =>
             <IconHistory />
         </Link>
         <Link to="/settings" className="header-item">
-            <IconSettings />
+            <IconGears />
         </Link>
     </header>;
 };

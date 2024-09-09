@@ -5,11 +5,12 @@ import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
 import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { Balance, bpsToPct, CardAuctionItems, CardWithMsg, FullCardMsg, msToDate, msToMinutes, ObjectLinkList, shortenDigest } from "./components/cards";
-import { BtnConnect, ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { BtnConnect } from "./components/ConnectToGetStarted";
+import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
@@ -22,17 +23,20 @@ const TabHeader: React.FC<{
     tabName: TabName;
     selectedTab: TabName;
     setTab: ReactSetter<TabName>;
+    icon: React.ReactNode;
 }> = ({
     tabName,
     selectedTab,
     setTab,
+    icon,
 }) => {
+    const isSelected = tabName === selectedTab;
     return (
         <div
-            className={`tab-title ${tabName === selectedTab ? "selected" : ""}`}
+            className={`tab-title ${isSelected ? "selected" : ""}`}
             onClick={() => setTab(tabName)}
         >
-            {tabName}
+            {icon}
         </div>
     );
 };
@@ -104,11 +108,11 @@ export const PageAuction: React.FC = () =>
                 </div>}
 
                 <div className="tabs-header">
-                    <TabHeader tabName="items" selectedTab={tab} setTab={setTab} />
-                    {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} />}
-                    <TabHeader tabName="details" selectedTab={tab} setTab={setTab} />
-                    <TabHeader tabName="history" selectedTab={tab} setTab={setTab} />
-                    {isAdmin && <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} />}
+                    <TabHeader tabName="items" selectedTab={tab} setTab={setTab} icon={<IconItems />} />
+                    {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} icon={<IconCart />} />}
+                    <TabHeader tabName="details" selectedTab={tab} setTab={setTab} icon={<IconDetails />} />
+                    <TabHeader tabName="history" selectedTab={tab} setTab={setTab} icon={<IconHistory />} />
+                    {isAdmin && <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} icon={<IconGears />} />}
                 </div>
 
                 <div className="tabs-content">
