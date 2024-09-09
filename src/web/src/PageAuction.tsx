@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
-import { AuctionClient, AuctionObj, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { AuctionClient, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
 import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { Balance, bpsToPct, CardAuctionItems, CardWithMsg, FullCardMsg, msToDate, msToMinutes, ObjectLinkList, shortenDigest } from "./components/cards";
+import { Balance, bpsToPct, CardAuctionItems, CardWithMsg, FullCardMsg, msToDate, msToMinutes, newItemPlaceholder, ObjectLinkList, shortenDigest } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputUnsignedBalance } from "./components/inputs";
@@ -141,13 +141,32 @@ const CardFinalize: React.FC<{
 
     // === state ===
 
-    const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { auctionClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const isClaimable = auction.has_ended && ( auction.has_balance || auction.item_bag.size > 0 );
 
+    const [ items, setItems ] = useState<SuiItem[]>(
+        auction.item_addrs.map(addr => newItemPlaceholder(addr))
+    );
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchItems();
+    }, [auction, network]);
+
     // === functions ===
+
+    const fetchItems = async () => {
+        try {
+            const newItems = await auctionClient.fetchItems(auction.item_addrs);
+            setItems(newItems);
+        } catch (err) {
+            console.warn("[fetchItems]", err);
+        }
+    };
 
     const errToString = (err: unknown): string | null =>
     {
@@ -167,10 +186,11 @@ const CardFinalize: React.FC<{
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
+            const itemsAndTypes = items.map(item => ({ addr: item.id, type: item.type }));
             for (const dryRun of [true, false])
             {
                 const resp = await auctionClient.payFundsAndSendItemsToWinner(
-                    auction.id, auction.type_coin, auction.item_addrs, dryRun,
+                    auction.id, auction.type_coin, itemsAndTypes, dryRun,
                 );
                 if (resp.effects?.status.status !== "success") {
                     throw new Error(resp.effects?.status.error);

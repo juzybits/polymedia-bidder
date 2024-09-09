@@ -710,7 +710,7 @@ export class AuctionClient extends SuiClientBase
     public async payFundsAndSendItemsToWinner(
         auctionId: string,
         type_coin: string,
-        item_addrs: string[],
+        itemsAndTypes: { addr: string; type: string }[],
         dryRun?: boolean,
     ): Promise<SuiTransactionBlockResponse>
     {
@@ -718,9 +718,9 @@ export class AuctionClient extends SuiClientBase
 
         AuctionModule.anyone_pays_funds(tx, this.packageId, type_coin, auctionId);
 
-        for (const item_addr of item_addrs) {
+        for (const item of itemsAndTypes) {
             AuctionModule.anyone_sends_item_to_winner(
-                tx, this.packageId, type_coin, auctionId, item_addr,
+                tx, this.packageId, type_coin, item.type, auctionId, item.addr,
             );
         }
 
