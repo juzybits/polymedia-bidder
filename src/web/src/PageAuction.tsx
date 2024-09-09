@@ -109,10 +109,12 @@ export const PageAuction: React.FC = () =>
 
                 <div className="tabs-header">
                     <TabHeader tabName="items" selectedTab={tab} setTab={setTab} icon={<IconItems />} />
-                    {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} icon={<IconCart />} />}
+                    {auction.is_live &&
+                        <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} icon={<IconCart />} />}
                     <TabHeader tabName="details" selectedTab={tab} setTab={setTab} icon={<IconDetails />} />
                     <TabHeader tabName="history" selectedTab={tab} setTab={setTab} icon={<IconHistory />} />
-                    {isAdmin && <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} icon={<IconGears />} />}
+                    {isAdmin && ( !auction.has_ended || auction.has_balance ) &&
+                        <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} icon={<IconGears />} />}
                 </div>
 
                 <div className="tabs-content">
@@ -177,7 +179,7 @@ const SectionBid: React.FC<{
             <div className="card">
                 <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />
             </div>
-            {auction.lead_value > 0 &&
+            {auction.has_balance &&
             <div className="card">
                     <div className="card-title">Top bid</div>
                     <div>Amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
@@ -371,8 +373,6 @@ const SectionAdmin: React.FC<{
 
     // === functions ===
 
-    const submitEndAuction = async () => { console.log("TODO"); };
-
     const submitCancelAuction = async () => { console.log("TODO"); };
 
     const submitSetPayAddr = async () => { console.log("TODO"); };
@@ -380,28 +380,25 @@ const SectionAdmin: React.FC<{
     // === html ===
 
     return <>
+        {!auction.has_ended &&
         <div className="card">
             <div className="card-title">Cancel auction</div>
-            {/* Enabled if:
-                - !auction.has_ended()
-             */}
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
             <div>TODO: admin_cancels_auction + admin_reclaims_item</div>
             <div>
                 <Btn onClick={submitCancelAuction}>CANCEL AUCTION</Btn>
             </div>
-        </div>
+        </div>}
+
+        {( !auction.has_ended || auction.has_balance ) &&
         <div className="card">
             <div className="card-title">Set pay address</div>
-            {/* Enabled if:
-                - !auction.has_ended() || auction.has_balance()
-             */}
             <div>You can change the payment address for the auction.</div>
             <div>TODO: admin_sets_pay_addr</div>
             <div>
                 <Btn onClick={submitSetPayAddr}>SET ADDRESS</Btn>
             </div>
-        </div>
+        </div>}
 
     </>;
 };
@@ -430,6 +427,8 @@ const CardAuctionDetails: React.FC<{ // TODO
         <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
         <div>Is live: {auction.is_live ? "yes" : "no"}</div>
         <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
+        <div>Has leader: {auction.has_leader ? "yes" : "no"}</div>
+        <div>Has balance: {auction.has_balance ? "yes" : "no"}</div>
     </>;
 };
 
