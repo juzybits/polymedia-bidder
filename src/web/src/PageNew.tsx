@@ -118,6 +118,10 @@ const FormCreateAuction: React.FC<{
             label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/ONE_HOUR_MS), max: Math.floor(cnf.MAX_DURATION_MS/ONE_HOUR_MS),
             html: { value: "24", required: true },
         }),
+        // duration_seconds: useInputUnsignedInt({
+        //     label: "Duration (seconds)", min: Math.floor(cnf.MIN_DURATION_MS/ONE_HOUR_MS), max: Math.floor(cnf.MAX_DURATION_MS/ONE_HOUR_MS),
+        //     html: { value: "15", required: true },
+        // }),
         // advanced options
         type_coin: useInputString({
             label: "Coin type",
@@ -139,6 +143,10 @@ const FormCreateAuction: React.FC<{
             label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/ONE_MINUTE_MS)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/ONE_MINUTE_MS),
             html: { value: "15", required: true },
         }),
+        // extension_period_seconds: useInputUnsignedInt({
+        //     label: "Extension period (seconds)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/ONE_MINUTE_MS)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/ONE_MINUTE_MS),
+        //     html: { value: "1", required: true },
+        // }),
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
@@ -175,9 +183,11 @@ const FormCreateAuction: React.FC<{
                 form.pay_addr.val!,
                 form.begin_delay_hours.val! * ONE_HOUR_MS,
                 form.duration_hours.val! * ONE_HOUR_MS,
+                // form.duration_seconds.val! * 1000,
                 form.minimum_bid.val!,
                 form.minimum_increase_pct.val! * 100,
                 form.extension_period_minutes.val! * ONE_MINUTE_MS,
+                // form.extension_period_seconds.val! * 1000,
                 chosenItems,
             );
             if (resp.effects?.status.status !== "success") {
@@ -203,6 +213,7 @@ const FormCreateAuction: React.FC<{
             {form.description.input}
             {form.minimum_bid.input}
             {form.duration_hours.input}
+            {/* {form.duration_seconds.input} */}
         </div>
         <div className="form-section">
             <div className="section-toggle" onClick={() => setShowAdvancedForm(!showAdvancedForm)}>
@@ -214,6 +225,7 @@ const FormCreateAuction: React.FC<{
                 {form.begin_delay_hours.input}
                 {form.minimum_increase_pct.input}
                 {form.extension_period_minutes.input}
+                {/* {form.extension_period_seconds.input} */}
             </>}
         </div>
 

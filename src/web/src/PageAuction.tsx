@@ -109,12 +109,10 @@ export const PageAuction: React.FC = () =>
 
                 <div className="tabs-header">
                     <TabHeader tabName="items" selectedTab={tab} setTab={setTab} icon={<IconItems />} />
-                    {auction.is_live &&
-                        <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} icon={<IconCart />} />}
+                    {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} icon={<IconCart />} />}
                     <TabHeader tabName="details" selectedTab={tab} setTab={setTab} icon={<IconDetails />} />
                     <TabHeader tabName="history" selectedTab={tab} setTab={setTab} icon={<IconHistory />} />
-                    {isAdmin && ( !auction.has_ended || auction.has_balance ) &&
-                        <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} icon={<IconGears />} />}
+                    {isAdmin && <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} icon={<IconGears />} />}
                 </div>
 
                 <div className="tabs-content">
