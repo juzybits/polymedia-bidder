@@ -167,11 +167,17 @@ const CardFinalize: React.FC<{
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
-            const resp = await auctionClient.payFundsAndSendItemsToWinner(
-                auction.id, auction.type_coin, auction.item_addrs,
-            );
-            if (resp.effects?.status.status !== "success") {
-                throw new Error(resp.effects?.status.error);
+            for (const dryRun of [true, false])
+            {
+                const resp = await auctionClient.payFundsAndSendItemsToWinner(
+                    auction.id, auction.type_coin, auction.item_addrs, dryRun,
+                );
+                if (resp.effects?.status.status !== "success") {
+                    throw new Error(resp.effects?.status.error);
+                }
+                if (!dryRun) {
+                    setSubmitRes({ ok: true });
+                }
             }
         } catch (err) {
             setSubmitRes({ ok: false, err: errToString(err) });
@@ -189,7 +195,13 @@ const CardFinalize: React.FC<{
         <div className="card-title">Auction ended!</div>
         <div>Click the button to send the items to the winner and transfer the funds to the seller.</div>
         <div>
-            <Btn onClick={finalizeAuction}>FINALIZE</Btn>
+            <Btn onClick={finalizeAuction}>FINALIZE</Btn> {/* TODO: connect wallet if disconnected */}
+
+            {submitRes.ok === true &&
+            <div className="success">Auction finalized!</div>}
+
+            {submitRes.ok === false && submitRes.err &&
+            <div className="error">{submitRes.err}</div>}
         </div>
     </div>;
 };

@@ -704,21 +704,14 @@ export class AuctionClient extends SuiClientBase
 
         UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
-        if (dryRun) {
-            const results = await this.suiClient.devInspectTransactionBlock({
-                sender,
-                transactionBlock: tx,
-            });
-            return { digest: "", ...results };
-        } else {
-            return await this.signAndExecuteTransaction(tx);
-        }
+        return await this.dryRunOrSignAndExecute(tx, dryRun, sender);
     }
 
     public async payFundsAndSendItemsToWinner(
         auctionId: string,
         type_coin: string,
         item_addrs: string[],
+        dryRun?: boolean,
     ): Promise<SuiTransactionBlockResponse>
     {
         const tx = new Transaction();
@@ -731,7 +724,24 @@ export class AuctionClient extends SuiClientBase
             );
         }
 
-        return await this.signAndExecuteTransaction(tx);
+        return await this.dryRunOrSignAndExecute(tx, dryRun);
+    }
+
+    protected async dryRunOrSignAndExecute(
+        tx: Transaction,
+        dryRun?: boolean,
+        sender: string = "0x7777777777777777777777777777777777777777777777777777777777777777",
+    ): Promise<SuiTransactionBlockResponse>
+    {
+        if (dryRun) {
+            const results = await this.suiClient.devInspectTransactionBlock({
+                sender,
+                transactionBlock: tx,
+            });
+            return { digest: "", ...results };
+        } else {
+            return await this.signAndExecuteTransaction(tx);
+        }
     }
 
     // === errors ===
