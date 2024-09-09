@@ -65,25 +65,6 @@ export const AuctionModule =
         });
     },
 
-    anyone_sends_item_to_winner: (
-        tx: Transaction,
-        packageId: string,
-        type_coin: string,
-        auction: ObjectInput,
-        item_addr: string,
-    ): TransactionResult =>
-    {
-        return tx.moveCall({
-            target: `${packageId}::auction::anyone_sends_item_to_winner`,
-            typeArguments: [ type_coin ],
-            arguments: [
-                objectArg(tx, auction),
-                tx.pure.address(item_addr),
-                tx.object(SUI_CLOCK_OBJECT_ID),
-            ],
-        });
-    },
-
     anyone_pays_funds: (
         tx: Transaction,
         packageId: string,
@@ -96,6 +77,26 @@ export const AuctionModule =
             typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
+                tx.object(SUI_CLOCK_OBJECT_ID),
+            ],
+        });
+    },
+
+    anyone_sends_item_to_winner: (
+        tx: Transaction,
+        packageId: string,
+        type_coin: string,
+        type_item: string,
+        auction: ObjectInput,
+        item_addr: string,
+    ): TransactionResult =>
+    {
+        return tx.moveCall({
+            target: `${packageId}::auction::anyone_sends_item_to_winner`,
+            typeArguments: [ type_coin, type_item ],
+            arguments: [
+                objectArg(tx, auction),
+                tx.pure.address(item_addr),
                 tx.object(SUI_CLOCK_OBJECT_ID),
             ],
         });
