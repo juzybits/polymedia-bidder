@@ -36,6 +36,7 @@ export type AuctionObj = {
     is_live: boolean;
     has_ended: boolean;
     has_leader: boolean;
+    has_balance: boolean;
 };
 
 /**

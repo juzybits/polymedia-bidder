@@ -326,6 +326,7 @@ export class AuctionClient extends SuiClientBase
         const type_coin = objType.split("<")[1].split(">")[0];
 
         const lead_addr = normalizeSuiAddress(fields.lead_addr);
+        const lead_value = BigInt(fields.lead_bal);
         return {
             // struct types
             type_coin,
@@ -341,7 +342,7 @@ export class AuctionClient extends SuiClientBase
             admin_addr: fields.admin_addr,
             pay_addr: fields.pay_addr,
             lead_addr,
-            lead_value: BigInt(fields.lead_bal),
+            lead_value,
             begin_time_ms: beginTimeMs,
             end_time_ms: endTimeMs,
             minimum_bid: BigInt(fields.minimum_bid),
@@ -351,6 +352,7 @@ export class AuctionClient extends SuiClientBase
             is_live: currentTimeMs >= beginTimeMs && currentTimeMs < endTimeMs,
             has_ended: currentTimeMs >= endTimeMs,
             has_leader: lead_addr !== ZERO_ADDRESS,
+            has_balance: lead_value > 0n,
         };
     }
     /* eslint-enable */
