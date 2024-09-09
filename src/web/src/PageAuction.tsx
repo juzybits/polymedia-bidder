@@ -52,7 +52,7 @@ export const PageAuction: React.FC = () =>
 
     const { auctionClient, header } = useOutletContext<AppContext>();
 
-    const [ tab, setTab ] = useState<TabName>("bid");
+    const [ tab, setTab ] = useState<TabName>("items");
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
 
@@ -177,18 +177,15 @@ const SectionBid: React.FC<{
             <div className="card">
                 <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />
             </div>
+            {auction.lead_value > 0 &&
             <div className="card">
-                {auction.lead_value > 0
-                ? <>
                     <div className="card-title">Top bid</div>
                     <div>Amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
                     <div>
                         Sender: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
                         {currAcct?.address === auction.lead_addr && <span className="text-green"> (you)</span>}
                     </div>
-                </>
-                : <div className="card-title">No bids yet</div>}
-            </div>
+            </div>}
         </>;
     }
 
@@ -261,7 +258,9 @@ const FormBid: React.FC<{
                 if (resp.effects?.status.status !== "success") {
                     throw new Error(resp.effects?.status.error);
                 }
-                setSubmitRes({ ok: true });
+                if (!dryRun) {
+                    setSubmitRes({ ok: true });
+                }
             }
         } catch (err) {
             setSubmitRes({ ok: false, err: errToString(err) });
