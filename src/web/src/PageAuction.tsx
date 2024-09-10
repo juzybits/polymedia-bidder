@@ -48,7 +48,9 @@ export const PageAuction: React.FC = () =>
     };
     const showBidTab = auction?.is_live;
     const isAdmin = currAcct?.address === auction?.admin_addr;
-    const showAdminTab = isAdmin && auction && (!auction.has_ended || auction.has_balance);
+    const showAdminTab = isAdmin && auction && (
+        auction.can_admin_cancel_auction || auction.can_admin_reclaim_items || auction.can_admin_set_pay_addr
+    );
 
     // === effects ===
 
@@ -174,7 +176,7 @@ const CardFinalize: React.FC<{
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
-    const isClaimable = auction.has_ended && ( auction.has_balance || auction.item_bag.size > 0 );
+    const isClaimable = auction.can_anyone_pay_funds || auction.can_anyone_send_items_to_winner;
 
     const errToString = (err: unknown): string | null =>
     {
@@ -480,12 +482,14 @@ const SectionAdmin: React.FC<{
 
     const submitCancelAuction = async () => { console.log("TODO"); };
 
+    const submitReclaimItems = async () => { console.log("TODO"); };
+
     const submitSetPayAddr = async () => { console.log("TODO"); };
 
     // === html ===
 
     return <>
-        {!auction.has_ended &&
+        {auction.can_admin_cancel_auction &&
         <div className="card">
             <div className="card-title">Cancel auction</div>
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
@@ -495,7 +499,17 @@ const SectionAdmin: React.FC<{
             </div>
         </div>}
 
-        {( !auction.has_ended || auction.has_balance ) &&
+        {auction.can_admin_reclaim_items &&
+        <div className="card">
+            <div className="card-title">Reclaim items</div>
+            <div>You can reclaim the items because there were no bids.</div>
+            <div>TODO: admin_reclaims_items</div>
+            <div>
+                <Btn onClick={submitReclaimItems}>RECLAIM ITEMS</Btn>
+            </div>
+        </div>}
+
+        {auction.can_admin_set_pay_addr &&
         <div className="card">
             <div className="card-title">Set pay address</div>
             <div>You can change the payment address for the auction.</div>
