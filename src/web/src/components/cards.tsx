@@ -54,40 +54,13 @@ const CardSuiItemHiddenCount: React.FC<{
 };
 
 export const CardAuctionItems: React.FC<{
-    item_addrs: string[];
-    maxItems?: number;
+    items: SuiItem[];
+    hiddenItemCount: number;
 }> = ({
-    item_addrs,
-    maxItems = item_addrs.length,
+    items,
+    hiddenItemCount,
 }) =>
 {
-    // === state ===
-
-    const { network, auctionClient } = useOutletContext<AppContext>();
-
-    const [ items, setItems ] = useState<SuiItem[]>(
-        item_addrs.map(addr => newItemPlaceholder(addr))
-    );
-
-    const hiddenItemCount = Math.max(0, item_addrs.length - maxItems);
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchItems();
-    }, [item_addrs, network]);
-
-    // === functions ===
-
-    const fetchItems = async () => {
-        try {
-            const newItems = await auctionClient.fetchItems(item_addrs.slice(0, maxItems));
-            setItems(newItems);
-        } catch (err) {
-            console.warn("[fetchItems]", err);
-        }
-    };
-
     return (
         <div className="grid">
             {items.map((item, idx) => (

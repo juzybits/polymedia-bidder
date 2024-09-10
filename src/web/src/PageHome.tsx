@@ -1,4 +1,4 @@
-import { AuctionClient, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
+import { AuctionClient, SuiItem, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
@@ -38,36 +38,20 @@ export const PageHome: React.FC = () =>
 
 const MAX_ITEMS_PER_AUCTION = 3;
 
+type TxWithItems = {
+    tx: TxAdminCreatesAuction;
+    items: SuiItem[];
+};
+
 const SectionRecentAuctions: React.FC = () =>
 {
     // === state ===
 
     const { auctionClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsAdminCreatesAuction"]>>>();
+    // const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsAdminCreatesAuction"]>>>();
+    const [ txsWithItems, setTxsWithItems ] = useState<TxWithItems[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
-
-    // === functions ===
-
-    const fetchRecentAuctions = async () => // TODO: "load more" / "next page"
-    {
-        setTxs(undefined);
-        setErrFetch(null);
-        try
-        {
-            // fetch recent txs
-            const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
-            // fetch all the auctioned objects that will be displayed, and populate the cache
-            const itemAddrs = newTxs.data.flatMap(tx => tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION));
-            const uniqItemAddrs = [...new Set(itemAddrs)];
-            await auctionClient.fetchItems(uniqItemAddrs, true);
-            // now that the cache is populated, display the txs
-            setTxs(newTxs);
-        } catch (err) {
-            setErrFetch("Failed to fetch recent auctions");
-            console.warn("[fetchRecentAuctions]", err);
-        }
-    };
 
     // === effects ===
 
@@ -75,17 +59,57 @@ const SectionRecentAuctions: React.FC = () =>
         fetchRecentAuctions();
     }, []);
 
+    // === functions ===
+
+    const fetchRecentAuctions = async () => // TODO: "load more" / "next page"
+    {
+        setTxsWithItems(undefined);
+        setErrFetch(null);
+        try {
+            // fetch recent txs
+            const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
+
+            // collect all unique item addresses
+            const allItemAddrs = new Set(
+                newTxs.data.flatMap(tx => tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION))
+            );
+
+            // fetch all items with a single RPC call
+            const allItems = await auctionClient.fetchItems([...allItemAddrs], true);
+            const itemMap = new Map(allItems.map(item => [item.id, item]));
+
+            // assign items to each transaction
+            const txsWithItems = newTxs.data.map(tx => ({
+                tx,
+                items: tx.inputs.item_addrs
+                    .slice(0, MAX_ITEMS_PER_AUCTION)
+                    .map(addr => itemMap.get(addr))
+                    .filter((item): item is SuiItem => item !== undefined)
+                }));
+
+            setTxsWithItems(txsWithItems);
+        } catch (err) {
+            setErrFetch("Failed to fetch recent auctions");
+            console.warn("[fetchRecentAuctions]", err);
+        }
+    };
+
     // === html ===
 
     let content: React.ReactNode;
-    if (txs === undefined) {
+    if (txsWithItems === undefined) {
         content = <CardLoading />;
     } else if (errFetch) {
         content = <CardWithMsg>{errFetch}</CardWithMsg>;
     } else {
         content = <div className="list-cards">
-            {txs.data.map(tx => (
-                <CardTxAdminCreatesAuction tx={tx} key={tx.digest} maxItems={MAX_ITEMS_PER_AUCTION} />
+            {txsWithItems.map(({ tx, items }) => (
+                <CardTxAdminCreatesAuction
+                    tx={tx}
+                    key={tx.digest}
+                    items={items}
+                    hiddenItemCount={Math.max(0, tx.inputs.item_addrs.length - MAX_ITEMS_PER_AUCTION)}
+                />
             ))}
         </div>;
     }
@@ -102,10 +126,12 @@ const SectionRecentAuctions: React.FC = () =>
 
 const CardTxAdminCreatesAuction: React.FC<{
     tx: TxAdminCreatesAuction;
-    maxItems?: number;
+    items: SuiItem[];
+    hiddenItemCount: number;
 }> = ({
     tx,
-    maxItems,
+    items,
+    hiddenItemCount,
 }) =>
 {
     return (
@@ -118,7 +144,7 @@ const CardTxAdminCreatesAuction: React.FC<{
             {tx.inputs.description.length > 0 &&
             <div>{tx.inputs.description}</div>}
 
-            <CardAuctionItems item_addrs={tx.inputs.item_addrs} maxItems={maxItems} />
+            <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} />
         </Link>
     );
 };

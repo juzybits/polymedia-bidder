@@ -129,7 +129,7 @@ export const PageAuction: React.FC = () =>
                 </div>
 
                 <div className="tabs-content">
-                    {tab === "items" && <SectionItems auction={auction} />}
+                    {tab === "items" && <SectionItems auction={auction} items={items} />}
                     {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
                     {tab === "details" && <SectionDetails auction={auction} />}
                     {tab === "history" && <SectionHistory auction={auction} />}
@@ -220,12 +220,14 @@ const CardFinalize: React.FC<{
 
 const SectionItems: React.FC<{
     auction: AuctionObj;
+    items: SuiItem[];
 }> = ({
     auction,
+    items,
 }) => {
     return (
         <div className="card">
-            <CardAuctionItems item_addrs={auction.item_addrs} />
+            <CardAuctionItems items={items} hiddenItemCount={0} />
         </div>
     );
 };
