@@ -221,16 +221,18 @@ const CardFinalize: React.FC<{
 
     return <div className="card">
         <div className="card-title">Auction ended!</div>
+
         <div>Click the button to send the items to the winner and transfer the funds to the seller.</div>
+
         <div>
             <Btn onClick={finalizeAuction}>FINALIZE</Btn> {/* TODO: connect wallet if disconnected */}
-
-            {submitRes.ok === true &&
-            <div className="success">Auction finalized!</div>}
-
-            {submitRes.ok === false && submitRes.err &&
-            <div className="error">{submitRes.err}</div>}
         </div>
+
+        {submitRes.ok === true &&
+        <div className="success">Auction finalized!</div>}
+
+        {submitRes.ok === false && submitRes.err &&
+        <div className="error">{submitRes.err}</div>}
     </div>;
 };
 
@@ -337,7 +339,7 @@ const FormBid: React.FC<{
         if (str.includes("InsufficientCoinBalance")) { return `You don't have enough ${coinMeta.symbol}!`; }
 
         const code = auctionClient.parseErrorCode(str);
-        if (code === "E_WRONG_TIME") { return "The auction is not live yet!"; }
+        if (code === "E_WRONG_TIME") { return "The auction is not live!"; }
         if (code === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid!"; }
         return code;
     };
