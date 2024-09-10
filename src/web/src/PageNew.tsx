@@ -101,7 +101,8 @@ const FormCreateAuction: React.FC<{
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
 
-    const devMode = false;
+    const [devMode, setDevMode] = useState(false);
+    const showDevModeToggle = window.location.hostname !== "bidder.polymedia.app";
 
     const form = {
         // basic options
@@ -206,6 +207,20 @@ const FormCreateAuction: React.FC<{
 
     // === html ===
 
+    const DevModeToggle = () => {
+        return (
+            <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+                <input
+                    type="checkbox"
+                    checked={devMode}
+                    onChange={(e) => setDevMode(e.target.checked)}
+                    style={{ marginRight: "0.6em"}}
+                />
+                <span>dev mode</span>
+            </label>
+        );
+    };
+
     return <>
     <div className="card">
     <div className="form">
@@ -214,6 +229,7 @@ const FormCreateAuction: React.FC<{
             {form.description.input}
             {form.minimum_bid.input}
             {devMode ? form.duration_seconds.input : form.duration_hours.input}
+            {showDevModeToggle && <DevModeToggle />}
         </div>
         <div className="form-section">
             <div className="section-toggle" onClick={() => setShowAdvancedForm(!showAdvancedForm)}>
