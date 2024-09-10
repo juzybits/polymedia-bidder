@@ -4,10 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { CardLoading, CardSuiItem, ONE_HOUR_MS, ONE_MINUTE_MS } from "./components/cards";
+import { CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { TimeUnit } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 
 export const PageNew: React.FC = () =>
@@ -115,7 +116,7 @@ const FormCreateAuction: React.FC<{
             html: { value: "1", required: true },
         }),
         duration_hours: useInputUnsignedInt({
-            label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/ONE_HOUR_MS), max: Math.floor(cnf.MAX_DURATION_MS/ONE_HOUR_MS),
+            label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/TimeUnit.ONE_HOUR), max: Math.floor(cnf.MAX_DURATION_MS/TimeUnit.ONE_HOUR),
             html: { value: "24", required: true },
         }),
         // duration_seconds: useInputUnsignedInt({
@@ -132,7 +133,7 @@ const FormCreateAuction: React.FC<{
             html: { value: currAcct.address ?? "", required: true },
         }),
         begin_delay_hours: useInputUnsignedInt({
-            label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/ONE_HOUR_MS),
+            label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/TimeUnit.ONE_HOUR),
             html: { value: "0", required: true },
         }),
         minimum_increase_pct: useInputUnsignedInt({
@@ -140,7 +141,7 @@ const FormCreateAuction: React.FC<{
             html: { value: "5", required: true },
         }),
         extension_period_minutes: useInputUnsignedInt({
-            label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/ONE_MINUTE_MS)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/ONE_MINUTE_MS),
+            label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE),
             html: { value: "15", required: true },
         }),
         // extension_period_seconds: useInputUnsignedInt({
@@ -181,12 +182,12 @@ const FormCreateAuction: React.FC<{
                 form.name.val!,
                 form.description.val ?? "",
                 form.pay_addr.val!,
-                form.begin_delay_hours.val! * ONE_HOUR_MS,
-                form.duration_hours.val! * ONE_HOUR_MS,
+                form.begin_delay_hours.val! * TimeUnit.ONE_HOUR,
+                form.duration_hours.val! * TimeUnit.ONE_HOUR,
                 // form.duration_seconds.val! * 1000,
                 form.minimum_bid.val!,
                 form.minimum_increase_pct.val! * 100,
-                form.extension_period_minutes.val! * ONE_MINUTE_MS,
+                form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
                 // form.extension_period_seconds.val! * 1000,
                 chosenItems,
             );

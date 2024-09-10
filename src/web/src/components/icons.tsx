@@ -1,6 +1,6 @@
 import React from "react";
 
-type IconProps = {
+export type IconProps = {
     children: React.ReactNode;
 } & React.SVGProps<SVGSVGElement>;
 

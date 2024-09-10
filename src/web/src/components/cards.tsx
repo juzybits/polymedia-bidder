@@ -1,11 +1,10 @@
-import { AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { newItemPlaceholder, SuiItem, svgNoImage } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString, newEmptyDisplay, shortenAddress } from "@polymedia/suitcase-core";
+import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
-import { timeAgo } from "../lib/time";
 import { IconCheck } from "./icons";
 
 // === cards ===
@@ -169,52 +168,6 @@ export const FullCardMsg: React.FC<{
         </div>
     </div>;
 };
-
-// === formatters ===
-
-export const ONE_HOUR_MS = 3_600_000;
-export const ONE_MINUTE_MS = 60_000;
-
-export const msToHours = (ms: number): string => {
-    return `${ms / ONE_HOUR_MS} hours`;
-};
-
-export const msToMinutes = (ms: number): string => {
-    return `${ms / ONE_MINUTE_MS} minutes`;
-};
-
-export const msToDate = (ms: number): string => {
-    return new Date(ms).toLocaleString();
-};
-
-export const bpsToPct = (bps: number): string => {
-    return `${bps / 100}%`;
-};
-
-export const shortenDigest = (digest: string): string => {
-    return digest.slice(0, 6) + "…" + digest.slice(-4);
-};
-
-// === helpers ===
-
-export function newItemPlaceholder(addr: string): SuiItem {
-    const display = newEmptyDisplay();
-    display.image_url = svgNoImage; // TODO: use "Loading..." image
-    return {
-        id: addr,
-        type: "_placeholder_",
-        display,
-        fields: {},
-        hasPublicTransfer: true,
-        nameFull: addr,
-        nameShort: shortenAddress(addr),
-        desc: "",
-    };
-}
-
-// === placeholder images ===
-
-const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');
 
 // == dev ===
 

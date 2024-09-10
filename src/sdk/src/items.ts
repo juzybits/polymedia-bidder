@@ -1,10 +1,12 @@
 import { SuiObjectResponse } from "@mysten/sui/client";
 import {
     isParsedDataObject,
+    newEmptyDisplay,
     objResToDisplay,
     objResToFields,
     objResToId,
     objResToType,
+    shortenAddress,
 } from "@polymedia/suitcase-core";
 
 const MAX_NAME_LENGTH = 100;
@@ -19,6 +21,21 @@ export type SuiItem = {
     nameShort: string;
     desc: string;
 };
+
+export function newItemPlaceholder(addr: string): SuiItem {
+    const display = newEmptyDisplay();
+    display.image_url = svgNoImage; // TODO: use "Loading..." image
+    return {
+        id: addr,
+        type: "_placeholder_",
+        display,
+        fields: {},
+        hasPublicTransfer: true,
+        nameFull: addr,
+        nameShort: shortenAddress(addr),
+        desc: "",
+    };
+}
 
 export type PaginatedItemsResponse = {
     data: SuiItem[];
@@ -54,3 +71,6 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc };
 }
 /* eslint-enable */
+
+/** placeholder image */
+export const svgNoImage = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.75 16 2.746-3.493a2 2 0 0 1 3.09-.067L13 15.25m-2.085-2.427c1.037-1.32 2.482-3.188 2.576-3.31a2 2 0 0 1 3.094-.073L19 12.25m-12.25 7h10.5a2 2 0 0 0 2-2V6.75a2 2 0 0 0-2-2H6.75a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2Z"></path></svg>');

@@ -7,13 +7,17 @@ const TIME_LABEL = {
     sec: { full: "sec", short: "s" },
 };
 
-enum TimeUnit {
+/** Time units in milliseconds. */
+export enum TimeUnit {
     ONE_SECOND = 1000,
     ONE_MINUTE = 60_000,
     ONE_HOUR = 3_600_000,
     ONE_DAY = 86_400_000,
 }
 
+/**
+ * Returns a human-readable string with the time difference between two timestamps.
+ */
 export function timeAgo(
     timestamp: number,
     now: number = Date.now(),

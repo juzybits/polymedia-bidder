@@ -1,12 +1,11 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AuctionObj, UserAuction, UserBid } from "@polymedia/auction-sdk";
+import { UserAuction, UserBid } from "@polymedia/auction-sdk";
 import { shortenAddress } from "@polymedia/suitcase-core";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { Balance, bpsToPct, CardLoading, CardWithMsg, msToDate, msToMinutes, ObjectLinkList } from "./components/cards";
+import { CardLoading, CardWithMsg } from "./components/cards";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
 

@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
-import { AuctionClient, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { AuctionClient, AuctionObj, newItemPlaceholder, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
 import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { Balance, bpsToPct, CardAuctionItems, CardWithMsg, FullCardMsg, msToDate, msToMinutes, newItemPlaceholder, ObjectLinkList, shortenDigest } from "./components/cards";
+import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, ObjectLinkList } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputUnsignedBalance } from "./components/inputs";
@@ -16,6 +16,7 @@ import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
+import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 
 type TabName = "items" | "bid" | "details" | "history" | "admin";
 
@@ -159,7 +160,7 @@ const CardFinalize: React.FC<{
 
     // === functions ===
 
-    const fetchItems = async () => {
+    const fetchItems = async () => { // TODO do this only once, it also happens in SectionItems
         try {
             const newItems = await auctionClient.fetchItems(auction.item_addrs);
             setItems(newItems);
