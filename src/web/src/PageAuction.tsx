@@ -5,7 +5,7 @@ import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
 import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, ObjectLinkList } from "./components/cards";
@@ -18,47 +18,46 @@ import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 
-type TabName = "items" | "bid" | "details" | "history" | "admin";
-
-const TabHeader: React.FC<{
-    tabName: TabName;
-    selectedTab: TabName;
-    setTab: ReactSetter<TabName>;
-    icon: React.ReactNode;
-}> = ({
-    tabName,
-    selectedTab,
-    setTab,
-    icon,
-}) => {
-    const isSelected = tabName === selectedTab;
-    return (
-        <div
-            className={`tab-title ${isSelected ? "selected" : ""}`}
-            onClick={() => setTab(tabName)}
-        >
-            {icon}
-        </div>
-    );
-};
+const TAB_NAMES = ["items", "bid", "details", "history", "admin"] as const;
+type TabName = (typeof TAB_NAMES)[number];
+const isTabName = (str: string): str is TabName => TAB_NAMES.includes(str as TabName);
 
 export const PageAuction: React.FC = () =>
 {
+    // === url validation ===
+
+    const { auctionId, tabName = "items" } = useParams();
+    if (!auctionId) { return <PageNotFound />; };
+    if (!isTabName(tabName)) { return <PageNotFound />; }
+
     // === state ===
 
     const currAcct = useCurrentAccount();
-
-    const { auctionId } = useParams();
-    if (!auctionId) { return <PageNotFound />; };
-
     const { auctionClient, header } = useOutletContext<AppContext>();
 
-    const [ tab, setTab ] = useState<TabName>("items");
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ items, setItems ] = useState<SuiItem[] | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
 
+    // === state: tabs ===
+
+    const [ activeTab, setActiveTab ] = useState<TabName>(tabName);
+    const changeTab = (tab: TabName) => {
+        setActiveTab(tab);
+        window.history.replaceState({}, "", `/auction/${auctionId}/${tab}`);
+    };
+    const showBidTab = auction?.is_live;
+    const isAdmin = currAcct?.address === auction?.admin_addr;
+    const showAdminTab = isAdmin && auction && (!auction.has_ended || auction.has_balance);
+
     // === effects ===
+
+    useEffect(() => {
+        if (!auction) { return; }
+        if ((activeTab === "bid" && !showBidTab) || (activeTab === "admin" && !showAdminTab)) {
+            changeTab("items");
+        }
+    }, [auction]);
 
     useEffect(() => {
         fetchAuctionAndItems();
@@ -101,7 +100,24 @@ export const PageAuction: React.FC = () =>
 
     // === html ===
 
-    const isAdmin = currAcct?.address === auction?.admin_addr;
+    const TabHeader: React.FC<{
+        tab: TabName;
+        icon: React.ReactNode;
+    }> = ({
+        tab,
+        icon,
+    }) => {
+        if (!auction) { return null; }
+        const isSelected = tab === activeTab;
+        return (
+            <div
+                className={`tab-title ${isSelected ? "selected" : ""}`}
+                onClick={() => changeTab(tab)}
+            >
+                {icon}
+            </div>
+        );
+    };
 
     return <>
     {header}
@@ -121,19 +137,19 @@ export const PageAuction: React.FC = () =>
                 <CardFinalize auction={auction} items={items} />
 
                 <div className="tabs-header">
-                    <TabHeader tabName="items" selectedTab={tab} setTab={setTab} icon={<IconItems />} />
-                    {auction.is_live && <TabHeader tabName="bid" selectedTab={tab} setTab={setTab} icon={<IconCart />} />}
-                    <TabHeader tabName="details" selectedTab={tab} setTab={setTab} icon={<IconDetails />} />
-                    <TabHeader tabName="history" selectedTab={tab} setTab={setTab} icon={<IconHistory />} />
-                    {isAdmin && <TabHeader tabName="admin" selectedTab={tab} setTab={setTab} icon={<IconGears />} />}
+                    <TabHeader tab="items" icon={<IconItems />} />
+                    {showBidTab && <TabHeader tab="bid" icon={<IconCart />} />}
+                    <TabHeader tab="details" icon={<IconDetails />} />
+                    <TabHeader tab="history" icon={<IconHistory />} />
+                    {showAdminTab && <TabHeader tab="admin" icon={<IconGears />} />}
                 </div>
 
                 <div className="tabs-content">
-                    {tab === "items" && <SectionItems auction={auction} items={items} />}
-                    {tab === "bid" && auction.is_live && <SectionBid auction={auction} />}
-                    {tab === "details" && <SectionDetails auction={auction} />}
-                    {tab === "history" && <SectionHistory auction={auction} />}
-                    {tab === "admin" && <SectionAdmin auction={auction} />}
+                    {activeTab === "items" && <SectionItems auction={auction} items={items} />}
+                    {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} />}
+                    {activeTab === "details" && <SectionDetails auction={auction} />}
+                    {activeTab === "history" && <SectionHistory auction={auction} />}
+                    {activeTab === "admin" && <SectionAdmin auction={auction} />}
                 </div>
 
             </div>
