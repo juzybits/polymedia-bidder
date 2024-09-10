@@ -101,6 +101,8 @@ const FormCreateAuction: React.FC<{
 
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
 
+    const devMode = false;
+
     const form = {
         // basic options
         name: useInputString({
@@ -119,10 +121,10 @@ const FormCreateAuction: React.FC<{
             label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/TimeUnit.ONE_HOUR), max: Math.floor(cnf.MAX_DURATION_MS/TimeUnit.ONE_HOUR),
             html: { value: "24", required: true },
         }),
-        // duration_seconds: useInputUnsignedInt({
-        //     label: "Duration (seconds)", min: Math.floor(cnf.MIN_DURATION_MS/ONE_HOUR_MS), max: Math.floor(cnf.MAX_DURATION_MS/ONE_HOUR_MS),
-        //     html: { value: "15", required: true },
-        // }),
+        duration_seconds: useInputUnsignedInt({ // dev only
+            label: "Duration (seconds)", min: Math.floor(cnf.MIN_DURATION_MS/1000), max: Math.floor(cnf.MAX_DURATION_MS/1000),
+            html: { value: "15", required: true },
+        }),
         // advanced options
         type_coin: useInputString({
             label: "Coin type",
@@ -144,10 +146,10 @@ const FormCreateAuction: React.FC<{
             label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE),
             html: { value: "15", required: true },
         }),
-        // extension_period_seconds: useInputUnsignedInt({
-        //     label: "Extension period (seconds)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/ONE_MINUTE_MS)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/ONE_MINUTE_MS),
-        //     html: { value: "1", required: true },
-        // }),
+        extension_period_seconds: useInputUnsignedInt({ // dev only
+            label: "Extension period (seconds)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/1000)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/1000),
+            html: { value: "1", required: true },
+        }),
     };
 
     const hasErrors = Object.values(form).some(input => input.err !== undefined);
@@ -183,12 +185,10 @@ const FormCreateAuction: React.FC<{
                 form.description.val ?? "",
                 form.pay_addr.val!,
                 form.begin_delay_hours.val! * TimeUnit.ONE_HOUR,
-                form.duration_hours.val! * TimeUnit.ONE_HOUR,
-                // form.duration_seconds.val! * 1000,
+                devMode ? form.duration_seconds.val! * 1000 : form.duration_hours.val! * TimeUnit.ONE_HOUR,
                 form.minimum_bid.val!,
                 form.minimum_increase_pct.val! * 100,
-                form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
-                // form.extension_period_seconds.val! * 1000,
+                devMode ? form.extension_period_seconds.val! * 1000 : form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
                 chosenItems,
             );
             if (resp.effects?.status.status !== "success") {
@@ -213,8 +213,7 @@ const FormCreateAuction: React.FC<{
             {form.name.input}
             {form.description.input}
             {form.minimum_bid.input}
-            {form.duration_hours.input}
-            {/* {form.duration_seconds.input} */}
+            {devMode ? form.duration_seconds.input : form.duration_hours.input}
         </div>
         <div className="form-section">
             <div className="section-toggle" onClick={() => setShowAdvancedForm(!showAdvancedForm)}>
@@ -225,8 +224,7 @@ const FormCreateAuction: React.FC<{
                 {form.pay_addr.input}
                 {form.begin_delay_hours.input}
                 {form.minimum_increase_pct.input}
-                {form.extension_period_minutes.input}
-                {/* {form.extension_period_seconds.input} */}
+                {devMode ? form.extension_period_seconds.input : form.extension_period_minutes.input}
             </>}
         </div>
 
