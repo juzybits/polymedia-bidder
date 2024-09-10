@@ -55,25 +55,35 @@ export const PageAuction: React.FC = () =>
 
     const [ tab, setTab ] = useState<TabName>("items");
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
+    const [ items, setItems ] = useState<SuiItem[] | null | undefined>();
     const [ err, setErr ] = useState<string | null>(null);
 
     // === effects ===
 
     useEffect(() => {
-        fetchAuction();
-    }, [auctionId]);
+        fetchAuctionAndItems();
+    }, [auctionId, auctionClient]);
 
     // === functions ===
 
-    const fetchAuction = async () => {
+    const fetchAuctionAndItems = async () =>
+    {
         setAuction(undefined);
+        setItems(undefined);
         setErr(null);
         try {
-            const auction = await auctionClient.fetchAuction(auctionId);
-            setAuction(auction);
+            const newAuction = await auctionClient.fetchAuction(auctionId);
+            if (newAuction === null) {
+                throw new Error("Auction not found");
+            }
+            setAuction(newAuction);
+            const newItems = await auctionClient.fetchItems(newAuction.item_addrs);
+            setItems(newItems);
         } catch (err) {
-            setErr("Failed to fetch auction");
-            console.warn("[fetchAuction]", err);
+            setErr(err instanceof Error ? err.message : "Failed to fetch auction");
+            setAuction(null);
+            setItems(null);
+            console.warn("[fetchAuctionAndItems]", err);
         }
     };
 
@@ -82,10 +92,10 @@ export const PageAuction: React.FC = () =>
     if (err) {
         return <PageFullScreenMsg>{err.toUpperCase()}</PageFullScreenMsg>;
     }
-    if (auction === null) {
-        return <PageFullScreenMsg>AUCTION NOT FOUND</PageFullScreenMsg>;
+    if (auction === null || items === null) {
+        return <PageFullScreenMsg>{err}</PageFullScreenMsg>;
     }
-    if (auction === undefined) {
+    if (auction === undefined || items === undefined) {
         return <PageFullScreenMsg>LOADING…</PageFullScreenMsg>;
     }
 
@@ -108,7 +118,7 @@ export const PageAuction: React.FC = () =>
                     {auction.description}
                 </div>}
 
-                <CardFinalize auction={auction} />
+                <CardFinalize auction={auction} items={items} />
 
                 <div className="tabs-header">
                     <TabHeader tabName="items" selectedTab={tab} setTab={setTab} icon={<IconItems />} />
@@ -136,8 +146,10 @@ export const PageAuction: React.FC = () =>
 
 const CardFinalize: React.FC<{
     auction: AuctionObj;
+    items: SuiItem[];
 }> = ({
     auction,
+    items,
 }) => {
 
     // === state ===
@@ -147,27 +159,6 @@ const CardFinalize: React.FC<{
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const isClaimable = auction.has_ended && ( auction.has_balance || auction.item_bag.size > 0 );
-
-    const [ items, setItems ] = useState<SuiItem[]>(
-        auction.item_addrs.map(addr => newItemPlaceholder(addr))
-    );
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchItems();
-    }, [auction, network]);
-
-    // === functions ===
-
-    const fetchItems = async () => { // TODO do this only once, it also happens in SectionItems
-        try {
-            const newItems = await auctionClient.fetchItems(auction.item_addrs);
-            setItems(newItems);
-        } catch (err) {
-            console.warn("[fetchItems]", err);
-        }
-    };
 
     const errToString = (err: unknown): string | null =>
     {
