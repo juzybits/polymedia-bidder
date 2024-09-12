@@ -15,6 +15,7 @@ export type InputReturn<T> = {
     val: T | undefined;
     err: string | undefined;
     input: JSX.Element;
+    clear: () => void;
 };
 
 export type InputValidator<T> = (input: string) => {
@@ -63,6 +64,12 @@ export const useInputBase = <T,>(
         }
     };
 
+    const clear = () => {
+        setStr("");
+        setVal(undefined);
+        setErr(undefined);
+    };
+
     useEffect(() => {
         onChangeStr(str.trim());
     }, []);
@@ -91,7 +98,7 @@ export const useInputBase = <T,>(
         </div>
     );
 
-    return { str, val, err, input };
+    return { str, val, err, input, clear };
 };
 
 export const useInputString = (
