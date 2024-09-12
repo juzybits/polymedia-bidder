@@ -49,10 +49,10 @@ export class AuctionClient extends SuiClientBase
         signTransaction: SignTransaction,
         packageId: string,
         registryId: string,
-        txResponseOptions?: SuiTransactionBlockResponseOptions,
         waitForTxOptions?: WaitForTxOptions,
+        txResponseOptions?: SuiTransactionBlockResponseOptions,
     ) {
-        super(suiClient, signTransaction, txResponseOptions, waitForTxOptions);
+        super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
         this.packageId = packageId;
         this.registryId = registryId;
         this.cache = {

@@ -62,24 +62,23 @@ export const PageAuction: React.FC = () =>
     }, [auction]);
 
     useEffect(() => {
-        fetchAuctionAndItems();
+        fetchAuction(true);
     }, [auctionId, auctionClient]);
 
     // === functions ===
 
-    const fetchAuctionAndItems = async () =>
+    const fetchAuction = async (fetchItems: boolean) =>
     {
-        setAuction(undefined);
-        setItems(undefined);
-        setErr(null);
         try {
-            const newAuction = await auctionClient.fetchAuction(auctionId);
+            const newAuction = await auctionClient.fetchAuction(auctionId, false);
             if (newAuction === null) {
                 throw new Error("Auction not found");
             }
             setAuction(newAuction);
-            const newItems = await auctionClient.fetchItems(newAuction.item_addrs);
-            setItems(newItems);
+            if (fetchItems) {
+                const newItems = await auctionClient.fetchItems(newAuction.item_addrs);
+                setItems(newItems);
+            }
         } catch (err) {
             setErr(err instanceof Error ? err.message : "Failed to fetch auction");
             setAuction(null);
@@ -148,7 +147,7 @@ export const PageAuction: React.FC = () =>
 
                 <div className="tabs-content">
                     {activeTab === "items" && <SectionItems auction={auction} items={items} />}
-                    {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} />}
+                    {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                     {activeTab === "details" && <SectionDetails auction={auction} />}
                     {activeTab === "history" && <SectionHistory auction={auction} />}
                     {activeTab === "admin" && <SectionAdmin auction={auction} />}
@@ -254,8 +253,10 @@ const SectionItems: React.FC<{
 
 const SectionBid: React.FC<{
     auction: AuctionObj;
+    fetchAuction: (fetchItems: boolean) => Promise<void>;
 }> = ({
     auction,
+    fetchAuction,
 }) =>
 {
     const currAcct = useCurrentAccount();
@@ -284,7 +285,7 @@ const SectionBid: React.FC<{
     } else {
         content = <>
             <div className="card">
-                <FormBid auction={auction} coinMeta={coinMeta} userId={userId} />
+                <FormBid auction={auction} coinMeta={coinMeta} userId={userId} fetchAuction={fetchAuction} />
             </div>
             {auction.has_balance &&
             <div className="card">
@@ -305,10 +306,12 @@ const FormBid: React.FC<{
     auction: AuctionObj;
     coinMeta: CoinMetadata;
     userId: string | null;
+    fetchAuction: (fetchItems: boolean) => Promise<void>;
 }> = ({
     auction,
     coinMeta,
     userId,
+    fetchAuction,
 }) =>
 {
     // === state ===
@@ -322,6 +325,9 @@ const FormBid: React.FC<{
         decimals: coinMeta.decimals,
         min: auction.minimum_bid,
         html: { value: balanceToString(auction.minimum_bid, coinMeta.decimals), required: true, disabled: !currAcct },
+        // onChangeVal: (newVal: bigint | undefined) => {
+        //     setSubmitRes({ ok: null });
+        // },
     });
 
     const hasInputError = input_amount.err !== undefined;
@@ -369,11 +375,14 @@ const FormBid: React.FC<{
                 }
                 if (!dryRun) {
                     setSubmitRes({ ok: true });
+                    fetchAuction(false); // refresh min_bid, lead_value, etc
+                    input_amount.clear();
                 }
             }
         } catch (err) {
             setSubmitRes({ ok: false, err: errToString(err) });
             console.warn("[onSubmit]", err);
+            fetchAuction(false); // maybe someone else bid higher, or the auction ended, etc
         } finally {
             setIsWorking(false);
         }
