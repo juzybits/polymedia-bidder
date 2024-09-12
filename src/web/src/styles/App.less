@@ -145,6 +145,12 @@ footer {
     border-radius: 2em;
 }
 
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 @btn-blue: rgb(0, 121, 155);
 @btn-red: rgb(186, 36, 36);
 @btn-white: white;
@@ -194,12 +200,14 @@ footer {
     }
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+.btn-submit {
+    display: flex;
+    flex-direction: column;
+    gap: @gap-05;
+    .success, .error {
+        padding-left: 0.8em;
     }
 }
-
 .poly-input {
     display: flex;
     flex-direction: column;

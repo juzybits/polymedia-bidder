@@ -395,15 +395,17 @@ const FormBid: React.FC<{
 
             {input_amount.input}
 
-            {showBtnConnect
-            ? <BtnConnect />
-            : <Btn disabled={disableSubmit} onClick={onSubmit}>BID</Btn>}
+            <div className="btn-submit">
+                {showBtnConnect
+                ? <BtnConnect />
+                : <Btn disabled={disableSubmit} onClick={onSubmit}>BID</Btn>}
 
-            {submitRes.ok === true &&
-            <div className="success">Bid submitted!</div>}
+                {submitRes.ok === true &&
+                <div className="success">Bid submitted!</div>}
 
-            {submitRes.ok === false && submitRes.err &&
-            <div className="error">{submitRes.err}</div>}
+                {submitRes.ok === false && submitRes.err &&
+                <div className="error">{submitRes.err}</div>}
+            </div>
         </div>
     );
 };
