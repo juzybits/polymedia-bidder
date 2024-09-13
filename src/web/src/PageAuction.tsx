@@ -186,8 +186,8 @@ const CardFinalize: React.FC<{
         if (str.includes("Rejected from user")) { return null; }
 
         const code = auctionClient.parseErrorCode(str);
-        if (code === "E_WRONG_TIME") { return "The auction has not ended yet!"; }
-        if (code === "E_WRONG_ADDRESS") { return "The auction has no leader!"; }
+        if (code === "E_WRONG_TIME") { return "The auction has not ended yet"; }
+        if (code === "E_WRONG_ADDRESS") { return "The auction has no leader"; }
         return code;
     };
 
@@ -346,8 +346,8 @@ const FormBid: React.FC<{
         if (str.includes("InsufficientCoinBalance")) { return `You don't have enough ${coinMeta.symbol}!`; }
 
         const code = auctionClient.parseErrorCode(str);
-        if (code === "E_WRONG_TIME") { return "The auction is not live!"; }
-        if (code === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid!"; }
+        if (code === "E_WRONG_TIME") { return "The auction is not live"; }
+        if (code === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid"; }
         return code;
     };
 
@@ -495,6 +495,20 @@ const SectionAdmin: React.FC<{
 
     const [ acceptBidRes, setAcceptBidRes ] = useState<SubmitRes>({ ok: null });
 
+    const acceptBidErrToString = (err: unknown): string | null =>
+    {
+        if (!err) { return "Failed to accept bid"; }
+
+        const str = err instanceof Error ? err.message : String(err);
+        if (str.includes("Rejected from user")) { return null; }
+
+        const code = auctionClient.parseErrorCode(str);
+        if (code === "E_WRONG_TIME") { return "The auction is not live"; }
+        if (code === "E_WRONG_ADMIN") { return "You are not the admin"; }
+        if (code === "E_CANT_END_WITHOUT_BIDS") { return "The auction has no bids"; }
+        return code;
+    };
+
     const acceptBid = async () => {
         try {
             setIsWorking(true);
@@ -515,7 +529,7 @@ const SectionAdmin: React.FC<{
 
             setAcceptBidRes({ ok: true });
         } catch (err) {
-            setAcceptBidRes({ ok: false, err: "Failed to accept bid" }); // TODO: parse error
+            setAcceptBidRes({ ok: false, err: acceptBidErrToString(err) });
             console.warn("[submitEndAuction]", err);
         } finally {
             setIsWorking(false);
