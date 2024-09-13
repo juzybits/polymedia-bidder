@@ -130,6 +130,7 @@ public fun admin_creates_auction<CoinType>(
 
     assert!( extension_period_ms >= MIN_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
     assert!( extension_period_ms <= MAX_EXTENSION_PERIOD_MS, E_WRONG_EXTENSION_PERIOD );
+    assert!( extension_period_ms <= duration_ms, E_WRONG_EXTENSION_PERIOD );
 
     assert!( item_addrs.length() > 0, E_NOT_ENOUGH_ITEMS );
     assert!( item_addrs.length() <= MAX_ITEMS, E_TOO_MANY_ITEMS );
@@ -306,7 +307,9 @@ public fun admin_sets_pay_addr<CoinType>(
     ctx: &mut TxContext,
 ) {
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( pay_addr != ZERO_ADDRESS, E_WRONG_ADDRESS );
     assert!( !auction.has_ended(clock) || auction.has_balance(), E_POINTLESS_PAY_ADDR_CHANGE );
+
     auction.pay_addr = pay_addr;
 }
 

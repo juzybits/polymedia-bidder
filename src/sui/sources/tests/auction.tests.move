@@ -563,6 +563,20 @@ fun test_admin_creates_auction_e_wrong_extension_period_too_long()
 }
 
 #[test]
+#[expected_failure(abort_code = auction::E_WRONG_EXTENSION_PERIOD)]
+fun test_admin_creates_auction_e_wrong_extension_period_is_longer_than_duration()
+{
+    // ADMIN tries to create an auction with an extension period that is longer than the duration
+    let mut args = auction_args();
+    args.duration_ms = 24 * 60 * 60 * 1000; // 1 day
+    args.extension_period_ms = 2 * 24 * 60 * 60 * 1000; // 2 days
+    let (runner, auction) = begin_with_auction(args);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
 #[expected_failure(abort_code = auction::E_WRONG_NAME)]
 fun test_admin_creates_auction_e_wrong_name_too_short()
 {
