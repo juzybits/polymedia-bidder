@@ -6,7 +6,7 @@ import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { useInputString, useInputSuiAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
+import { useInputString, useInputAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { TimeUnit } from "./lib/time";
 import { SubmitRes } from "./lib/types";
@@ -131,7 +131,7 @@ const FormCreateAuction: React.FC<{
             label: "Coin type",
             html: { value: coinType, required: true, disabled: true },
         }),
-        pay_addr: useInputSuiAddress({
+        pay_addr: useInputAddress({
             label: "Payment address",
             html: { value: currAcct.address ?? "", required: true },
         }),

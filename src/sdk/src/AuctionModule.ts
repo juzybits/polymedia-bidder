@@ -169,6 +169,7 @@ export const AuctionModule =
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(pay_addr),
+                tx.object.clock(),
             ],
         });
     },

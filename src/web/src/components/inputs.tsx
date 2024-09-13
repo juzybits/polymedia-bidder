@@ -144,7 +144,7 @@ export const useInputString = (
     });
 };
 
-export const useInputSuiAddress = (
+export const useInputAddress = (
     props: CommonInputProps<string>,
 ): InputReturn<string> =>
 {

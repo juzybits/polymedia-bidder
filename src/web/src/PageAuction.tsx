@@ -1,22 +1,23 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
-import { AuctionClient, AuctionObj, newItemPlaceholder, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { Transaction } from "@mysten/sui/transactions";
+import { AUCTION_IDS, AuctionClient, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString } from "@polymedia/suitcase-core";
-import { LinkToPolymedia, ReactSetter } from "@polymedia/suitcase-react";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, ObjectLinkList } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
-import { useInputUnsignedBalance } from "./components/inputs";
+import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 import { timeAgo } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
-import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 
 const TAB_NAMES = ["items", "bid", "details", "history", "admin"] as const;
 type TabName = (typeof TAB_NAMES)[number];
@@ -150,7 +151,7 @@ export const PageAuction: React.FC = () =>
                     {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                     {activeTab === "details" && <SectionDetails auction={auction} />}
                     {activeTab === "history" && <SectionHistory auction={auction} />}
-                    {activeTab === "admin" && <SectionAdmin auction={auction} />}
+                    {activeTab === "admin" && <SectionAdmin auction={auction} fetchAuction={fetchAuction} />}
                 </div>
 
             </div>
@@ -325,9 +326,6 @@ const FormBid: React.FC<{
         decimals: coinMeta.decimals,
         min: auction.minimum_bid,
         html: { value: balanceToString(auction.minimum_bid, coinMeta.decimals), required: true, disabled: !currAcct },
-        // onChangeVal: (newVal: bigint | undefined) => {
-        //     setSubmitRes({ ok: null });
-        // },
     });
 
     const hasInputError = input_amount.err !== undefined;
@@ -481,13 +479,15 @@ const SectionHistory: React.FC<{
 
 const SectionAdmin: React.FC<{
     auction: AuctionObj;
+    fetchAuction: (fetchItems: boolean) => Promise<void>;
 }> = ({
     auction,
+    fetchAuction,
 }) =>
 {
     // === state ===
 
-    const { isWorking } = useOutletContext<AppContext>();
+    const { auctionClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
     // === functions ===
 
@@ -497,7 +497,40 @@ const SectionAdmin: React.FC<{
 
     const submitReclaimItems = async () => { console.log("TODO"); };
 
-    const submitSetPayAddr = async () => { console.log("TODO"); };
+    // === admin_sets_pay_addr ===
+
+    const [ setPayAddrRes, setSetPayAddrRes ] = useState<SubmitRes>({ ok: null });
+    const input_pay_addr = useInputAddress({
+        label: "New payment address",
+        html: { value: auction.pay_addr, required: true },
+    });
+    const disableSubmitSetPayAddr = input_pay_addr.err !== undefined || input_pay_addr.val === auction.pay_addr;
+
+    const submitSetPayAddr = async () =>
+    {
+        try {
+            setIsWorking(true);
+            setSetPayAddrRes({ ok: null });
+
+            const tx = new Transaction();
+            AuctionModule.admin_sets_pay_addr(
+                tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id, input_pay_addr.val!
+            );
+
+            const resp = await auctionClient.signAndExecuteTransaction(tx);
+            if (resp.effects?.status.status !== "success") {
+                throw new Error(resp.effects?.status.error);
+            }
+
+            setSetPayAddrRes({ ok: true });
+            fetchAuction(false); // refresh auction
+        } catch (err) {
+            setSetPayAddrRes({ ok: false, err: "Failed to set pay address" });
+            console.warn("[submitSetPayAddr]", err);
+        } finally {
+            setIsWorking(false);
+        }
+    };
 
     // === html ===
 
@@ -536,9 +569,18 @@ const SectionAdmin: React.FC<{
         <div className="card">
             <div className="card-title">Set pay address</div>
             <div>You can change the payment address for the auction.</div>
-            <div>TODO: admin_sets_pay_addr</div>
-            <div>
-                <Btn onClick={submitSetPayAddr}>SET ADDRESS</Btn>
+            <div className="form">
+                {input_pay_addr.input}
+
+                <div className="btn-submit">
+                    <Btn onClick={submitSetPayAddr} disabled={disableSubmitSetPayAddr}>SET ADDRESS</Btn>
+
+                    {setPayAddrRes.ok === true &&
+                    <div className="success">Address set!</div>}
+
+                    {setPayAddrRes.ok === false && setPayAddrRes.err &&
+                    <div className="error">{setPayAddrRes.err}</div>}
+                </div>
             </div>
         </div>}
 
