@@ -554,6 +554,17 @@ const SectionAdmin: React.FC<{
     });
     const disableSubmitSetPayAddr = input_pay_addr.err !== undefined || input_pay_addr.val === auction.pay_addr;
 
+    const setPayAddrErrToString = (err: unknown): string | null =>
+    {
+        if (!err) { return "Failed to set pay address"; }
+
+        const str = err instanceof Error ? err.message : String(err);
+        if (str.includes("Rejected from user")) { return null; }
+
+        const code = auctionClient.parseErrorCode(str);
+        return code;
+    };
+
     const setPayAddr = async () =>
     {
         try {
@@ -572,7 +583,7 @@ const SectionAdmin: React.FC<{
 
             setSetPayAddrRes({ ok: true });
         } catch (err) {
-            setSetPayAddrRes({ ok: false, err: "Failed to set pay address" }); // TODO: parse error
+            setSetPayAddrRes({ ok: false, err: setPayAddrErrToString(err) });
             console.warn("[submitSetPayAddr]", err);
         } finally {
             setIsWorking(false);
