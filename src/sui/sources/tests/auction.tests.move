@@ -290,6 +290,18 @@ public fun anyone_pays_funds(
     );
 }
 
+public fun admin_ends_auction_early(
+    runner: &mut TestRunner,
+    sender: address,
+    auction: &mut Auction<SUI>,
+) {
+    runner.scen.next_tx(sender);
+    auction.admin_ends_auction_early<SUI>(
+        &runner.clock,
+        runner.scen.ctx(),
+    );
+}
+
 public fun admin_cancels_auction(
     runner: &mut TestRunner,
     sender: address,
@@ -898,6 +910,78 @@ fun test_anyone_pays_funds_e_wrong_time()
 
     // RANDO tries to send the funds before the auction ends
     runner.anyone_pays_funds(RANDO, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+// === tests: admin_ends_auction_early ===
+
+#[test]
+fun test_admin_ends_auction_early_ok_with_bids()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+    let item_addr = auction.item_addrs()[0];
+
+    // BIDDER_1 bids
+    let bid_value = 1000;
+    runner.anyone_bids(BIDDER_1, true, &mut auction, bid_value);
+
+    // ADMIN ends the auction early
+    runner.set_clock_1ms_before_auction_ends(&mut auction);
+    runner.admin_ends_auction_early(ADMIN, &mut auction);
+
+    // auction has ended
+    assert_eq( auction.has_ended(&runner.clock), true );
+
+    // RANDO sends item to BIDDER_1
+    runner.anyone_sends_item_to_winner(RANDO, &mut auction, item_addr);
+
+    // BIDDER_1 gets the item
+    runner.assert_owns_item(BIDDER_1);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+fun test_admin_ends_auction_early_ok_without_bids()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // ADMIN ends the auction early
+    runner.set_clock_1ms_before_auction_ends(&mut auction);
+    runner.admin_ends_auction_early(ADMIN, &mut auction);
+
+    // auction has ended
+    assert_eq( auction.has_ended(&runner.clock), true );
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_TIME)]
+fun test_admin_ends_auction_early_e_wrong_time()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // ADMIN tries to the auction early
+    runner.set_clock_to_auction_end_time(&mut auction);
+    runner.admin_ends_auction_early(ADMIN, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_WRONG_ADMIN)]
+fun test_admin_ends_auction_early_e_wrong_admin()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // RANDO tries to the auction early
+    runner.admin_ends_auction_early(RANDO, &mut auction);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);

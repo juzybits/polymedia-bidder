@@ -359,6 +359,7 @@ export class AuctionClient extends SuiClientBase
             has_balance,
             can_anyone_pay_funds: has_ended && has_balance,
             can_anyone_send_items_to_winner: has_ended && has_leader && Number(fields.item_bag.fields.size) > 0,
+            can_admin_end_auction_early: is_live && has_leader,
             can_admin_cancel_auction: !has_ended,
             can_admin_reclaim_items: has_ended && !has_leader && Number(fields.item_bag.fields.size) > 0,
             can_admin_set_pay_addr: !has_ended || (has_ended && has_balance),

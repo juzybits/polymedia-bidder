@@ -246,6 +246,18 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
     };
 }
 
+/// Admin can end the auction ahead of time
+public fun admin_ends_auction_early<CoinType>(
+    auction: &mut Auction<CoinType>,
+    clock: &Clock,
+    ctx: &mut TxContext,
+) {
+    assert!( !auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+
+    auction.end_time_ms = clock.timestamp_ms();
+}
+
 /// Admin can cancel the auction at any time and return the funds to the leader (if any).
 public fun admin_cancels_auction<CoinType>(
     auction: &mut Auction<CoinType>,
