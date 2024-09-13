@@ -31,6 +31,7 @@ const E_TOO_MANY_ITEMS: u64 = 5013;
 const E_MISSING_ITEM: u64 = 5014;
 const E_DUPLICATE_ITEM_ADDRESSES: u64 = 5015;
 const E_POINTLESS_PAY_ADDR_CHANGE: u64 = 5016;
+const E_CANT_END_WITHOUT_BIDS: u64 = 5017;
 
 // === constants ===
 
@@ -252,8 +253,9 @@ public fun admin_ends_auction_early<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!( !auction.has_ended(clock), E_WRONG_TIME );
+    assert!( auction.is_live(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( auction.has_leader(), E_CANT_END_WITHOUT_BIDS );
 
     auction.end_time_ms = clock.timestamp_ms();
 }

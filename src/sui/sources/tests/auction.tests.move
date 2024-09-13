@@ -918,7 +918,7 @@ fun test_anyone_pays_funds_e_wrong_time()
 // === tests: admin_ends_auction_early ===
 
 #[test]
-fun test_admin_ends_auction_early_ok_with_bids()
+fun test_admin_ends_auction_early_ok()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
     let item_addr = auction.item_addrs()[0];
@@ -939,22 +939,6 @@ fun test_admin_ends_auction_early_ok_with_bids()
 
     // BIDDER_1 gets the item
     runner.assert_owns_item(BIDDER_1);
-
-    test_utils::destroy(runner);
-    test_utils::destroy(auction);
-}
-
-#[test]
-fun test_admin_ends_auction_early_ok_without_bids()
-{
-    let (mut runner, mut auction) = begin_with_auction(auction_args());
-
-    // ADMIN ends the auction early
-    runner.set_clock_1ms_before_auction_ends(&mut auction);
-    runner.admin_ends_auction_early(ADMIN, &mut auction);
-
-    // auction has ended
-    assert_eq( auction.has_ended(&runner.clock), true );
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
@@ -982,6 +966,20 @@ fun test_admin_ends_auction_early_e_wrong_admin()
 
     // RANDO tries to the auction early
     runner.admin_ends_auction_early(RANDO, &mut auction);
+
+    test_utils::destroy(runner);
+    test_utils::destroy(auction);
+}
+
+#[test]
+#[expected_failure(abort_code = auction::E_CANT_END_WITHOUT_BIDS)]
+fun test_admin_ends_auction_early_e_cant_end_without_bids()
+{
+    let (mut runner, mut auction) = begin_with_auction(auction_args());
+
+    // ADMIN tries to end the auction early, but there are no bids
+    runner.set_clock_1ms_before_auction_ends(&mut auction);
+    runner.admin_ends_auction_early(ADMIN, &mut auction);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
