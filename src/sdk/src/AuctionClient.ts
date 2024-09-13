@@ -755,7 +755,7 @@ export class AuctionClient extends SuiClientBase
 
     // === errors ===
 
-    public parseErrorCode(
+    protected parseErrorCode(
         err: string,
     ): string
     {
@@ -764,5 +764,26 @@ export class AuctionClient extends SuiClientBase
             return err;
         }
         return AUCTION_ERRORS[error.code];
+    }
+
+    public errCodeToStr(
+        err: unknown,
+        defaultMessage: string,
+        errorMessages?: Record<string, string>
+    ): string | null
+    {
+        if (!err) { return defaultMessage; }
+
+        const str = err instanceof Error ? err.message : String(err);
+        if (str.includes("Rejected from user")) { return null; }
+        if (str.includes("InsufficientCoinBalance")) { return "You don't have enough balance"; }
+
+        const code = this.parseErrorCode(str);
+
+        if (errorMessages && code in errorMessages) {
+            return errorMessages[code];
+        }
+
+        return code || defaultMessage;
     }
 }

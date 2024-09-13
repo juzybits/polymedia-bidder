@@ -178,19 +178,6 @@ const CardFinalize: React.FC<{
 
     const isClaimable = auction.can_anyone_pay_funds || auction.can_anyone_send_items_to_winner;
 
-    const errToString = (err: unknown): string | null =>
-    {
-        if (!err) { return "Failed to finalize auction"; }
-
-        const str = err instanceof Error ? err.message : String(err);
-        if (str.includes("Rejected from user")) { return null; }
-
-        const code = auctionClient.parseErrorCode(str);
-        if (code === "E_WRONG_TIME") { return "The auction has not ended yet"; }
-        if (code === "E_WRONG_ADDRESS") { return "The auction has no leader"; }
-        return code;
-    };
-
     const finalizeAuction = async () =>
     {
         try {
@@ -211,7 +198,11 @@ const CardFinalize: React.FC<{
                 }
             }
         } catch (err) {
-            setSubmitRes({ ok: false, err: errToString(err) });
+            const errMsg = auctionClient.errCodeToStr(err, "Failed to finalize auction", {
+                "E_WRONG_TIME": "The auction has not ended yet",
+                "E_WRONG_ADDRESS": "The auction has no leader",
+            });
+            setSubmitRes({ ok: false, err: errMsg });
             console.warn("[finalizeAuction]", err);
         } finally {
             setIsWorking(false);
@@ -337,20 +328,6 @@ const FormBid: React.FC<{
 
     // === functions ===
 
-    const errToString = (err: unknown): string | null =>
-    {
-        if (!err) { return "Failed to submit bid"; }
-
-        const str = err instanceof Error ? err.message : String(err);
-        if (str.includes("Rejected from user")) { return null; }
-        if (str.includes("InsufficientCoinBalance")) { return `You don't have enough ${coinMeta.symbol}!`; }
-
-        const code = auctionClient.parseErrorCode(str);
-        if (code === "E_WRONG_TIME") { return "The auction is not live"; }
-        if (code === "E_WRONG_COIN_VALUE") { return "Someone placed a higher bid"; }
-        return code;
-    };
-
     const onSubmit = async () =>
     {
         if (disableSubmit) {
@@ -378,7 +355,11 @@ const FormBid: React.FC<{
                 }
             }
         } catch (err) {
-            setSubmitRes({ ok: false, err: errToString(err) });
+            const errMsg = auctionClient.errCodeToStr(err, "Failed to submit bid", {
+                "E_WRONG_TIME": "The auction is not live",
+                "E_WRONG_COIN_VALUE": "Someone placed a higher bid",
+            });
+            setSubmitRes({ ok: false, err: errMsg });
             console.warn("[onSubmit]", err);
         } finally {
             setIsWorking(false);
@@ -495,20 +476,6 @@ const SectionAdmin: React.FC<{
 
     const [ acceptBidRes, setAcceptBidRes ] = useState<SubmitRes>({ ok: null });
 
-    const acceptBidErrToString = (err: unknown): string | null =>
-    {
-        if (!err) { return "Failed to accept bid"; }
-
-        const str = err instanceof Error ? err.message : String(err);
-        if (str.includes("Rejected from user")) { return null; }
-
-        const code = auctionClient.parseErrorCode(str);
-        if (code === "E_WRONG_TIME") { return "The auction is not live"; }
-        if (code === "E_WRONG_ADMIN") { return "You are not the admin"; }
-        if (code === "E_CANT_END_WITHOUT_BIDS") { return "The auction has no bids"; }
-        return code;
-    };
-
     const acceptBid = async () => {
         try {
             setIsWorking(true);
@@ -529,8 +496,13 @@ const SectionAdmin: React.FC<{
 
             setAcceptBidRes({ ok: true });
         } catch (err) {
-            setAcceptBidRes({ ok: false, err: acceptBidErrToString(err) });
-            console.warn("[submitEndAuction]", err);
+            const errMsg = auctionClient.errCodeToStr(err, "Failed to accept bid", {
+                "E_WRONG_TIME": "The auction is not live",
+                "E_WRONG_ADMIN": "You are not the admin",
+                "E_CANT_END_WITHOUT_BIDS": "The auction has no bids",
+            });
+            setAcceptBidRes({ ok: false, err: errMsg });
+            console.warn("[acceptBid]", err);
         } finally {
             setIsWorking(false);
             fetchAuction(false);
@@ -554,17 +526,6 @@ const SectionAdmin: React.FC<{
     });
     const disableSubmitSetPayAddr = input_pay_addr.err !== undefined || input_pay_addr.val === auction.pay_addr;
 
-    const setPayAddrErrToString = (err: unknown): string | null =>
-    {
-        if (!err) { return "Failed to set pay address"; }
-
-        const str = err instanceof Error ? err.message : String(err);
-        if (str.includes("Rejected from user")) { return null; }
-
-        const code = auctionClient.parseErrorCode(str);
-        return code;
-    };
-
     const setPayAddr = async () =>
     {
         try {
@@ -583,8 +544,9 @@ const SectionAdmin: React.FC<{
 
             setSetPayAddrRes({ ok: true });
         } catch (err) {
-            setSetPayAddrRes({ ok: false, err: setPayAddrErrToString(err) });
-            console.warn("[submitSetPayAddr]", err);
+            const errMsg = auctionClient.errCodeToStr(err, "Failed to set pay address");
+            setSetPayAddrRes({ ok: false, err: errMsg });
+            console.warn("[setPayAddr]", err);
         } finally {
             setIsWorking(false);
             fetchAuction(false);

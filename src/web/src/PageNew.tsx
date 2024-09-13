@@ -160,17 +160,6 @@ const FormCreateAuction: React.FC<{
 
     // === functions ===
 
-    const errToString = (err: unknown): string | null =>
-    {
-        if (!err) { return "Failed to create auction"; }
-
-        const str = err instanceof Error ? err.message : String(err);
-        if (str.includes("Rejected from user")) { return null; }
-
-        const code = auctionClient.parseErrorCode(str);
-        return code;
-    };
-
     const onSubmit = async () =>
     {
         if (disableSubmit) {
@@ -198,7 +187,8 @@ const FormCreateAuction: React.FC<{
             setSubmitRes({ ok: true });
             navigate(`/auction/${auctionObjChange.objectId}`);
         } catch (err) {
-            setSubmitRes({ ok: false, err: errToString(err) });
+            const errMsg = auctionClient.errCodeToStr(err, "Failed to create auction");
+            setSubmitRes({ ok: false, err: errMsg });
             console.warn("[onSubmit]", err);
         } finally {
             setIsWorking(false);
