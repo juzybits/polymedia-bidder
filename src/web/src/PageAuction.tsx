@@ -374,16 +374,15 @@ const FormBid: React.FC<{
                 }
                 if (!dryRun) {
                     setSubmitRes({ ok: true });
-                    fetchAuction(false); // refresh min_bid, lead_value, etc
                     input_amount.clear();
                 }
             }
         } catch (err) {
             setSubmitRes({ ok: false, err: errToString(err) });
             console.warn("[onSubmit]", err);
-            fetchAuction(false); // maybe someone else bid higher, or the auction ended, etc
         } finally {
             setIsWorking(false);
+            fetchAuction(false);
         }
     };
 
@@ -514,12 +513,12 @@ const SectionAdmin: React.FC<{
             }
 
             setSubmitEndAuctionRes({ ok: true });
-            fetchAuction(false); // refresh auction
         } catch (err) {
             setSubmitEndAuctionRes({ ok: false, err: "Failed to accept bid" }); // TODO: parse error
             console.warn("[submitEndAuction]", err);
         } finally {
             setIsWorking(false);
+            fetchAuction(false);
         }
     };
 
@@ -556,12 +555,12 @@ const SectionAdmin: React.FC<{
             }
 
             setSetPayAddrRes({ ok: true });
-            fetchAuction(false); // refresh auction
         } catch (err) {
             setSetPayAddrRes({ ok: false, err: "Failed to set pay address" }); // TODO: parse error
             console.warn("[submitSetPayAddr]", err);
         } finally {
             setIsWorking(false);
+            fetchAuction(false);
         }
     };
 
