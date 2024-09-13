@@ -493,11 +493,12 @@ const SectionAdmin: React.FC<{
 
     // === functions ===
 
-    const [ submitEndAuctionRes, setSubmitEndAuctionRes ] = useState<SubmitRes>({ ok: null });
-    const submitEndAuction = async () => {
+    const [ acceptBidRes, setAcceptBidRes ] = useState<SubmitRes>({ ok: null });
+
+    const acceptBid = async () => {
         try {
             setIsWorking(true);
-            setSubmitEndAuctionRes({ ok: null });
+            setAcceptBidRes({ ok: null });
 
             const tx = new Transaction();
             AuctionModule.admin_ends_auction_early(
@@ -512,9 +513,9 @@ const SectionAdmin: React.FC<{
                 throw new Error(resp.effects?.status.error);
             }
 
-            setSubmitEndAuctionRes({ ok: true });
+            setAcceptBidRes({ ok: true });
         } catch (err) {
-            setSubmitEndAuctionRes({ ok: false, err: "Failed to accept bid" }); // TODO: parse error
+            setAcceptBidRes({ ok: false, err: "Failed to accept bid" }); // TODO: parse error
             console.warn("[submitEndAuction]", err);
         } finally {
             setIsWorking(false);
@@ -525,20 +526,21 @@ const SectionAdmin: React.FC<{
     // === admin_cancels_auction ===
 
     // const [ cancelAuctionRes, setCancelAuctionRes ] = useState<SubmitRes>({ ok: null });
-    const submitCancelAuction = async () => { console.log("TODO"); };
+    const cancelAuction = async () => { console.log("TODO"); };
 
-    const submitReclaimItems = async () => { console.log("TODO"); };
+    const reclaimItems = async () => { console.log("TODO"); };
 
     // === admin_sets_pay_addr ===
 
     const [ setPayAddrRes, setSetPayAddrRes ] = useState<SubmitRes>({ ok: null });
+
     const input_pay_addr = useInputAddress({
         label: "New payment address",
         html: { value: auction.pay_addr, required: true },
     });
     const disableSubmitSetPayAddr = input_pay_addr.err !== undefined || input_pay_addr.val === auction.pay_addr;
 
-    const submitSetPayAddr = async () =>
+    const setPayAddr = async () =>
     {
         try {
             setIsWorking(true);
@@ -573,13 +575,13 @@ const SectionAdmin: React.FC<{
             <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={submitEndAuction}>ACCEPT BID</Btn>
+                    <Btn onClick={acceptBid}>ACCEPT BID</Btn>
 
-                    {submitEndAuctionRes.ok === true &&
+                    {acceptBidRes.ok === true &&
                     <div className="success">Bid accepted!</div>}
 
-                    {submitEndAuctionRes.ok === false && submitEndAuctionRes.err &&
-                    <div className="error">{submitEndAuctionRes.err}</div>}
+                    {acceptBidRes.ok === false && acceptBidRes.err &&
+                    <div className="error">{acceptBidRes.err}</div>}
                 </div>
             </div>
         </div>}
@@ -590,7 +592,7 @@ const SectionAdmin: React.FC<{
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
             <div>TODO: admin_cancels_auction + admin_reclaims_item</div>
             <div>
-                <Btn onClick={submitCancelAuction}>CANCEL AUCTION</Btn>
+                <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
             </div>
         </div>}
 
@@ -600,7 +602,7 @@ const SectionAdmin: React.FC<{
             <div>You can reclaim the items because there were no bids.</div>
             <div>TODO: admin_reclaims_items</div>
             <div>
-                <Btn onClick={submitReclaimItems}>RECLAIM ITEMS</Btn>
+                <Btn onClick={reclaimItems}>RECLAIM ITEMS</Btn>
             </div>
         </div>}
 
@@ -612,7 +614,7 @@ const SectionAdmin: React.FC<{
                 {input_pay_addr.input}
 
                 <div className="btn-submit">
-                    <Btn onClick={submitSetPayAddr} disabled={disableSubmitSetPayAddr}>SET ADDRESS</Btn>
+                    <Btn onClick={setPayAddr} disabled={disableSubmitSetPayAddr}>SET ADDRESS</Btn>
 
                     {setPayAddrRes.ok === true &&
                     <div className="success">Address set!</div>}
