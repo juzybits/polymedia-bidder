@@ -3,7 +3,7 @@ import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { AUCTION_IDS, AuctionClient, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
+import { balanceToString, shortenAddress, TransferModule } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -472,7 +472,7 @@ const SectionAdmin: React.FC<{
 
     const { auctionClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
-    // === functions ===
+    // === "accept bid": admin_ends_auction_early + anyone_pays_funds + anyone_sends_item_to_winner ===
 
     const [ acceptBidRes, setAcceptBidRes ] = useState<SubmitRes>({ ok: null });
 
@@ -509,10 +509,48 @@ const SectionAdmin: React.FC<{
         }
     };
 
-    // === admin_cancels_auction ===
+    // === "cancel auction": admin_cancels_auction + admin_reclaims_item + public_transfer ===
 
-    // const [ cancelAuctionRes, setCancelAuctionRes ] = useState<SubmitRes>({ ok: null });
-    const cancelAuction = async () => { console.log("TODO"); };
+    const [ cancelAuctionRes, setCancelAuctionRes ] = useState<SubmitRes>({ ok: null });
+
+    const cancelAuction = async () => {
+        try {
+            setIsWorking(true);
+            setCancelAuctionRes({ ok: null });
+
+            const tx = new Transaction();
+            AuctionModule.admin_cancels_auction(
+                tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id
+            );
+
+            for (const item of items) {
+                const [itemArg] = AuctionModule.admin_reclaims_item(
+                    tx, AUCTION_IDS[network].packageId, auction.type_coin, item.type, auction.id, item.id
+                );
+                TransferModule.public_transfer(
+                    tx, item.type, itemArg, auction.admin_addr
+                );
+            }
+
+            const resp = await auctionClient.signAndExecuteTransaction(tx);
+            if (resp.effects?.status.status !== "success") {
+                throw new Error(resp.effects?.status.error);
+            }
+
+            setCancelAuctionRes({ ok: true });
+        } catch (err) {
+            const errMsg = auctionClient.errCodeToStr(err, "Failed to cancel auction", {
+                "E_WRONG_TIME": "The auction has already ended",
+            });
+            setCancelAuctionRes({ ok: false, err: errMsg });
+            console.warn("[cancelAuction]", err);
+        } finally {
+            setIsWorking(false);
+            fetchAuction(false);
+        }
+    };
+
+    // === "reclaim items": admin_reclaims_item + public_transfer ===
 
     const reclaimItems = async () => { console.log("TODO"); };
 
@@ -577,9 +615,16 @@ const SectionAdmin: React.FC<{
         <div className="card">
             <div className="card-title">Cancel auction</div>
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
-            <div>TODO: admin_cancels_auction + admin_reclaims_item</div>
-            <div>
-                <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
+            <div className="form">
+                <div className="btn-submit">
+                    <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
+
+                    {cancelAuctionRes.ok === true &&
+                    <div className="success">Auction cancelled!</div>}
+
+                    {cancelAuctionRes.ok === false && cancelAuctionRes.err &&
+                    <div className="error">{cancelAuctionRes.err}</div>}
+                </div>
             </div>
         </div>}
 
@@ -587,7 +632,6 @@ const SectionAdmin: React.FC<{
         <div className="card">
             <div className="card-title">Reclaim items</div>
             <div>You can reclaim the items because there were no bids.</div>
-            <div>TODO: admin_reclaims_items</div>
             <div>
                 <Btn onClick={reclaimItems}>RECLAIM ITEMS</Btn>
             </div>

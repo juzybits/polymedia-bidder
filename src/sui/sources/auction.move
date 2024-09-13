@@ -249,7 +249,7 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
 }
 
 /// Admin can end the auction ahead of time
-public fun admin_ends_auction_early<CoinType>(
+public fun admin_ends_auction_early<CoinType>( // TODO: rename to admin_accepts_bid
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
@@ -283,7 +283,7 @@ public fun admin_cancels_auction<CoinType>(
 
 /// Admin can reclaim the items if the auction ended without a leader,
 /// either because it was cancelled or because nobody bid.
-public fun admin_reclaims_item<CoinType, ItemType: key+store>(
+public fun admin_reclaims_item<CoinType, ItemType: key+store>( // TODO: maybe just transfer the items to the admin?
     auction: &mut Auction<CoinType>,
     item_addr: address,
     clock: &Clock,

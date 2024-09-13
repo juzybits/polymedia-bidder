@@ -139,13 +139,14 @@ export const AuctionModule =
         tx: Transaction,
         packageId: string,
         type_coin: string,
+        type_item: string,
         auction: ObjectInput,
         item_addr: string,
     ): TransactionResult =>
     {
         return tx.moveCall({
             target: `${packageId}::auction::admin_reclaims_item`,
-            typeArguments: [ type_coin ],
+            typeArguments: [ type_coin, type_item ],
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
