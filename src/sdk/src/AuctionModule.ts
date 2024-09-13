@@ -1,5 +1,4 @@
 import { Transaction, TransactionResult } from "@mysten/sui/transactions";
-import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
 import { ObjectInput, objectArg } from "@polymedia/suitcase-core";
 
 /**
@@ -39,7 +38,7 @@ export const AuctionModule =
                 tx.pure.u64(minimum_bid),
                 tx.pure.u64(minimum_increase_bps),
                 tx.pure.u64(extension_period_ms),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },
@@ -60,7 +59,7 @@ export const AuctionModule =
                 objectArg(tx, auction),
                 objectArg(tx, request),
                 objectArg(tx, pay_coin),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },
@@ -77,7 +76,7 @@ export const AuctionModule =
             typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },
@@ -97,7 +96,7 @@ export const AuctionModule =
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },
@@ -114,7 +113,7 @@ export const AuctionModule =
             typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },
@@ -131,7 +130,7 @@ export const AuctionModule =
             typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },
@@ -150,7 +149,7 @@ export const AuctionModule =
             arguments: [
                 objectArg(tx, auction),
                 tx.pure.address(item_addr),
-                tx.object(SUI_CLOCK_OBJECT_ID),
+                tx.object.clock(),
             ],
         });
     },

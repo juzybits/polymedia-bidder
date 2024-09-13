@@ -718,14 +718,13 @@ export class AuctionClient extends SuiClientBase
     }
 
     public async payFundsAndSendItemsToWinner(
+        tx: Transaction,
         auctionId: string,
         type_coin: string,
         itemsAndTypes: { addr: string; type: string }[],
-        dryRun?: boolean,
+        dryRun = false,
     ): Promise<SuiTransactionBlockResponse>
     {
-        const tx = new Transaction();
-
         AuctionModule.anyone_pays_funds(tx, this.packageId, type_coin, auctionId);
 
         for (const item of itemsAndTypes) {

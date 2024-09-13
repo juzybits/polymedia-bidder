@@ -3,7 +3,7 @@ import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { AUCTION_IDS, AuctionClient, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString } from "@polymedia/suitcase-core";
+import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -151,7 +151,7 @@ export const PageAuction: React.FC = () =>
                     {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                     {activeTab === "details" && <SectionDetails auction={auction} />}
                     {activeTab === "history" && <SectionHistory auction={auction} />}
-                    {activeTab === "admin" && <SectionAdmin auction={auction} fetchAuction={fetchAuction} />}
+                    {activeTab === "admin" && <SectionAdmin auction={auction} items={items} fetchAuction={fetchAuction} />}
                 </div>
 
             </div>
@@ -199,8 +199,9 @@ const CardFinalize: React.FC<{
             const itemsAndTypes = items.map(item => ({ addr: item.id, type: item.type }));
             for (const dryRun of [true, false])
             {
+                const tx = new Transaction();
                 const resp = await auctionClient.payFundsAndSendItemsToWinner(
-                    auction.id, auction.type_coin, itemsAndTypes, dryRun,
+                    tx, auction.id, auction.type_coin, itemsAndTypes, dryRun,
                 );
                 if (resp.effects?.status.status !== "success") {
                     throw new Error(resp.effects?.status.error);
@@ -479,9 +480,11 @@ const SectionHistory: React.FC<{
 
 const SectionAdmin: React.FC<{
     auction: AuctionObj;
+    items: SuiItem[];
     fetchAuction: (fetchItems: boolean) => Promise<void>;
 }> = ({
     auction,
+    items,
     fetchAuction,
 }) =>
 {
@@ -491,8 +494,38 @@ const SectionAdmin: React.FC<{
 
     // === functions ===
 
-    const submitEndAuction = async () => { console.log("TODO"); };
+    const [ submitEndAuctionRes, setSubmitEndAuctionRes ] = useState<SubmitRes>({ ok: null });
+    const submitEndAuction = async () => {
+        try {
+            setIsWorking(true);
+            setSubmitEndAuctionRes({ ok: null });
 
+            const tx = new Transaction();
+            AuctionModule.admin_ends_auction_early(
+                tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id
+            );
+
+            const resp = await auctionClient.payFundsAndSendItemsToWinner(
+                tx, auction.id, auction.type_coin, items.map(item => ({ addr: item.id, type: item.type }))
+            );
+
+            if (resp.effects?.status.status !== "success") {
+                throw new Error(resp.effects?.status.error);
+            }
+
+            setSubmitEndAuctionRes({ ok: true });
+            fetchAuction(false); // refresh auction
+        } catch (err) {
+            setSubmitEndAuctionRes({ ok: false, err: "Failed to accept bid" }); // TODO: parse error
+            console.warn("[submitEndAuction]", err);
+        } finally {
+            setIsWorking(false);
+        }
+    };
+
+    // === admin_cancels_auction ===
+
+    // const [ cancelAuctionRes, setCancelAuctionRes ] = useState<SubmitRes>({ ok: null });
     const submitCancelAuction = async () => { console.log("TODO"); };
 
     const submitReclaimItems = async () => { console.log("TODO"); };
@@ -525,7 +558,7 @@ const SectionAdmin: React.FC<{
             setSetPayAddrRes({ ok: true });
             fetchAuction(false); // refresh auction
         } catch (err) {
-            setSetPayAddrRes({ ok: false, err: "Failed to set pay address" });
+            setSetPayAddrRes({ ok: false, err: "Failed to set pay address" }); // TODO: parse error
             console.warn("[submitSetPayAddr]", err);
         } finally {
             setIsWorking(false);
@@ -537,11 +570,18 @@ const SectionAdmin: React.FC<{
     return <>
     {auction.can_admin_end_auction_early &&
         <div className="card">
-            <div className="card-title">End auction</div>
-            <div>You can end the auction early and send the items to the current leader.</div>
-            <div>TODO: admin_ends_auction_early + anyone_sends_item_to_winner + anyone_pays_funds</div>
-            <div>
-                <Btn onClick={submitEndAuction}>END AUCTION</Btn>
+            <div className="card-title">Accept bid</div>
+            <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
+            <div className="form">
+                <div className="btn-submit">
+                    <Btn onClick={submitEndAuction}>ACCEPT BID</Btn>
+
+                    {submitEndAuctionRes.ok === true &&
+                    <div className="success">Bid accepted!</div>}
+
+                    {submitEndAuctionRes.ok === false && submitEndAuctionRes.err &&
+                    <div className="error">{submitEndAuctionRes.err}</div>}
+                </div>
             </div>
         </div>}
 
