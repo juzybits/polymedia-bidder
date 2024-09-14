@@ -46,9 +46,15 @@ export const AppRouter: React.FC = () => {
 
 /* Sui providers + network config */
 
-export const supportedNetworks = isLocalhost()
-    ? ["mainnet", "testnet", "devnet", "localnet"] as const
-    : ["mainnet", "testnet"] as const;
+const isDevDomain = ["dev.bidder.polymedia.app", "dev.polymedia-bidder.pages.dev"].includes(window.location.hostname);
+const isTestDomain = ["test.bidder.polymedia.app", "test.polymedia-bidder.pages.dev"].includes(window.location.hostname);
+
+export const [ defaultNetwork, supportedNetworks ] =
+    isLocalhost()  ? ["localnet" as const, ["mainnet", "testnet", "devnet", "localnet"] as const]
+    : isDevDomain  ? ["devnet" as const,   ["mainnet", "testnet", "devnet"] as const]
+    : isTestDomain ? ["testnet" as const,  ["mainnet", "testnet"] as const]
+    : ["mainnet" as const, ["mainnet", "testnet"] as const];
+
 export type NetworkName = typeof supportedNetworks[number];
 
 export const { networkConfig} = createNetworkConfig({
@@ -60,7 +66,7 @@ export const { networkConfig} = createNetworkConfig({
 
 const queryClient = new QueryClient();
 const AppSuiProviders: React.FC = () => {
-    const [network, setNetwork] = useState(loadNetwork(supportedNetworks, "mainnet"));
+    const [network, setNetwork] = useState(loadNetwork(supportedNetworks, defaultNetwork));
     return (
     <QueryClientProvider client={queryClient}>
         <SuiClientProvider networks={networkConfig} network={network}>

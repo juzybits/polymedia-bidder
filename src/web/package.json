@@ -15,6 +15,7 @@
         "build": "vite build",
         "clean": "rm -rf dist/ node_modules/ .turbo/ .wrangler/",
         "deploy-dev": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-bidder --branch dev",
+        "deploy-test": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-bidder --branch test",
         "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-bidder --branch main",
         "dev": "vite",
         "lint": "eslint src/ --report-unused-disable-directives --max-warnings 0",
