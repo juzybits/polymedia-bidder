@@ -551,6 +551,7 @@ a.card, .card.link {
         justify-content: center;
         text-align: center;
         padding: @gap-25;
+        gap: @gap-15;
         border-radius: @border-radius;
         background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
         .glitch, .glitch * {
@@ -560,6 +561,9 @@ a.card, .card.link {
         }
         @media (max-width: @screen-medium) {
             padding: @gap-20;
+        }
+        #hero-description {
+            padding: @gap-10 0;
         }
     }
 }

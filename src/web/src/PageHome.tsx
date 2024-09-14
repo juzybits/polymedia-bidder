@@ -26,6 +26,9 @@ export const PageHome: React.FC = () =>
                         BIDDER is a decentralized platform for creating and bidding on auctions.
                     </p>
                 </div>
+                <div>
+                    <Link to="/new" className="btn">CREATE AUCTION</Link>
+                </div>
             </div>
 
             <SectionRecentAuctions />

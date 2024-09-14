@@ -725,8 +725,10 @@ const CardAuctionDetails: React.FC<{
         <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
         <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
         <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
-        <div>Is live: {auction.is_live ? "yes" : "no"}</div>
+        <div>Has started: {auction.has_started ? "yes" : "no"}</div>
         <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
+        <div>Is live: {auction.is_live ? "yes" : "no"}</div>
+        <div>Is cancelled: {auction.is_cancelled ? "yes" : "no"}</div>
         <div>Has leader: {auction.has_leader ? "yes" : "no"}</div>
         <div>Has balance: {auction.has_balance ? "yes" : "no"}</div>
     </>;
