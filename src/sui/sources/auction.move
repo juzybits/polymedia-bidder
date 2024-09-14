@@ -25,13 +25,13 @@ const E_WRONG_MINIMUM_BID: u64 = 5007;
 const E_WRONG_MINIMUM_INCREASE: u64 = 5008;
 const E_WRONG_EXTENSION_PERIOD: u64 = 5009;
 const E_CANT_RECLAIM_WITH_BIDS: u64 = 5010;
-const E_ITEM_LENGTH_MISMATCH: u64 = 5011;
-const E_NOT_ENOUGH_ITEMS: u64 = 5012;
-const E_TOO_MANY_ITEMS: u64 = 5013;
-const E_MISSING_ITEM: u64 = 5014;
-const E_DUPLICATE_ITEM_ADDRESSES: u64 = 5015;
-const E_POINTLESS_PAY_ADDR_CHANGE: u64 = 5016;
-const E_CANT_END_WITHOUT_BIDS: u64 = 5017;
+const E_POINTLESS_PAY_ADDR_CHANGE: u64 = 5011;
+const E_DUPLICATE_ITEM_ADDRESSES: u64 = 5012;
+const E_ITEM_LENGTH_MISMATCH: u64 = 5013;
+const E_NOT_ENOUGH_ITEMS: u64 = 5014;
+const E_TOO_MANY_ITEMS: u64 = 5015;
+const E_MISSING_ITEM: u64 = 5016;
+const E_NO_BIDS: u64 = 5017;
 
 // === constants ===
 
@@ -256,7 +256,7 @@ public fun admin_accepts_bid<CoinType>(
 ) {
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     assert!( auction.is_live(clock), E_WRONG_TIME );
-    assert!( auction.has_leader(), E_CANT_END_WITHOUT_BIDS );
+    assert!( auction.has_leader(), E_NO_BIDS );
 
     auction.end_time_ms = clock.timestamp_ms();
 }
