@@ -1,20 +1,20 @@
 {
     "private": true,
     "version": "0.0.0",
-    "name": "@polymedia/auction-sdk",
+    "name": "@polymedia/bidder-sdk",
     "author": "@juzybits (https://polymedia.app)",
     "homepage": "https://bidder.polymedia.app",
     "description": "Sui's auction house",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/juzybits/polymedia-auction"
+        "url": "https://github.com/juzybits/polymedia-bidder"
     },
     "keywords": [
         "polymedia",
         "sui",
-        "auction",
-        "sdk"
+        "bidder",
+        "auction"
     ],
     "scripts": {
         "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",

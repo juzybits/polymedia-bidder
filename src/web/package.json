@@ -1,21 +1,21 @@
 {
     "private": true,
     "version": "0.0.0",
-    "name": "@polymedia/auction-web",
+    "name": "@polymedia/bidder-web",
     "author": "@juzybits (https://polymedia.app)",
     "homepage": "https://bidder.polymedia.app",
     "description": "Sui's auction house",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/juzybits/polymedia-auction"
+        "url": "https://github.com/juzybits/polymedia-bidder"
     },
     "keywords": [],
     "scripts": {
         "build": "vite build",
         "clean": "rm -rf dist/ node_modules/ .turbo/ .wrangler/",
-        "deploy-dev": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-auction --branch dev",
-        "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-auction --branch main",
+        "deploy-dev": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-bidder --branch dev",
+        "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name polymedia-bidder --branch main",
         "dev": "vite",
         "lint": "eslint src/ --report-unused-disable-directives --max-warnings 0",
         "preview": "pnpm build && vite preview",
@@ -25,7 +25,7 @@
     "dependencies": {
         "@mysten/dapp-kit": "^0.14.20",
         "@mysten/sui": "^1.9.0",
-        "@polymedia/auction-sdk": "workspace:*",
+        "@polymedia/bidder-sdk": "workspace:*",
         "@polymedia/coinmeta-react": "^0.0.9",
         "@polymedia/suitcase-core": "^0.0.27",
         "@polymedia/suitcase-react": "^0.0.27",

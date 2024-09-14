@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { UserAuction, UserBid } from "@polymedia/auction-sdk";
+import { UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { shortenAddress } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";

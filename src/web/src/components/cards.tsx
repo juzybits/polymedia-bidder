@@ -1,4 +1,4 @@
-import { newItemPlaceholder, SuiItem, svgNoImage } from "@polymedia/auction-sdk";
+import { newItemPlaceholder, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";

@@ -1,14 +1,14 @@
 {
     "private": true,
     "version": "0.0.0",
-    "name": "@polymedia/auction-monorepo",
+    "name": "@polymedia/bidder-monorepo",
     "author": "@juzybits (https://polymedia.app)",
     "homepage": "https://bidder.polymedia.app",
     "description": "Sui's auction house",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/juzybits/polymedia-auction"
+        "url": "https://github.com/juzybits/polymedia-bidder"
     },
     "keywords": [],
     "scripts": {

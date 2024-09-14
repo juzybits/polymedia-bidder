@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymedia/auction-sdk";
+import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymedia/bidder-sdk";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";

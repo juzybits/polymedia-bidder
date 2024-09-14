@@ -1,4 +1,4 @@
-import { BidderClient, SuiItem, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
+import { BidderClient, SuiItem, TxAdminCreatesAuction } from "@polymedia/bidder-sdk";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";

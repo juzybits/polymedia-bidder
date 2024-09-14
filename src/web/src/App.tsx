@@ -7,7 +7,7 @@ import {
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
 import { getFullnodeUrl } from "@mysten/sui/client";
-import * as sdk from "@polymedia/auction-sdk";
+import * as sdk from "@polymedia/bidder-sdk";
 import { ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
