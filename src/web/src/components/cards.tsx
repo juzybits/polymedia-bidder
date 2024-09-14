@@ -1,4 +1,4 @@
-import { newItemPlaceholder, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { AuctionObj, newItemPlaceholder, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 import { IconCheck } from "./icons";
+import { timeAgo } from "../lib/time";
 
 // === cards ===
 
@@ -78,6 +79,33 @@ export const CardAuctionItems: React.FC<{
 };
 
 // === smaller components ===
+
+export const HeaderLabel: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+/*
+{(() => {
+    if (auction.is_cancelled) { return "CANCELLED"; }
+    if (!auction.has_started) { return `STARTS IN ${timeAgo(auction.begin_time_ms)}`; }
+    if (auction.has_ended) { return "ENDED"; }
+    if (auction.is_live) { return "LIVE"; }
+    return "???"; // should never happen
+})()}
+*/
+    let text = "";
+    let labelClass = "";
+    if (auction.is_cancelled) { text = "CANCELLED"; labelClass = "cancelled"; }
+    else if (!auction.has_started) { text = `STARTS IN ${timeAgo(auction.begin_time_ms)}`; labelClass = "soon"; }
+    else if (auction.has_ended) { text = "AUCTION ENDED"; labelClass = "ended"; }
+    else if (auction.is_live) { text = "LIVE AUCTION"; labelClass = "live"; }
+    else { text = "???"; }
+
+    return <div className={`header-label ${labelClass}`}>
+        {text}
+    </div>;
+};
 
 export const Balance: React.FC<{
     balance: bigint;

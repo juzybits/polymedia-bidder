@@ -145,7 +145,7 @@ const CardTxAdminCreatesAuction: React.FC<{
             </div>
 
             {tx.inputs.description.length > 0 &&
-            <div>{tx.inputs.description}</div>}
+            <div className="card-description">{tx.inputs.description}</div>}
 
             <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} />
         </Link>

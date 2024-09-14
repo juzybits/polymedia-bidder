@@ -335,16 +335,22 @@ footer {
     .card-title {
         font-size: 1.3em;
         font-weight: bold;
-        .break-word;
     }
 }
+
+@color-bg-red: #cb3333;
+@color-bg-purple: #623cb9;
+@color-bg-green: #2e982e;
 .section-header, .card-header {
     width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: start;
     gap: @gap-10;
+    @media (max-width: @screen-small) {
+        flex-direction: column-reverse;
+    }
     .header-label {
         flex-shrink: 0;
         padding: 0.5em 0.75em;
@@ -353,8 +359,30 @@ footer {
         background-color: @color-border-gray;
         border: @border-gray;
         border-radius: @border-radius;
+        font-weight: bold;
+        text-transform: uppercase;
+        &.cancelled {
+            background-color: @color-bg-red;
+            border-color: @color-bg-red;
+            color: white;
+        }
+        &.soon {
+            background-color: @color-bg-purple;
+            border-color: @color-bg-purple;
+            color: white;
+        }
+        &.live {
+            background-color: @color-bg-green;
+            border-color: @color-bg-green;
+            color: white;
+        }
     }
 }
+
+.section-title, .section-description, .card-title, .card-description {
+    .break-word;
+}
+
 a.card, .card.link {
     &:hover {
         cursor: pointer;
@@ -564,6 +592,13 @@ a.card, .card.link {
         }
         #hero-description {
             padding: @gap-10 0;
+        }
+    }
+    .list-cards {
+        .card-header {
+            @media (max-width: @screen-small) {
+                flex-direction: row;
+            }
         }
     }
 }

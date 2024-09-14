@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, ObjectLinkList } from "./components/cards";
+import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, ObjectLinkList, HeaderLabel } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
@@ -131,15 +131,7 @@ export const PageAuction: React.FC = () =>
 
                 <div className="section-header">
                     <div className="section-title">{auction.name}</div>
-                    <div className="header-label">
-                        {(() => {
-                            if (auction.is_cancelled) { return "CANCELLED"; }
-                            if (!auction.has_started) { return `STARTS IN ${timeAgo(auction.begin_time_ms)}`; }
-                            if (auction.has_ended) { return "ENDED"; }
-                            if (auction.is_live) { return "LIVE"; }
-                            return "???"; // should never happen
-                        })()}
-                    </div>
+                    <HeaderLabel auction={auction} />
                 </div>
 
                 {auction.description.length > 0 &&
