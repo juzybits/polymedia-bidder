@@ -26,7 +26,7 @@ import {
     ZERO_ADDRESS
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
-import { AUCTION_CONFIG, AUCTION_ERRORS } from "./config.js";
+import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
 import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
@@ -34,7 +34,7 @@ import { UserModule } from "./UserModule.js";
 /**
  * Execute transactions on the bidder::auction Sui module.
  */
-export class AuctionClient extends SuiClientBase
+export class BidderClient extends SuiClientBase
 {
     public readonly packageId: string;
     public readonly registryId: string;
@@ -450,7 +450,7 @@ export class AuctionClient extends SuiClientBase
         catch (_err) { return null; }
         const inputs = txData.inputs;
 
-        const tx = txData.txs[1]; // see AuctionClient.createAndShareAuction()
+        const tx = txData.txs[1]; // see BidderClient.createAndShareAuction()
         if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
         const type_coin = tx.MoveCall.type_arguments[0];
 
@@ -552,7 +552,7 @@ export class AuctionClient extends SuiClientBase
         catch (_err) { return null; }
         const inputs = txData.inputs;
 
-        const tx = txData.txs[2]; // see AuctionClient.bid()
+        const tx = txData.txs[2]; // see BidderClient.bid()
         if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
         const type_coin = tx.MoveCall.type_arguments[0];
 

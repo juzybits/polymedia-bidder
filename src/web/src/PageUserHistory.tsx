@@ -51,7 +51,7 @@ const SectionUserAuctions: React.FC<{
 {
     // === state ===
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
     const [ userAuctions, setUserAuctions ] = useState<UserAuction[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
@@ -72,7 +72,7 @@ const SectionUserAuctions: React.FC<{
             return;
         }
         try {
-            const newUserAuctions = await auctionClient.fetchUserAuctions(userId);
+            const newUserAuctions = await bidderClient.fetchUserAuctions(userId);
             setUserAuctions(newUserAuctions);
         } catch (err) {
             setErrFetch("Failed to fetch user auctions");
@@ -125,7 +125,7 @@ const SectionUserBids: React.FC<{
 {
     // === state ===
 
-    const { network, auctionClient } = useOutletContext<AppContext>();
+    const { network, bidderClient } = useOutletContext<AppContext>();
 
     const [ userBids, setUserBids ] = useState<UserBid[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
@@ -146,7 +146,7 @@ const SectionUserBids: React.FC<{
             return;
         }
         try {
-            const newUserBids = await auctionClient.fetchUserBids(userId);
+            const newUserBids = await bidderClient.fetchUserBids(userId);
             setUserBids(newUserBids);
         } catch (err) {
             setErrFetch("Failed to fetch user bids");

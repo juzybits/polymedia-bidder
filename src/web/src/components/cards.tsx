@@ -87,9 +87,9 @@ export const Balance: React.FC<{
     coinType,
 }) =>
 {
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
-    const { coinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, coinType);
+    const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, coinType);
 
     return coinMeta === undefined
         ? "Loading..."

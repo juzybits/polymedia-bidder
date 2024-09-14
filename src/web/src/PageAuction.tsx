@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AUCTION_IDS, AuctionClient, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
+import { AUCTION_IDS, BidderClient, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/auction-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { balanceToString, shortenAddress, TransferModule } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
@@ -34,7 +34,7 @@ export const PageAuction: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { auctionClient, header } = useOutletContext<AppContext>();
+    const { bidderClient, header } = useOutletContext<AppContext>();
 
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ items, setItems ] = useState<SuiItem[] | null | undefined>();
@@ -64,20 +64,20 @@ export const PageAuction: React.FC = () =>
 
     useEffect(() => {
         fetchAuction(true);
-    }, [auctionId, auctionClient]);
+    }, [auctionId, bidderClient]);
 
     // === functions ===
 
     const fetchAuction = async (fetchItems: boolean) =>
     {
         try {
-            const newAuction = await auctionClient.fetchAuction(auctionId, false);
+            const newAuction = await bidderClient.fetchAuction(auctionId, false);
             if (newAuction === null) {
                 throw new Error("Auction not found");
             }
             setAuction(newAuction);
             if (fetchItems) {
-                const newItems = await auctionClient.fetchItems(newAuction.item_addrs);
+                const newItems = await bidderClient.fetchItems(newAuction.item_addrs);
                 setItems(newItems);
             }
         } catch (err) {
@@ -172,7 +172,7 @@ const CardFinalize: React.FC<{
 
     // === state ===
 
-    const { auctionClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
@@ -187,7 +187,7 @@ const CardFinalize: React.FC<{
             for (const dryRun of [true, false])
             {
                 const tx = new Transaction();
-                const resp = await auctionClient.payFundsAndSendItemsToWinner(
+                const resp = await bidderClient.payFundsAndSendItemsToWinner(
                     tx, auction.id, auction.type_coin, itemsAndTypes, dryRun,
                 );
                 if (resp.effects?.status.status !== "success") {
@@ -198,7 +198,7 @@ const CardFinalize: React.FC<{
                 }
             }
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to finalize auction", {
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to finalize auction", {
                 "E_WRONG_TIME": "The auction has not ended yet",
                 "E_WRONG_ADDRESS": "The auction has no leader",
             });
@@ -254,9 +254,9 @@ const SectionBid: React.FC<{
 {
     const currAcct = useCurrentAccount();
 
-    const { auctionClient, network } = useOutletContext<AppContext>();
+    const { bidderClient, network } = useOutletContext<AppContext>();
 
-    const { coinMeta, errorCoinMeta } = useCoinMeta(auctionClient.suiClient, auction.type_coin);
+    const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
 
     const { userId, errorFetchUserId } = useFetchUserId();
 
@@ -310,7 +310,7 @@ const FormBid: React.FC<{
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const input_amount = useInputUnsignedBalance({
@@ -338,7 +338,7 @@ const FormBid: React.FC<{
             setSubmitRes({ ok: null });
             for (const dryRun of [true, false])
             {
-                const resp = await auctionClient.bid(
+                const resp = await bidderClient.bid(
                     currAcct.address,
                     userId,
                     auction.id,
@@ -355,7 +355,7 @@ const FormBid: React.FC<{
                 }
             }
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to submit bid", {
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to submit bid", {
                 "E_WRONG_TIME": "The auction is not live",
                 "E_WRONG_COIN_VALUE": "Someone placed a higher bid",
             });
@@ -409,9 +409,9 @@ const SectionHistory: React.FC<{
 
     // === state ===
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsByAuctionId"]>> | undefined>();
+    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof BidderClient>["fetchTxsByAuctionId"]>> | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
     // === effects ===
@@ -426,7 +426,7 @@ const SectionHistory: React.FC<{
         setTxs(undefined);
         setErrFetch(null);
         try {
-            const newTxs = await auctionClient.fetchTxsByAuctionId(auction.id, null);
+            const newTxs = await bidderClient.fetchTxsByAuctionId(auction.id, null);
             setTxs(newTxs);
         } catch (err) {
             setErrFetch("Failed to fetch recent bids");
@@ -470,7 +470,7 @@ const SectionAdmin: React.FC<{
 {
     // === state ===
 
-    const { auctionClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
     // === "accept bid": admin_accepts_bid + anyone_pays_funds + anyone_sends_item_to_winner ===
 
@@ -485,7 +485,7 @@ const SectionAdmin: React.FC<{
                 tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id
             );
 
-            const resp = await auctionClient.payFundsAndSendItemsToWinner(
+            const resp = await bidderClient.payFundsAndSendItemsToWinner(
                 tx, auction.id, auction.type_coin, items.map(item => ({ addr: item.id, type: item.type }))
             );
 
@@ -495,7 +495,7 @@ const SectionAdmin: React.FC<{
 
             setAcceptBidRes({ ok: true });
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to accept bid", {
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to accept bid", {
                 "E_WRONG_TIME": "The auction is not live",
                 "E_WRONG_ADMIN": "You are not the admin",
                 "E_CANT_END_WITHOUT_BIDS": "The auction has no bids",
@@ -527,14 +527,14 @@ const SectionAdmin: React.FC<{
                 );
             }
 
-            const resp = await auctionClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTransaction(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
 
             setCancelAuctionRes({ ok: true });
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to cancel auction", {
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to cancel auction", {
                 "E_WRONG_TIME": "The auction has already ended",
             });
             setCancelAuctionRes({ ok: false, err: errMsg });
@@ -560,14 +560,14 @@ const SectionAdmin: React.FC<{
                 );
             }
 
-            const resp = await auctionClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTransaction(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
 
             setReclaimItemsRes({ ok: true });
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to reclaim items", {
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to reclaim items", {
                 "E_WRONG_TIME": "The auction has already ended",
                 "E_CANT_RECLAIM_WITH_BIDS": "Can't reclaim items because the auction has bids",
             });
@@ -600,14 +600,14 @@ const SectionAdmin: React.FC<{
                 tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id, input_pay_addr.val!
             );
 
-            const resp = await auctionClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTransaction(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
 
             setSetPayAddrRes({ ok: true });
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to set pay address");
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to set pay address");
             setSetPayAddrRes({ ok: false, err: errMsg });
             console.warn("[setPayAddr]", err);
         } finally {

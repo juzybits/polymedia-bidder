@@ -80,7 +80,7 @@ export type AppContext = {
     showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
     header: React.ReactNode;
-    auctionClient: sdk.AuctionClient;
+    bidderClient: sdk.BidderClient;
     // setModalContent: ReactSetter<ReactNode>;
 };
 
@@ -99,8 +99,8 @@ const App: React.FC<{
     const packageId = sdk.AUCTION_IDS[network].packageId;
     const registryId = sdk.AUCTION_IDS[network].registryId;
 
-    const auctionClient = useMemo(() => {
-        return new sdk.AuctionClient(
+    const bidderClient = useMemo(() => {
+        return new sdk.BidderClient(
             suiClient,
             (tx) => walletSignTx({ transaction: tx }),
             packageId,
@@ -123,7 +123,7 @@ const App: React.FC<{
         showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,
         header: <Header />,
-        auctionClient,
+        bidderClient,
         // setModalContent,
     };
 

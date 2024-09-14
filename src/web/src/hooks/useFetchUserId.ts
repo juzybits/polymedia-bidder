@@ -9,7 +9,7 @@ export const useFetchUserId = () =>
 
     const currAcct = useCurrentAccount();
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
     const [ userId, setUserId ] = useState<string | null | undefined>();
     const [ errorFetchUserId, setError ] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export const useFetchUserId = () =>
 
     useEffect(() => {
         fetchUserId();
-    }, [auctionClient, currAcct]);
+    }, [bidderClient, currAcct]);
 
     // === functions ===
 
@@ -34,7 +34,7 @@ export const useFetchUserId = () =>
         setUserId(undefined); // loading
 
         try {
-            const newUserId = await auctionClient.fetchUserId(currAcct.address);
+            const newUserId = await bidderClient.fetchUserId(currAcct.address);
             setUserId(newUserId);
         } catch (err) {
             setUserId(null);

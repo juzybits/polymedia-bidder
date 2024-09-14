@@ -1,4 +1,4 @@
-import { AuctionClient, SuiItem, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
+import { BidderClient, SuiItem, TxAdminCreatesAuction } from "@polymedia/auction-sdk";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
@@ -47,9 +47,9 @@ const SectionRecentAuctions: React.FC = () =>
 {
     // === state ===
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
-    // const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof AuctionClient>["fetchTxsAdminCreatesAuction"]>>>();
+    // const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof BidderClient>["fetchTxsAdminCreatesAuction"]>>>();
     const [ txsWithItems, setTxsWithItems ] = useState<TxWithItems[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
@@ -67,7 +67,7 @@ const SectionRecentAuctions: React.FC = () =>
         setErrFetch(null);
         try {
             // fetch recent txs
-            const newTxs = await auctionClient.fetchTxsAdminCreatesAuction(null);
+            const newTxs = await bidderClient.fetchTxsAdminCreatesAuction(null);
 
             // collect all unique item addresses
             const allItemAddrs = new Set(
@@ -75,7 +75,7 @@ const SectionRecentAuctions: React.FC = () =>
             );
 
             // fetch all items with a single RPC call
-            const allItems = await auctionClient.fetchItems([...allItemAddrs], true);
+            const allItems = await bidderClient.fetchItems([...allItemAddrs], true);
             const itemMap = new Map(allItems.map(item => [item.id, item]));
 
             // assign items to each transaction
@@ -150,6 +150,6 @@ const CardTxAdminCreatesAuction: React.FC<{
 };
 
 // const fetchConfig = async () => {
-//     const config = await auctionClient.fetchConfig();
+//     const config = await bidderClient.fetchConfig();
 //     console.log(JSON.stringify(config, null, 2));
 // };

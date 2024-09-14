@@ -92,7 +92,7 @@ const FormCreateAuction: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
     const { userId, ..._user} = useFetchUserId();
 
@@ -168,7 +168,7 @@ const FormCreateAuction: React.FC<{
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
-            const { resp, auctionObjChange } = await auctionClient.createAndShareAuction(
+            const { resp, auctionObjChange } = await bidderClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,
@@ -187,7 +187,7 @@ const FormCreateAuction: React.FC<{
             setSubmitRes({ ok: true });
             navigate(`/auction/${auctionObjChange.objectId}`);
         } catch (err) {
-            const errMsg = auctionClient.errCodeToStr(err, "Failed to create auction");
+            const errMsg = bidderClient.errCodeToStr(err, "Failed to create auction");
             setSubmitRes({ ok: false, err: errMsg });
             console.warn("[onSubmit]", err);
         } finally {
@@ -271,7 +271,7 @@ const ItemGridSelector: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { auctionClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
     const [ ownedItems, setOwnedItems ] = useState<PaginatedItemsResponse>();
 
@@ -279,14 +279,14 @@ const ItemGridSelector: React.FC<{
 
     useEffect(() => {
         fetchOwnedItems();
-    }, [auctionClient, currAcct]);
+    }, [bidderClient, currAcct]);
 
     // === functions ===
 
     const fetchOwnedItems = async (): Promise<void> =>
     {
         try {
-            const newItems = await auctionClient.fetchOwnedItems(
+            const newItems = await bidderClient.fetchOwnedItems(
                 currAcct.address,
                 // "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", // death
                 // "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
