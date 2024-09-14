@@ -472,7 +472,7 @@ const SectionAdmin: React.FC<{
 
     const { auctionClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
-    // === "accept bid": admin_ends_auction_early + anyone_pays_funds + anyone_sends_item_to_winner ===
+    // === "accept bid": admin_accepts_bid + anyone_pays_funds + anyone_sends_item_to_winner ===
 
     const [ acceptBidRes, setAcceptBidRes ] = useState<SubmitRes>({ ok: null });
     const acceptBid = async () => {
@@ -481,7 +481,7 @@ const SectionAdmin: React.FC<{
             setAcceptBidRes({ ok: null });
 
             const tx = new Transaction();
-            AuctionModule.admin_ends_auction_early(
+            AuctionModule.admin_accepts_bid(
                 tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id
             );
 
@@ -698,7 +698,7 @@ const SectionAdmin: React.FC<{
     </>;
 };
 
-const CardAuctionDetails: React.FC<{ // TODO
+const CardAuctionDetails: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,

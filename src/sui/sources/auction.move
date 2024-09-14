@@ -249,13 +249,13 @@ public fun anyone_sends_item_to_winner<CoinType, ItemType: key+store>(
 }
 
 /// Admin can end the auction ahead of time
-public fun admin_ends_auction_early<CoinType>( // TODO: rename to admin_accepts_bid
+public fun admin_accepts_bid<CoinType>(
     auction: &mut Auction<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!( auction.is_live(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( auction.is_live(clock), E_WRONG_TIME );
     assert!( auction.has_leader(), E_CANT_END_WITHOUT_BIDS );
 
     auction.end_time_ms = clock.timestamp_ms();
@@ -267,8 +267,8 @@ public fun admin_cancels_auction<CoinType>(
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
-    assert!( !auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( !auction.has_ended(clock), E_WRONG_TIME );
 
     auction.end_time_ms = clock.timestamp_ms();
 
@@ -290,8 +290,8 @@ public fun admin_reclaims_item<CoinType, ItemType: key+store>( // TODO: maybe ju
     ctx: &mut TxContext,
 ): ItemType
 {
-    assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
+    assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( !auction.has_leader(), E_CANT_RECLAIM_WITH_BIDS );
 
     let (_item_exists, item_idx) = auction.item_addrs.index_of(&item_addr);

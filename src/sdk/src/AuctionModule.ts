@@ -101,7 +101,7 @@ export const AuctionModule =
         });
     },
 
-    admin_ends_auction_early: (
+    admin_accepts_bid: (
         tx: Transaction,
         packageId: string,
         type_coin: string,
@@ -109,7 +109,7 @@ export const AuctionModule =
     ): TransactionResult =>
     {
         return tx.moveCall({
-            target: `${packageId}::auction::admin_ends_auction_early`,
+            target: `${packageId}::auction::admin_accepts_bid`,
             typeArguments: [ type_coin ],
             arguments: [
                 objectArg(tx, auction),
