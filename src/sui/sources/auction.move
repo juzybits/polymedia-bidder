@@ -328,6 +328,13 @@ fun withdraw_balance<CoinType>(
 
 // === public-view status helpers ===
 
+public fun has_started<CoinType>(
+    auction: &Auction<CoinType>,
+    clock: &Clock,
+): bool {
+    return clock.timestamp_ms() >= auction.begin_time_ms
+}
+
 public fun has_ended<CoinType>(
     auction: &Auction<CoinType>,
     clock: &Clock,
@@ -339,7 +346,14 @@ public fun is_live<CoinType>(
     auction: &Auction<CoinType>,
     clock: &Clock,
 ): bool {
-    return clock.timestamp_ms() >= auction.begin_time_ms && !auction.has_ended(clock)
+    return auction.has_started(clock) && !auction.has_ended(clock)
+}
+
+public fun is_cancelled<CoinType>(
+    auction: &Auction<CoinType>,
+    clock: &Clock,
+): bool {
+    return auction.has_ended(clock) && !auction.has_leader()
 }
 
 public fun has_leader<CoinType>(
