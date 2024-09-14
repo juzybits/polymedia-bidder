@@ -283,21 +283,22 @@ public fun admin_cancels_auction<CoinType>(
 
 /// Admin can reclaim the items if the auction ended without a leader,
 /// either because it was cancelled or because nobody bid.
-public fun admin_reclaims_item<CoinType, ItemType: key+store>( // TODO: maybe just transfer the items to the admin?
+public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     auction: &mut Auction<CoinType>,
     item_addr: address,
     clock: &Clock,
     ctx: &mut TxContext,
-): ItemType
+)
 {
     assert!( auction.admin_addr == ctx.sender(), E_WRONG_ADMIN );
     assert!( auction.has_ended(clock), E_WRONG_TIME );
     assert!( !auction.has_leader(), E_CANT_RECLAIM_WITH_BIDS );
 
-    let (_item_exists, item_idx) = auction.item_addrs.index_of(&item_addr);
-    auction.item_addrs.remove(item_idx);
-    let item = auction.item_bag.remove<address, ItemType>(item_addr);
-    return item
+    // send the item to the admin (but keep the item address in auction.item_addrs)
+    if (auction.item_bag.contains(item_addr)) {
+        let item = auction.item_bag.remove<address, ItemType>(item_addr);
+        transfer::public_transfer(item, auction.admin_addr);
+    };
 }
 
 public fun admin_sets_pay_addr<CoinType>(

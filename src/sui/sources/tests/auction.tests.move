@@ -319,13 +319,13 @@ public fun admin_reclaims_item(
     sender: address,
     auction: &mut Auction<SUI>,
     item_addr: address,
-): Item {
+ ) {
     runner.scen.next_tx(sender);
-    return auction.admin_reclaims_item(
+    auction.admin_reclaims_item<_, Item>(
         item_addr,
         &runner.clock,
         runner.scen.ctx(),
-    )
+    );
 }
 
 public fun admin_sets_pay_addr(
@@ -986,8 +986,8 @@ fun test_admin_accepts_bid_e_wrong_admin()
 }
 
 #[test]
-#[expected_failure(abort_code = auction::E_CANT_END_WITHOUT_BIDS)]
-fun test_admin_accepts_bid_e_cant_end_without_bids()
+#[expected_failure(abort_code = auction::E_NO_BIDS)]
+fun test_admin_accepts_bid_e_no_bids()
 {
     let (mut runner, mut auction) = begin_with_auction(auction_args());
 
@@ -1028,11 +1028,11 @@ fun test_admin_cancels_auction_ok_with_bids()
     assert_eq( auction.has_balance(), false );
 
     // ADMIN can recover the item
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.assert_owns_item(ADMIN);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -1048,11 +1048,11 @@ fun test_admin_cancels_auction_ok_without_bids()
     assert_eq( auction.has_ended(&runner.clock), true );
 
     // ADMIN can recover the item
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.assert_owns_item(ADMIN);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -1094,11 +1094,11 @@ fun test_admin_reclaims_item_ok_without_bids()
     runner.set_clock_to_auction_end_time(&mut auction);
 
     // ADMIN recovers the item
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.assert_owns_item(ADMIN);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -1118,11 +1118,11 @@ fun test_admin_reclaims_item_ok_with_bids_and_cancel()
     runner.assert_owns_sui(BIDDER_1, bid_value);
 
     // ADMIN recovers the item
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.assert_owns_item(ADMIN);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -1136,11 +1136,10 @@ fun test_admin_reclaims_item_e_wrong_admin()
     runner.set_clock_to_auction_end_time(&mut auction);
 
     // RANDO tries to steal the item
-    let item = runner.admin_reclaims_item(RANDO, &mut auction, item_addr);
+    runner.admin_reclaims_item(RANDO, &mut auction, item_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -1151,11 +1150,10 @@ fun test_admin_reclaims_item_e_wrong_time()
     let item_addr = auction.item_addrs()[0];
 
     // ADMIN tries to recover the item before the auction ends
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 #[test]
@@ -1173,11 +1171,10 @@ fun test_admin_reclaims_item_e_cant_reclaim_with_bids()
     runner.set_clock_to_auction_end_time(&mut auction);
 
     // ADMIN tries to recover the item
-    let item = runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
+    runner.admin_reclaims_item(ADMIN, &mut auction, item_addr);
 
     test_utils::destroy(runner);
     test_utils::destroy(auction);
-    test_utils::destroy(item);
 }
 
 // === tests: admin_sets_pay_addr ===
