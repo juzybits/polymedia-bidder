@@ -139,6 +139,10 @@ const FormCreateAuction: React.FC<{
             label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/TimeUnit.ONE_HOUR),
             html: { value: "0", required: true },
         }),
+        begin_delay_seconds: useInputUnsignedInt({ // dev only
+            label: "Begin delay (seconds)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/1000),
+            html: { value: "0", required: true },
+        }),
         minimum_increase_pct: useInputUnsignedInt({
             label: "Minimum bid increase (%)", min: Math.max(1, Math.floor(cnf.MIN_MINIMUM_INCREASE_BPS/100)), max: Math.floor(cnf.MAX_MINIMUM_INCREASE_BPS/100),
             html: { value: "5", required: true },
@@ -174,7 +178,7 @@ const FormCreateAuction: React.FC<{
                 form.name.val!,
                 form.description.val ?? "",
                 form.pay_addr.val!,
-                form.begin_delay_hours.val! * TimeUnit.ONE_HOUR,
+                devMode ? form.begin_delay_seconds.val! * 1000 : form.begin_delay_hours.val! * TimeUnit.ONE_HOUR,
                 devMode ? form.duration_seconds.val! * 1000 : form.duration_hours.val! * TimeUnit.ONE_HOUR,
                 form.minimum_bid.val!,
                 form.minimum_increase_pct.val! * 100,
@@ -228,7 +232,7 @@ const FormCreateAuction: React.FC<{
             {showAdvancedForm && <>
                 {form.type_coin.input}
                 {form.pay_addr.input}
-                {form.begin_delay_hours.input}
+                {devMode ? form.begin_delay_seconds.input : form.begin_delay_hours.input}
                 {form.minimum_increase_pct.input}
                 {devMode ? form.extension_period_seconds.input : form.extension_period_minutes.input}
             </>}
