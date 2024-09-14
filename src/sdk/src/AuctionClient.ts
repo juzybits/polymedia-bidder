@@ -331,6 +331,7 @@ export class AuctionClient extends SuiClientBase
         const has_ended = currentTimeMs >= endTimeMs;
         const has_leader = lead_addr !== ZERO_ADDRESS;
         const has_balance = lead_value > 0n;
+        const is_cancelled = has_ended && !has_leader;
         return {
             // struct types
             type_coin,
@@ -357,6 +358,7 @@ export class AuctionClient extends SuiClientBase
             has_ended,
             has_leader,
             has_balance,
+            is_cancelled,
             can_anyone_pay_funds: has_ended && has_balance,
             can_anyone_send_items_to_winner: has_ended && has_leader && Number(fields.item_bag.fields.size) > 0,
             can_admin_end_auction_early: is_live && has_leader,

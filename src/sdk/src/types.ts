@@ -37,6 +37,7 @@ export type AuctionObj = {
     has_ended: boolean;
     has_leader: boolean;
     has_balance: boolean;
+    is_cancelled: boolean;
     can_anyone_pay_funds: boolean;
     can_anyone_send_items_to_winner: boolean;
     can_admin_end_auction_early: boolean;

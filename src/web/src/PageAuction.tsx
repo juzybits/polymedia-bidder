@@ -508,7 +508,7 @@ const SectionAdmin: React.FC<{
         }
     };
 
-    // === "cancel auction": admin_cancels_auction + admin_reclaims_item + public_transfer ===
+    // === "cancel auction": admin_cancels_auction + admin_reclaims_item ===
 
     const [ cancelAuctionRes, setCancelAuctionRes ] = useState<SubmitRes>({ ok: null });
     const cancelAuction = async () => {
@@ -522,11 +522,8 @@ const SectionAdmin: React.FC<{
             );
 
             for (const item of items) {
-                const [itemArg] = AuctionModule.admin_reclaims_item(
+                AuctionModule.admin_reclaims_item(
                     tx, AUCTION_IDS[network].packageId, auction.type_coin, item.type, auction.id, item.id
-                );
-                TransferModule.public_transfer(
-                    tx, item.type, itemArg, auction.admin_addr
                 );
             }
 
@@ -548,7 +545,7 @@ const SectionAdmin: React.FC<{
         }
     };
 
-    // === "reclaim items": admin_reclaims_item + public_transfer ===
+    // === admin_reclaims_item ===
 
     const [ reclaimItemsRes, setReclaimItemsRes ] = useState<SubmitRes>({ ok: null });
     const reclaimItems = async () => {
@@ -558,11 +555,8 @@ const SectionAdmin: React.FC<{
 
             const tx = new Transaction();
             for (const item of items) {
-                const [itemArg] = AuctionModule.admin_reclaims_item(
+                AuctionModule.admin_reclaims_item(
                     tx, AUCTION_IDS[network].packageId, auction.type_coin, item.type, auction.id, item.id
-                );
-                TransferModule.public_transfer(
-                    tx, item.type, itemArg, auction.admin_addr
                 );
             }
 
