@@ -630,7 +630,7 @@ const SectionAdmin: React.FC<{
     // === html ===
 
     return <>
-    {auction.can_admin_end_auction_early &&
+    {auction.can_admin_accept_bid &&
         <div className="card">
             <div className="card-title">Accept bid</div>
             <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
