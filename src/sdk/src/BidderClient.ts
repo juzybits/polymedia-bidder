@@ -327,8 +327,9 @@ export class BidderClient extends SuiClientBase
 
         const lead_addr = normalizeSuiAddress(fields.lead_addr);
         const lead_value = BigInt(fields.lead_bal);
-        const is_live = currentTimeMs >= beginTimeMs && currentTimeMs < endTimeMs;
+        const has_started = currentTimeMs >= beginTimeMs;
         const has_ended = currentTimeMs >= endTimeMs;
+        const is_live = has_started && !has_ended;
         const has_leader = lead_addr !== ZERO_ADDRESS;
         const has_balance = lead_value > 0n;
         const is_cancelled = has_ended && !has_leader;
@@ -354,11 +355,12 @@ export class BidderClient extends SuiClientBase
             minimum_increase_bps: Number(fields.minimum_increase_bps),
             extension_period_ms: Number(fields.extension_period_ms),
             // derived fields
-            is_live,
+            has_started,
             has_ended,
+            is_live,
+            is_cancelled,
             has_leader,
             has_balance,
-            is_cancelled,
             can_anyone_pay_funds: has_ended && has_balance,
             can_anyone_send_items_to_winner: has_ended && has_leader && Number(fields.item_bag.fields.size) > 0,
             can_admin_end_auction_early: is_live && has_leader,

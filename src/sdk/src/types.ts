@@ -33,11 +33,12 @@ export type AuctionObj = {
     /** bids placed within this period before end_time_ms will extend end_time_ms by extension_period_ms */
     extension_period_ms: number;
     // === derived fields ===
-    is_live: boolean;
+    has_started: boolean;
     has_ended: boolean;
+    is_live: boolean;
+    is_cancelled: boolean;
     has_leader: boolean;
     has_balance: boolean;
-    is_cancelled: boolean;
     can_anyone_pay_funds: boolean;
     can_anyone_send_items_to_winner: boolean;
     can_admin_end_auction_early: boolean;

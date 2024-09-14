@@ -332,26 +332,27 @@ footer {
             text-decoration: underline;
         }
     }
-    .card-header {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        gap: @gap-10;
-        .header-label {
-            flex-shrink: 0;
-            padding: 0.5em 0.75em;
-            font-size: 0.9em;
-            color: #bbb;
-            background-color: @color-border-gray;
-            border: @border-gray;
-            border-radius: @border-radius;
-        }
-    }
     .card-title {
         font-size: 1.3em;
         font-weight: bold;
         .break-word;
+    }
+}
+.section-header, .card-header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: @gap-10;
+    .header-label {
+        flex-shrink: 0;
+        padding: 0.5em 0.75em;
+        font-size: 0.9em;
+        color: #bbb;
+        background-color: @color-border-gray;
+        border: @border-gray;
+        border-radius: @border-radius;
     }
 }
 a.card, .card.link {

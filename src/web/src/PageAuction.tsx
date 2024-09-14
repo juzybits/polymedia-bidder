@@ -129,7 +129,18 @@ export const PageAuction: React.FC = () =>
 
             <div className="page-section">
 
-                <div className="section-title">{auction.name}</div>
+                <div className="section-header">
+                    <div className="section-title">{auction.name}</div>
+                    <div className="header-label">
+                        {(() => {
+                            if (auction.is_cancelled) { return "CANCELLED"; }
+                            if (!auction.has_started) { return `STARTS IN ${timeAgo(auction.begin_time_ms)}`; }
+                            if (auction.has_ended) { return "ENDED"; }
+                            if (auction.is_live) { return "LIVE"; }
+                            return "???"; // should never happen
+                        })()}
+                    </div>
+                </div>
 
                 {auction.description.length > 0 &&
                 <div className="section-description">

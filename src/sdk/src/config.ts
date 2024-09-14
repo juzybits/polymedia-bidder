@@ -63,8 +63,8 @@ export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
         registryId: "",
     },
     devnet: {
-        packageId: "0xcf82e260aee032efcc0d29c6d26b1c3153c19d4c3e18f47b0e7018a9a2b671c7",
-        registryId: "0x4a7ceded96eeff3f7b305003a2c3cf6faaa5e9ed342dfcb8142536d9f6baa522",
+        packageId: "0xa99b1b0f300d59af79c30caa1bba6a8e655fa930375cd4ee4130fd1befd070dd",
+        registryId: "0x9764f09f33b0c8609dffbe7fdb39f42f794821dfe34e4d69a9d9e6559fb1df55",
     },
     localnet: {
         packageId: "0x7667b4d760af8904ea5471e49a4039f8866f5ca40d66df550f5890f65d7f2b74",
