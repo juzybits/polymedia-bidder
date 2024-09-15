@@ -32,7 +32,9 @@ export const AppRouter: React.FC = () => {
                 <Route index element={<PageHome />} />
                 <Route path="*" element={<PageNotFound />} />
                 <Route path="/new" element={<PageNew />} />
-                <Route path="/user-history" element={<PageUserHistory />} />
+                <Route path="/user" element={<PageUser />} />
+                <Route path="/user/a/:address" element={<PageUser />} />
+                <Route path="/user/o/:objectId" element={<PageUser />} />
                 <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId/:tabName?" element={<PageAuction />} />
                 {/* <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />

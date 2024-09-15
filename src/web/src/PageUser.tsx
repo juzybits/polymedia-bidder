@@ -14,8 +14,12 @@ export const PageUser: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
+    const { address, objectId } = useParams<{ address?: string; objectId?: string }>();
 
-    const { userId, errorFetchUserId } = useFetchUserId(currAcct?.address);
+    const addressToFetch = objectId ? undefined : (address ?? currAcct?.address);
+    const { userId, errorFetchUserId } = objectId
+        ? { userId: objectId, errorFetchUserId: null }
+        : useFetchUserId(addressToFetch);
 
     const { header } = useOutletContext<AppContext>();
 
