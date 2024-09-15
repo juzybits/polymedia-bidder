@@ -261,51 +261,59 @@ footer {
                 padding-left: @gap-025;
             }
         }
-        .tabs-header {
-            display: flex;
-            flex-direction: row;
-            gap: @gap-10 @gap-25;
-            flex-wrap: wrap;
-            padding: @gap-10 0 @gap-025 @gap-025;
-            width: 100%;
-            font-size: 1.1em;
-            @media (max-width: @screen-medium) {
-                justify-content: center;
-            }
-            @media (max-width: @screen-small) {
-                column-gap: 0;
-                justify-content: space-around;
-            }
-            .tab-title {
-                cursor: pointer;
-                font-weight: bold;
-                text-transform: uppercase;
-                display: flex;
-                align-items: center;
-                .tab-text {
-                    border-bottom: 2px solid transparent;
-                }
-                &.selected {
-                    .tab-text {
-                        color: @color-blue;
-                        border-bottom: 2px solid @color-blue;
-                    }
-                    .tab-icon svg {
-                        fill: @color-blue;
-                    }
-                }
-            }
-        }
-        .tabs-content {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: @gap-15;
-        }
     }
     @media (max-width: @screen-medium) {
         padding-left: @gap-15;
         padding-right: @gap-15;
+    }
+}
+
+.tabs-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: @gap-10;
+    .tabs-header {
+        display: flex;
+        flex-direction: row;
+        gap: @gap-10 @gap-25;
+        flex-wrap: wrap;
+        padding: @gap-10 @gap-025 0 @gap-025;
+        width: 100%;
+        font-size: 1.1em;
+        line-height: 1em;
+        @media (max-width: @screen-medium) {
+            justify-content: center;
+        }
+        @media (max-width: @screen-small) {
+            column-gap: 0;
+            justify-content: space-around;
+        }
+        .tab-title {
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            .tab-text {
+                border-bottom: 2px solid transparent;
+            }
+            &.selected {
+                .tab-text {
+                    color: @color-blue;
+                    border-bottom: 2px solid @color-blue;
+                }
+                .tab-icon svg {
+                    fill: @color-blue;
+                }
+            }
+        }
+    }
+    .tabs-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: @gap-15;
     }
 }
 

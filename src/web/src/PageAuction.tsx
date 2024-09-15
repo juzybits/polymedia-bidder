@@ -134,14 +134,15 @@ export const PageAuction: React.FC = () =>
 
                 <CardFinalize auction={auction} items={items} />
 
-                <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
-
-                <div className="tabs-content">
-                    {activeTab === "items" && <SectionItems auction={auction} items={items} />}
-                    {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
-                    {activeTab === "details" && <SectionDetails auction={auction} />}
-                    {activeTab === "history" && <SectionHistory auction={auction} />}
-                    {activeTab === "admin" && <SectionAdmin auction={auction} items={items} fetchAuction={fetchAuction} />}
+                <div className="tabs-container">
+                    <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
+                    <div className="tabs-content">
+                        {activeTab === "items" && <SectionItems auction={auction} items={items} />}
+                        {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
+                        {activeTab === "details" && <SectionDetails auction={auction} />}
+                        {activeTab === "history" && <SectionHistory auction={auction} />}
+                        {activeTab === "admin" && <SectionAdmin auction={auction} items={items} fetchAuction={fetchAuction} />}
+                    </div>
                 </div>
 
             </div>

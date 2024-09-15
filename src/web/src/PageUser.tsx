@@ -114,13 +114,13 @@ export const PageUser: React.FC = () =>
     } else if (errorFetchUserId || errFetch) {
         content = <CardWithMsg>{errorFetchUserId ?? errFetch}</CardWithMsg>;
     } else {
-        content = <>
+        content = <div className="tabs-container">
             <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
             <div className="tabs-content">
                 {activeTab === "auctions" && <SectionUserAuctions auctions={userHistory === null ? null : userHistory?.created} />}
                 {activeTab === "bids" && <SectionUserBids bids={userHistory === null ? null : userHistory?.bids} />}
             </div>
-        </>;
+        </div>;
     }
 
     const addressLink =
@@ -132,13 +132,13 @@ export const PageUser: React.FC = () =>
         {header}
         <div id="page-user" className="page-regular">
             <div className="page-content">
-                <h1 className="page-title">USER HISTORY</h1>
+                <div className="page-section">
+                    <h1 className="page-title">USER HISTORY</h1>
                     <div className="page-description">
                         <div>This is the BIDDER history for address {addressLink} {userId &&
                             <>(user <LinkToPolymedia addr={userId} kind="object" network={network} />)</>}
                         </div>
                     </div>
-                <div className="page-section">
                     {content}
                 </div>
             </div>
