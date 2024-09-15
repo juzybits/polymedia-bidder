@@ -18,30 +18,35 @@ export const PageUser: React.FC = () =>
     const { address: addressParam, objectId: objectIdParam } = useParams<{ address?: string; objectId?: string }>();
 
     const addressToFetch = objectIdParam ? undefined : (addressParam ?? currAcct?.address);
+    const [ addressToDisplay, setAddressToDisplay ] = useState<string | undefined>(addressToFetch);
+
     const { userId, errorFetchUserId } = objectIdParam
         ? { userId: objectIdParam, errorFetchUserId: null }
         : useFetchUserId(addressToFetch);
-
-    const [ addressToDisplay, setAddressToDisplay ] = useState<string | undefined>(addressToFetch);
 
     const { header, network, bidderClient } = useOutletContext<AppContext>();
 
     // === effects ===
 
     useEffect(() => {
-        if (!objectIdParam) {
-            return;
+        if (addressToFetch) {
+            setAddressToDisplay(addressToFetch);
+        } else if (objectIdParam) {
+            (async () => {
+                try {
+                    const obj = await bidderClient.suiClient.getObject({
+                        id: objectIdParam,
+                        options: { showOwner: true },
+                    });
+                    const newAddressToDisplay = objResToOwner(obj);
+                    setAddressToDisplay(newAddressToDisplay);
+                } catch (err) {
+                    console.warn("[fetchUserObjOwner]", err);
+                    setAddressToDisplay("error");
+                }
+            })();
         }
-        const fetchUserObjOwner = async () => {
-            const obj = await bidderClient.suiClient.getObject({
-                id: objectIdParam,
-                options: { showOwner: true },
-            });
-            const newAddressToDisplay = objResToOwner(obj);
-            setAddressToDisplay(newAddressToDisplay);
-        };
-        fetchUserObjOwner();
-    }, [objectIdParam]);
+    }, [addressToFetch, objectIdParam, bidderClient.suiClient]);
 
     // === html ===
 
