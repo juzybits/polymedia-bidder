@@ -64,19 +64,18 @@ export const PageUser: React.FC = () =>
         if (addressToFetch) {
             setAddressToDisplay(addressToFetch);
         } else if (objectIdParam) {
-            (async () => {
-                try {
-                    const obj = await bidderClient.suiClient.getObject({
-                        id: objectIdParam,
-                        options: { showOwner: true },
-                    });
-                    const newAddressToDisplay = objResToOwner(obj);
-                    setAddressToDisplay(newAddressToDisplay);
-                } catch (err) {
-                    console.warn("[fetchUserObjOwner]", err);
-                    setAddressToDisplay(null);
-                }
-            })();
+            bidderClient.suiClient.getObject({
+                id: objectIdParam,
+                options: { showOwner: true },
+            })
+            .then(obj => {
+                const newAddressToDisplay = objResToOwner(obj);
+                setAddressToDisplay(newAddressToDisplay);
+            })
+            .catch(err => {
+                setAddressToDisplay(null);
+                console.warn("[fetchUserObjOwner]", err);
+            });
         }
     }, [addressToFetch, objectIdParam, bidderClient.suiClient]);
 
