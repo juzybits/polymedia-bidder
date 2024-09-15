@@ -282,10 +282,15 @@ footer {
                 text-transform: uppercase;
                 display: flex;
                 align-items: center;
+                .tab-text {
+                    border-bottom: 2px solid transparent;
+                }
                 &.selected {
-                    // color: @color-blue;
-                    // border-bottom: 2px solid @color-blue;
-                    .icon {
+                    .tab-text {
+                        color: @color-blue;
+                        border-bottom: 2px solid @color-blue;
+                    }
+                    .tab-icon svg {
                         fill: @color-blue;
                     }
                 }
@@ -375,6 +380,7 @@ footer {
 }
 
 .page-description, .section-description, .card-description {
+    line-height: 1.35em;
     display: flex;
     flex-direction: column;
     gap: @gap-05;

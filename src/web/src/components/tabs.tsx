@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 export type Tab = {
     name: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
 };
 
 export function makeTabs<T extends readonly Tab[]>(tabs: T)
@@ -21,7 +21,7 @@ export function makeTabs<T extends readonly Tab[]>(tabs: T)
 }
 
 export const TabsHeader: React.FC<{
-    tabs: Array<Tab>,
+    tabs: Tab[],
     activeTab: string,
     onChangeTab: (tab: string) => void,
 }> = ({
@@ -58,7 +58,8 @@ const SingleTab: React.FC<{
             className={`tab-title ${isSelected ? "selected" : ""}`}
             onClick={() => onChangeTab(tab.name)}
         >
-            {tab.icon}
+            {tab.icon && <div className="tab-icon">{tab.icon}</div>}
+            {!tab.icon && <div className="tab-text">{tab.name}</div>}
         </div>
     );
 };

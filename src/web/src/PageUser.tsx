@@ -5,17 +5,53 @@ import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardLoading, CardWithMsg } from "./components/cards";
+import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
+import { PageNotFound } from "./PageFullScreenMsg";
+
+const tabs = makeTabs([
+    { name: "auctions" },
+    { name: "bids" },
+]);
 
 export const PageUser: React.FC = () =>
 {
-    // === state ===
+    // === external state ===
 
     const currAcct = useCurrentAccount();
-    const { address: addressParam, objectId: objectIdParam } = useParams<{ address?: string; objectId?: string }>();
+    const { header, network, bidderClient } = useOutletContext<AppContext>();
+
+    // === url validation ===
+
+    const {
+        address: addressParam,
+        objectId: objectIdParam,
+        tabName = "auctions",
+    } = useParams<{ address?: string; objectId?: string; tabName?: string }>();
+
+    if (!tabs.isTabName(tabName)) {
+        return <PageNotFound />;
+    }
+
+    // === tabs ===
+
+    const [ activeTab, setActiveTab ] = useState<string>(tabName);
+
+    const changeTab = (tab: string) => {
+        if (tabs.isTabName(tab)) {
+            setActiveTab(tab);
+            const baseUrl =
+                addressParam ? `/user/a/${addressParam}`
+               : objectIdParam ? `/user/o/${objectIdParam}`
+               : "/user";
+            window.history.replaceState({}, "", `${baseUrl}/${tab}`);
+        }
+    };
+
+    // === user address and object ===
 
     const addressToFetch = objectIdParam ? undefined : (addressParam ?? currAcct?.address);
     const [ addressToDisplay, setAddressToDisplay ] = useState<string | undefined>(addressToFetch);
@@ -23,10 +59,6 @@ export const PageUser: React.FC = () =>
     const { userId, errorFetchUserId } = objectIdParam
         ? { userId: objectIdParam, errorFetchUserId: null }
         : useFetchUserId(addressToFetch);
-
-    const { header, network, bidderClient } = useOutletContext<AppContext>();
-
-    // === effects ===
 
     useEffect(() => {
         if (addressToFetch) {
@@ -57,20 +89,29 @@ export const PageUser: React.FC = () =>
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
     } else {
         content = <>
-            <SectionUserAuctions userId={userId} />
-            <SectionUserBids userId={userId} />
+            <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
+            <div className="tabs-content">
+                {activeTab === "auctions" && <SectionUserAuctions userId={userId} />}
+                {activeTab === "bids" && <SectionUserBids userId={userId} />}
+            </div>
         </>;
     }
+
+    const addressLink = !addressToDisplay ? "loading..." : <LinkToPolymedia addr={addressToDisplay} kind="address" network={network} />;
+    const objectLink = !userId ? "loading..." : <LinkToPolymedia addr={userId} kind="object" network={network} />;
     return <>
         {header}
         <div id="page-user" className="page-regular">
             <div className="page-content">
                 <h1 className="page-title">USER HISTORY</h1>
-                <div className="section-description">
-                    <div>User address: {!addressToDisplay ? "loading..." : <LinkToPolymedia addr={addressToDisplay} kind="address" network={network} />}</div>
-                    <div>User object:&nbsp; {!userId ? "loading..." : <LinkToPolymedia addr={userId} kind="object" network={network} />}</div>
+                    <div className="page-description">
+                        <div>This is the BIDDER history for address {addressLink} {userId &&
+                            <>(user <LinkToPolymedia addr={userId} kind="object" network={network} />)</>}
+                        </div>
+                    </div>
+                <div className="page-section">
+                    {content}
                 </div>
-                {content}
             </div>
         </div>
     </>;
@@ -115,36 +156,23 @@ const SectionUserAuctions: React.FC<{
 
     // === html ===
 
-    let content: React.ReactNode;
-
     if (userId === undefined) {
-        content = <CardLoading />;
+        return <CardLoading />;
     }
     else if (userId === null || userAuctions?.length === 0) {
-        content = <CardWithMsg>No auctions yet</CardWithMsg>;
+        return <CardWithMsg>No auctions yet</CardWithMsg>;
     }
     else if (errFetch) {
-        content = <CardWithMsg>{errFetch}</CardWithMsg>;
+        return <CardWithMsg>{errFetch}</CardWithMsg>;
     }
     else if (userAuctions === undefined) {
-        content = <CardLoading />;
+        return <CardLoading />;
     }
-    else {
-        content = (
-            <div className="list-cards">
-                {userAuctions.map(auction =>
-                    <CardUserAuction auction={auction} key={auction.auction_addr} />
-                )}
-            </div>
-        );
-    }
-
     return (
-        <div className="page-section">
-            <div className="section-title">
-                Your auctions
-            </div>
-            {content}
+        <div className="list-cards">
+            {userAuctions.map(auction =>
+                <CardUserAuction auction={auction} key={auction.auction_addr} />
+            )}
         </div>
     );
 };
@@ -189,38 +217,25 @@ const SectionUserBids: React.FC<{
 
     // === html ===
 
-    let content: React.ReactNode;
-
     if (userId === undefined) {
-        content = <CardLoading />;
+        return <CardLoading />;
     }
     else if (userId === null || userBids?.length === 0) {
-        content = <CardWithMsg>No bids yet</CardWithMsg>;
+        return <CardWithMsg>No bids yet</CardWithMsg>;
     }
     else if (errFetch) {
-        content = <CardWithMsg>{errFetch}</CardWithMsg>;
+        return <CardWithMsg>{errFetch}</CardWithMsg>;
     }
     else if (userBids === undefined) {
-        content = <CardLoading />;
+        return <CardLoading />;
     }
-    else {
-        content = (
-            <div className="list-cards">
-                {userBids.map(bid =>
-                    <CardUserBid bid={bid} key={bid.auction_addr + bid.amount} />
-                )}
-            </div>
-        );
-    }
-
-    return <>
-        <div className="page-section">
-            <div className="section-title">
-                Your bids
-            </div>
-            {content}
+    return (
+        <div className="list-cards">
+            {userBids.map(bid =>
+                <CardUserBid bid={bid} key={bid.auction_addr + bid.amount} />
+            )}
         </div>
-    </>;
+    );
 };
 
 const CardUserAuction: React.FC<{ // TODO: fetch auction, then show auction name, and convert amount to <Balance />
