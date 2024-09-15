@@ -133,7 +133,7 @@ export const PageUser: React.FC = () =>
         <div id="page-user" className="page-regular">
             <div className="page-content">
                 <div className="page-section">
-                    <h1 className="page-title">USER HISTORY</h1>
+                    <div className="page-title">USER HISTORY</div>
                     <div className="page-description">
                         <div>This is the BIDDER history for address {addressLink} {userId &&
                             <>(user <LinkToPolymedia addr={userId} kind="object" network={network} />)</>}

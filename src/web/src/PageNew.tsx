@@ -49,7 +49,7 @@ export const PageNew: React.FC = () =>
 
         <div className="page-content">
 
-            <h1 className="page-title">NEW AUCTION</h1>
+            <div className="page-title">NEW AUCTION</div>
 
             {!currAcct
             ? <ConnectToGetStarted />

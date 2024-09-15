@@ -19,7 +19,7 @@ export const PageSettings: React.FC = () =>
     <div id="page-settings" className="page-regular">
 
         <div className="page-content">
-            <h1 className="page-title">SETTINGS</h1>
+            <div className="page-title">SETTINGS</div>
             <SectionConnection />
             <SectionExplorer />
             <SectionRpc />
