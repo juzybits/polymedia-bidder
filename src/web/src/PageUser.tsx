@@ -9,7 +9,7 @@ import { CardLoading, CardWithMsg } from "./components/cards";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { timeAgo } from "./lib/time";
 
-export const PageUserHistory: React.FC = () =>
+export const PageUser: React.FC = () =>
 {
     // === state ===
 

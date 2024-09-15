@@ -19,7 +19,7 @@ import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
 import { PageSettings } from "./PageSettings";
-import { PageUserHistory } from "./PageUserHistory";
+import { PageUser } from "./PageUser";
 import "./styles/App.less";
 
 /* App router */
@@ -171,7 +171,7 @@ const Header: React.FC = () =>
         <Link to="/new" className="header-item">
             <IconNew />
         </Link>
-        <Link to="/user-history" className="header-item">
+        <Link to="/user" className="header-item">
             <IconHistory />
         </Link>
         <Link to="/settings" className="header-item">
