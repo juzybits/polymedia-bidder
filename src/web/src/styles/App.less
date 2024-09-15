@@ -91,10 +91,6 @@ header {
             letter-spacing: 0.02em;
         }
         display: inline-block;
-        > *:hover {
-            cursor: pointer;
-            text-decoration: underline;
-        }
     }
     // #header-logo {
     //     height: 2.5rem;
@@ -326,12 +322,6 @@ footer {
     @media (max-width: @screen-medium) {
         padding: @gap-15;
     }
-    a:not(.btn) {
-        color: @color-blue-light;
-        &:hover {
-            text-decoration: underline;
-        }
-    }
     .card-title {
         font-size: 1.3em;
         font-weight: bold;
@@ -380,8 +370,20 @@ footer {
     }
 }
 
-.section-title, .section-description, .card-title, .card-description {
+.page-description, .section-title, .section-description, .card-title, .card-description {
     .break-any;
+}
+
+.page-description, .section-description, .card-description {
+    display: flex;
+    flex-direction: column;
+    gap: @gap-05;
+    a:not(.btn) {
+        color: @color-blue-light;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 }
 
 a.card, .card.link {

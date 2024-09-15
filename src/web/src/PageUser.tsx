@@ -1,6 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { shortenAddress } from "@polymedia/suitcase-core";
+import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
@@ -21,7 +22,7 @@ export const PageUser: React.FC = () =>
         ? { userId: objectId, errorFetchUserId: null }
         : useFetchUserId(addressToFetch);
 
-    const { header } = useOutletContext<AppContext>();
+    const { header, network } = useOutletContext<AppContext>();
 
     // === html ===
 
@@ -41,6 +42,10 @@ export const PageUser: React.FC = () =>
         <div id="page-user" className="page-regular">
             <div className="page-content">
                 <h1 className="page-title">USER HISTORY</h1>
+                <div className="section-description">
+                    <div>User address: {!addressToFetch ? "loading..." : <LinkToPolymedia addr={addressToFetch} kind="address" network={network} />}</div>
+                    <div>User object:&nbsp; {!userId ? "loading..." : <LinkToPolymedia addr={userId} kind="object" network={network} />}</div>
+                </div>
                 {content}
             </div>
         </div>
