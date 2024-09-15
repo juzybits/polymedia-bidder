@@ -66,6 +66,30 @@ export const UserModule =
         });
     },
 
+    get_both_pages: (
+        tx: Transaction,
+        packageId: string,
+        user: ObjectInput,
+        ascending: boolean,
+        cursor_created: number,
+        cursor_bids: number,
+        limit_created: number,
+        limit_bids: number,
+    ): TransactionResult => {
+        return tx.moveCall({
+            // target: `${packageId}::user::get_both_pages`,
+            target: `0xd7e5013262644a7955088f2cbd19a6979445af6eb5fadbba163ecd8a5339d564::user::get_both_pages`, // TODO remove
+            arguments: [
+                objectArg(tx, user),
+                tx.pure.bool(ascending),
+                tx.pure.u64(cursor_created),
+                tx.pure.u64(cursor_bids),
+                tx.pure.u64(limit_created),
+                tx.pure.u64(limit_bids),
+            ],
+        });
+    },
+
     created: (
         tx: Transaction,
         packageId: string,

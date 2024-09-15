@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { UserAuction, UserBid } from "@polymedia/bidder-sdk";
+import { BidderClient, UserAuction, UserBid, UserRecentHistory } from "@polymedia/bidder-sdk";
 import { objResToOwner, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ export const PageUser: React.FC = () =>
     const {
         address: addressParam,
         objectId: objectIdParam,
-        tabName = "auctions",
+        tabName = "bids",
     } = useParams<{ address?: string; objectId?: string; tabName?: string }>();
 
     if (!tabs.isTabName(tabName)) {
@@ -80,19 +80,45 @@ export const PageUser: React.FC = () =>
         }
     }, [addressToFetch, objectIdParam, bidderClient.suiClient]);
 
+    // === user history ===
+
+    const [ userHistory, setUserHistory ] = useState<UserRecentHistory | null | undefined>();
+    const [ errFetch, setErrFetch ] = useState<string | null>(null);
+
+    useEffect(() => {
+        setErrFetch(null);
+        if (userId === undefined) {
+            setUserHistory(undefined);
+        } else if (userId === null) {
+            setUserHistory(null);
+        } else {
+            bidderClient
+                .fetchUserRecentAuctionsAndBids(userId)
+                .then((newUserHistory) => {
+                    console.log("[fetchUserHistory]", newUserHistory);
+                    setUserHistory(newUserHistory);
+                })
+                .catch(err => {
+                    console.warn("[fetchUserHistory]", err);
+                    setErrFetch("Failed to fetch user history");
+                    setUserHistory(null);
+                });
+        }
+    }, [userId, bidderClient]);
+
     // === html ===
 
     let content: React.ReactNode;
     if (!currAcct) {
         content = <ConnectToGetStarted />;
-    } else if (errorFetchUserId) {
-        content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
+    } else if (errorFetchUserId || errFetch) {
+        content = <CardWithMsg>{errorFetchUserId ?? errFetch}</CardWithMsg>;
     } else {
         content = <>
             <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
             <div className="tabs-content">
-                {activeTab === "auctions" && <SectionUserAuctions userId={userId} />}
-                {activeTab === "bids" && <SectionUserBids userId={userId} />}
+                {activeTab === "auctions" && <SectionUserAuctions auctions={userHistory === null ? null : userHistory?.created} />}
+                {activeTab === "bids" && <SectionUserBids bids={userHistory === null ? null : userHistory?.bids} />}
             </div>
         </>;
     }
@@ -121,59 +147,74 @@ export const PageUser: React.FC = () =>
 };
 
 const SectionUserAuctions: React.FC<{
-    userId: string | null | undefined;
+    // userId: string | null | undefined;
+    auctions: UserRecentHistory["created"] | null | undefined;
 }> = ({
-    userId,
+    // userId,
+    auctions,
 }) => // TODO: pagination
 {
-    // === state ===
+    // // === state ===
 
-    const { bidderClient } = useOutletContext<AppContext>();
+    // const { bidderClient } = useOutletContext<AppContext>();
 
-    const [ userAuctions, setUserAuctions ] = useState<UserAuction[] | undefined>();
-    const [ errFetch, setErrFetch ] = useState<string | null>(null);
+    // const [ userAuctions, setUserAuctions ] = useState<UserAuction[] | undefined>();
+    // const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
-    // === effects ===
+    // // === effects ===
 
-    useEffect(() => {
-        fetchAuctions();
-    }, [userId]);
+    // useEffect(() => {
+    //     fetchAuctions();
+    // }, [userId]);
 
-    // === functions ===
+    // // === functions ===
 
-    const fetchAuctions = async () =>
-    {
-        setUserAuctions(undefined);
-        setErrFetch(null);
-        if (!userId) {
-            return;
-        }
-        try {
-            const newUserAuctions = await bidderClient.fetchUserAuctions(userId);
-            setUserAuctions(newUserAuctions);
-        } catch (err) {
-            setErrFetch("Failed to fetch user auctions");
-            console.warn("[fetchAuctions]", err);
-        }
-    };
+    // const fetchAuctions = async () =>
+    // {
+    //     setUserAuctions(undefined);
+    //     setErrFetch(null);
+    //     if (!userId) {
+    //         return;
+    //     }
+    //     try {
+    //         const newUserAuctions = await bidderClient.fetchUserAuctions(userId);
+    //         setUserAuctions(newUserAuctions);
+    //     } catch (err) {
+    //         setErrFetch("Failed to fetch user auctions");
+    //         console.warn("[fetchAuctions]", err);
+    //     }
+    // };
 
     // === html ===
 
-    if (userId === undefined) {
+    // if (userId === undefined) {
+    //     return <CardLoading />;
+    // }
+    // else if (userId === null || userAuctions?.length === 0) {
+    //     return <CardWithMsg>No auctions yet</CardWithMsg>;
+    // }
+    // else if (errFetch) {
+    //     return <CardWithMsg>{errFetch}</CardWithMsg>;
+    // }
+    // else if (userAuctions === undefined) {
+    //     return <CardLoading />;
+    // }
+    // return (
+    //     <div className="list-cards">
+    //         {userAuctions.map(auction =>
+    //             <CardUserAuction auction={auction} key={auction.auction_addr} />
+    //         )}
+    //     </div>
+    // );
+    if (auctions === undefined) {
         return <CardLoading />;
     }
-    else if (userId === null || userAuctions?.length === 0) {
+    if (auctions === null || auctions.page.length === 0) {
         return <CardWithMsg>No auctions yet</CardWithMsg>;
-    }
-    else if (errFetch) {
-        return <CardWithMsg>{errFetch}</CardWithMsg>;
-    }
-    else if (userAuctions === undefined) {
-        return <CardLoading />;
     }
     return (
         <div className="list-cards">
-            {userAuctions.map(auction =>
+            {auctions.page.map(auction =>
                 <CardUserAuction auction={auction} key={auction.auction_addr} />
             )}
         </div>
@@ -182,59 +223,74 @@ const SectionUserAuctions: React.FC<{
 
 
 const SectionUserBids: React.FC<{
-    userId: string | null | undefined;
+    // userId: string | null | undefined;
+    bids: UserRecentHistory["bids"] | null | undefined;
 }> = ({
-    userId,
+    // userId,
+    bids,
 }) => // TODO: pagination
 {
-    // === state ===
+    // // === state ===
 
-    const { network, bidderClient } = useOutletContext<AppContext>();
+    // const { network, bidderClient } = useOutletContext<AppContext>();
 
-    const [ userBids, setUserBids ] = useState<UserBid[] | undefined>();
-    const [ errFetch, setErrFetch ] = useState<string | null>(null);
+    // const [ userBids, setUserBids ] = useState<UserBid[] | undefined>();
+    // const [ errFetch, setErrFetch ] = useState<string | null>(null);
 
-    // === effects ===
+    // // === effects ===
 
-    useEffect(() => {
-        fetchBids();
-    }, [userId]);
+    // useEffect(() => {
+    //     fetchBids();
+    // }, [userId]);
 
-    // === functions ===
+    // // === functions ===
 
-    const fetchBids = async () =>
-    {
-        setUserBids(undefined);
-        setErrFetch(null);
-        if (!userId) {
-            return;
-        }
-        try {
-            const newUserBids = await bidderClient.fetchUserBids(userId);
-            setUserBids(newUserBids);
-        } catch (err) {
-            setErrFetch("Failed to fetch user bids");
-            console.warn("[fetchBids]", err);
-        }
-    };
+    // const fetchBids = async () =>
+    // {
+    //     setUserBids(undefined);
+    //     setErrFetch(null);
+    //     if (!userId) {
+    //         return;
+    //     }
+    //     try {
+    //         const newUserBids = await bidderClient.fetchUserBids(userId);
+    //         setUserBids(newUserBids);
+    //     } catch (err) {
+    //         setErrFetch("Failed to fetch user bids");
+    //         console.warn("[fetchBids]", err);
+    //     }
+    // };
 
     // === html ===
 
-    if (userId === undefined) {
+    // if (userId === undefined) {
+    //     return <CardLoading />;
+    // }
+    // else if (userId === null || userBids?.length === 0) {
+    //     return <CardWithMsg>No bids yet</CardWithMsg>;
+    // }
+    // else if (errFetch) {
+    //     return <CardWithMsg>{errFetch}</CardWithMsg>;
+    // }
+    // else if (userBids === undefined) {
+    //     return <CardLoading />;
+    // }
+    // return (
+    //     <div className="list-cards">
+    //         {userBids.map(bid =>
+    //             <CardUserBid bid={bid} key={bid.auction_addr + bid.amount} />
+    //         )}
+    //     </div>
+    // );
+    if (bids === undefined) {
         return <CardLoading />;
     }
-    else if (userId === null || userBids?.length === 0) {
+    if (bids === null || bids.page.length === 0) {
         return <CardWithMsg>No bids yet</CardWithMsg>;
-    }
-    else if (errFetch) {
-        return <CardWithMsg>{errFetch}</CardWithMsg>;
-    }
-    else if (userBids === undefined) {
-        return <CardLoading />;
     }
     return (
         <div className="list-cards">
-            {userBids.map(bid =>
+            {bids.page.map(bid =>
                 <CardUserBid bid={bid} key={bid.auction_addr + bid.amount} />
             )}
         </div>

@@ -31,6 +31,8 @@ import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
 import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
+export type UserRecentHistory = Awaited<ReturnType<BidderClient["fetchUserRecentAuctionsAndBids"]>>;
+
 /**
  * Execute transactions on the bidder::auction Sui module.
  */
@@ -228,7 +230,7 @@ export class BidderClient extends SuiClientBase
     }
 
     public async fetchUserAuctions(
-        user_addr: string,
+        user_id: string,
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
@@ -243,7 +245,7 @@ export class BidderClient extends SuiClientBase
         UserModule.get_created_page(
             tx,
             this.packageId,
-            user_addr,
+            user_id,
             order === "ascending",
             cursor,
             limit,
@@ -265,7 +267,7 @@ export class BidderClient extends SuiClientBase
     }
 
     public async fetchUserBids(
-        user_addr: string,
+        user_id: string,
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
@@ -280,7 +282,7 @@ export class BidderClient extends SuiClientBase
         UserModule.get_bids_page(
             tx,
             this.packageId,
-            user_addr,
+            user_id,
             order === "ascending",
             cursor,
             limit,
@@ -300,6 +302,52 @@ export class BidderClient extends SuiClientBase
             amount: BigInt(bid.amount),
         }));
         return bidsTyped;
+    }
+
+    public async fetchUserRecentAuctionsAndBids(
+        user_id: string,
+        limit = 50,
+    ) {
+        const tx = new Transaction();
+
+        UserModule.get_both_pages(
+            tx,
+            this.packageId,
+            user_id,
+            false, // descending
+            Number.MAX_SAFE_INTEGER,
+            Number.MAX_SAFE_INTEGER,
+            limit,
+            limit,
+        );
+
+        const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
+            [
+                bcs.U64, // total auctions created
+                bcs.U64, // total bids placed
+                bcs.vector(UserAuctionBcs), // created page
+                bcs.vector(UserBidBcs), // bids page
+                bcs.Bool, // has more created
+                bcs.Bool, // has more bids
+                bcs.U64, // cursor of created
+                bcs.U64, // cursor of bids
+            ],
+        ]);
+
+        return {
+            created: {
+                total: blockReturns[0][0] as number,
+                page: blockReturns[0][2] as (typeof UserAuctionBcs.$inferType)[],
+                hasMore: blockReturns[0][4] as boolean,
+                cursor: blockReturns[0][6] as number,
+            },
+            bids: {
+                total: blockReturns[0][1] as number,
+                page: blockReturns[0][3] as (typeof UserBidBcs.$inferType)[],
+                hasMore: blockReturns[0][5] as boolean,
+                cursor: blockReturns[0][7] as number,
+            }
+        };
     }
 
     // === data parsing ===
