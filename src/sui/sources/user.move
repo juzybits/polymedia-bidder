@@ -48,6 +48,25 @@ public struct UserBid has store, copy {
 
 // === public-view functions ===
 
+public fun get_both_pages(
+    user: &User,
+    ascending: bool,
+    cursor_created: u64,
+    cursor_bids: u64,
+    limit_created: u64,
+    limit_bids: u64,
+): (u64, u64, vector<UserAuction>, vector<UserBid>, bool, bool, u64, u64)
+{
+   let (crtd_page, crtd_more, crtd_cursor) = get_created_page(user, ascending, cursor_created, limit_created);
+   let (bids_page, bids_more, bids_cursor) = get_bids_page(user, ascending, cursor_bids, limit_bids);
+   return (
+        user.created.length(), user.bids.length(),
+        crtd_page, bids_page,
+        crtd_more, bids_more,
+        crtd_cursor, bids_cursor,
+    )
+}
+
 public fun get_created_page(
     user: &User,
     ascending: bool,
