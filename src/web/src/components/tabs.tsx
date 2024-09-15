@@ -11,7 +11,7 @@ export function makeTabs<T extends readonly Tab[]>(tabs: T)
     type TabName = (typeof names)[number];
 
     const isTabName = (str: string): str is TabName => {
-        return names.includes(str as TabName);
+        return names.includes(str);
     };
 
     return {
@@ -21,9 +21,9 @@ export function makeTabs<T extends readonly Tab[]>(tabs: T)
 }
 
 export const TabsHeader: React.FC<{
-    tabs: Tab[],
-    activeTab: string,
-    onChangeTab: (tab: string) => void,
+    tabs: Tab[];
+    activeTab: string;
+    onChangeTab: (tab: string) => void;
 }> = ({
     tabs,
     activeTab,
@@ -44,9 +44,9 @@ export const TabsHeader: React.FC<{
 };
 
 const SingleTab: React.FC<{
-    tab: Tab,
-    activeTab: string,
-    onChangeTab: (tab: string) => void,
+    tab: Tab;
+    activeTab: string;
+    onChangeTab: (tab: string) => void;
 }> = ({
     tab,
     activeTab,

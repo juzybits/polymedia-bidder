@@ -258,7 +258,7 @@ export class BidderClient extends SuiClientBase
                 bcs.U64,
             ],
         ]);
-        const auctionsRaw = blockReturns[0][0] as (typeof UserAuctionBcs.$inferType)[];
+        const auctionsRaw = blockReturns[0][0] as UserAuction[];
         const auctionsTyped: UserAuction[] = auctionsRaw.map(auction => ({
             auction_addr: auction.auction_addr,
             time: Number(auction.time),
@@ -295,7 +295,7 @@ export class BidderClient extends SuiClientBase
                 bcs.U64,
             ],
         ]);
-        const bidsRaw = blockReturns[0][0] as (typeof UserBidBcs.$inferType)[];
+        const bidsRaw = blockReturns[0][0] as UserBid[];
         const bidsTyped: UserBid[] = bidsRaw.map(bid => ({
             auction_addr: bid.auction_addr,
             time: Number(bid.time),
@@ -337,13 +337,13 @@ export class BidderClient extends SuiClientBase
         return {
             created: {
                 total: blockReturns[0][0] as number,
-                page: blockReturns[0][2] as (typeof UserAuctionBcs.$inferType)[],
+                page: blockReturns[0][2] as UserAuction[],
                 hasMore: blockReturns[0][4] as boolean,
                 cursor: blockReturns[0][6] as number,
             },
             bids: {
                 total: blockReturns[0][1] as number,
-                page: blockReturns[0][3] as (typeof UserBidBcs.$inferType)[],
+                page: blockReturns[0][3] as UserBid[],
                 hasMore: blockReturns[0][5] as boolean,
                 cursor: blockReturns[0][7] as number,
             }
