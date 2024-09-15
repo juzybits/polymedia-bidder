@@ -1,18 +1,19 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AUCTION_IDS, BidderClient, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/bidder-sdk";
+import { AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString, shortenAddress, TransferModule } from "@polymedia/suitcase-core";
+import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, ObjectLinkList, HeaderLabel } from "./components/cards";
+import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, HeaderLabel, ObjectLinkList } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
+import { TabHeader } from "./components/TabHeader";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 import { timeAgo } from "./lib/time";
@@ -43,9 +44,11 @@ export const PageAuction: React.FC = () =>
     // === state: tabs ===
 
     const [ activeTab, setActiveTab ] = useState<TabName>(tabName);
-    const changeTab = (tab: TabName) => {
-        setActiveTab(tab);
-        window.history.replaceState({}, "", `/auction/${auctionId}/${tab}`);
+    const changeTab = (tab: string) => {
+        if (isTabName(tab)) {
+            setActiveTab(tab);
+            window.history.replaceState({}, "", `/auction/${auctionId}/${tab}`);
+        }
     };
     const showBidTab = auction?.is_live;
     const isAdmin = currAcct?.address === auction?.admin_addr;
@@ -84,7 +87,7 @@ export const PageAuction: React.FC = () =>
             setErr(err instanceof Error ? err.message : "Failed to fetch auction");
             setAuction(null);
             setItems(null);
-            console.warn("[fetchAuctionAndItems]", err);
+            console.warn("[fetchAuction]", err);
         }
     };
 
@@ -101,25 +104,6 @@ export const PageAuction: React.FC = () =>
     }
 
     // === html ===
-
-    const TabHeader: React.FC<{
-        tab: TabName;
-        icon: React.ReactNode;
-    }> = ({
-        tab,
-        icon,
-    }) => {
-        if (!auction) { return null; }
-        const isSelected = tab === activeTab;
-        return (
-            <div
-                className={`tab-title ${isSelected ? "selected" : ""}`}
-                onClick={() => changeTab(tab)}
-            >
-                {icon}
-            </div>
-        );
-    };
 
     return <>
     {header}
@@ -142,11 +126,11 @@ export const PageAuction: React.FC = () =>
                 <CardFinalize auction={auction} items={items} />
 
                 <div className="tabs-header">
-                    <TabHeader tab="items" icon={<IconItems />} />
-                    {showBidTab && <TabHeader tab="bid" icon={<IconCart />} />}
-                    <TabHeader tab="details" icon={<IconDetails />} />
-                    <TabHeader tab="history" icon={<IconHistory />} />
-                    {showAdminTab && <TabHeader tab="admin" icon={<IconGears />} />}
+                    <TabHeader tab="items" icon={<IconItems />} activeTab={activeTab} onChangeTab={changeTab} />
+                    {showBidTab && <TabHeader tab="bid" icon={<IconCart />} activeTab={activeTab} onChangeTab={changeTab} />}
+                    <TabHeader tab="details" icon={<IconDetails />} activeTab={activeTab} onChangeTab={changeTab} />
+                    <TabHeader tab="history" icon={<IconHistory />} activeTab={activeTab} onChangeTab={changeTab} />
+                    {showAdminTab && <TabHeader tab="admin" icon={<IconGears />} activeTab={activeTab} onChangeTab={changeTab} />}
                 </div>
 
                 <div className="tabs-content">
