@@ -13,24 +13,20 @@ import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, HeaderLabel, Objec
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
-import { Tab, TabHeaders } from "./components/tabs";
+import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 import { timeAgo } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
-const ALL_TABS: Tab[] = [
+const tabs = makeTabs([
     { name: "items", icon: <IconItems /> },
     { name: "bid", icon: <IconCart /> },
     { name: "details", icon: <IconDetails /> },
     { name: "history", icon: <IconHistory /> },
     { name: "admin", icon: <IconGears /> },
-] as const;
-
-const TAB_NAMES = ALL_TABS.map(tab => tab.name);
-type TabName = (typeof TAB_NAMES)[number];
-const isTabName = (str: string): str is TabName => TAB_NAMES.includes(str as TabName);
+]);
 
 export const PageAuction: React.FC = () =>
 {
@@ -38,7 +34,7 @@ export const PageAuction: React.FC = () =>
 
     const { auctionId, tabName = "items" } = useParams();
     if (!auctionId) { return <PageNotFound />; };
-    if (!isTabName(tabName)) { return <PageNotFound />; }
+    if (!tabs.isTabName(tabName)) { return <PageNotFound />; }
 
     // === state ===
 
@@ -51,9 +47,9 @@ export const PageAuction: React.FC = () =>
 
     // === state: tabs ===
 
-    const [ activeTab, setActiveTab ] = useState<TabName>(tabName);
+    const [ activeTab, setActiveTab ] = useState<string>(tabName);
     const changeTab = (tab: string) => {
-        if (isTabName(tab)) {
+        if (tabs.isTabName(tab)) {
             setActiveTab(tab);
             window.history.replaceState({}, "", `/auction/${auctionId}/${tab}`);
         }
@@ -63,8 +59,7 @@ export const PageAuction: React.FC = () =>
     const showAdminTab = isAdmin && auction && (
         auction.can_admin_cancel_auction || auction.can_admin_reclaim_items || auction.can_admin_set_pay_addr
     );
-
-    const visibleTabs = ALL_TABS.filter(tab => {
+    const visibleTabs = tabs.all.filter(tab => {
         if (tab.name === "bid" && !showBidTab) { return false; }
         if (tab.name === "admin" && !showAdminTab) { return false; }
         return true;
@@ -139,7 +134,7 @@ export const PageAuction: React.FC = () =>
 
                 <CardFinalize auction={auction} items={items} />
 
-                <TabHeaders tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
+                <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
 
                 <div className="tabs-content">
                     {activeTab === "items" && <SectionItems auction={auction} items={items} />}

@@ -5,7 +5,22 @@ export type Tab = {
     icon: React.ReactNode;
 };
 
-export const TabHeaders: React.FC<{
+export function makeTabs<T extends readonly Tab[]>(tabs: T)
+{
+    const names = tabs.map(tab => tab.name);
+    type TabName = (typeof names)[number];
+
+    const isTabName = (str: string): str is TabName => {
+        return names.includes(str as TabName);
+    };
+
+    return {
+        all: tabs,
+        isTabName,
+    };
+}
+
+export const TabsHeader: React.FC<{
     tabs: Array<Tab>,
     activeTab: string,
     onChangeTab: (tab: string) => void,
@@ -17,7 +32,7 @@ export const TabHeaders: React.FC<{
     return (
         <div className="tabs-header">
             {tabs.map((tab) => (
-                <TabHeader
+                <SingleTab
                     key={tab.name}
                     tab={tab}
                     activeTab={activeTab}
@@ -28,7 +43,7 @@ export const TabHeaders: React.FC<{
     );
 };
 
-const TabHeader: React.FC<{
+const SingleTab: React.FC<{
     tab: Tab,
     activeTab: string,
     onChangeTab: (tab: string) => void,
