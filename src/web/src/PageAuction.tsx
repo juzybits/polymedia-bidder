@@ -136,7 +136,7 @@ export const PageAuction: React.FC = () =>
 
                 <div className="tabs-container">
                     <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
-                    <div className="tabs-content">
+                    <div className="tabs-content" style={{ paddingTop: "1rem" }}>
                         {activeTab === "items" && <SectionItems auction={auction} items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                         {activeTab === "details" && <SectionDetails auction={auction} />}

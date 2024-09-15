@@ -13,8 +13,8 @@ import { timeAgo } from "./lib/time";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
-    { name: "auctions" },
     { name: "bids" },
+    { name: "auctions" },
 ]);
 
 export const PageUser: React.FC = () =>
@@ -116,7 +116,7 @@ export const PageUser: React.FC = () =>
     } else {
         content = <div className="tabs-container">
             <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
-            <div className="tabs-content">
+            <div className="tabs-content" style={{ paddingTop: "1.5rem" }}>
                 {activeTab === "auctions" && <SectionUserAuctions auctions={userHistory === null ? null : userHistory?.created} />}
                 {activeTab === "bids" && <SectionUserBids bids={userHistory === null ? null : userHistory?.bids} />}
             </div>
