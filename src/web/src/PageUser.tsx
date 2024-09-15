@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { UserAuction, UserBid } from "@polymedia/bidder-sdk";
-import { shortenAddress } from "@polymedia/suitcase-core";
+import { objResToOwner, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
@@ -15,14 +15,33 @@ export const PageUser: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { address, objectId } = useParams<{ address?: string; objectId?: string }>();
+    const { address: addressParam, objectId: objectIdParam } = useParams<{ address?: string; objectId?: string }>();
 
-    const addressToFetch = objectId ? undefined : (address ?? currAcct?.address);
-    const { userId, errorFetchUserId } = objectId
-        ? { userId: objectId, errorFetchUserId: null }
+    const addressToFetch = objectIdParam ? undefined : (addressParam ?? currAcct?.address);
+    const { userId, errorFetchUserId } = objectIdParam
+        ? { userId: objectIdParam, errorFetchUserId: null }
         : useFetchUserId(addressToFetch);
 
-    const { header, network } = useOutletContext<AppContext>();
+    const [ addressToDisplay, setAddressToDisplay ] = useState<string | undefined>(addressToFetch);
+
+    const { header, network, bidderClient } = useOutletContext<AppContext>();
+
+    // === effects ===
+
+    useEffect(() => {
+        if (!objectIdParam) {
+            return;
+        }
+        const fetchUserObjOwner = async () => {
+            const obj = await bidderClient.suiClient.getObject({
+                id: objectIdParam,
+                options: { showOwner: true },
+            });
+            const newAddressToDisplay = objResToOwner(obj);
+            setAddressToDisplay(newAddressToDisplay);
+        };
+        fetchUserObjOwner();
+    }, [objectIdParam]);
 
     // === html ===
 
@@ -43,7 +62,7 @@ export const PageUser: React.FC = () =>
             <div className="page-content">
                 <h1 className="page-title">USER HISTORY</h1>
                 <div className="section-description">
-                    <div>User address: {!addressToFetch ? "loading..." : <LinkToPolymedia addr={addressToFetch} kind="address" network={network} />}</div>
+                    <div>User address: {!addressToDisplay ? "loading..." : <LinkToPolymedia addr={addressToDisplay} kind="address" network={network} />}</div>
                     <div>User object:&nbsp; {!userId ? "loading..." : <LinkToPolymedia addr={userId} kind="object" network={network} />}</div>
                 </div>
                 {content}
