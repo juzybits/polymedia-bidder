@@ -13,14 +13,22 @@ import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, HeaderLabel, Objec
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
-import { TabHeader } from "./components/TabHeader";
+import { Tab, TabHeaders } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
 import { timeAgo } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
-const TAB_NAMES = ["items", "bid", "details", "history", "admin"] as const;
+const ALL_TABS: Tab[] = [
+    { name: "items", icon: <IconItems /> },
+    { name: "bid", icon: <IconCart /> },
+    { name: "details", icon: <IconDetails /> },
+    { name: "history", icon: <IconHistory /> },
+    { name: "admin", icon: <IconGears /> },
+] as const;
+
+const TAB_NAMES = ALL_TABS.map(tab => tab.name);
 type TabName = (typeof TAB_NAMES)[number];
 const isTabName = (str: string): str is TabName => TAB_NAMES.includes(str as TabName);
 
@@ -55,6 +63,12 @@ export const PageAuction: React.FC = () =>
     const showAdminTab = isAdmin && auction && (
         auction.can_admin_cancel_auction || auction.can_admin_reclaim_items || auction.can_admin_set_pay_addr
     );
+
+    const visibleTabs = ALL_TABS.filter(tab => {
+        if (tab.name === "bid" && !showBidTab) { return false; }
+        if (tab.name === "admin" && !showAdminTab) { return false; }
+        return true;
+    });
 
     // === effects ===
 
@@ -125,13 +139,7 @@ export const PageAuction: React.FC = () =>
 
                 <CardFinalize auction={auction} items={items} />
 
-                <div className="tabs-header">
-                    <TabHeader tab="items" icon={<IconItems />} activeTab={activeTab} onChangeTab={changeTab} />
-                    {showBidTab && <TabHeader tab="bid" icon={<IconCart />} activeTab={activeTab} onChangeTab={changeTab} />}
-                    <TabHeader tab="details" icon={<IconDetails />} activeTab={activeTab} onChangeTab={changeTab} />
-                    <TabHeader tab="history" icon={<IconHistory />} activeTab={activeTab} onChangeTab={changeTab} />
-                    {showAdminTab && <TabHeader tab="admin" icon={<IconGears />} activeTab={activeTab} onChangeTab={changeTab} />}
-                </div>
+                <TabHeaders tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
 
                 <div className="tabs-content">
                     {activeTab === "items" && <SectionItems auction={auction} items={items} />}
