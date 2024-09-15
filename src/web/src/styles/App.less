@@ -52,7 +52,7 @@ h1, h2, h3, h4, h5, button, input {
     cursor: pointer;
 }
 
-.break-word {
+.break-any {
     overflow-wrap: anywhere;
 }
 
@@ -348,8 +348,10 @@ footer {
     justify-content: space-between;
     align-items: start;
     gap: @gap-10;
-    @media (max-width: @screen-small) {
-        flex-direction: column-reverse;
+    &.column-on-small {
+        @media (max-width: @screen-small) {
+            flex-direction: column-reverse;
+        }
     }
     .header-label {
         flex-shrink: 0;
@@ -360,7 +362,6 @@ footer {
         border: @border-gray;
         border-radius: @border-radius;
         font-weight: bold;
-        text-transform: uppercase;
         &.cancelled {
             background-color: @color-bg-red;
             border-color: @color-bg-red;
@@ -380,7 +381,7 @@ footer {
 }
 
 .section-title, .section-description, .card-title, .card-description {
-    .break-word;
+    .break-any;
 }
 
 a.card, .card.link {
@@ -530,12 +531,12 @@ a.card, .card.link {
 }
 
 .success {
-    .break-word;
+    .break-any;
     .text-green;
 }
 
 .error {
-    .break-word;
+    .break-any;
     color: @color-text-red;
 }
 
@@ -592,13 +593,6 @@ a.card, .card.link {
         }
         #hero-description {
             padding: @gap-10 0;
-        }
-    }
-    .list-cards {
-        .card-header {
-            @media (max-width: @screen-small) {
-                flex-direction: row;
-            }
         }
     }
 }

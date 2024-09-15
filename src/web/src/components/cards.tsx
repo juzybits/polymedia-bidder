@@ -31,7 +31,7 @@ export const CardSuiItem: React.FC<{
                 {isChosen && <IconCheck className="item-chosen icon" /> }
             </div>
             <div className="item-info">
-                <div className="item-title break-word">
+                <div className="item-title break-any">
                     {item.nameShort ? item.nameShort : shortenAddress(item.type)}
                 </div>
                 {extra}

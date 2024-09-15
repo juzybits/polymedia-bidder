@@ -129,7 +129,7 @@ export const PageAuction: React.FC = () =>
 
             <div className="page-section">
 
-                <div className="section-header">
+                <div className="section-header column-on-small">
                     <div className="section-title">{auction.name}</div>
                     <HeaderLabel auction={auction} />
                 </div>

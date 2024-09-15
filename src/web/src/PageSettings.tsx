@@ -85,7 +85,7 @@ const SectionRpc: React.FC = () => // TODO: selector / input
             RPC
         </div>
         <div className="card">
-            <div className="break-word">{rpcUrl}</div>
+            <div className="break-any">{rpcUrl}</div>
         </div>
     </div>;
 };
