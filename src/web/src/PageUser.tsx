@@ -54,7 +54,7 @@ export const PageUser: React.FC = () =>
     // === user address and object ===
 
     const addressToFetch = objectIdParam ? undefined : (addressParam ?? currAcct?.address);
-    const [ addressToDisplay, setAddressToDisplay ] = useState<string | undefined>(addressToFetch);
+    const [ addressToDisplay, setAddressToDisplay ] = useState<string | null | undefined>(addressToFetch);
 
     const { userId, errorFetchUserId } = objectIdParam
         ? { userId: objectIdParam, errorFetchUserId: null }
@@ -74,7 +74,7 @@ export const PageUser: React.FC = () =>
                     setAddressToDisplay(newAddressToDisplay);
                 } catch (err) {
                     console.warn("[fetchUserObjOwner]", err);
-                    setAddressToDisplay("error");
+                    setAddressToDisplay(null);
                 }
             })();
         }
@@ -97,7 +97,10 @@ export const PageUser: React.FC = () =>
         </>;
     }
 
-    const addressLink = !addressToDisplay ? "loading..." : <LinkToPolymedia addr={addressToDisplay} kind="address" network={network} />;
+    const addressLink =
+        addressToDisplay === undefined ? <i>..loading..</i>
+        : addressToDisplay === null ? <i>...error...</i>
+        : <LinkToPolymedia addr={addressToDisplay} kind="address" network={network} />;
     const objectLink = !userId ? "loading..." : <LinkToPolymedia addr={userId} kind="object" network={network} />;
     return <>
         {header}
