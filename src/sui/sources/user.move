@@ -198,10 +198,10 @@ fun init(otw: USER, ctx: &mut TxContext)
 
     let mut display_reg = display::new<UserRegistry>(&publisher, ctx);
     display_reg.add(utf8(b"name"), utf8(b"Bidder User Registry"));
-    display_reg.add(utf8(b"description"), utf8(b"All auction creators and bidders."));
+    display_reg.add(utf8(b"description"), utf8(b"All BIDDER users (addresses that have created auctions or placed bids)."));
     display_reg.add(utf8(b"link"), utf8(b"https://bidder.polymedia.app"));
     display_reg.add(utf8(b"image_url"), utf8(b"data:image/svg+xml,%3Csvg%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%201000%201000%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230F4C75%22%2F%3E%3CforeignObject%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3Cdiv%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%20style%3D%22%20height%3A100%25%3Bwidth%3A100%25%3Bdisplay%3Aflex%3Bflex-direction%3Acolumn%3Bjustify-content%3Acenter%3Balign-items%3Acenter%3Bgap%3A40px%3Bposition%3Arelative%3Bbox-sizing%3Aborder-box%3Bpadding%3A40px%3Bfont-family%3Asystem-ui%3Bcolor%3Awhite%3Btext-align%3Acenter%3Boverflow-wrap%3Aanywhere%3B%22%3E%3Cdiv%20style%3D%22font-size%3A160px%22%3E%3Cb%3EUSER%20REGISTRY%3C%2Fb%3E%3C%2Fdiv%3E%3Cdiv%20style%3D%22%20position%3Aabsolute%3Bbottom%3A40px%3Bright%3A40px%3Bfont-size%3A75px%3Btext-align%3Aright%3Bfont-weight%3Abold%3Bcolor%3Ayellow%3Bbackground-color%3Ablack%3Bborder%3A9px%20solid%20yellow%3Bpadding%3A0%2015px%3B%22%3EBIDDER%3C%2Fdiv%3E%3C%2Fdiv%3E%3C%2FforeignObject%3E%3C%2Fsvg%3E"));
-    display_reg.add(utf8(b"project_name"), utf8(b"Bidder | Polymedia"));
+    display_reg.add(utf8(b"project_name"), utf8(b"BIDDER | Polymedia"));
     display_reg.add(utf8(b"project_url"), utf8(b"https://bidder.polymedia.app"));
     // display_reg.add(utf8(b"thumbnail_url"), utf8(b""));
     // display_reg.add(utf8(b"project_image_url"), utf8(b""));
@@ -211,11 +211,11 @@ fun init(otw: USER, ctx: &mut TxContext)
     // Display for User
 
     let mut display_usr = display::new<User>(&publisher, ctx);
-    display_usr.add(utf8(b"name"), utf8(b"Bidder User"));
-    display_usr.add(utf8(b"description"), utf8(b"User auctions and bids."));
-    display_usr.add(utf8(b"link"), utf8(b"https://bidder.polymedia.app"));
+    display_usr.add(utf8(b"name"), utf8(b"BIDDER User"));
+    display_usr.add(utf8(b"description"), utf8(b"Auctions created and bids placed by this address."));
+    display_usr.add(utf8(b"link"), utf8(b"https://bidder.polymedia.app/user/o/{id}"));
     display_usr.add(utf8(b"image_url"), utf8(b"data:image/svg+xml,%3Csvg%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%201000%201000%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230F4C75%22%2F%3E%3CforeignObject%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3Cdiv%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%20style%3D%22%20height%3A100%25%3Bwidth%3A100%25%3Bdisplay%3Aflex%3Bflex-direction%3Acolumn%3Bjustify-content%3Acenter%3Balign-items%3Acenter%3Bgap%3A40px%3Bposition%3Arelative%3Bbox-sizing%3Aborder-box%3Bpadding%3A40px%3Bfont-family%3Asystem-ui%3Bcolor%3Awhite%3Btext-align%3Acenter%3Boverflow-wrap%3Aanywhere%3B%22%3E%3Cdiv%20style%3D%22font-size%3A200px%22%3E%3Cb%3EUSER%3C%2Fb%3E%3C%2Fdiv%3E%3Cdiv%20style%3D%22%20position%3Aabsolute%3Bbottom%3A40px%3Bright%3A40px%3Bfont-size%3A75px%3Btext-align%3Aright%3Bfont-weight%3Abold%3Bcolor%3Ayellow%3Bbackground-color%3Ablack%3Bborder%3A9px%20solid%20yellow%3Bpadding%3A0%2015px%3B%22%3EBIDDER%3C%2Fdiv%3E%3C%2Fdiv%3E%3C%2FforeignObject%3E%3C%2Fsvg%3E"));
-    display_usr.add(utf8(b"project_name"), utf8(b"Bidder | Polymedia"));
+    display_usr.add(utf8(b"project_name"), utf8(b"BIDDER | Polymedia"));
     display_usr.add(utf8(b"project_url"), utf8(b"https://bidder.polymedia.app"));
     // display_usr.add(utf8(b"thumbnail_url"), utf8(b""));
     // display_usr.add(utf8(b"project_image_url"), utf8(b""));
