@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
-import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 
-export const useFetchUserId = () =>
+export const useFetchUserId = (
+    address: string | undefined,
+) =>
 {
     // === state ===
 
-    const currAcct = useCurrentAccount();
-
     const { bidderClient } = useOutletContext<AppContext>();
 
-    const [ userId, setUserId ] = useState<string | null | undefined>();
-    const [ errorFetchUserId, setError ] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null | undefined>();
+    const [errorFetchUserId, setError] = useState<string | null>(null);
 
     // === effects ===
 
     useEffect(() => {
         fetchUserId();
-    }, [bidderClient, currAcct]);
+    }, [bidderClient, address]);
 
     // === functions ===
 
@@ -26,7 +25,7 @@ export const useFetchUserId = () =>
     {
         setError(null);
 
-        if (!currAcct) {
+        if (!address) {
             setUserId(null);
             return;
         }
@@ -34,7 +33,7 @@ export const useFetchUserId = () =>
         setUserId(undefined); // loading
 
         try {
-            const newUserId = await bidderClient.fetchUserId(currAcct.address);
+            const newUserId = await bidderClient.fetchUserId(address);
             setUserId(newUserId);
         } catch (err) {
             setUserId(null);

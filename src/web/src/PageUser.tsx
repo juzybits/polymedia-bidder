@@ -2,7 +2,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { shortenAddress } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { CardLoading, CardWithMsg } from "./components/cards";
@@ -15,7 +15,7 @@ export const PageUser: React.FC = () =>
 
     const currAcct = useCurrentAccount();
 
-    const { userId, errorFetchUserId } = useFetchUserId();
+    const { userId, errorFetchUserId } = useFetchUserId(currAcct?.address);
 
     const { header } = useOutletContext<AppContext>();
 

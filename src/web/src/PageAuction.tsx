@@ -261,7 +261,7 @@ const SectionBid: React.FC<{
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
 
-    const { userId, errorFetchUserId } = useFetchUserId();
+    const { userId, errorFetchUserId } = useFetchUserId(currAcct?.address);
 
     // === effects ===
 
