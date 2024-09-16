@@ -71,6 +71,7 @@ export const PageUser: React.FC = () =>
             .then(obj => {
                 const newAddressToDisplay = objResToOwner(obj);
                 setAddressToDisplay(newAddressToDisplay);
+                bidderClient.cacheUserId(newAddressToDisplay, objectIdParam);
             })
             .catch(err => {
                 setAddressToDisplay(null);

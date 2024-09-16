@@ -229,6 +229,13 @@ export class BidderClient extends SuiClientBase
         return null;
     }
 
+    public cacheUserId(
+        owner: string,
+        userId: string,
+    ) {
+        this.cache.userIds.set(owner, userId);
+    }
+
     public async fetchUserAuctions(
         user_id: string,
         order: "ascending" | "descending" = "descending",
