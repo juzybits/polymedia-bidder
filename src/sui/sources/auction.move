@@ -93,7 +93,7 @@ public struct Auction<phantom CoinType> has store, key {
 // === public-mutative functions ===
 
 public fun admin_creates_auction<CoinType>(
-    mut request: UserRequest,
+    mut user_req: UserRequest,
     name: vector<u8>,
     description: vector<u8>,
     item_addrs: vector<address>,
@@ -165,18 +165,18 @@ public fun admin_creates_auction<CoinType>(
     };
 
     // update user history
-    request.borrow_mut_user().add_created(
+    user_req.add_created(
         auction.id.to_address(),
         clock.timestamp_ms(),
     );
 
-    return (request, auction)
+    return (user_req, auction)
 }
 
 /// Anyone can bid for an item, as long as the auction hasn't ended.
 public fun anyone_bids<CoinType>(
     auction: &mut Auction<CoinType>,
-    mut request: UserRequest,
+    mut user_req: UserRequest,
     pay_coin: Coin<CoinType>,
     clock: &Clock,
     ctx: &mut TxContext,
@@ -210,12 +210,12 @@ public fun anyone_bids<CoinType>(
     };
 
     // update user history
-    request.borrow_mut_user().add_bid(
+    user_req.add_bid(
         auction.id.to_address(),
         current_time_ms,
         auction.lead_value(),);
 
-    return request
+    return user_req
 }
 
 /// Transfer the funds to auction.pay_addr after the auction ends.

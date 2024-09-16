@@ -136,35 +136,29 @@ public fun destroy_user_request(
     ctx: &TxContext,
 ) {
     let UserRequest { user } = request;
-    user.transfer_to_sender(ctx);
-}
-
-public(package) fun borrow_mut_user(
-    request: &mut UserRequest,
-): &mut User {
-    return &mut request.user
+    transfer::transfer(user, ctx.sender());
 }
 
 // === public-package functions ===
 
 public(package) fun add_created(
-    user: &mut User,
+    user_req: &mut UserRequest,
     auction_addr: address,
     time: u64,
 ) {
-    user.created.push_back(UserAuction {
+    user_req.user.created.push_back(UserAuction {
         auction_addr,
         time,
     });
 }
 
 public(package) fun add_bid(
-    user: &mut User,
+    user_req: &mut UserRequest,
     auction_addr: address,
     time: u64,
     amount: u64,
 ) {
-    user.bids.push_back(UserBid {
+    user_req.user.bids.push_back(UserBid {
         auction_addr,
         time,
         amount,
@@ -189,13 +183,6 @@ fun new_user(
         created: table_vec::empty(ctx),
         bids: table_vec::empty(ctx),
     }
-}
-
-fun transfer_to_sender(
-    user: User,
-    ctx: &TxContext,
-) {
-    transfer::transfer(user, ctx.sender());
 }
 
 // === initialization ===
