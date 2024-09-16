@@ -108,7 +108,7 @@ export const PageUser: React.FC = () =>
 
     // === auctions created or bid on ===
 
-    const [ auctions, setAuctions ] = useState<AuctionObj[] | null | undefined>();
+    const [ auctions, setAuctions ] = useState<Map<string, AuctionObj> | null | undefined>();
     const [ errFetchAuctions, setErrFetchAuctions ] = useState<string | null>(null);
 
     useEffect(() =>
@@ -123,7 +123,9 @@ export const PageUser: React.FC = () =>
         ]));
         bidderClient
             .fetchAuctions(uniqueAuctionIds)
-            .then(setAuctions)
+            .then(auctionObjs => {
+                setAuctions(new Map(auctionObjs.map(a => [a.id, a])));
+            })
             .catch(err => {
                 setAuctions(null);
                 setErrFetchAuctions("Failed to fetch auctions");
@@ -144,8 +146,16 @@ export const PageUser: React.FC = () =>
         content = <div className="tabs-container">
             <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
             <div className="tabs-content" style={{ paddingTop: "1.5rem" }}>
-                {activeTab === "auctions" && <SectionUserAuctions history={userHistory === null ? null : userHistory?.created} />}
-                {activeTab === "bids" && <SectionUserBids history={userHistory === null ? null : userHistory?.bids} />}
+                {activeTab === "auctions" &&
+                <SectionUserAuctions
+                    history={userHistory === null ? null : userHistory?.created}
+                    auctions={auctions}
+                />}
+                {activeTab === "bids" &&
+                <SectionUserBids
+                    history={userHistory === null ? null : userHistory?.bids}
+                    auctions={auctions}
+                />}
             </div>
         </div>;
     }
@@ -175,8 +185,10 @@ export const PageUser: React.FC = () =>
 
 const SectionUserAuctions: React.FC<{
     history: UserRecentHistory["created"] | null | undefined;
+    auctions: Map<string, AuctionObj> | null | undefined;
 }> = ({
     history,
+    auctions,
 }) => // TODO: pagination
 {
     if (history === undefined) {
@@ -188,7 +200,7 @@ const SectionUserAuctions: React.FC<{
     return (
         <div className="list-cards">
             {history.data.map(auction =>
-                <CardUserAuction auction={auction} key={auction.auction_addr} />
+                <CardUserAuction history={auction} auction={auctions?.get(auction.auction_addr)} key={auction.auction_addr} />
             )}
         </div>
     );
@@ -197,8 +209,10 @@ const SectionUserAuctions: React.FC<{
 
 const SectionUserBids: React.FC<{
     history: UserRecentHistory["bids"] | null | undefined;
+    auctions: Map<string, AuctionObj> | null | undefined;
 }> = ({
     history,
+    auctions,
 }) => // TODO: pagination
 {
     if (history === undefined) {
@@ -210,50 +224,53 @@ const SectionUserBids: React.FC<{
     return (
         <div className="list-cards">
             {history.data.map(bid =>
-                <CardUserBid bid={bid} key={bid.auction_addr + bid.amount} />
+                <CardUserBid history={bid} auction={auctions?.get(bid.auction_addr)} key={bid.auction_addr + bid.amount} />
             )}
         </div>
     );
 };
 
-const CardUserAuction: React.FC<{ // TODO: fetch auction, then show auction name, and convert amount to <Balance />
-    auction: UserAuction;
+const CardUserAuction: React.FC<{
+    history: UserAuction;
+    auction: AuctionObj | undefined;
 }> = ({
+    history,
     auction,
 }) =>
 {
-    const { network } = useOutletContext<AppContext>();
     return (
-        <Link to={`/auction/${auction.auction_addr}`} className="card">
+        <Link to={`/auction/${history.auction_addr}`} className="card">
             <div className="card-header">
                 <div className="card-title">
-                    {shortenAddress(auction.auction_addr)}
+                    {auction ? auction.name : shortenAddress(history.auction_addr)}
                 </div>
                 <span className="header-label">
-                    {timeAgo(auction.time)}
+                    {timeAgo(history.time)}
                 </span>
             </div>
         </Link>
     );
 };
 
-const CardUserBid: React.FC<{ // TODO: fetch auction, then show auction name, and convert amount to <Balance />
-    bid: UserBid;
+const CardUserBid: React.FC<{
+    history: UserBid;
+    auction: AuctionObj | undefined;
 }> = ({
-    bid,
+    history,
+    auction,
 }) =>
 {
     return (
-        <Link to={`/auction/${bid.auction_addr}`} className="card">
+        <Link to={`/auction/${history.auction_addr}`} className="card">
             <div className="card-header">
                 <div className="card-title">
-                    {shortenAddress(bid.auction_addr)}
+                    {auction ? auction.name : shortenAddress(history.auction_addr)}
                 </div>
                 <span className="header-label">
-                    {timeAgo(bid.time)}
+                    {timeAgo(history.time)}
                 </span>
             </div>
-            <div>Amount: {bid.amount.toString()}</div>
+            <div>Amount: {history.amount.toString()}</div>
         </Link>
     );
 };
