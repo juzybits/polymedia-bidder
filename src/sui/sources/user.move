@@ -45,6 +45,39 @@ public struct UserBid has store, copy {
     amount: u64,
 }
 
+// === UserRequest hot potato ===
+
+public struct UserRequest {
+    user: User,
+}
+
+public fun new_user_request(
+    registry: &mut UserRegistry,
+    ctx: &mut TxContext,
+): UserRequest
+{
+    assert!( !registry.users.contains(ctx.sender()), E_USER_ALREADY_EXISTS );
+    let user = new_user(ctx);
+    registry.users.add(ctx.sender(), user.id.to_address());
+    return UserRequest { user }
+}
+
+public fun existing_user_request(
+    user: User,
+): UserRequest {
+    return UserRequest {
+        user,
+    }
+}
+
+public fun destroy_user_request(
+    request: UserRequest,
+    ctx: &TxContext,
+) {
+    let UserRequest { user } = request;
+    transfer::transfer(user, ctx.sender());
+}
+
 // === public-view functions ===
 
 /// get the address of the User object owned by the given address, or 0x0 if it doesn't exist
@@ -132,39 +165,6 @@ public fun bids(
     user: &User,
 ): &TableVec<UserBid> {
     &user.bids
-}
-
-// === UserRequest hot potato ===
-
-public struct UserRequest {
-    user: User,
-}
-
-public fun new_user_request(
-    registry: &mut UserRegistry,
-    ctx: &mut TxContext,
-): UserRequest
-{
-    assert!( !registry.users.contains(ctx.sender()), E_USER_ALREADY_EXISTS );
-    let user = new_user(ctx);
-    registry.users.add(ctx.sender(), user.id.to_address());
-    return UserRequest { user }
-}
-
-public fun existing_user_request(
-    user: User,
-): UserRequest {
-    return UserRequest {
-        user,
-    }
-}
-
-public fun destroy_user_request(
-    request: UserRequest,
-    ctx: &TxContext,
-) {
-    let UserRequest { user } = request;
-    transfer::transfer(user, ctx.sender());
 }
 
 // === public-package functions ===
@@ -272,38 +272,4 @@ public fun init_for_testing(ctx: &mut TxContext) {
 #[test_only]
 public fun new_registry_for_testing(ctx: &mut TxContext): UserRegistry {
     return new_registry(ctx)
-}
-
-// === deprecated ===
-
-public fun get_created_page( // TODO remove on next release
-    user: &User,
-    ascending: bool,
-    cursor: u64,
-    limit: u64,
-): (vector<UserAuction>, bool, u64)
-{
-    return get_auctions_created(user, ascending, cursor, limit)
-}
-
-public fun get_bids_page( // TODO remove on next release
-    user: &User,
-    ascending: bool,
-    cursor: u64,
-    limit: u64,
-): (vector<UserBid>, bool, u64)
-{
-    return get_bids_placed(user, ascending, cursor, limit)
-}
-
-public fun get_both_pages( // TODO remove on next release
-    user: &User,
-    ascending: bool,
-    cursor_created: u64,
-    cursor_bids: u64,
-    limit_created: u64,
-    limit_bids: u64,
-): (u64, u64, vector<UserAuction>, vector<UserBid>, bool, bool, u64, u64)
-{
-   return get_auctions_and_bids(user, ascending, cursor_created, cursor_bids, limit_created, limit_bids)
 }
