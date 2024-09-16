@@ -22,8 +22,7 @@ public struct USER has drop {}
 /// guarantees 1 User per address
 public struct UserRegistry has key {
     id: UID,
-    // address -> User
-    users: Table<address, address>,
+    users: Table<address, address>, // address -> User
 }
 
 /// stores all auctions created and all bids placed by an address
@@ -48,26 +47,7 @@ public struct UserBid has store, copy {
 
 // === public-view functions ===
 
-public fun get_both_pages(
-    user: &User,
-    ascending: bool,
-    cursor_created: u64,
-    cursor_bids: u64,
-    limit_created: u64,
-    limit_bids: u64,
-): (u64, u64, vector<UserAuction>, vector<UserBid>, bool, bool, u64, u64)
-{
-   let (crtd_page, crtd_more, crtd_cursor) = get_created_page(user, ascending, cursor_created, limit_created);
-   let (bids_page, bids_more, bids_cursor) = get_bids_page(user, ascending, cursor_bids, limit_bids);
-   return (
-        user.created.length(), user.bids.length(),
-        crtd_page, bids_page,
-        crtd_more, bids_more,
-        crtd_cursor, bids_cursor,
-    )
-}
-
-public fun get_created_page(
+public fun get_auctions_created(
     user: &User,
     ascending: bool,
     cursor: u64,
@@ -77,7 +57,7 @@ public fun get_created_page(
     return paginator::get_page(&user.created, ascending, cursor, limit)
 }
 
-public fun get_bids_page(
+public fun get_bids_placed(
     user: &User,
     ascending: bool,
     cursor: u64,
@@ -85,6 +65,25 @@ public fun get_bids_page(
 ): (vector<UserBid>, bool, u64)
 {
     return paginator::get_page(&user.bids, ascending, cursor, limit)
+}
+
+public fun get_auctions_and_bids(
+    user: &User,
+    ascending: bool,
+    cursor_created: u64,
+    cursor_bids: u64,
+    limit_created: u64,
+    limit_bids: u64,
+): ((u64, u64, vector<UserAuction>, vector<UserBid>, bool, bool, u64, u64))
+{
+   let (crtd_page, crtd_more, crtd_cursor) = get_auctions_created(user, ascending, cursor_created, limit_created);
+   let (bids_page, bids_more, bids_cursor) = get_bids_placed(user, ascending, cursor_bids, limit_bids);
+   return (
+        user.created.length(), user.bids.length(),
+        crtd_page, bids_page,
+        crtd_more, bids_more,
+        crtd_cursor, bids_cursor,
+    )
 }
 
 // === public accessors ===
@@ -132,18 +131,18 @@ public fun existing_user_request(
     }
 }
 
-public(package) fun borrow_mut_user(
-    request: &mut UserRequest,
-): &mut User {
-    return &mut request.user
-}
-
 public fun destroy_user_request(
     request: UserRequest,
     ctx: &TxContext,
 ) {
     let UserRequest { user } = request;
     user.transfer_to_sender(ctx);
+}
+
+public(package) fun borrow_mut_user(
+    request: &mut UserRequest,
+): &mut User {
+    return &mut request.user
 }
 
 // === public-package functions ===
@@ -258,4 +257,38 @@ public fun init_for_testing(ctx: &mut TxContext) {
 #[test_only]
 public fun new_registry_for_testing(ctx: &mut TxContext): UserRegistry {
     return new_registry(ctx)
+}
+
+// === deprecated ===
+
+public fun get_created_page( // TODO remove on next release
+    user: &User,
+    ascending: bool,
+    cursor: u64,
+    limit: u64,
+): (vector<UserAuction>, bool, u64)
+{
+    return get_auctions_created(user, ascending, cursor, limit)
+}
+
+public fun get_bids_page( // TODO remove on next release
+    user: &User,
+    ascending: bool,
+    cursor: u64,
+    limit: u64,
+): (vector<UserBid>, bool, u64)
+{
+    return get_bids_placed(user, ascending, cursor, limit)
+}
+
+public fun get_both_pages( // TODO remove on next release
+    user: &User,
+    ascending: bool,
+    cursor_created: u64,
+    cursor_bids: u64,
+    limit_created: u64,
+    limit_bids: u64,
+): (u64, u64, vector<UserAuction>, vector<UserBid>, bool, bool, u64, u64)
+{
+   return get_auctions_and_bids(user, ascending, cursor_created, cursor_bids, limit_created, limit_bids)
 }
