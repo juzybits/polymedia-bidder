@@ -3,7 +3,7 @@ import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
+import { formatBalance, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -304,11 +304,14 @@ const FormBid: React.FC<{
     const { bidderClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
+    const msgMinimum = `Minimum bid is ${formatBalance(auction.minimum_bid, coinMeta.decimals)} ${coinMeta.symbol}`;
     const input_amount = useInputUnsignedBalance({
         label: `Amount (${coinMeta.symbol})`,
         decimals: coinMeta.decimals,
         min: auction.minimum_bid,
-        html: { value: balanceToString(auction.minimum_bid, coinMeta.decimals), required: true, disabled: !currAcct },
+        msgRequired: msgMinimum,
+        msgTooSmall: msgMinimum,
+        html: { required: true, disabled: !currAcct },
     });
 
     const hasInputError = input_amount.err !== undefined;

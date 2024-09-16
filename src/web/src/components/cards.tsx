@@ -1,12 +1,12 @@
-import { AuctionObj, newItemPlaceholder, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { balanceToString, shortenAddress } from "@polymedia/suitcase-core";
+import { formatBalance, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
-import { IconCheck } from "./icons";
 import { timeAgo } from "../lib/time";
+import { IconCheck } from "./icons";
 
 // === cards ===
 
@@ -124,7 +124,7 @@ export const Balance: React.FC<{
         : (
             (!coinMeta || errorCoinMeta)
             ? "Unknown"
-            : `${balanceToString(balance, coinMeta.decimals)} ${coinMeta.symbol}`
+            : `${formatBalance(balance, coinMeta.decimals)} ${coinMeta.symbol}`
         );
 };
 

@@ -1,6 +1,6 @@
 // TODO: move to @polymedia/suitcase-react
 
-import { balanceToString, NORMALIZED_ADDRESS_REGEX, stringToBalance, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
+import { formatBalance, NORMALIZED_ADDRESS_REGEX, stringToBalance, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 
 export type CommonInputProps<T> = {
@@ -236,10 +236,10 @@ export const useInputUnsignedBalance = (
         const bigInput = stringToBalance(input, props.decimals);
 
         if (props.min !== undefined && bigInput < props.min) {
-            return { err: props.msgTooSmall ?? `Minimum value is ${balanceToString(props.min, props.decimals)}`, val: undefined };
+            return { err: props.msgTooSmall ?? `Minimum value is ${formatBalance(props.min, props.decimals)}`, val: undefined };
         }
         if (props.max !== undefined && bigInput > props.max) {
-            return { err: props.msgTooLarge ?? `Maximum value is ${balanceToString(props.max, props.decimals)}`, val: undefined };
+            return { err: props.msgTooLarge ?? `Maximum value is ${formatBalance(props.max, props.decimals)}`, val: undefined };
         }
         return { err: undefined, val: bigInput };
     };
