@@ -313,7 +313,8 @@ export class BidderClient extends SuiClientBase
 
     public async fetchUserRecentAuctionsAndBids(
         user_id: string,
-        limit = 50,
+        limitCreated: number,
+        limitBids: number,
     ) {
         const tx = new Transaction();
 
@@ -324,8 +325,8 @@ export class BidderClient extends SuiClientBase
             false, // descending
             Number.MAX_SAFE_INTEGER,
             Number.MAX_SAFE_INTEGER,
-            limit,
-            limit,
+            limitCreated,
+            limitBids,
         );
 
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
@@ -344,13 +345,13 @@ export class BidderClient extends SuiClientBase
         return {
             created: {
                 total: blockReturns[0][0] as number,
-                page: blockReturns[0][2] as UserAuction[],
+                data: blockReturns[0][2] as UserAuction[],
                 hasMore: blockReturns[0][4] as boolean,
                 cursor: blockReturns[0][6] as number,
             },
             bids: {
                 total: blockReturns[0][1] as number,
-                page: blockReturns[0][3] as UserBid[],
+                data: blockReturns[0][3] as UserBid[],
                 hasMore: blockReturns[0][5] as boolean,
                 cursor: blockReturns[0][7] as number,
             }
