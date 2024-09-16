@@ -28,7 +28,37 @@ export const UserModule =
         });
     },
 
-    get_created_page: (
+    get_user_address: (
+        tx: Transaction,
+        packageId: string,
+        registry: ObjectInput,
+        owner_addr: string,
+    ): TransactionResult => {
+        return tx.moveCall({
+            target: `${packageId}::user::get_user_address`,
+            arguments: [
+                objectArg(tx, registry),
+                tx.pure.address(owner_addr),
+            ],
+        });
+    },
+
+    get_user_addresses: (
+        tx: Transaction,
+        packageId: string,
+        registry: ObjectInput,
+        owner_addrs: string[],
+    ): TransactionResult => {
+        return tx.moveCall({
+            target: `${packageId}::user::get_user_addresses`,
+            arguments: [
+                objectArg(tx, registry),
+                tx.pure.vector("address", owner_addrs),
+            ],
+        });
+    },
+
+    get_auctions_created: (
         tx: Transaction,
         packageId: string,
         user: ObjectInput,
@@ -37,7 +67,7 @@ export const UserModule =
         limit: number,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::user::get_created_page`,
+            target: `${packageId}::user::get_auctions_created`,
             arguments: [
                 objectArg(tx, user),
                 tx.pure.bool(ascending),
@@ -47,7 +77,7 @@ export const UserModule =
         });
     },
 
-    get_bids_page: (
+    get_bids_placed: (
         tx: Transaction,
         packageId: string,
         user: ObjectInput,
@@ -56,7 +86,7 @@ export const UserModule =
         limit: number,
     ): TransactionResult => {
         return tx.moveCall({
-            target: `${packageId}::user::get_bids_page`,
+            target: `${packageId}::user::get_bids_placed`,
             arguments: [
                 objectArg(tx, user),
                 tx.pure.bool(ascending),
@@ -66,7 +96,7 @@ export const UserModule =
         });
     },
 
-    get_both_pages: (
+    get_auctions_and_bids: (
         tx: Transaction,
         packageId: string,
         user: ObjectInput,
@@ -77,8 +107,7 @@ export const UserModule =
         limit_bids: number,
     ): TransactionResult => {
         return tx.moveCall({
-            // target: `${packageId}::user::get_both_pages`,
-            target: "0xd7e5013262644a7955088f2cbd19a6979445af6eb5fadbba163ecd8a5339d564::user::get_both_pages", // TODO remove on next release
+            target: `${packageId}::user::get_auctions_and_bids`,
             arguments: [
                 objectArg(tx, user),
                 tx.pure.bool(ascending),

@@ -249,7 +249,7 @@ export class BidderClient extends SuiClientBase
             cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
         }
 
-        UserModule.get_created_page(
+        UserModule.get_auctions_created(
             tx,
             this.packageId,
             user_id,
@@ -286,7 +286,7 @@ export class BidderClient extends SuiClientBase
             cursor = order === "ascending" ? 0 : Number.MAX_SAFE_INTEGER;
         }
 
-        UserModule.get_bids_page(
+        UserModule.get_bids_placed(
             tx,
             this.packageId,
             user_id,
@@ -317,7 +317,7 @@ export class BidderClient extends SuiClientBase
     ) {
         const tx = new Transaction();
 
-        UserModule.get_both_pages(
+        UserModule.get_auctions_and_bids(
             tx,
             this.packageId,
             user_id,
