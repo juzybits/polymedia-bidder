@@ -5,7 +5,7 @@ import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { CardLoading, CardWithMsg } from "./components/cards";
+import { Balance, CardLoading, CardWithMsg, HeaderLabel } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
@@ -200,7 +200,7 @@ const SectionUserAuctions: React.FC<{
     return (
         <div className="list-cards">
             {history.data.map(auction =>
-                <CardUserAuction history={auction} auction={auctions?.get(auction.auction_addr)} key={auction.auction_addr} />
+                <CardUserAuctionOrBid history={auction} auction={auctions?.get(auction.auction_addr)} key={auction.auction_addr} />
             )}
         </div>
     );
@@ -224,12 +224,39 @@ const SectionUserBids: React.FC<{
     return (
         <div className="list-cards">
             {history.data.map(bid =>
-                <CardUserBid history={bid} auction={auctions?.get(bid.auction_addr)} key={bid.auction_addr + bid.amount} />
+                <CardUserAuctionOrBid history={bid} auction={auctions?.get(bid.auction_addr)} key={bid.auction_addr + bid.amount} />
             )}
         </div>
     );
 };
 
+const CardUserAuctionOrBid: React.FC<{
+    history: UserAuction | UserBid;
+    auction: AuctionObj | undefined;
+}> = ({
+    history,
+    auction,
+}) => {
+    const isBid = 'amount' in history;
+
+    return (
+        <Link to={`/auction/${history.auction_addr}`} className="card">
+            <div className="card-header">
+                <div className="card-title">
+                    {auction ? auction.name : shortenAddress(history.auction_addr)}
+                </div>
+                {auction
+                    ? <HeaderLabel auction={auction} />
+                    : <span className="header-label">{timeAgo(history.time)}</span>}
+            </div>
+            {isBid && <div>
+                {auction && <Balance balance={history.amount} coinType={auction.type_coin} />}
+                {!auction && <span className="header-label">{history.amount.toString()}</span>}
+            </div>}
+        </Link>
+    );
+};
+/*
 const CardUserAuction: React.FC<{
     history: UserAuction;
     auction: AuctionObj | undefined;
@@ -244,9 +271,9 @@ const CardUserAuction: React.FC<{
                 <div className="card-title">
                     {auction ? auction.name : shortenAddress(history.auction_addr)}
                 </div>
-                <span className="header-label">
-                    {timeAgo(history.time)}
-                </span>
+                {auction
+                ? <HeaderLabel auction={auction} />
+                : <span className="header-label">{timeAgo(history.time)}</span>}
             </div>
         </Link>
     );
@@ -274,3 +301,4 @@ const CardUserBid: React.FC<{
         </Link>
     );
 };
+*/

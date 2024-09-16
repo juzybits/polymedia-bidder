@@ -98,8 +98,8 @@ export const HeaderLabel: React.FC<{
     let labelClass = "";
     if (auction.is_cancelled) { text = "CANCELLED"; labelClass = "cancelled"; }
     else if (!auction.has_started) { text = `STARTS IN ${timeAgo(auction.begin_time_ms)}`; labelClass = "soon"; }
-    else if (auction.has_ended) { text = "AUCTION ENDED"; labelClass = "ended"; }
-    else if (auction.is_live) { text = "LIVE AUCTION"; labelClass = "live"; }
+    else if (auction.has_ended) { text = "ENDED"; labelClass = "ended"; }
+    else if (auction.is_live) { text = "LIVE"; labelClass = "live"; }
     else { text = "???"; }
 
     return <div className={`header-label ${labelClass}`}>
