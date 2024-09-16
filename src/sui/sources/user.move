@@ -47,6 +47,34 @@ public struct UserBid has store, copy {
 
 // === public-view functions ===
 
+/// get the address of the User object owned by the given address, or 0x0 if it doesn't exist
+public fun get_user_address(
+    registry: &UserRegistry,
+    owner_addr: address,
+): address
+{
+    if (table::contains(&registry.users, owner_addr)) {
+        *table::borrow(&registry.users, owner_addr)
+    } else {
+        @0x0
+    }
+}
+
+/// get the addresses of the User objects owned by the given addresses, or 0x0 if they don't exist
+public fun get_user_addresses(
+    registry: &UserRegistry,
+    owner_addrs: vector<address>,
+): vector<address>
+{
+    owner_addrs.map!(|owner_addr|{
+        if (table::contains(&registry.users, owner_addr)) {
+            *table::borrow(&registry.users, owner_addr)
+        } else {
+            @0x0
+        }
+    })
+}
+
 public fun get_auctions_created(
     user: &User,
     ascending: bool,
