@@ -692,29 +692,84 @@ const CardAuctionDetails: React.FC<{
     auction,
 }) => {
     const { network } = useOutletContext<AppContext>();
-    return <>
-        <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
-        <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
-        {/* <div>Name: {auction.name}</div>
-        <div>Description: {auction.description}</div> */}
-        <div>Items: <ObjectLinkList ids={auction.item_addrs} /></div>
-        {/* <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div> */}
-        <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
-        <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
-        <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
-        <div>Leader amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
-        <div>Start time: {msToDate(auction.begin_time_ms)}</div>
-        <div>End time: {msToDate(auction.end_time_ms)}</div>
-        <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
-        <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
-        <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
-        <div>Has started: {auction.has_started ? "yes" : "no"}</div>
-        <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
-        <div>Is live: {auction.is_live ? "yes" : "no"}</div>
-        <div>Is cancelled: {auction.is_cancelled ? "yes" : "no"}</div>
-        <div>Has leader: {auction.has_leader ? "yes" : "no"}</div>
-        <div>Has balance: {auction.has_balance ? "yes" : "no"}</div>
-    </>;
+    return (
+        <div className="card-auction-details">
+            {/* Main info */}
+            <div className="auction-detail">
+                <span className="detail-label">Auction ID:</span>
+                <LinkToPolymedia addr={auction.id} kind="object" network={network} />
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Currency:</span>
+                <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} />
+            </div>
+            {/* <div className="auction-detail">
+                <span className="detail-label">Items:</span>
+                <ObjectLinkList ids={auction.item_addrs} />
+            </div> */}
+            <div className="auction-detail">
+                <span className="detail-label">Top Bid:</span>
+                <Balance balance={auction.lead_value} coinType={auction.type_coin} />
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Leader Address:</span>
+                <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
+            </div>
+            {/* Other info */}
+            {/* <div className="auction-detail">
+                <span className="detail-label">Start Time:</span>
+                {msToDate(auction.begin_time_ms)}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">End Time:</span>
+                {msToDate(auction.end_time_ms)}
+            </div> */}
+            <div className="auction-detail">
+                <span className="detail-label">Minimum Bid:</span>
+                <Balance balance={auction.minimum_bid} coinType={auction.type_coin} />
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Minimum Increase:</span>
+                {bpsToPct(auction.minimum_increase_bps)}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Extension Period:</span>
+                {msToMinutes(auction.extension_period_ms)}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Creator Address:</span>
+                <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} />
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Payment Address:</span>
+                <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} />
+            </div>
+            {/* <div className="auction-detail">
+                <span className="detail-label">Started</span>
+                {auction.has_started ? "yes": "no"}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Ended</span>
+                {auction.has_ended ? "yes": "no"}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Live</span>
+                {auction.is_live ? "yes": "no"}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Cancelled</span>
+                {auction.is_cancelled ? "yes": "no"}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Has Leader</span>
+                {auction.has_leader ? "yes": "no"}
+            </div>
+            <div className="auction-detail">
+                <span className="detail-label">Has Balance</span>
+                {auction.has_balance ? "yes": "no"}
+            </div> */}
+        </div>
+    );
 };
 
 const CardTransaction: React.FC<{
@@ -773,3 +828,34 @@ const CardTxAnyoneBids: React.FC<{
         </div>
     );
 };
+
+// const CardAuctionDetails: React.FC<{
+//     auction: AuctionObj;
+// }> = ({
+//     auction,
+// }) => {
+//     const { network } = useOutletContext<AppContext>();
+//     return <>
+//         <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
+//         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
+//         {/* <div>Name: {auction.name}</div>
+//         <div>Description: {auction.description}</div> */}
+//         <div>Items: <ObjectLinkList ids={auction.item_addrs} /></div>
+//         {/* <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div> */}
+//         <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
+//         <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
+//         <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
+//         <div>Leader amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
+//         <div>Start time: {msToDate(auction.begin_time_ms)}</div>
+//         <div>End time: {msToDate(auction.end_time_ms)}</div>
+//         <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
+//         <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
+//         <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
+//         <div>Has started: {auction.has_started ? "yes" : "no"}</div>
+//         <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
+//         <div>Is live: {auction.is_live ? "yes" : "no"}</div>
+//         <div>Is cancelled: {auction.is_cancelled ? "yes" : "no"}</div>
+//         <div>Has leader: {auction.has_leader ? "yes" : "no"}</div>
+//         <div>Has balance: {auction.has_balance ? "yes" : "no"}</div>
+//     </>;
+// };
