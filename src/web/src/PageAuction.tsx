@@ -126,7 +126,12 @@ export const PageAuction: React.FC = () =>
                     <div className="section-title">{auction.name}</div>
                     <div className="auction-header-info">
                         <div className="top-bid">
-                            <Balance balance={auction.lead_value || auction.minimum_bid} coinType={auction.type_coin} />
+                            <Balance
+                                balance={(auction.has_ended && auction.has_balance)
+                                    ? auction.lead_value
+                                    : auction.minimum_bid}
+                                coinType={auction.type_coin}
+                            />
                         </div>
                         <HeaderLabel auction={auction} />
                     </div>
@@ -712,14 +717,16 @@ const CardAuctionDetails: React.FC<{
                 <span className="detail-label">Items:</span>
                 <ObjectLinkList ids={auction.item_addrs} />
             </div> */}
+            {auction.has_balance &&
             <div className="auction-detail">
                 <span className="detail-label">Top Bid:</span>
                 <Balance balance={auction.lead_value} coinType={auction.type_coin} />
-            </div>
+            </div>}
+            {auction.has_leader &&
             <div className="auction-detail">
                 <span className="detail-label">Leader Address:</span>
                 <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
-            </div>
+            </div>}
             <div className="auction-detail">
                 <span className="detail-label">Start Time:</span>
                 {msToDate(auction.begin_time_ms)}
