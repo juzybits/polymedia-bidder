@@ -10,8 +10,8 @@ export function makeTabs<T extends readonly Tab[]>(tabs: T)
     const names = tabs.map(tab => tab.name);
     type TabName = (typeof names)[number];
 
-    const isTabName = (str: string): str is TabName => {
-        return names.includes(str);
+    const isTabName = (str: string | undefined): str is TabName => {
+        return typeof str === "string" && names.includes(str);
     };
 
     return {

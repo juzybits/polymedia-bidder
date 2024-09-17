@@ -26,7 +26,7 @@ export const PageUser: React.FC = () =>
 
     // === url validation ===
 
-    const { address: addressParam, tabName = "bids" } = useParams<{ address?: string; tabName?: string }>();
+    const { address: addressParam, tabName } = useParams<{ address?: string; tabName?: string }>();
 
     if (!tabs.isTabName(tabName)) {
         return <PageNotFound />;
