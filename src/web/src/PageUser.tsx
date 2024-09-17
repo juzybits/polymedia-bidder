@@ -26,11 +26,7 @@ export const PageUser: React.FC = () =>
 
     // === url validation ===
 
-    const {
-        address: addressParam,
-        objectId: objectIdParam,
-        tabName = "bids",
-    } = useParams<{ address?: string; objectId?: string; tabName?: string }>();
+    const { address: addressParam, tabName = "bids" } = useParams<{ address?: string; tabName?: string }>();
 
     if (!tabs.isTabName(tabName)) {
         return <PageNotFound />;
@@ -43,42 +39,16 @@ export const PageUser: React.FC = () =>
     const changeTab = (tab: string) => {
         if (tabs.isTabName(tab)) {
             setActiveTab(tab);
-            const baseUrl =
-                addressParam ? `/user/a/${addressParam}`
-               : objectIdParam ? `/user/o/${objectIdParam}`
-               : "/user";
-            window.history.replaceState({}, "", `${baseUrl}/${tab}`);
+            const url = `/user/${addressParam ? `${addressParam}/` : ""}${tab}`;
+            window.history.replaceState({}, "", url);
         }
     };
 
     // === user address and object ===
 
-    const addressToFetch = objectIdParam ? undefined : (addressParam ?? currAcct?.address);
-    const [ addressToDisplay, setAddressToDisplay ] = useState<string | null | undefined>(addressToFetch);
+    const addressToFetch = addressParam ?? currAcct?.address;
 
-    const { userId, errorFetchUserId } = objectIdParam
-        ? { userId: objectIdParam, errorFetchUserId: null }
-        : useFetchUserId(addressToFetch);
-
-    useEffect(() => {
-        if (addressToFetch) {
-            setAddressToDisplay(addressToFetch);
-        } else if (objectIdParam) {
-            bidderClient.suiClient.getObject({
-                id: objectIdParam,
-                options: { showOwner: true },
-            })
-            .then(obj => {
-                const newAddressToDisplay = objResToOwner(obj);
-                setAddressToDisplay(newAddressToDisplay);
-                bidderClient.cacheUserId(newAddressToDisplay, objectIdParam);
-            })
-            .catch(err => {
-                setAddressToDisplay(null);
-                console.warn("[fetchUserObjOwner]", err);
-            });
-        }
-    }, [addressToFetch, objectIdParam, bidderClient.suiClient]);
+    const { userId, errorFetchUserId } = useFetchUserId(addressToFetch);
 
     // === user history ===
 
@@ -160,11 +130,9 @@ export const PageUser: React.FC = () =>
         </div>;
     }
 
-    const addressLink =
-        addressToDisplay === undefined ? <i>..loading..</i>
-        : addressToDisplay === null ? <i>...error...</i>
-        : <LinkToPolymedia addr={addressToDisplay} kind="address" network={network} />;
-    const objectLink = !userId ? "loading..." : <LinkToPolymedia addr={userId} kind="object" network={network} />;
+    const addressLink = addressToFetch === undefined
+        ? <i>..loading..</i>
+        : <LinkToPolymedia addr={addressToFetch} kind="address" network={network} />;
     return <>
         {header}
         <div id="page-user" className="page-regular">
