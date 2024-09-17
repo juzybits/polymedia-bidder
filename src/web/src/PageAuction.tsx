@@ -6,7 +6,7 @@ import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, HeaderLabel, ObjectLinkList } from "./components/cards";
@@ -286,8 +286,10 @@ const SectionBid: React.FC<{
                     <div className="card-title">Top bid</div>
                     <div>Amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
                     <div>
-                        Sender: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
-                        {currAcct?.address === auction.lead_addr && <span className="text-green"> (you)</span>}
+                        <div>
+                            sender: <LinkToUser addr={auction.lead_addr} kind="bids" />
+                            {currAcct?.address === auction.lead_addr && <span className="text-green"> (you)</span>}
+                        </div>
                     </div>
             </div>}
         </>;
@@ -725,7 +727,7 @@ const CardAuctionDetails: React.FC<{
             {auction.has_leader &&
             <div className="auction-detail">
                 <span className="detail-label">Leader Address:</span>
-                <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
+                <LinkToUser addr={auction.lead_addr} kind="bids" />
             </div>}
             <div className="auction-detail">
                 <span className="detail-label">Start Time:</span>
@@ -749,7 +751,7 @@ const CardAuctionDetails: React.FC<{
             </div>
             <div className="auction-detail">
                 <span className="detail-label">Creator Address:</span>
-                <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} />
+                <LinkToUser addr={auction.admin_addr} kind="auctions" />
             </div>
             <div className="auction-detail">
                 <span className="detail-label">Payment Address:</span>
@@ -813,7 +815,7 @@ const CardTxAdminCreatesAuction: React.FC<{
                 <div className="card-title">CREATED</div>
                 <span className="header-label">{timeAgo(tx.timestamp)}</span>
             </div>
-            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
             <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
         </div>
     );
@@ -834,10 +836,20 @@ const CardTxAnyoneBids: React.FC<{
                 </div>
                 <span className="header-label">{timeAgo(tx.timestamp)}</span>
             </div>
-            <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
+            <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
             <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
         </div>
     );
+};
+
+const LinkToUser: React.FC<{
+    addr: string;
+    kind: "bids" | "auctions";
+}> = ({
+    addr,
+    kind,
+}) => {
+    return <Link to={`/user/${addr}/${kind}`}>{shortenAddress(addr)}</Link>;
 };
 
 // const CardAuctionDetails: React.FC<{
