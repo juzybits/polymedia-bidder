@@ -98,6 +98,21 @@ export const HeaderLabel: React.FC<{
     </div>;
 };
 
+export const TopBid: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    return <div className="top-bid">
+        <Balance
+            balance={(auction.has_ended && auction.has_balance)
+                ? auction.lead_value
+                : auction.minimum_bid}
+            coinType={auction.type_coin}
+        />
+    </div>;
+};
+
 export const Balance: React.FC<{
     balance: bigint;
     coinType: string;

@@ -5,7 +5,7 @@ import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { Balance, CardLoading, CardWithMsg, HeaderLabel } from "./components/cards";
+import { Balance, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
@@ -209,13 +209,17 @@ const CardUserAuctionOrBid: React.FC<{
 
     return (
         <Link to={`/auction/${history.auction_addr}/items`} className="card">
-            <div className="card-header">
+            <div className="card-header column-on-small">
+
                 <div className="card-title">
                     {auction ? auction.name : shortenAddress(history.auction_addr)}
                 </div>
-                {auction
-                    ? <HeaderLabel auction={auction} />
-                    : <span className="header-label">{timeAgo(history.time)}</span>}
+                <div className="auction-header-info">
+                    {auction && <TopBid auction={auction} />}
+                    {auction
+                        ? <HeaderLabel auction={auction} />
+                        : <span className="header-label">{timeAgo(history.time)}</span>}
+                </div>
             </div>
             {isBid && <div>
                 {auction && <Balance balance={history.amount} coinType={auction.type_coin} />}

@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, HeaderLabel, ObjectLinkList } from "./components/cards";
+import { Balance, CardAuctionItems, CardWithMsg, FullCardMsg, HeaderLabel, ObjectLinkList, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
 import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
@@ -125,14 +125,7 @@ export const PageAuction: React.FC = () =>
                 <div className="section-header column-on-small">
                     <div className="section-title">{auction.name}</div>
                     <div className="auction-header-info">
-                        <div className="top-bid">
-                            <Balance
-                                balance={(auction.has_ended && auction.has_balance)
-                                    ? auction.lead_value
-                                    : auction.minimum_bid}
-                                coinType={auction.type_coin}
-                            />
-                        </div>
+                        <TopBid auction={auction} />
                         <HeaderLabel auction={auction} />
                     </div>
                 </div>

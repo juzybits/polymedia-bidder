@@ -17,5 +17,5 @@ export const bpsToPct = (bps: number): string => {
 };
 
 export const shortenDigest = (digest: string): string => {
-    return digest.slice(0, 6) + "…" + digest.slice(-4);
+    return digest.slice(0, 4) + "…" + digest.slice(-4);
 };

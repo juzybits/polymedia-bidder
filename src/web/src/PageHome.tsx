@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
-import { CardAuctionItems, CardLoading, CardWithMsg } from "./components/cards";
+import { CardAuctionItems, CardLoading, CardWithMsg, TopBid } from "./components/cards";
 import { timeAgo } from "./lib/time";
 
 export const PageHome: React.FC = () =>
@@ -139,9 +139,12 @@ const CardTxAdminCreatesAuction: React.FC<{
 {
     return (
         <Link to={`/auction/${tx.auctionId}/items`} className="card link">
-            <div className="card-header">
+            <div className="card-header column-on-small">
                 <div className="card-title">{tx.inputs.name}</div>
-                <span className="header-label">{timeAgo(tx.timestamp)}</span>
+                <div className="auction-header-info">
+                    {/* <TopBid auction={auction} /> TODO */}
+                    <span className="header-label">{timeAgo(tx.timestamp)}</span>
+                </div>
             </div>
 
             {tx.inputs.description.length > 0 &&
