@@ -340,6 +340,34 @@ footer {
     }
 }
 
+.tx-list {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+.card.tx {
+    padding: @gap-15;
+    gap: @gap-10;
+    .card-body {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: @gap-10;
+        @media (max-width: @screen-small) {
+            flex-direction: column;
+        }
+    }
+    &.tx-create {
+        border-left: 2px solid #4CAF50;
+    }
+    &.tx-bid {
+        border-left: 2px solid #9C27B0;
+    }
+    .card-title {
+        font-size: 1.2em;
+    }
+}
+
 @color-bg-red: #cb3333;
 @color-bg-purple: #623cb9;
 @color-bg-green: #2e982e;
@@ -363,7 +391,7 @@ footer {
 
         .top-bid {
             font-weight: bold;
-            color: gold;
+            color: #ffe241;
             border-radius: 4px;
             text-align: center;
         }

@@ -442,24 +442,18 @@ const SectionHistory: React.FC<{
 
     // === html ===
 
-    let content: React.ReactNode;
     if (errFetch) {
-        content = <FullCardMsg>{errFetch}</FullCardMsg>;
+        return <FullCardMsg>{errFetch}</FullCardMsg>;
     } else if (txs === undefined) {
-        content = <FullCardMsg>Loading…</FullCardMsg>;
-    } else {
-        content = (
-            <div className="list-cards">
-                {txs?.data.map(tx =>
-                    <CardTransaction tx={tx} key={tx.digest} />
-                )}
-            </div>
-        );
+        return <FullCardMsg>Loading…</FullCardMsg>;
     }
-
     return (
         <div className="card">
-            {content}
+            <div className="list-cards tx-list">
+                {txs?.data.map(tx =>
+                <CardTransaction tx={tx} key={tx.digest} />
+                )}
+            </div>
         </div>
     );
 };
@@ -810,13 +804,15 @@ const CardTxAdminCreatesAuction: React.FC<{
 {
     const { network } = useOutletContext<AppContext>();
     return (
-        <div className="card">
+        <div className="card tx tx-create">
             <div className="card-header">
                 <div className="card-title">CREATED</div>
                 <span className="header-label">{timeAgo(tx.timestamp)}</span>
             </div>
-            <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
-            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
+            <div className="card-body">
+                <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+                <div>tx: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
+            </div>
         </div>
     );
 };
@@ -828,7 +824,7 @@ const CardTxAnyoneBids: React.FC<{
 }) => {
     const { network } = useOutletContext<AppContext>();
     return (
-        <div className="card">
+        <div className="card tx tx-bid">
             <div className="card-header">
                 <div className="card-title">
                     BID&nbsp;
@@ -836,8 +832,10 @@ const CardTxAnyoneBids: React.FC<{
                 </div>
                 <span className="header-label">{timeAgo(tx.timestamp)}</span>
             </div>
-            <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
-            <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
+            <div className="card-body">
+                <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+                <div>tx: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
+            </div>
         </div>
     );
 };
