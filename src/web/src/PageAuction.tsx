@@ -715,15 +715,14 @@ const CardAuctionDetails: React.FC<{
                 <span className="detail-label">Leader Address:</span>
                 <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} />
             </div>
-            {/* Other info */}
-            {/* <div className="auction-detail">
+            <div className="auction-detail">
                 <span className="detail-label">Start Time:</span>
                 {msToDate(auction.begin_time_ms)}
             </div>
             <div className="auction-detail">
                 <span className="detail-label">End Time:</span>
                 {msToDate(auction.end_time_ms)}
-            </div> */}
+            </div>
             <div className="auction-detail">
                 <span className="detail-label">Minimum Bid:</span>
                 <Balance balance={auction.minimum_bid} coinType={auction.type_coin} />
