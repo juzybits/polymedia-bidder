@@ -189,7 +189,7 @@ const FormCreateAuction: React.FC<{
                 throw new Error(resp.effects?.status.error);
             }
             setSubmitRes({ ok: true });
-            navigate(`/auction/${auctionObjChange.objectId}`);
+            navigate(`/auction/${auctionObjChange.objectId}/items`);
         } catch (err) {
             const errMsg = bidderClient.errCodeToStr(err, "Failed to create auction");
             setSubmitRes({ ok: false, err: errMsg });

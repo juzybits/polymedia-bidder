@@ -208,7 +208,7 @@ const CardUserAuctionOrBid: React.FC<{
     const isBid = 'amount' in history;
 
     return (
-        <Link to={`/auction/${history.auction_addr}`} className="card">
+        <Link to={`/auction/${history.auction_addr}/items`} className="card">
             <div className="card-header">
                 <div className="card-title">
                     {auction ? auction.name : shortenAddress(history.auction_addr)}
@@ -234,7 +234,7 @@ const CardUserAuction: React.FC<{
 }) =>
 {
     return (
-        <Link to={`/auction/${history.auction_addr}`} className="card">
+        <Link to={`/auction/${history.auction_addr}/items`} className="card">
             <div className="card-header">
                 <div className="card-title">
                     {auction ? auction.name : shortenAddress(history.auction_addr)}
@@ -256,7 +256,7 @@ const CardUserBid: React.FC<{
 }) =>
 {
     return (
-        <Link to={`/auction/${history.auction_addr}`} className="card">
+        <Link to={`/auction/${history.auction_addr}/items`} className="card">
             <div className="card-header">
                 <div className="card-title">
                     {auction ? auction.name : shortenAddress(history.auction_addr)}

@@ -32,7 +32,7 @@ export const PageAuction: React.FC = () =>
 {
     // === url validation ===
 
-    const { auctionId, tabName = "items" } = useParams();
+    const { auctionId, tabName } = useParams();
     if (!auctionId) { return <PageNotFound />; };
     if (!tabs.isTabName(tabName)) { return <PageNotFound />; }
 

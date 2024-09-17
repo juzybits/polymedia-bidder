@@ -35,7 +35,7 @@ export const AppRouter: React.FC = () => {
                 <Route path="/user/:address/:tabName" element={<PageUser />} />
                 <Route path="/user/:tabName" element={<PageUser />} />
                 <Route path="/settings" element={<PageSettings />} />
-                <Route path="/auction/:auctionId/:tabName?" element={<PageAuction />} />
+                <Route path="/auction/:auctionId/:tabName" element={<PageAuction />} />
                 {/* <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
                 <Route path="/dev/display/user" element={<PageDevDisplayUser />} />
                 <Route path="/dev/display/registry" element={<PageDevDisplayUserRegistry />} /> */}

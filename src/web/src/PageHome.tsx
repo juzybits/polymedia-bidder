@@ -138,7 +138,7 @@ const CardTxAdminCreatesAuction: React.FC<{
 }) =>
 {
     return (
-        <Link to={`/auction/${tx.auctionId}`} className="card link">
+        <Link to={`/auction/${tx.auctionId}/items`} className="card link">
             <div className="card-header">
                 <div className="card-title">{tx.inputs.name}</div>
                 <span className="header-label">{timeAgo(tx.timestamp)}</span>

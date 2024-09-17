@@ -237,6 +237,6 @@ export const FullCardMsg: React.FC<{
 //         <div>minimum_increase_bps: {bpsToPct(tx.inputs.minimum_increase_bps)}</div>
 //         <div>extension_period_ms: {msToMinutes(tx.inputs.extension_period_ms)}</div>
 //         <div>item_addrs: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
-//         <div><Link to={`/auction/${tx.auctionId}`} className="btn">VIEW</Link></div>
+//         <div><Link to={`/auction/${tx.auctionId}/items`} className="btn">VIEW</Link></div>
 //     </>;
 // };
