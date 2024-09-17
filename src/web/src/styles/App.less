@@ -349,14 +349,33 @@ footer {
     flex-direction: row;
     justify-content: space-between;
     align-items: start;
-    gap: @gap-10;
+    gap: @gap-15;
     &.column-on-small {
         @media (max-width: @screen-small) {
             flex-direction: column-reverse;
         }
     }
+
+    .auction-header-info {
+        display: flex;
+        align-items: center;
+        gap: @gap-15;
+
+        .top-bid {
+            font-weight: bold;
+            color: gold;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        @media (max-width: @screen-small) {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
     .header-label {
-        flex-shrink: 0;
+        text-align: center;
         padding: 0.3em 0.6em;
         font-size: 0.9em;
         color: #bbb;
@@ -364,6 +383,7 @@ footer {
         border: @border-gray;
         border-radius: @border-radius;
         font-weight: bold;
+
         &.cancelled {
             background-color: @color-bg-red;
             border-color: @color-bg-red;

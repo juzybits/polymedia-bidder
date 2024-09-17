@@ -124,7 +124,12 @@ export const PageAuction: React.FC = () =>
 
                 <div className="section-header column-on-small">
                     <div className="section-title">{auction.name}</div>
-                    <HeaderLabel auction={auction} />
+                    <div className="auction-header-info">
+                        <div className="top-bid">
+                            <Balance balance={auction.lead_value || auction.minimum_bid} coinType={auction.type_coin} />
+                        </div>
+                        <HeaderLabel auction={auction} />
+                    </div>
                 </div>
 
                 {auction.description.length > 0 &&
