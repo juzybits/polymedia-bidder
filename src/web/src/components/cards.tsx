@@ -85,19 +85,10 @@ export const HeaderLabel: React.FC<{
 }> = ({
     auction,
 }) => {
-/*
-{(() => {
-    if (auction.is_cancelled) { return "CANCELLED"; }
-    if (!auction.has_started) { return `STARTS IN ${timeAgo(auction.begin_time_ms)}`; }
-    if (auction.has_ended) { return "ENDED"; }
-    if (auction.is_live) { return "LIVE"; }
-    return "???"; // should never happen
-})()}
-*/
     let text = "";
     let labelClass = "";
     if (auction.is_cancelled) { text = "CANCELLED"; labelClass = "cancelled"; }
-    else if (!auction.has_started) { text = `STARTS IN ${timeAgo(auction.begin_time_ms)}`; labelClass = "soon"; }
+    else if (!auction.has_started) { text = `⏳ ${timeAgo(auction.begin_time_ms)}`; labelClass = "soon"; }
     else if (auction.has_ended) { text = "ENDED"; labelClass = "ended"; }
     else if (auction.is_live) { text = "LIVE"; labelClass = "live"; }
     else { text = "???"; }
