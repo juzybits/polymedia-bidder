@@ -103,7 +103,7 @@ export const TopBid: React.FC<{
 }> = ({
     auction,
 }) => {
-    return <div className="top-bid">
+    return <div className="header-label top-bid">
         <Balance
             balance={(auction.has_ended && auction.has_balance)
                 ? auction.lead_value

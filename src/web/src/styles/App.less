@@ -197,13 +197,6 @@ footer {
         align-items: center;
         gap: @gap-15;
 
-        .top-bid {
-            font-weight: bold;
-            color: #f7f2d7;
-            border-radius: 4px;
-            text-align: center;
-        }
-
         @media (max-width: @screen-small) {
             width: 100%;
             justify-content: space-between;
@@ -226,6 +219,9 @@ footer {
         &.live {
             background-color: @color-bg-green;
             color: white;
+        }
+        &.top-bid {
+            color: @color-text;
         }
     }
 }
