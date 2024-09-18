@@ -442,7 +442,7 @@ const SectionHistory: React.FC<{
     }
     return (
         <div className="card">
-            <div className="list-cards tx-list">
+            <div className="card-list tx-list">
                 {txs?.data.map(tx =>
                 <CardTransaction tx={tx} key={tx.digest} />
                 )}

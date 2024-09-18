@@ -166,7 +166,7 @@ const SectionUserAuctions: React.FC<{
         return <CardWithMsg>No auctions yet</CardWithMsg>;
     }
     return (
-        <div className="list-cards">
+        <div className="card-list">
             {history.data.map(auction =>
                 <CardUserAuctionOrBid history={auction} auction={auctions?.get(auction.auction_addr)} key={auction.auction_addr} />
             )}
@@ -190,7 +190,7 @@ const SectionUserBids: React.FC<{
         return <CardWithMsg>No bids yet</CardWithMsg>;
     }
     return (
-        <div className="list-cards">
+        <div className="card-list">
             {history.data.map(bid =>
                 <CardUserAuctionOrBid history={bid} auction={auctions?.get(bid.auction_addr)} key={bid.auction_addr + bid.amount} />
             )}

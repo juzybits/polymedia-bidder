@@ -248,7 +248,7 @@ const FormCreateAuction: React.FC<{
         <div className="chosen-items">
             <h2>Chosen items ({chosenItems.length})</h2>
 
-            <div className="list-cards">
+            <div className="card-list">
             {chosenItems.map(item =>
                 <CardSuiItem item={item} key={item.id} onClick={() => addOrRemoveItem(item)} />
             )}

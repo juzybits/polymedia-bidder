@@ -105,7 +105,7 @@ const SectionRecentAuctions: React.FC = () =>
     } else if (errFetch) {
         content = <CardWithMsg>{errFetch}</CardWithMsg>;
     } else {
-        content = <div className="list-cards">
+        content = <div className="card-list">
             {txsWithItems.map(({ tx, items }) => (
                 <CardTxAdminCreatesAuction
                     tx={tx}
