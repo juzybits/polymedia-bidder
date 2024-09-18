@@ -5,7 +5,7 @@ import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
-import { timeAgo } from "../lib/time";
+import { formatTimeDiff } from "../lib/time";
 import { IconCheck } from "./icons";
 
 // === cards ===
@@ -88,7 +88,7 @@ export const HeaderLabel: React.FC<{
     let text = "";
     let labelClass = "";
     if (auction.is_cancelled) { text = "CANCELLED"; labelClass = "cancelled"; }
-    else if (!auction.has_started) { text = `⏳ ${timeAgo(auction.begin_time_ms)}`; labelClass = "soon"; }
+    else if (!auction.has_started) { text = `⏳ ${formatTimeDiff(auction.begin_time_ms)}`; labelClass = "soon"; }
     else if (auction.has_ended) { text = "ENDED"; labelClass = "ended"; }
     else if (auction.is_live) { text = "LIVE"; labelClass = "live"; }
     else { text = "???"; }
@@ -201,7 +201,7 @@ export const FullCardMsg: React.FC<{
 //         <div>End time: {msToDate(auction.end_time_ms)}</div>
 //         <div>Minimum bid allowed: <Balance balance={auction.minimum_bid} coinType={auction.type_coin} /></div>
 //         <div>Minimum bid increase: {bpsToPct(auction.minimum_increase_bps)}</div>
-//         <div>Extension period: {msToMinutes(auction.extension_period_ms) }</div>
+//         <div>Extension period: {msToTime(auction.extension_period_ms) }</div>
 //         <div>Is live: {auction.is_live ? "yes" : "no"}</div>
 //         <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
 //     </>;
@@ -243,7 +243,7 @@ export const FullCardMsg: React.FC<{
 //         <div>duration_ms: {msToHours(tx.inputs.duration_ms)}</div>
 //         <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
 //         <div>minimum_increase_bps: {bpsToPct(tx.inputs.minimum_increase_bps)}</div>
-//         <div>extension_period_ms: {msToMinutes(tx.inputs.extension_period_ms)}</div>
+//         <div>extension_period_ms: {msToTime(tx.inputs.extension_period_ms)}</div>
 //         <div>item_addrs: <ObjectLinkList ids={tx.inputs.item_addrs} /></div>
 //         <div><Link to={`/auction/${tx.auctionId}/items`} className="btn">VIEW</Link></div>
 //     </>;

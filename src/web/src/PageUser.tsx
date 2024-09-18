@@ -9,7 +9,7 @@ import { Balance, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./compon
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { timeAgo } from "./lib/time";
+import { formatTimeDiff } from "./lib/time";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
@@ -218,7 +218,7 @@ const CardUserAuctionOrBid: React.FC<{
                     {auction && <TopBid auction={auction} balance={isBid ? history.amount : undefined} />}
                     {auction
                         ? <HeaderLabel auction={auction} />
-                        : <span className="header-label">{timeAgo(history.time)}</span>}
+                        : <span className="header-label">{formatTimeDiff(history.time)}</span>}
                 </div>
             </div>
         </Link>

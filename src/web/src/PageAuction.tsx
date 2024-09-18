@@ -15,8 +15,8 @@ import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./comp
 import { useInputAddress, useInputUnsignedBalance } from "./components/inputs";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { bpsToPct, msToDate, msToMinutes, shortenDigest } from "./lib/format";
-import { timeAgo } from "./lib/time";
+import { formatBps, formatDate, formatDuration, shortenDigest } from "./lib/format";
+import { formatTimeDiff } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
@@ -722,11 +722,11 @@ const CardAuctionDetails: React.FC<{
             </div>}
             <div className="auction-detail">
                 <span className="detail-label">Start Time:</span>
-                {msToDate(auction.begin_time_ms)}
+                {formatDate(auction.begin_time_ms)}
             </div>
             <div className="auction-detail">
                 <span className="detail-label">End Time:</span>
-                {msToDate(auction.end_time_ms)}
+                {formatDate(auction.end_time_ms)}
             </div>
             <div className="auction-detail">
                 <span className="detail-label">Minimum Bid:</span>
@@ -734,11 +734,11 @@ const CardAuctionDetails: React.FC<{
             </div>
             <div className="auction-detail">
                 <span className="detail-label">Minimum Increase:</span>
-                {bpsToPct(auction.minimum_increase_bps)}
+                {formatBps(auction.minimum_increase_bps)}
             </div>
             <div className="auction-detail">
                 <span className="detail-label">Extension Period:</span>
-                {msToMinutes(auction.extension_period_ms)}
+                {formatDuration(auction.extension_period_ms)}
             </div>
             <div className="auction-detail">
                 <span className="detail-label">Creator Address:</span>
@@ -804,7 +804,7 @@ const CardTxAdminCreatesAuction: React.FC<{
         <div className="card tx tx-create">
             <div className="card-header">
                 <div className="card-title">CREATED</div>
-                <span className="header-label">{timeAgo(tx.timestamp)}</span>
+                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
             </div>
             <div className="card-body">
                 <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
@@ -827,7 +827,7 @@ const CardTxAnyoneBids: React.FC<{
                     BID&nbsp;
                     {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}
                 </div>
-                <span className="header-label">{timeAgo(tx.timestamp)}</span>
+                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
             </div>
             <div className="card-body">
                 <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>

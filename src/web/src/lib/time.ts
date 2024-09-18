@@ -1,3 +1,5 @@
+// TODO: move to @polymedia/core
+
 const TIME_LABEL = {
     year: { full: "year", short: "y" },
     month: { full: "month", short: "m" },
@@ -17,8 +19,9 @@ export enum TimeUnit {
 
 /**
  * Returns a human-readable string with the time difference between two timestamps.
+ * E.g. "30s"/"30 sec", "1h"/"1 hour", "2d"/"2 days".
  */
-export function timeAgo(
+export function formatTimeDiff(
     timestamp: number,
     now: number = Date.now(),
     shortenTimeLabel: boolean = true,

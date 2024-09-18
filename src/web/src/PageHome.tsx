@@ -4,7 +4,7 @@ import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardLoading, CardWithMsg, TopBid } from "./components/cards";
-import { timeAgo } from "./lib/time";
+import { formatTimeDiff } from "./lib/time";
 
 export const PageHome: React.FC = () =>
 {
@@ -143,7 +143,7 @@ const CardTxAdminCreatesAuction: React.FC<{
                 <div className="card-title">{tx.inputs.name}</div>
                 <div className="auction-header-info">
                     {/* <TopBid auction={auction} /> TODO */}
-                    <span className="header-label">{timeAgo(tx.timestamp)}</span>
+                    <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
                 </div>
             </div>
 
