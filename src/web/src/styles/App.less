@@ -387,7 +387,6 @@ footer {
 }
 
 .tx-list {
-    max-width: 500px;
     margin: 0 auto;
     width: 100%;
 }
@@ -415,6 +414,11 @@ footer {
     }
 }
 
+.card.compact {
+    max-width: 535px;
+    margin: 0 auto;
+}
+
 a.card, .card.link {
     &:hover {
         cursor: pointer;
@@ -428,7 +432,6 @@ a.card, .card.link {
     gap: 0.75rem;
     margin: 0 auto;
     width: 100%;
-    max-width: 500px;
     @media (max-width: @screen-medium) {
         max-width: 100%;
     }
@@ -485,7 +488,7 @@ a.card, .card.link {
 .form {
     .form-flex;
     margin: 0 auto;
-    width: 500px;
+    width: 100%;
     @media (max-width: @screen-medium) {
         width: 100%;
     }

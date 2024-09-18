@@ -271,11 +271,11 @@ const SectionBid: React.FC<{
         content = <CardWithMsg>Loading…</CardWithMsg>;
     } else {
         content = <>
-            <div className="card">
+            <div className="card compact">
                 <FormBid auction={auction} coinMeta={coinMeta} userId={userId} fetchAuction={fetchAuction} />
             </div>
             {auction.has_balance &&
-            <div className="card">
+            <div className="card compact">
                     <div className="card-title">Top bid</div>
                     <div>Amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
                     <div>
@@ -394,7 +394,7 @@ const SectionDetails: React.FC<{ // TODO
     auction,
 }) => {
     return (
-        <div className="card">
+        <div className="card compact">
             <CardAuctionDetails auction={auction} />
         </div>
     );
@@ -441,7 +441,7 @@ const SectionHistory: React.FC<{
         return <FullCardMsg>Loading…</FullCardMsg>;
     }
     return (
-        <div className="card">
+        <div className="card compact">
             <div className="card-list tx-list">
                 {txs?.data.map(tx =>
                 <CardTransaction tx={tx} key={tx.digest} />
@@ -613,7 +613,7 @@ const SectionAdmin: React.FC<{
 
     return <>
     {auction.can_admin_accept_bid &&
-        <div className="card">
+        <div className="card compact">
             <div className="card-title">Accept bid</div>
             <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
             <div className="form">
@@ -630,7 +630,7 @@ const SectionAdmin: React.FC<{
         </div>}
 
         {auction.can_admin_cancel_auction &&
-        <div className="card">
+        <div className="card compact">
             <div className="card-title">Cancel auction</div>
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
             <div className="form">
@@ -647,7 +647,7 @@ const SectionAdmin: React.FC<{
         </div>}
 
         {auction.can_admin_reclaim_items &&
-        <div className="card">
+        <div className="card compact">
             <div className="card-title">Reclaim items</div>
             <div>You can reclaim the items because there were no bids.</div>
             <div className="form">
@@ -664,7 +664,7 @@ const SectionAdmin: React.FC<{
         </div>}
 
         {auction.can_admin_set_pay_addr &&
-        <div className="card">
+        <div className="card compact">
             <div className="card-title">Set pay address</div>
             <div>You can change the payment address for the auction.</div>
             <div className="form">
