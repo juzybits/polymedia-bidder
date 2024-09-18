@@ -153,11 +153,13 @@ export const CardLoading: React.FC = () => {
 };
 
 export const CardWithMsg: React.FC<{
+    className?: string;
     children: React.ReactNode;
 }> = ({
+    className,
     children,
 }) => {
-    return <div className="card">
+    return <div className={`card ${className ?? ""}`}>
         <FullCardMsg>
             {children}
         </FullCardMsg>

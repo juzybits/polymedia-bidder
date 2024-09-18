@@ -139,7 +139,7 @@ export const PageAuction: React.FC = () =>
 
                 <div className="tabs-container">
                     <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
-                    <div className="tabs-content" style={{ paddingTop: "1rem" }}>
+                    <div className="tabs-content">
                         {activeTab === "items" && <SectionItems auction={auction} items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                         {activeTab === "details" && <SectionDetails auction={auction} />}
@@ -233,6 +233,7 @@ const SectionItems: React.FC<{
 }) => {
     return (
         <div className="card">
+            <div className="card-title">Items ({items.length})</div>
             <CardAuctionItems items={items} hiddenItemCount={0} />
         </div>
     );
@@ -248,7 +249,7 @@ const SectionBid: React.FC<{
 {
     const currAcct = useCurrentAccount();
 
-    const { bidderClient, network } = useOutletContext<AppContext>();
+    const { bidderClient } = useOutletContext<AppContext>();
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
 
@@ -264,14 +265,15 @@ const SectionBid: React.FC<{
 
     let content: React.ReactNode;
     if (errorCoinMeta || coinMeta === null) {
-        content = <CardWithMsg>Failed to fetch coin metadata</CardWithMsg>;
+        content = <CardWithMsg className="compact">Failed to fetch coin metadata</CardWithMsg>;
     } else if (errorFetchUserId) { // userId may be null for new users
-        content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
+        content = <CardWithMsg className="compact">{errorFetchUserId}</CardWithMsg>;
     } else if (isLoading) {
-        content = <CardWithMsg>Loading…</CardWithMsg>;
+        content = <CardWithMsg className="compact">Loading…</CardWithMsg>;
     } else {
         content = <>
             <div className="card compact">
+                <div className="card-title">Place a bid</div>
                 <FormBid auction={auction} coinMeta={coinMeta} userId={userId} fetchAuction={fetchAuction} />
             </div>
             {auction.has_balance &&
@@ -395,6 +397,7 @@ const SectionDetails: React.FC<{ // TODO
 }) => {
     return (
         <div className="card compact">
+            <div className="card-title">Auction details</div>
             <CardAuctionDetails auction={auction} />
         </div>
     );
@@ -436,12 +439,13 @@ const SectionHistory: React.FC<{
     // === html ===
 
     if (errFetch) {
-        return <FullCardMsg>{errFetch}</FullCardMsg>;
+        return <CardWithMsg className="compact">{errFetch}</CardWithMsg>;
     } else if (txs === undefined) {
-        return <FullCardMsg>Loading…</FullCardMsg>;
+        return <CardWithMsg className="compact">Loading…</CardWithMsg>;
     }
     return (
         <div className="card compact">
+            <div className="card-title">Activity</div>
             <div className="card-list tx-list">
                 {txs?.data.map(tx =>
                 <CardTransaction tx={tx} key={tx.digest} />

@@ -115,7 +115,7 @@ export const PageUser: React.FC = () =>
     } else {
         content = <div className="tabs-container">
             <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
-            <div className="tabs-content" style={{ paddingTop: "1.5rem" }}>
+            <div className="tabs-content">
                 {activeTab === "auctions" &&
                 <SectionUserAuctions
                     history={userHistory === null ? null : userHistory?.created}
