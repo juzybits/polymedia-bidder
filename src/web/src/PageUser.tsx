@@ -208,23 +208,19 @@ const CardUserAuctionOrBid: React.FC<{
     const isBid = 'amount' in history;
 
     return (
-        <Link to={`/auction/${history.auction_addr}/items`} className="card">
+        <Link to={`/auction/${history.auction_addr}/items`} className="card tx">
             <div className="card-header column-on-small">
 
                 <div className="card-title">
                     {auction ? auction.name : shortenAddress(history.auction_addr)}
                 </div>
                 <div className="auction-header-info">
-                    {auction && <TopBid auction={auction} />}
+                    {auction && <TopBid auction={auction} balance={isBid ? history.amount : undefined} />}
                     {auction
                         ? <HeaderLabel auction={auction} />
                         : <span className="header-label">{timeAgo(history.time)}</span>}
                 </div>
             </div>
-            {isBid && <div>
-                {auction && <Balance balance={history.amount} coinType={auction.type_coin} />}
-                {!auction && <span className="header-label">{history.amount.toString()}</span>}
-            </div>}
         </Link>
     );
 };

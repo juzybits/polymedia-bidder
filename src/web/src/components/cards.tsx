@@ -100,14 +100,14 @@ export const HeaderLabel: React.FC<{
 
 export const TopBid: React.FC<{
     auction: AuctionObj;
+    balance?: bigint;
 }> = ({
     auction,
+    balance = (auction.has_ended && auction.has_balance) ? auction.lead_value : auction.minimum_bid,
 }) => {
     return <div className="header-label top-bid">
         <Balance
-            balance={(auction.has_ended && auction.has_balance)
-                ? auction.lead_value
-                : auction.minimum_bid}
+            balance={balance}
             coinType={auction.type_coin}
         />
     </div>;
