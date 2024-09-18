@@ -169,13 +169,13 @@ const Header: React.FC = () =>
                 <Glitch text="BIDDER" />
             </Link>
         </div>
-        <Link to="/new" className="header-item">
+        <Link to="/new" className="header-item" title="Create Auction">
             <IconNew />
         </Link>
-        <Link to="/user/bids" className="header-item">
+        <Link to="/user/bids" className="header-item" title="Your History">
             <IconHistory />
         </Link>
-        <Link to="/settings" className="header-item">
+        <Link to="/settings" className="header-item" title="Settings">
             <IconGears />
         </Link>
     </header>;

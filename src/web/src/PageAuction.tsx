@@ -18,11 +18,11 @@ import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
-    { name: "items", icon: <IconItems /> },
-    { name: "bid", icon: <IconCart /> },
-    { name: "details", icon: <IconDetails /> },
-    { name: "history", icon: <IconHistory /> },
-    { name: "admin", icon: <IconGears /> },
+    { name: "items", icon: <IconItems />, tooltip: "Items" },
+    { name: "bid", icon: <IconCart />, tooltip: "Bid" },
+    { name: "details", icon: <IconDetails />, tooltip: "Details" },
+    { name: "history", icon: <IconHistory />, tooltip: "Activity" },
+    { name: "admin", icon: <IconGears />, tooltip: "Admin" },
 ]);
 
 export const PageAuction: React.FC = () =>
@@ -394,7 +394,7 @@ const SectionDetails: React.FC<{ // TODO
 }) => {
     return (
         <div className="card compact">
-            <div className="card-title">Auction details</div>
+            <div className="card-title">Details</div>
             <CardAuctionDetails auction={auction} />
         </div>
     );

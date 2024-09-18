@@ -2,6 +2,7 @@ import React from "react";
 
 export type Tab = {
     name: string;
+    tooltip?: string;
     icon?: React.ReactNode;
 };
 
@@ -57,6 +58,7 @@ const SingleTab: React.FC<{
         <div
             className={`tab-title ${isSelected ? "selected" : ""}`}
             onClick={() => onChangeTab(tab.name)}
+            title={tab.tooltip}
         >
             {tab.icon && <div className="tab-icon">{tab.icon}</div>}
             {!tab.icon && <div className="tab-text">{tab.name}</div>}
