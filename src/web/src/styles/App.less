@@ -61,6 +61,14 @@ h1, h2, h3, h4, h5, button, input {
     word-break: break-all;
 }
 
+.center-text {
+    text-align: center;
+}
+
+.center-element {
+    margin: 0 auto;
+}
+
 .text-green {
     color: lightgreen;
 }
@@ -77,10 +85,6 @@ h1, h2, h3, h4, h5, button, input {
 
 .address {
     .break-all;
-}
-
-.load-more {
-    text-align: center;
 }
 
 .rounded {
@@ -148,6 +152,7 @@ footer {
         .page-title {
             font-size: 2rem;
             font-weight: bold;
+            margin: 0 auto;
         }
         .page-section {
             display: flex;
@@ -234,6 +239,14 @@ footer {
     display: flex;
     flex-direction: column;
     gap: @gap-05;
+}
+
+.page-description, .section-description, .card-description {
+    width: 100%;
+}
+
+.page-description {
+    .center-text;
 }
 
 .page-description, .section-description, .card-description, .card {
@@ -416,7 +429,7 @@ footer {
 }
 
 .card.compact {
-    max-width: 535px;
+    max-width: 550px;
     margin: 0 auto;
 }
 
@@ -688,6 +701,13 @@ a.card, .card.link {
         #hero-description {
             padding: @gap-10 0;
         }
+    }
+}
+
+#page-user {
+    .tabs-container {
+        max-width: 800px;
+        margin: 0 auto;
     }
 }
 

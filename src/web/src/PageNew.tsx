@@ -55,16 +55,10 @@ export const PageNew: React.FC = () =>
             ? <ConnectToGetStarted />
             : <>
                 <div className="page-section">
-                    <div className="section-title">
-                        Settings
-                    </div>
                     <FormCreateAuction chosenItems={chosenItems} addOrRemoveItem={addOrRemoveItem} />
                 </div>
 
                 <div className="page-section">
-                    <div className="section-title">
-                        Items
-                    </div>
                     <ItemGridSelector addOrRemoveItem={addOrRemoveItem} isChosenItem={isChosenItem} disableAddItem={disableAddItem} />
                 </div>
             </>}
@@ -107,7 +101,8 @@ const FormCreateAuction: React.FC<{
     const form = {
         // basic options
         name: useInputString({
-            label: "Auction name", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
+            label: "Title", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
+            msgRequired: "Choose a title for your auction",
             html: { value: "", required: true },
         }),
         description: useInputString({
@@ -216,7 +211,8 @@ const FormCreateAuction: React.FC<{
     };
 
     return <>
-    <div className="card">
+    <div className="card compact">
+    <div className="card-title">Auction settings</div>
     <div className="form">
         <div className="form-section">
             {form.name.input}
@@ -246,7 +242,7 @@ const FormCreateAuction: React.FC<{
         <div className="error">{submitRes.err}</div>}
 
         <div className="chosen-items">
-            <h2>Chosen items ({chosenItems.length})</h2>
+            <div className="card-title">Auction items ({chosenItems.length})</div>
 
             <div className="card-list">
             {chosenItems.map(item =>
@@ -314,6 +310,9 @@ const ItemGridSelector: React.FC<{
     }
 
     return <>
+    <div className="card">
+    <div className="card-title">Choose items</div>
+    <div className="card-subtitle">Select the items you want to sell.</div>
     <div className="grid">
         {ownedItems.data.map(item =>
         {
@@ -339,11 +338,12 @@ const ItemGridSelector: React.FC<{
             );
         })}
     </div>
+    </div>
 
     {ownedItems.hasNextPage &&
-    <div className="load-more">
+    <div className="center-element">
         <button className="btn" onClick={fetchOwnedItems}>
-            LOAD MORE
+            LOAD MORE ITEMS
         </button>
     </div>}
     </>;
