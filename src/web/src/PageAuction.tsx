@@ -279,7 +279,7 @@ const SectionBid: React.FC<{
                     <div>Amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
                     <div>
                         <div>
-                            sender: <LinkToUser addr={auction.lead_addr} kind="bids" />
+                            Sender: <LinkToUser addr={auction.lead_addr} kind="bids" />
                             {currAcct?.address === auction.lead_addr && <span className="text-green"> (you)</span>}
                         </div>
                     </div>
@@ -804,7 +804,7 @@ const CardTxAdminCreatesAuction: React.FC<{
                 <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
             </div>
             <div className="card-body">
-                <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
                 <div>tx: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
             </div>
         </div>
@@ -827,7 +827,7 @@ const CardTxAnyoneBids: React.FC<{
                 <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
             </div>
             <div className="card-body">
-                <div>sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
                 <div>tx: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network}>{shortenDigest(tx.digest)}</LinkToPolymedia></div>
             </div>
         </div>
