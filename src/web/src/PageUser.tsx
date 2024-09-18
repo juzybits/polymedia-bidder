@@ -1,15 +1,14 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid, UserRecentHistory } from "@polymedia/bidder-sdk";
-import { objResToOwner, shortenAddress } from "@polymedia/suitcase-core";
+import { formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { AppContext } from "./App";
-import { Balance, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { formatTimeDiff } from "./lib/time";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([

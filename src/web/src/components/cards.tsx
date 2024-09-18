@@ -1,11 +1,10 @@
 import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { formatBalance, shortenAddress } from "@polymedia/suitcase-core";
+import { formatBalance, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
-import { formatTimeDiff } from "../lib/time";
 import { IconCheck } from "./icons";
 
 // === cards ===

@@ -1,14 +1,14 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymedia/bidder-sdk";
+import { TimeUnit } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { useInputString, useInputAddress, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
+import { useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "./components/inputs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { TimeUnit } from "./lib/time";
 import { SubmitRes } from "./lib/types";
 
 export const PageNew: React.FC = () =>

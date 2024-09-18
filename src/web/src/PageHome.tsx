@@ -1,10 +1,10 @@
-import { BidderClient, SuiItem, TxAdminCreatesAuction } from "@polymedia/bidder-sdk";
+import { SuiItem, TxAdminCreatesAuction } from "@polymedia/bidder-sdk";
+import { formatTimeDiff } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Glitch } from "./components/Glitch";
-import { CardAuctionItems, CardLoading, CardWithMsg, TopBid } from "./components/cards";
-import { formatTimeDiff } from "./lib/time";
+import { CardAuctionItems, CardLoading, CardWithMsg } from "./components/cards";
 
 export const PageHome: React.FC = () =>
 {
