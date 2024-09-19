@@ -250,7 +250,7 @@ const SectionBid: React.FC<{
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
 
-    const { userId, errorFetchUserId } = useFetchUserId(currAcct?.address);
+    const { userId, updateUserId, errorFetchUserId } = useFetchUserId(currAcct?.address);
 
     // === effects ===
 
@@ -271,7 +271,7 @@ const SectionBid: React.FC<{
         content = <>
             <div className="card compact">
                 <div className="card-title">Place a bid</div>
-                <FormBid auction={auction} coinMeta={coinMeta} userId={userId} fetchAuction={fetchAuction} />
+                <FormBid auction={auction} coinMeta={coinMeta} userId={userId} updateUserId={updateUserId} fetchAuction={fetchAuction} />
             </div>
             {auction.has_balance &&
             <div className="card compact">
@@ -294,11 +294,13 @@ const FormBid: React.FC<{
     auction: AuctionObj;
     coinMeta: CoinMetadata;
     userId: string | null;
+    updateUserId: (newUserId: string) => void;
     fetchAuction: (fetchItems: boolean) => Promise<void>;
 }> = ({
     auction,
     coinMeta,
     userId,
+    updateUserId,
     fetchAuction,
 }) =>
 {
@@ -336,7 +338,7 @@ const FormBid: React.FC<{
             setSubmitRes({ ok: null });
             for (const dryRun of [true, false])
             {
-                const resp = await bidderClient.bid(
+                const { resp, userObjChange } = await bidderClient.placeBid(
                     currAcct.address,
                     userId,
                     auction.id,
@@ -348,6 +350,7 @@ const FormBid: React.FC<{
                     throw new Error(resp.effects?.status.error);
                 }
                 if (!dryRun) {
+                    !userId && userObjChange && updateUserId(userObjChange.objectId);
                     setSubmitRes({ ok: true });
                     input_amount.clear();
                 }

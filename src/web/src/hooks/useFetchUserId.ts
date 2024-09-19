@@ -21,6 +21,12 @@ export const useFetchUserId = (
 
     // === functions ===
 
+    /** Set the userId and cache it in the bidder client. */
+    const updateUserId = (newUserId: string) => {
+        setUserId(newUserId);
+        address && bidderClient.cacheUserId(address, newUserId);
+    };
+
     const fetchUserId = async () =>
     {
         setError(null);
@@ -42,5 +48,5 @@ export const useFetchUserId = (
         }
     };
 
-    return { userId, errorFetchUserId };
+    return { userId, updateUserId, errorFetchUserId };
 };

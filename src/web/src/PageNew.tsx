@@ -88,7 +88,7 @@ const FormCreateAuction: React.FC<{
 
     const { bidderClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
 
-    const { userId, ..._user} = useFetchUserId(currAcct?.address);
+    const { userId, updateUserId } = useFetchUserId(currAcct.address);
 
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
@@ -167,7 +167,7 @@ const FormCreateAuction: React.FC<{
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
-            const { resp, auctionObjChange } = await bidderClient.createAndShareAuction(
+            const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,
@@ -183,6 +183,7 @@ const FormCreateAuction: React.FC<{
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
+            !userId && updateUserId(userObjChange.objectId);
             setSubmitRes({ ok: true });
             navigate(`/auction/${auctionObjChange.objectId}/items`);
         } catch (err) {
