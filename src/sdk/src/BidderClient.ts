@@ -20,6 +20,7 @@ import {
     SignTransaction,
     SuiClientBase,
     SuiObjectChangeCreated,
+    SuiObjectChangeMutated,
     TransferModule,
     txResToData,
     WaitForTxOptions,
@@ -665,6 +666,19 @@ export class BidderClient extends SuiClientBase
         ) as SuiObjectChangeCreated | undefined;
     }
 
+    /**
+     * Extract the created or mutated User object (if any) from `SuiTransactionBlockResponse.objectChanges`.
+     */
+    public extractUserObjChange(
+        resp: SuiTransactionBlockResponse,
+    ): SuiObjectChangeCreated | SuiObjectChangeMutated | undefined
+    {
+        const obj = resp.objectChanges?.find(o =>
+            (o.type === "created" || o.type === "mutated") && o.objectType === `${this.packageId}::user::User`
+        ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
+        return obj;
+    }
+
     // === module interactions ===
 
     public async createAndShareAuction(
@@ -679,8 +693,11 @@ export class BidderClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: { id: string; type: string }[],
-    ): Promise<{ resp: SuiTransactionBlockResponse; auctionObjChange: SuiObjectChangeCreated }>
-    {
+    ): Promise<{
+        resp: SuiTransactionBlockResponse;
+        auctionObjChange: SuiObjectChangeCreated;
+        userObjChange: SuiObjectChangeCreated | SuiObjectChangeMutated;
+    }> {
         const tx = new Transaction();
 
         // create the item bag and fill it with the items to auction
@@ -739,22 +756,29 @@ export class BidderClient extends SuiClientBase
         }
 
         const auctionObjChange = this.extractAuctionObjChange(resp);
-        if (!auctionObjChange) {
+        if (!auctionObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        return { resp, auctionObjChange };
+        const userObjChange = this.extractUserObjChange(resp);
+        if (!userObjChange) { // should never happen
+            throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        return { resp, auctionObjChange, userObjChange };
     }
 
-    public async bid(
+    public async placeBid(
         sender: string,
         userObj: ObjectInput | null,
         auctionId: string,
         type_coin: string,
         amount: bigint,
         dryRun?: boolean,
-    ): Promise<SuiTransactionBlockResponse>
-    {
+    ): Promise<{
+        resp: SuiTransactionBlockResponse;
+        userObjChange: SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
+    }> {
         const tx = new Transaction();
 
         const [pay_coin] = await getCoinOfValue(this.suiClient, tx, sender, type_coin, amount);
@@ -774,7 +798,14 @@ export class BidderClient extends SuiClientBase
 
         UserModule.destroy_user_request(tx, this.packageId, reqArg1);
 
-        return await this.dryRunOrSignAndExecute(tx, dryRun, sender);
+        const resp = await this.dryRunOrSignAndExecute(tx, dryRun, sender);
+
+        const userObjChange = this.extractUserObjChange(resp);
+        if (!dryRun && !userObjChange) { // should never happen
+            throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        return { resp, userObjChange };
     }
 
     public async payFundsAndSendItemsToWinner(
