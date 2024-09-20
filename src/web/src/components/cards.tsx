@@ -2,42 +2,13 @@ import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
-import React from "react";
+import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
 import { IconCheck } from "./icons";
+import { Modal } from "./Modal";
 
 // === cards ===
-
-export const CardSuiItem: React.FC<{
-    item: SuiItem;
-    isChosen?: boolean;
-    extra?: React.ReactNode;
-    onClick?: () => void;
-}> = ({
-    item,
-    isChosen = false,
-    extra = null,
-    onClick = undefined,
-}) =>
-{
-    const imgSrc = item.display.image_url ?? svgNoImage;
-    const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
-    return (
-        <div className="sui-item" onClick={onClick}>
-            <div className="item-img">
-                <img src={imgSrc} className={imgClass}/>
-                {isChosen && <IconCheck className="item-chosen icon" /> }
-            </div>
-            <div className="item-info">
-                <div className="item-title break-any">
-                    {item.nameShort ? item.nameShort : shortenAddress(item.type)}
-                </div>
-                {extra}
-            </div>
-        </div>
-    );
-};
 
 const CardSuiItemHiddenCount: React.FC<{
     hiddenItemCount: number;
@@ -53,6 +24,103 @@ const CardSuiItemHiddenCount: React.FC<{
     </div>;
 };
 
+export const CardSuiItem: React.FC<{
+    item: SuiItem;
+    isChosen?: boolean;
+    verbose?: boolean;
+    extra?: React.ReactNode;
+    onClick?: () => void;
+}> = ({
+    item,
+    isChosen = false,
+    verbose = false,
+    extra = null,
+    onClick = undefined,
+}) =>
+{
+    const { network } = useOutletContext<AppContext>();
+
+    const imgSrc = item.display.image_url ?? svgNoImage;
+    const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
+    return (
+        <div className="sui-item" onClick={onClick}>
+            <div className="item-img">
+                <img src={imgSrc} className={imgClass}/>
+                {isChosen && <IconCheck className="item-chosen icon" /> }
+            </div>
+            <div className="item-info">
+                <div className="item-title break-any">
+                    {item.nameShort ? item.nameShort : shortenAddress(item.type)}
+                    {verbose &&
+                    <div className="card-item-details">
+                        <div className="item-detail">
+                            <span className="detail-label">Object ID:</span>
+                            <LinkToPolymedia addr={item.id} kind="object" network={network} />
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Type:</span>
+                            <LinkToPolymedia addr={item.type} kind="object" network={network} />
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Display Name:</span>
+                            {item.display.name}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Description:</span>
+                            {item.display.description}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Link:</span>
+                            {item.display.link}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Project Name:</span>
+                            {item.display.project_name}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Project URL:</span>
+                            {item.display.project_url}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Creator:</span>
+                            {item.display.creator}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Public Transfer:</span>
+                            {item.hasPublicTransfer ? "Yes" : "No"}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Full Name:</span>
+                            {item.nameFull}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Short Name:</span>
+                            {item.nameShort}
+                        </div>
+                        <div className="item-detail">
+                            <span className="detail-label">Description:</span>
+                            {item.desc}
+                        </div>
+                    </div>}
+                </div>
+                {extra}
+            </div>
+        </div>
+    );
+};
+
+export const CardModalItemInfo: React.FC<{ // TODO
+    item: SuiItem;
+}> = ({
+    item,
+}) => {
+    return <Modal>
+        <div className="card">
+            <CardSuiItem item={item} verbose={true} />
+        </div>
+    </Modal>;
+};
+
 export const CardAuctionItems: React.FC<{
     items: SuiItem[];
     hiddenItemCount: number;
@@ -61,10 +129,17 @@ export const CardAuctionItems: React.FC<{
     hiddenItemCount,
 }) =>
 {
-    return (
+    const [ showItemModal, setShowItemModal ] = useState<SuiItem | null>(null);
+
+    const showCardItemInfo = (item: SuiItem) => {
+        setShowItemModal(item);
+    };
+
+    return <>
+        {showItemModal && <CardModalItemInfo item={showItemModal} />}
         <div className="grid">
             {items.map((item, idx) => (
-                <div className="card grid-item" key={idx}>
+                <div className="card grid-item" key={idx} onClick={() => showCardItemInfo(item)}>
                     <CardSuiItem item={item} />
                 </div>
             ))}
@@ -74,7 +149,7 @@ export const CardAuctionItems: React.FC<{
                 </div>
             }
         </div>
-    );
+    </>;
 };
 
 // === smaller components ===
