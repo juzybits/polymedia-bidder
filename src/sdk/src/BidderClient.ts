@@ -146,6 +146,7 @@ export class BidderClient extends SuiClientBase
 
     public async fetchTxsAdminCreatesAuction(
         cursor: string | null | undefined,
+        limit?: number,
     ) {
         return this.fetchAndParseTxs(
             this.parseTxAdminCreatesAuction.bind(this),
@@ -155,12 +156,14 @@ export class BidderClient extends SuiClientBase
                 },
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
                 cursor,
+                limit,
             }
         );
     }
 
     public async fetchTxsAnyoneBids(
         cursor: string | null | undefined,
+        limit?: number,
     ) {
         return this.fetchAndParseTxs(
             this.parseTxAnyoneBids.bind(this),
@@ -170,6 +173,7 @@ export class BidderClient extends SuiClientBase
                 },
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
                 cursor,
+                limit,
             },
         );
     }
@@ -177,6 +181,7 @@ export class BidderClient extends SuiClientBase
     public async fetchTxsByAuctionId(
         auctionId: string,
         cursor: string | null | undefined,
+        limit?: number,
     ) {
         return this.fetchAndParseTxs(
             this.parseAuctionTx.bind(this),
@@ -184,6 +189,7 @@ export class BidderClient extends SuiClientBase
                 filter: { ChangedObject: auctionId },
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
                 cursor,
+                limit,
             },
         );
     }

@@ -70,7 +70,7 @@ const SectionRecentAuctions: React.FC = () =>
         setErrFetch(null);
         try {
             // fetch recent txs
-            const newTxs = await bidderClient.fetchTxsAdminCreatesAuction(null);
+            const newTxs = await bidderClient.fetchTxsAdminCreatesAuction(null, 12);
 
             // collect all unique item addresses
             const allItemAddrs = new Set(
