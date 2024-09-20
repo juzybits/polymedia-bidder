@@ -3,11 +3,11 @@ import { useClickOutside } from "@polymedia/suitcase-react";
 import { IconClose } from "./icons";
 
 export const Modal: React.FC<{
-    children: React.ReactNode;
     onClose: () => void;
+    children: React.ReactNode;
 }> = ({
-    children,
     onClose,
+    children,
 }) => {
     const modalContentRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +30,7 @@ export const Modal: React.FC<{
 
     return (
         <div className="modal-background">
-            <div className="modal-content" ref={modalContentRef}>
+            <div className="card modal-content" ref={modalContentRef}>
                 <div className="modal-close">
                     <IconClose onClick={onClose} />
                 </div>

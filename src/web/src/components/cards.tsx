@@ -140,9 +140,7 @@ export const CardAuctionItems: React.FC<{
 
     return <>
         {modalItem && <Modal onClose={hideModal}>
-            <div className="card">
-                <CardSuiItem item={modalItem} verbose={true} />
-            </div>
+            <CardSuiItem item={modalItem} verbose={true} />
         </Modal>}
         <div className="grid">
             {items.map((item, idx) => (

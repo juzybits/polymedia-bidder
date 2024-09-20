@@ -88,7 +88,6 @@ export type AppContext = {
     openConnectModal: () => void;
     header: React.ReactNode;
     bidderClient: sdk.BidderClient;
-    // setModalContent: ReactSetter<ReactNode>;
 };
 
 const App: React.FC<{
@@ -118,7 +117,6 @@ const App: React.FC<{
     const [ isWorking, setIsWorking ] = useState(false);
     const [ showMobileNav, setShowMobileNav ] = useState(false);
     const [ showConnectModal, setShowConnectModal ] = useState(false);
-    // const [ modalContent, setModalContent ] = useState<ReactNode>(null);
 
     const openConnectModal = () => {
         setShowConnectModal(true);
@@ -131,7 +129,6 @@ const App: React.FC<{
         openConnectModal: openConnectModal,
         header: <Header />,
         bidderClient,
-        // setModalContent,
     };
 
     // === html ===
