@@ -684,6 +684,14 @@ a.card, .card.link {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+    padding: 2rem;
+
+    @media (max-width: @screen-medium) {
+        padding: 1rem;
+    }
+    @media (max-width: @screen-small) {
+        padding: 0.5rem;
+    }
 
     .card.modal-content {
         position: relative;
@@ -692,15 +700,14 @@ a.card, .card.link {
         background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
         color: @color-text;
         border: none;
-        border-radius: @border-radius;
         box-shadow: 0 0 2rem rgba(0, 0, 0, 1);
         display: flex;
         flex-direction: column;
 
         .modal-close {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 2.5%;
+            right: 2.5%;
             cursor: pointer;
             height: 2rem;
             width: 2rem;
@@ -708,18 +715,7 @@ a.card, .card.link {
 
         .modal-scrollable-content {
             overflow-y: auto;
-            max-height: calc(100vh - 8rem);
             .hide-scrollbar
-        }
-
-        @media (max-width: @screen-small) {
-            border-radius: 0;
-            max-height: 100vh;
-
-            .modal-scrollable-content {
-                padding: 1rem;
-                max-height: calc(100vh - 2rem);
-            }
         }
     }
 }
