@@ -712,11 +712,19 @@ a.card, .card.link {
             right: 1rem;
             height: 3.5rem;
             width: 3.5rem;
-            stroke: #222;
-            fill: @color-text;
-            &:hover {
+            .icon-close-bg {
+                fill: #454545;
+            }
+            .icon-close-x {
                 stroke: @color-text;
-                fill: #222;
+            }
+            &:hover {
+                .icon-close-bg {
+                    fill: @color-text;
+                }
+                .icon-close-x {
+                    stroke: #454545;
+                }
             }
             @media (max-width: @screen-medium) {
                 top: 0.5rem;
