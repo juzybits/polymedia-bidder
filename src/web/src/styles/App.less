@@ -370,7 +370,7 @@ footer {
     }
 }
 
-.card .sui-item {
+.card > .sui-item {
     display: flex;
     flex-direction: column;
     gap: @gap-10;
@@ -513,7 +513,9 @@ a.card, .card.link {
         gap: @gap-10;
         .card-list {
             gap: @gap-05;
-            .card .sui-item {
+            .sui-item {
+                display: flex;
+                gap: 0.7rem;
                 flex-direction: row;
                 align-items: center;
                 .item-img {
