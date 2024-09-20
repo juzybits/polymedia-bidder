@@ -338,44 +338,6 @@ footer {
 
 // === cards ===
 
-.grid .card.grid-item .sui-item,
-.modal-content .card .sui-item {
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-    .item-img {
-        position: relative;
-        width: 100%;
-        padding-top: 50%; // creates a 1:1 aspect ratio even when the image src is broken
-        padding-bottom: 50%; // creates a 1:1 aspect ratio even when the image src is broken
-        text-align: center;
-        img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-    }
-    .item-info {
-        flex-grow: 1;
-        justify-content: space-between;
-
-        display: flex;
-        flex-direction: column;
-        gap: @gap-10;
-        // .item-title {
-            // font-size: 1.1em;
-            // font-weight: bold;
-        // }
-        .item-button {
-            .btn {
-                width: 100%;
-            }
-        }
-    }
-}
-
 .card-list {
     display: flex;
     flex-direction: column;
@@ -397,6 +359,51 @@ footer {
     .card-title {
         font-size: 1.3em;
         font-weight: bold;
+    }
+}
+
+.card .sui-item {
+    display: flex;
+    flex-direction: column;
+    gap: @gap-10;
+    height: 100%;
+    position: relative;
+
+    .item-img {
+        position: relative;
+        width: 100%;
+        padding-top: 50%; // creates a 1:1 aspect ratio even when the image src is broken
+        padding-bottom: 50%; // creates a 1:1 aspect ratio even when the image src is broken
+        text-align: center;
+        border-radius: 5%;
+
+        img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 5%;
+            object-fit: cover;
+            background-color: @color-bg;
+
+            &.no-image {
+                background-color: #999;
+            }
+        }
+    }
+
+    .item-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: @gap-10;
+        .item-button {
+            .btn {
+                width: 100%;
+            }
+        }
     }
 }
 
@@ -467,28 +474,6 @@ a.card, .card.link {
             gap: 0.25rem;
         }
     }
-}
-
-.card .sui-item {
-    display: flex;
-    gap: @gap-10;
-    .item-img {
-        border-radius: 5%;
-        img {
-            border-radius: 5%;
-            object-fit: cover;
-            background-color: @color-bg;
-            &.no-image {
-                background-color: #999;
-            }
-        }
-    }
-    // .item-info {
-        // .item-title {
-        // }
-        // .item-button {
-        // }
-    // }
 }
 
 // === various components ===
