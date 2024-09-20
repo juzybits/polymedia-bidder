@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { AppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { CardLoading, CardSuiItem } from "./components/cards";
+import { CardChosenItem, CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
@@ -247,7 +247,7 @@ const FormCreateAuction: React.FC<{
 
             <div className="card-list">
             {chosenItems.map(item =>
-                <CardSuiItem item={item} key={item.id} onClick={() => addOrRemoveItem(item)} />
+                <CardChosenItem item={item} key={item.id} onClick={() => addOrRemoveItem(item)} />
             )}
             </div>
         </div>
