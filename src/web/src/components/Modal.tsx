@@ -31,10 +31,8 @@ export const Modal: React.FC<{
     return (
         <div className="modal-background">
             <div className="card modal-content" ref={modalContentRef}>
-                <div className="modal-close">
-                    <IconClose onClick={onClose} />
-                </div>
                 {children}
+                <IconClose className="icon modal-close" onClick={onClose} />
             </div>
         </div>
     );

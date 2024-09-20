@@ -324,7 +324,7 @@ footer {
             background-color: @color-border-gray;
         }
         .sui-item {
-            .item-chosen.icon {
+            .icon.item-chosen {
                 position: absolute;
                 top: 4%;
                 right: 4%;
@@ -692,15 +692,13 @@ a.card, .card.link {
         padding: 2rem;
 
         .modal-close {
-            display: flex;
-            justify-content: end;
-            padding-bottom: 1rem;
-            .icon {
-                cursor: pointer;
-                display: block;
-                height: 1.8rem;
-                width: 1.8rem;
-            }
+            position: absolute;
+            top: 2.5%;
+            right: 2.5%;
+            cursor: pointer;
+            display: block;
+            height: 2rem;
+            width: 2rem;
         }
 
         @media (max-width: @screen-small) {
