@@ -29,7 +29,7 @@ import {
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
-import { AuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
+import { AuctionObj, isAuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 export type UserRecentHistory = Awaited<ReturnType<BidderClient["fetchUserRecentAuctionsAndBids"]>>;
@@ -90,6 +90,37 @@ export class BidderClient extends SuiClientBase
             }),
             this.parseAuctionObj.bind(this)
         );
+    }
+
+    public async fetchAuctionsAndItems(
+        auctionIds: string[],
+        itemIds: string[],
+    ): Promise<{
+        auctions: AuctionObj[],
+        items: SuiItem[],
+    }>
+    {
+        const allObjs = await this.fetchAndParseObjects<AuctionObj | SuiItem>(
+            [...auctionIds, ...itemIds],
+            null,
+            (ids) => this.suiClient.multiGetObjects({
+                ids,
+                options: { showContent: true, showDisplay: true, showType: true },
+            }),
+            this.parseAuctionOrItemObj.bind(this)
+        );
+        const auctions: AuctionObj[] = [];
+        const items: SuiItem[] = [];
+        for (const obj of allObjs) {
+            if (isAuctionObj(obj)) {
+                auctions.push(obj);
+                this.cache.auctions.set(obj.id, obj);
+            } else {
+                items.push(obj);
+                this.cache.items.set(obj.id, obj);
+            }
+        }
+        return { auctions, items };
     }
 
     public async fetchItem(
@@ -433,6 +464,16 @@ export class BidderClient extends SuiClientBase
         };
     }
     /* eslint-enable */
+
+    public parseAuctionOrItemObj(
+        objRes: SuiObjectResponse,
+    ): AuctionObj | SuiItem | null
+    {
+        if (objRes.data?.type?.startsWith(`${this.packageId}::auction::Auction<`)) {
+            return this.parseAuctionObj(objRes);
+        }
+        return objResToSuiItem(objRes);
+    }
 
     /**
      * Parse an `auction::admin_creates_auction` transaction.
