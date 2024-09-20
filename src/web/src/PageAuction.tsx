@@ -132,7 +132,7 @@ export const PageAuction: React.FC = () =>
                     {auction.description}
                 </div>}
 
-                <CardFinalize auction={auction} items={items} />
+                <CardFinalize auction={auction} items={items} fetchAuction={fetchAuction} />
 
                 <div className="tabs-container">
                     <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
@@ -156,14 +156,18 @@ export const PageAuction: React.FC = () =>
 const CardFinalize: React.FC<{
     auction: AuctionObj;
     items: SuiItem[];
+    fetchAuction: (fetchItems: boolean) => Promise<void>;
 }> = ({
     auction,
     items,
+    fetchAuction,
 }) => {
 
     // === state ===
 
-    const { bidderClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const currAcct = useCurrentAccount();
+
+    const { bidderClient, setIsWorking } = useOutletContext<AppContext>();
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
@@ -197,6 +201,7 @@ const CardFinalize: React.FC<{
             console.warn("[finalizeAuction]", err);
         } finally {
             setIsWorking(false);
+            fetchAuction(false);
         }
     };
 
@@ -210,7 +215,9 @@ const CardFinalize: React.FC<{
         <div>Click the button to send the items to the winner and transfer the funds to the seller.</div>
 
         <div>
-            <Btn onClick={finalizeAuction}>FINALIZE</Btn> {/* TODO: connect wallet if disconnected */}
+            {!currAcct
+            ? <BtnConnect />
+            : <Btn onClick={finalizeAuction}>FINALIZE</Btn>}
         </div>
 
         {submitRes.ok === true &&
@@ -322,13 +329,12 @@ const FormBid: React.FC<{
 
     const hasInputError = input_amount.err !== undefined;
     const disableSubmit = hasInputError || isWorking || !currAcct;
-    const showBtnConnect = !currAcct;
 
     // === effects ===
 
     // === functions ===
 
-    const onSubmit = async () =>
+    const placeBid = async () =>
     {
         if (disableSubmit) {
             return;
@@ -361,7 +367,7 @@ const FormBid: React.FC<{
                 "E_WRONG_COIN_VALUE": "Someone placed a higher bid",
             });
             setSubmitRes({ ok: false, err: errMsg });
-            console.warn("[onSubmit]", err);
+            console.warn("[placeBid]", err);
         } finally {
             setIsWorking(false);
             fetchAuction(false);
@@ -376,9 +382,9 @@ const FormBid: React.FC<{
             {input_amount.input}
 
             <div className="btn-submit">
-                {showBtnConnect
+                {!currAcct
                 ? <BtnConnect />
-                : <Btn disabled={disableSubmit} onClick={onSubmit}>BID</Btn>}
+                : <Btn disabled={disableSubmit} onClick={placeBid}>BID</Btn>}
 
                 {submitRes.ok === true &&
                 <div className="success">Bid submitted!</div>}
@@ -390,7 +396,7 @@ const FormBid: React.FC<{
     );
 };
 
-const SectionDetails: React.FC<{ // TODO
+const SectionDetails: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,

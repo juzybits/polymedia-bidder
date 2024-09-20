@@ -24,7 +24,7 @@ export type SuiItem = {
 
 export function newItemPlaceholder(addr: string): SuiItem {
     const display = newEmptyDisplay();
-    display.image_url = svgNoImage; // TODO: use "Loading..." image
+    display.image_url = svgNoImage;
     return {
         id: addr,
         type: "_placeholder_",
