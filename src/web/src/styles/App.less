@@ -707,11 +707,21 @@ a.card, .card.link {
 
         .modal-close {
             position: absolute;
-            top: 2.5%;
-            right: 2.5%;
             cursor: pointer;
-            height: 2rem;
-            width: 2rem;
+            top: 1rem;
+            right: 1rem;
+            height: 3.5rem;
+            width: 3.5rem;
+            stroke: #222;
+            fill: @color-text;
+            &:hover {
+                stroke: @color-text;
+                fill: #222;
+            }
+            @media (max-width: @screen-medium) {
+                top: 0.5rem;
+                right: 0.5rem;
+            }
         }
 
         .modal-scrollable-content {
