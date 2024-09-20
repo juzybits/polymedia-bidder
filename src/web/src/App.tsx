@@ -21,6 +21,7 @@ import { PageNew } from "./PageNew";
 import { PageSettings } from "./PageSettings";
 import { PageUser } from "./PageUser";
 import "./styles/App.less";
+import { Modal } from "./components/Modal";
 
 /* App router */
 
@@ -86,6 +87,7 @@ export type AppContext = {
     isWorking: boolean; setIsWorking: ReactSetter<boolean>;
     showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
+    setModalContent: ReactSetter<React.ReactNode>;
     header: React.ReactNode;
     bidderClient: sdk.BidderClient;
 };
@@ -104,6 +106,8 @@ const App: React.FC<{
     const { mutateAsync: walletSignTx } = useSignTransaction();
     const packageId = sdk.AUCTION_IDS[network].packageId;
     const registryId = sdk.AUCTION_IDS[network].registryId;
+
+    const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
         return new sdk.BidderClient(
@@ -127,6 +131,7 @@ const App: React.FC<{
         isWorking, setIsWorking,
         showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,
+        setModalContent,
         header: <Header />,
         bidderClient,
     };
@@ -151,6 +156,10 @@ const App: React.FC<{
             open={showConnectModal}
             onOpenChange={isOpen => { setShowConnectModal(isOpen); }}
         />
+
+        {modalContent && <Modal onClose={() => setModalContent(null)}>
+            {modalContent}
+        </Modal>}
 
     </div>
     );

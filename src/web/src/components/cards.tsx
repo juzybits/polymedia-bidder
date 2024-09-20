@@ -4,7 +4,7 @@ import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@pol
 import { LinkExternal, LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { AppContext } from "../App";
+import { AppContext, NetworkName } from "../App";
 import { IconCheck } from "./icons";
 import { Modal } from "./Modal";
 
@@ -26,20 +26,20 @@ const CardSuiItemHiddenCount: React.FC<{
 
 export const CardSuiItem: React.FC<{
     item: SuiItem;
+    network: NetworkName;
     isChosen?: boolean;
     verbose?: boolean;
     extra?: React.ReactNode;
     onClick?: () => void;
 }> = ({
     item,
+    network,
     isChosen = false,
     verbose = false,
     extra = null,
     onClick = undefined,
 }) =>
 {
-    const { network } = useOutletContext<AppContext>();
-
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
     return (
@@ -155,25 +155,18 @@ export const CardAuctionItems: React.FC<{
     hiddenItemCount,
 }) =>
 {
-    const [ modalItem, setModalItem ] = useState<SuiItem | null>(null);
+    const { network, setModalContent } = useOutletContext<AppContext>();
 
     const showModal = (e: React.MouseEvent<HTMLDivElement>, item: SuiItem) => {
         e.preventDefault();
-        setModalItem(item);
-    };
-
-    const hideModal = () => {
-        setModalItem(null);
+        setModalContent(<CardSuiItem item={item} network={network} verbose={true} />);
     };
 
     return <>
-        {modalItem && <Modal onClose={hideModal}>
-            <CardSuiItem item={modalItem} verbose={true} />
-        </Modal>}
         <div className="grid">
             {items.map((item, idx) => (
                 <div className="card grid-item" key={idx} onClick={(e) => showModal(e, item)}>
-                    <CardSuiItem item={item} />
+                    <CardSuiItem item={item} network={network} />
                 </div>
             ))}
             {hiddenItemCount > 0 &&
