@@ -319,7 +319,7 @@ const ItemGridSelector: React.FC<{
         {
             const isChosen = isChosenItem(item);
             return (
-            <div className="grid-item card" key={item.id}
+            <div className="card grid-item" key={item.id}
                 onClick={() => (isChosen || !disableAddItem) && addOrRemoveItem(item)}
             >
                 <CardSuiItem item={item}

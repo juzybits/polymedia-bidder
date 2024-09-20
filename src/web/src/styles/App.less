@@ -305,11 +305,11 @@ footer {
     grid-template-columns: repeat(4, 1fr);
     gap: @gap-20;
 
-    .grid-item { padding: @gap-15; }
+    .card.grid-item { padding: @gap-15; }
     @media (max-width: @screen-large) {
         grid-template-columns: repeat(3, 1fr);
         gap: @gap-15;
-        .grid-item { padding: @gap-10; }
+        .card.grid-item { padding: @gap-10; }
     }
     @media (max-width: @screen-medium) {
         grid-template-columns: repeat(2, 1fr);
@@ -318,12 +318,12 @@ footer {
         grid-template-columns: repeat(1, 1fr);
     }
 
-    .grid-item {
+    .card.grid-item {
         &:hover {
             cursor: pointer;
             background-color: @color-border-gray;
         }
-        &.card .sui-item {
+        .sui-item {
             flex-direction: column;
             height: 100%;
             position: relative;

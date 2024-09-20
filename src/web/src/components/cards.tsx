@@ -64,12 +64,12 @@ export const CardAuctionItems: React.FC<{
     return (
         <div className="grid">
             {items.map((item, idx) => (
-                <div className="grid-item card" key={idx}>
+                <div className="card grid-item" key={idx}>
                     <CardSuiItem item={item} />
                 </div>
             ))}
             {hiddenItemCount > 0 &&
-                <div className="grid-item card">
+                <div className="card grid-item">
                     <CardSuiItemHiddenCount hiddenItemCount={hiddenItemCount} />
                 </div>
             }
