@@ -15,13 +15,6 @@
 @color-text: #eee;
 @font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 @font-system: system-ui;
-@gap-025: 0.25rem;
-@gap-05: 0.5rem;
-@gap-10: 1rem;
-@gap-15: 1.5rem;
-@gap-20: 2rem;
-@gap-25: 2.5rem;
-@gap-30: 3rem;
 @max-width-page-regular: 1440px;
 @screen-large: 1100px;
 @screen-medium: 700px;
@@ -115,8 +108,8 @@ header {
     display: flex;
     align-items: center;
     justify-content: right;
-    gap: @gap-10 @gap-25;
-    padding: 0 @gap-10*1.25;
+    gap: 1rem 2.5rem;
+    padding: 0 1rem*1.25;
     height: 62px;
     width: 100%;
     overflow-x: scroll;
@@ -152,11 +145,11 @@ footer {
 .page-regular {
     max-width: @max-width-page-regular;
     margin: 0 auto;
-    padding: @gap-20 @gap-20 8rem;
+    padding: 2rem 2rem 8rem;
     .page-content {
         display: flex;
         flex-direction: column;
-        gap: @gap-30;
+        gap: 3rem;
         .page-title {
             font-size: 2rem;
             font-weight: bold;
@@ -166,21 +159,21 @@ footer {
             display: flex;
             flex-direction: column;
             align-items: start;
-            gap: @gap-15;
+            gap: 1.5rem;
             .section-title {
                 color: white;
                 font-size: 1.75em;
                 font-weight: bold;
-                padding: 0 @gap-025;
+                padding: 0 0.25rem;
             }
             .section-description {
-                padding: 0 @gap-025;
+                padding: 0 0.25rem;
             }
         }
     }
     @media (max-width: @screen-medium) {
-        padding-left: @gap-15;
-        padding-right: @gap-15;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
     }
 }
 
@@ -193,7 +186,7 @@ footer {
     flex-direction: row;
     justify-content: space-between;
     align-items: start;
-    gap: @gap-15;
+    gap: 1.5rem;
     &.column-on-small {
         @media (max-width: @screen-small) {
             flex-direction: column-reverse;
@@ -203,7 +196,7 @@ footer {
     .auction-header-info {
         display: flex;
         align-items: center;
-        gap: @gap-15;
+        gap: 1.5rem;
 
         @media (max-width: @screen-small) {
             width: 100%;
@@ -242,7 +235,7 @@ footer {
     line-height: 1.35em;
     display: flex;
     flex-direction: column;
-    gap: @gap-05;
+    gap: 0.5rem;
 }
 
 .page-description, .section-description, .card-description {
@@ -267,9 +260,9 @@ footer {
     .tabs-header {
         display: flex;
         flex-direction: row;
-        gap: @gap-10 @gap-25;
+        gap: 1rem 2.5rem;
         flex-wrap: wrap;
-        padding: @gap-10 @gap-025 0;
+        padding: 1rem 0.25rem 0;
         width: 100%;
         font-size: 1.1em;
         line-height: 1em;
@@ -302,8 +295,8 @@ footer {
         width: 100%;
         display: flex;
         flex-direction: column;
-        gap: @gap-15;
-        padding-top: @gap-15;
+        gap: 1.5rem;
+        padding-top: 1.5rem;
     }
 }
 
@@ -311,13 +304,13 @@ footer {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: @gap-20;
+    gap: 2rem;
 
-    .card.grid-item { padding: @gap-15; }
+    .card.grid-item { padding: 1.5rem; }
     @media (max-width: @screen-large) {
         grid-template-columns: repeat(3, 1fr);
-        gap: @gap-15;
-        .card.grid-item { padding: @gap-10; }
+        gap: 1.5rem;
+        .card.grid-item { padding: 1rem; }
     }
     @media (max-width: @screen-medium) {
         grid-template-columns: repeat(2, 1fr);
@@ -349,7 +342,7 @@ footer {
 .card-list {
     display: flex;
     flex-direction: column;
-    gap: @gap-10;
+    gap: 1rem;
     width: 100%;
 }
 
@@ -359,10 +352,10 @@ footer {
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: @gap-20;
-    gap: @gap-15;
+    padding: 2rem;
+    gap: 1.5rem;
     @media (max-width: @screen-medium) {
-        padding: @gap-15;
+        padding: 1.5rem;
     }
     .card-title {
         font-size: 1.3em;
@@ -373,7 +366,7 @@ footer {
 .card > .sui-item {
     display: flex;
     flex-direction: column;
-    gap: @gap-10;
+    gap: 1rem;
     height: 100%;
     position: relative;
 
@@ -406,7 +399,7 @@ footer {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        gap: @gap-10;
+        gap: 1rem;
         .item-button {
             .btn {
                 width: 100%;
@@ -421,13 +414,13 @@ footer {
 }
 
 .card.tx {
-    padding: @gap-15;
-    gap: @gap-10;
+    padding: 1.5rem;
+    gap: 1rem;
     .card-body {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        gap: @gap-10;
+        gap: 1rem;
         @media (max-width: @screen-small) {
             flex-direction: column;
         }
@@ -469,7 +462,7 @@ a.card, .card.link {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: @gap-025 0;
+        padding: 0.25rem 0;
 
         .detail-label {
             font-weight: bold;
@@ -510,9 +503,9 @@ a.card, .card.link {
     .chosen-items {
         display: flex;
         flex-direction: column;
-        gap: @gap-10;
+        gap: 1rem;
         .card-list {
-            gap: @gap-05;
+            gap: 0.5rem;
             .sui-item {
                 display: flex;
                 gap: 0.7rem;
@@ -588,7 +581,7 @@ a.card, .card.link {
 .btn-submit {
     display: flex;
     flex-direction: column;
-    gap: @gap-05;
+    gap: 0.5rem;
     .success, .error {
         padding-left: 0.8em;
     }
@@ -730,8 +723,8 @@ a.card, .card.link {
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: @gap-25;
-        gap: @gap-15;
+        padding: 2.5rem;
+        gap: 1.5rem;
         border-radius: @border-radius;
         background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
         .glitch, .glitch * {
@@ -740,10 +733,10 @@ a.card, .card.link {
             letter-spacing: 0.05em;
         }
         @media (max-width: @screen-medium) {
-            padding: @gap-20;
+            padding: 2rem;
         }
         #hero-description {
-            padding: @gap-10 0;
+            padding: 1rem 0;
         }
     }
 }
