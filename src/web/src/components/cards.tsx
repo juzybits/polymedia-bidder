@@ -1,7 +1,7 @@
 import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
-import { formatBalance, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@polymedia/suitcase-core";
+import { LinkExternal, LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppContext } from "../App";
@@ -50,53 +50,68 @@ export const CardSuiItem: React.FC<{
             </div>
             <div className="item-info">
                 <div className="item-title break-any">
-                    {item.nameShort ? item.nameShort : shortenAddress(item.type)}
+                    {!verbose && (item.nameShort ? item.nameShort : shortenAddress(item.type))}
                     {verbose &&
                     <div className="card-details">
+                        {item.id &&
                         <div className="detail">
-                            <span className="detail-label">Object ID:</span>
+                            <span className="detail-label">ID:</span>
                             <LinkToPolymedia addr={item.id} kind="object" network={network} />
-                        </div>
-                        <div className="detail">
+                        </div>}
+                        {item.type &&
+                            <div className="detail">
                             <span className="detail-label">Type:</span>
                             <LinkToPolymedia addr={item.type} kind="object" network={network} />
-                        </div>
+                        </div>}
+                        {item.nameFull &&
                         <div className="detail">
-                            <span className="detail-label">Display Name:</span>
-                            {item.display.name}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Description:</span>
-                            {item.display.description}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Link:</span>
-                            {item.display.link}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Project Name:</span>
-                            {item.display.project_name}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Project URL:</span>
-                            {item.display.project_url}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Creator:</span>
-                            {item.display.creator}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Public Transfer:</span>
-                            {item.hasPublicTransfer ? "Yes" : "No"}
-                        </div>
-                        <div className="detail">
-                            <span className="detail-label">Full Name:</span>
+                            <span className="detail-label">Name:</span>
                             {item.nameFull}
-                        </div>
+                        </div>}
+                        {/* {item.nameShort &&
                         <div className="detail">
                             <span className="detail-label">Short Name:</span>
                             {item.nameShort}
-                        </div>
+                        </div>} */}
+                        {item.display.description &&
+                        <div className="detail">
+                            <span className="detail-label">Description:</span>
+                            {item.display.description}
+                        </div>}
+                        {/* {item.display.name &&
+                        <div className="detail">
+                            <span className="detail-label">Display name:</span>
+                            {item.display.name}
+                        </div>} */}
+                        {item.display.link &&
+                        <div className="detail">
+                            <span className="detail-label">Object link:</span>
+                            <LinkExternal html={{ href: item.display.link }}>
+                                {urlToDomain(item.display.link)}
+                            </LinkExternal>
+                        </div>}
+                        {item.display.project_name &&
+                        <div className="detail">
+                            <span className="detail-label">Project name:</span>
+                            {item.display.project_name}
+                        </div>}
+                        {item.display.project_url &&
+                        <div className="detail">
+                            <span className="detail-label">Project URL:</span>
+                            <LinkExternal html={{ href: item.display.project_url }}>
+                                {urlToDomain(item.display.project_url)}
+                            </LinkExternal>
+                        </div>}
+                        {item.display.creator &&
+                        <div className="detail">
+                            <span className="detail-label">Creator:</span>
+                            {item.display.creator}
+                        </div>}
+                        {/* {item.hasPublicTransfer &&
+                        <div className="detail">
+                            <span className="detail-label">Public Transfer:</span>
+                            {item.hasPublicTransfer ? "Yes" : "No"}
+                        </div>} */}
                     </div>}
                 </div>
                 {extra}
