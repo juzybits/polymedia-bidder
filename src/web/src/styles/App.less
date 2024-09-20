@@ -690,6 +690,18 @@ a.card, .card.link {
         box-shadow: 0 0px 2rem rgba(0, 0, 0, 1);
         padding: 2rem;
 
+        .modal-close {
+            display: flex;
+            justify-content: end;
+            padding-bottom: 1rem;
+            .icon {
+                cursor: pointer;
+                display: block;
+                height: 1.8rem;
+                width: 1.8rem;
+            }
+        }
+
         @media (max-width: @screen-small) {
             padding: 0;
             border-radius: 0;
@@ -697,15 +709,18 @@ a.card, .card.link {
             border-right: none;
             width: 100%;
             max-height: none;
-        }
 
-        .card {
-            @media (max-width: @screen-small) {
+            .modal-close {
+                padding-top: 1rem;
+                padding-right: 1rem;
+            }
+            .card {
                 border: none;
                 border-radius: 0;
                 height: 100%;
             }
         }
+
     }
 }
 

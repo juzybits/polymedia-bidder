@@ -109,18 +109,6 @@ export const CardSuiItem: React.FC<{
     );
 };
 
-export const CardModalItemInfo: React.FC<{ // TODO
-    item: SuiItem;
-}> = ({
-    item,
-}) => {
-    return <Modal>
-        <div className="card">
-            <CardSuiItem item={item} verbose={true} />
-        </div>
-    </Modal>;
-};
-
 export const CardAuctionItems: React.FC<{
     items: SuiItem[];
     hiddenItemCount: number;
@@ -129,17 +117,25 @@ export const CardAuctionItems: React.FC<{
     hiddenItemCount,
 }) =>
 {
-    const [ showItemModal, setShowItemModal ] = useState<SuiItem | null>(null);
+    const [ modalItem, setModalItem ] = useState<SuiItem | null>(null);
 
-    const showCardItemInfo = (item: SuiItem) => {
-        setShowItemModal(item);
+    const showModal = (item: SuiItem) => {
+        setModalItem(item);
+    };
+
+    const hideModal = () => {
+        setModalItem(null);
     };
 
     return <>
-        {showItemModal && <CardModalItemInfo item={showItemModal} />}
+        {modalItem && <Modal onClose={hideModal}>
+            <div className="card">
+                <CardSuiItem item={modalItem} verbose={false} />
+            </div>
+        </Modal>}
         <div className="grid">
             {items.map((item, idx) => (
-                <div className="card grid-item" key={idx} onClick={() => showCardItemInfo(item)}>
+                <div className="card grid-item" key={idx} onClick={() => showModal(item)}>
                     <CardSuiItem item={item} />
                 </div>
             ))}
