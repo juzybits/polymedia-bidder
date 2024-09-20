@@ -52,54 +52,50 @@ export const CardSuiItem: React.FC<{
                 <div className="item-title break-any">
                     {item.nameShort ? item.nameShort : shortenAddress(item.type)}
                     {verbose &&
-                    <div className="card-item-details">
-                        <div className="item-detail">
+                    <div className="card-details">
+                        <div className="detail">
                             <span className="detail-label">Object ID:</span>
                             <LinkToPolymedia addr={item.id} kind="object" network={network} />
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Type:</span>
                             <LinkToPolymedia addr={item.type} kind="object" network={network} />
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Display Name:</span>
                             {item.display.name}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Description:</span>
                             {item.display.description}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Link:</span>
                             {item.display.link}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Project Name:</span>
                             {item.display.project_name}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Project URL:</span>
                             {item.display.project_url}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Creator:</span>
                             {item.display.creator}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Public Transfer:</span>
                             {item.hasPublicTransfer ? "Yes" : "No"}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Full Name:</span>
                             {item.nameFull}
                         </div>
-                        <div className="item-detail">
+                        <div className="detail">
                             <span className="detail-label">Short Name:</span>
                             {item.nameShort}
-                        </div>
-                        <div className="item-detail">
-                            <span className="detail-label">Description:</span>
-                            {item.desc}
                         </div>
                     </div>}
                 </div>
@@ -130,7 +126,7 @@ export const CardAuctionItems: React.FC<{
     return <>
         {modalItem && <Modal onClose={hideModal}>
             <div className="card">
-                <CardSuiItem item={modalItem} verbose={false} />
+                <CardSuiItem item={modalItem} verbose={true} />
             </div>
         </Modal>}
         <div className="grid">

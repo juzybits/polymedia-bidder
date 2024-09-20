@@ -447,7 +447,7 @@ a.card, .card.link {
     }
 }
 
-.card-auction-details, .card-item-details {
+.card-details {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -457,7 +457,7 @@ a.card, .card.link {
         max-width: 100%;
     }
 
-    .auction-detail, .item-detail {
+    .detail {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -466,6 +466,7 @@ a.card, .card.link {
         .detail-label {
             font-weight: bold;
             color: @color-text-gray;
+            flex-shrink: 0;
         }
 
         @media (max-width: @screen-medium) {

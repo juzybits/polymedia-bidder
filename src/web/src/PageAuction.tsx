@@ -700,79 +700,79 @@ const CardAuctionDetails: React.FC<{
 }) => {
     const { network } = useOutletContext<AppContext>();
     return (
-        <div className="card-auction-details">
+        <div className="card-details">
             {/* Main info */}
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Auction ID:</span>
                 <LinkToPolymedia addr={auction.id} kind="object" network={network} />
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Currency:</span>
                 <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} />
             </div>
-            {/* <div className="auction-detail">
+            {/* <div className="detail">
                 <span className="detail-label">Items:</span>
                 <ObjectLinkList ids={auction.item_addrs} />
             </div> */}
             {auction.has_balance &&
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Top Bid:</span>
                 <Balance balance={auction.lead_value} coinType={auction.type_coin} />
             </div>}
             {auction.has_leader &&
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Leader Address:</span>
                 <LinkToUser addr={auction.lead_addr} kind="bids" />
             </div>}
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Start Time:</span>
                 {formatDate(auction.begin_time_ms)}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">End Time:</span>
                 {formatDate(auction.end_time_ms)}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Minimum Bid:</span>
                 <Balance balance={auction.minimum_bid} coinType={auction.type_coin} />
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Minimum Increase:</span>
                 {formatBps(auction.minimum_increase_bps)}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Extension Period:</span>
                 {formatDuration(auction.extension_period_ms)}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Creator Address:</span>
                 <LinkToUser addr={auction.admin_addr} kind="auctions" />
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Payment Address:</span>
                 <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} />
             </div>
-            {/* <div className="auction-detail">
+            {/* <div className="detail">
                 <span className="detail-label">Started</span>
                 {auction.has_started ? "yes": "no"}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Ended</span>
                 {auction.has_ended ? "yes": "no"}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Live</span>
                 {auction.is_live ? "yes": "no"}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Cancelled</span>
                 {auction.is_cancelled ? "yes": "no"}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Has Leader</span>
                 {auction.has_leader ? "yes": "no"}
             </div>
-            <div className="auction-detail">
+            <div className="detail">
                 <span className="detail-label">Has Balance</span>
                 {auction.has_balance ? "yes": "no"}
             </div> */}
