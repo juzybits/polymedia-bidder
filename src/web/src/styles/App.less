@@ -323,7 +323,7 @@ footer {
             cursor: pointer;
             background-color: @color-border-gray;
         }
-        .sui-item {
+        &.card .sui-item {
             flex-direction: column;
             height: 100%;
             position: relative;
@@ -465,7 +465,7 @@ a.card, .card.link {
     }
 }
 
-.sui-item {
+.card .sui-item {
     display: flex;
     gap: @gap-10;
     .item-img {
@@ -515,7 +515,7 @@ a.card, .card.link {
         gap: @gap-10;
         .card-list {
             gap: @gap-05;
-            .sui-item {
+            .card .sui-item {
                 flex-direction: row;
                 align-items: center;
                 .item-img {

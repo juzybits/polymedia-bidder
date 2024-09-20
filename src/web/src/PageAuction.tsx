@@ -137,7 +137,7 @@ export const PageAuction: React.FC = () =>
                 <div className="tabs-container">
                     <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
                     <div className="tabs-content">
-                        {activeTab === "items" && <SectionItems auction={auction} items={items} />}
+                        {activeTab === "items" && <SectionItems items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                         {activeTab === "details" && <SectionDetails auction={auction} />}
                         {activeTab === "history" && <SectionHistory auction={auction} />}
@@ -229,10 +229,8 @@ const CardFinalize: React.FC<{
 };
 
 const SectionItems: React.FC<{
-    auction: AuctionObj;
     items: SuiItem[];
 }> = ({
-    auction,
     items,
 }) => {
     return (
@@ -430,7 +428,7 @@ const SectionHistory: React.FC<{
 
     // === functions ===
 
-    const fetchRecentBids = async () => { // TODO: "load more" / "next page"
+    const fetchRecentBids = async () => { // TODO: pagination
         setTxs(undefined);
         setErrFetch(null);
         try {

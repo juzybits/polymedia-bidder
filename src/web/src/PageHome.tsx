@@ -64,7 +64,7 @@ const SectionRecentAuctions: React.FC = () =>
 
     // === functions ===
 
-    const fetchRecentAuctions = async () => // TODO: "load more" / "next page"
+    const fetchRecentAuctions = async () => // TODO: pagination
     {
         setTxs(undefined);
         setErrFetch(null);
