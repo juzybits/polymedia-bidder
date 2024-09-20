@@ -61,7 +61,9 @@ export const CardSuiItem: React.FC<{
                         {item.type &&
                             <div className="detail">
                             <span className="detail-label">Type:</span>
-                            <LinkToPolymedia addr={item.type} kind="object" network={network} />
+                            <LinkToPolymedia addr={item.type.split("::")[0]} kind="object" network={network}>
+                                {shortenAddress(item.type)}
+                            </LinkToPolymedia>
                         </div>}
                         {item.nameFull &&
                         <div className="detail">

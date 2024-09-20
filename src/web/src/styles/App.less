@@ -737,6 +737,16 @@ a.card, .card.link {
             .hide-scrollbar
         }
     }
+
+    // modal animation
+
+    .card.modal-content {
+        animation: modalFadeIn 0.1s ease-in-out forwards;
+    }
+    @keyframes modalFadeIn {
+        from { transform: scale(0.95); }
+        to { transform: scale(1); }
+    }
 }
 
 // === specific pages ===
