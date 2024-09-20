@@ -471,7 +471,7 @@ const SectionAdmin: React.FC<{
 {
     // === state ===
 
-    const { bidderClient, network, isWorking, setIsWorking } = useAppContext();
+    const { bidderClient, network, setIsWorking } = useAppContext();
 
     // === "accept bid": admin_accepts_bid + anyone_pays_funds + anyone_sends_item_to_winner ===
 

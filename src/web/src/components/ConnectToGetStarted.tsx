@@ -1,7 +1,6 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import React from "react";
-import { useOutletContext } from "react-router-dom";
-import { AppContext, useAppContext } from "../App";
+import { useAppContext } from "../App";
 
 export const ConnectToGetStarted: React.FC = () =>
 {

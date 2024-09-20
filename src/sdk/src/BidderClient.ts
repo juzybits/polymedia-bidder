@@ -96,8 +96,8 @@ export class BidderClient extends SuiClientBase
         auctionIds: string[],
         itemIds: string[],
     ): Promise<{
-        auctions: AuctionObj[],
-        items: SuiItem[],
+        auctions: AuctionObj[];
+        items: SuiItem[];
     }>
     {
         const allObjs = await this.fetchAndParseObjects<AuctionObj | SuiItem>(

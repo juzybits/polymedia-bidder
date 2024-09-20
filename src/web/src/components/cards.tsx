@@ -155,7 +155,7 @@ export const CardAuctionItems: React.FC<{
     hiddenItemCount,
 }) =>
 {
-    const { network, setModalContent } = useAppContext();
+    const { setModalContent } = useAppContext();
 
     const showModal = (e: React.MouseEvent<HTMLDivElement>, item: SuiItem) => {
         e.preventDefault();
