@@ -2,15 +2,14 @@ import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import { NetworkName } from "@polymedia/bidder-sdk";
 import { NetworkSelector } from "@polymedia/suitcase-react";
 import React from "react";
-import { useOutletContext } from "react-router-dom";
-import { AppContext, networkConfig, supportedNetworks } from "./App";
+import { networkConfig, supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 
 export const PageSettings: React.FC = () =>
 {
     // === state ===
 
-    const { header } = useOutletContext<AppContext>();
+    const { header } = useAppContext();
 
     // === html ===
 
@@ -74,7 +73,7 @@ const SectionRpc: React.FC = () => // TODO: selector / input
 {
     // === state ===
 
-    const { network } = useOutletContext<AppContext>();
+    const { network } = useAppContext();
 
     const rpcUrl = networkConfig[network].url;
 
@@ -94,7 +93,7 @@ const SectionNetwork: React.FC = () => // TODO: style
 {
     // === state ===
 
-    const { isWorking, network, setNetwork } = useOutletContext<AppContext>();
+    const { isWorking, network, setNetwork } = useAppContext();
 
     const onSwitchNetwork = (newNet: NetworkName) => {
         setNetwork(newNet);

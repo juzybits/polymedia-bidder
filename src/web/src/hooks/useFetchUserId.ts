@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import { AppContext } from "../App";
+import { useAppContext } from "../App";
 
 export const useFetchUserId = (
     address: string | undefined,
@@ -8,7 +7,7 @@ export const useFetchUserId = (
 {
     // === state ===
 
-    const { bidderClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useAppContext();
 
     const [userId, setUserId] = useState<string | null | undefined>();
     const [errorFetchUserId, setError] = useState<string | null>(null);

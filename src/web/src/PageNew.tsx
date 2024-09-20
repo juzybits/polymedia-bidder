@@ -3,8 +3,8 @@ import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymed
 import { TimeUnit } from "@polymedia/suitcase-core";
 import { useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { AppContext } from "./App";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { CardChosenItem, CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -17,7 +17,7 @@ export const PageNew: React.FC = () =>
 
     const currAcct = useCurrentAccount();
 
-    const { header } = useOutletContext<AppContext>();
+    const { header } = useAppContext();
 
     const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
 
@@ -86,7 +86,7 @@ const FormCreateAuction: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, isWorking, setIsWorking } = useAppContext();
 
     const { userId, updateUserId } = useFetchUserId(currAcct.address);
 
@@ -272,7 +272,7 @@ const ItemGridSelector: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useAppContext();
 
     const [ ownedItems, setOwnedItems ] = useState<PaginatedItemsResponse>();
 

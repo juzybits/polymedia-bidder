@@ -1,14 +1,13 @@
 import { AuctionObj, SuiItem, TxAdminCreatesAuction } from "@polymedia/bidder-sdk";
-import { formatTimeDiff } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
-import { AppContext } from "./App";
+import { Link } from "react-router-dom";
+import { useAppContext } from "./App";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 
 export const PageHome: React.FC = () =>
 {
-    const { header } = useOutletContext<AppContext>();
+    const { header } = useAppContext();
 
     return <>
     {header}
@@ -51,7 +50,7 @@ const SectionRecentAuctions: React.FC = () =>
 {
     // === state ===
 
-    const { bidderClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useAppContext();
 
     const [ txs, setTxs ] = useState<TxWithAuctionAndItems[] | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);

@@ -3,8 +3,8 @@ import { AuctionObj, UserAuction, UserBid, UserRecentHistory } from "@polymedia/
 import { formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToPolymedia } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext, useParams } from "react-router-dom";
-import { AppContext } from "./App";
+import { Link, useParams } from "react-router-dom";
+import { useAppContext } from "./App";
 import { CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { makeTabs, TabsHeader } from "./components/tabs";
@@ -21,7 +21,7 @@ export const PageUser: React.FC = () =>
     // === external state ===
 
     const currAcct = useCurrentAccount();
-    const { header, network, bidderClient } = useOutletContext<AppContext>();
+    const { header, network, bidderClient } = useAppContext();
 
     // === url validation ===
 

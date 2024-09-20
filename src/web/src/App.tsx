@@ -10,7 +10,7 @@ import { getFullnodeUrl } from "@mysten/sui/client";
 import * as sdk from "@polymedia/bidder-sdk";
 import { ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, createContext, useContext } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
 import { IconHistory, IconNew, IconGears } from "./components/icons";
@@ -82,6 +82,16 @@ const AppSuiProviders: React.FC = () => {
 
 /* App */
 
+const AppContext = createContext<AppContext | null>(null);
+
+export const useAppContext = () => {
+    const context = useContext(AppContext);
+    if (!context) {
+        throw new Error("useAppContext must be used within an AppContextProvider");
+    }
+    return context;
+};
+
 export type AppContext = {
     network: NetworkName; setNetwork: ReactSetter<NetworkName>;
     isWorking: boolean; setIsWorking: ReactSetter<boolean>;
@@ -147,21 +157,23 @@ const App: React.FC<{
     }
 
     return (
-    <div id="layout" className={layoutClasses.join(" ")}>
+    <AppContext.Provider value={appContext}>
+        <div id="layout" className={layoutClasses.join(" ")}>
 
-        <Outlet context={appContext} /> {/* Loads a Page*.tsx */}
+            <Outlet /> {/* Loads a Page*.tsx */}
 
-        <ConnectModal
-            trigger={<></>}
-            open={showConnectModal}
-            onOpenChange={isOpen => { setShowConnectModal(isOpen); }}
-        />
+            <ConnectModal
+                trigger={<></>}
+                open={showConnectModal}
+                onOpenChange={isOpen => { setShowConnectModal(isOpen); }}
+            />
 
-        {modalContent && <Modal onClose={() => setModalContent(null)}>
-            {modalContent}
-        </Modal>}
+            {modalContent && <Modal onClose={() => setModalContent(null)}>
+                {modalContent}
+            </Modal>}
 
-    </div>
+        </div>
+    </AppContext.Provider>
     );
 };
 

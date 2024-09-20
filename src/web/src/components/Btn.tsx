@@ -1,5 +1,4 @@
-import { useOutletContext } from "react-router-dom";
-import { AppContext } from "../App";
+import { useAppContext } from "../App";
 
 export const Btn: React.FC<{
     onClick: () => void;
@@ -11,7 +10,7 @@ export const Btn: React.FC<{
     disabled = undefined,
 }) =>
 {
-    const { isWorking } = useOutletContext<AppContext>();
+    const { isWorking } = useAppContext();
     disabled = disabled || isWorking;
 
     return (

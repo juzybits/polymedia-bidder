@@ -6,8 +6,8 @@ import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { LinkToPolymedia, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext, useParams } from "react-router-dom";
-import { AppContext } from "./App";
+import { Link, useParams } from "react-router-dom";
+import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { Balance, CardAuctionItems, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
@@ -36,7 +36,7 @@ export const PageAuction: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { bidderClient, header } = useOutletContext<AppContext>();
+    const { bidderClient, header } = useAppContext();
 
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ items, setItems ] = useState<SuiItem[] | null | undefined>();
@@ -167,7 +167,7 @@ const CardFinalize: React.FC<{
 
     const currAcct = useCurrentAccount();
 
-    const { bidderClient, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, setIsWorking } = useAppContext();
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
@@ -251,7 +251,7 @@ const SectionBid: React.FC<{
 {
     const currAcct = useCurrentAccount();
 
-    const { bidderClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useAppContext();
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
 
@@ -312,7 +312,7 @@ const FormBid: React.FC<{
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { bidderClient, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, isWorking, setIsWorking } = useAppContext();
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const msgMinimum = `Minimum bid is ${formatBalance(auction.minimum_bid, coinMeta.decimals)} ${coinMeta.symbol}`;
@@ -415,7 +415,7 @@ const SectionHistory: React.FC<{
 
     // === state ===
 
-    const { bidderClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useAppContext();
 
     const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof BidderClient>["fetchTxsByAuctionId"]>> | undefined>();
     const [ errFetch, setErrFetch ] = useState<string | null>(null);
@@ -471,7 +471,7 @@ const SectionAdmin: React.FC<{
 {
     // === state ===
 
-    const { bidderClient, network, isWorking, setIsWorking } = useOutletContext<AppContext>();
+    const { bidderClient, network, isWorking, setIsWorking } = useAppContext();
 
     // === "accept bid": admin_accepts_bid + anyone_pays_funds + anyone_sends_item_to_winner ===
 
@@ -698,7 +698,7 @@ const CardAuctionDetails: React.FC<{
 }> = ({
     auction,
 }) => {
-    const { network } = useOutletContext<AppContext>();
+    const { network } = useAppContext();
     return (
         <div className="card-details">
             {/* Main info */}
@@ -803,7 +803,7 @@ const CardTxAdminCreatesAuction: React.FC<{
     tx,
 }) =>
 {
-    const { network } = useOutletContext<AppContext>();
+    const { network } = useAppContext();
     return (
         <div className="card tx tx-create">
             <div className="card-header">
@@ -823,7 +823,7 @@ const CardTxAnyoneBids: React.FC<{
 }> = ({
     tx,
 }) => {
-    const { network } = useOutletContext<AppContext>();
+    const { network } = useAppContext();
     return (
         <div className="card tx tx-bid">
             <div className="card-header">
@@ -856,7 +856,7 @@ const LinkToUser: React.FC<{
 // }> = ({
 //     auction,
 // }) => {
-//     const { network } = useOutletContext<AppContext>();
+//     const { network } = useAppContext();
 //     return <>
 //         <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
 //         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>

@@ -1,7 +1,5 @@
 import React from "react";
-import { useOutletContext } from "react-router-dom";
-import { AppContext } from "./App";
-
+import { useAppContext } from "./App";
 
 export const PageNotFound: React.FC = () =>
 {
@@ -15,7 +13,7 @@ export const PageFullScreenMsg: React.FC<{
     children,
 }) =>
 {
-    const { header } = useOutletContext<AppContext>();
+    const { header } = useAppContext();
 
     return <>
         {header}

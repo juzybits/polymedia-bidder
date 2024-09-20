@@ -2,11 +2,9 @@ import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@polymedia/suitcase-core";
 import { LinkExternal, LinkToPolymedia } from "@polymedia/suitcase-react";
-import React, { useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import { AppContext, NetworkName } from "../App";
+import React from "react";
+import { useAppContext } from "../App";
 import { IconCheck } from "./icons";
-import { Modal } from "./Modal";
 
 // === cards ===
 
@@ -26,20 +24,20 @@ const CardSuiItemHiddenCount: React.FC<{
 
 export const CardSuiItem: React.FC<{
     item: SuiItem;
-    network: NetworkName;
     isChosen?: boolean;
     verbose?: boolean;
     extra?: React.ReactNode;
     onClick?: () => void;
 }> = ({
     item,
-    network,
     isChosen = false,
     verbose = false,
     extra = null,
     onClick = undefined,
 }) =>
 {
+    const { network } = useAppContext();
+
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
     return (
@@ -157,18 +155,18 @@ export const CardAuctionItems: React.FC<{
     hiddenItemCount,
 }) =>
 {
-    const { network, setModalContent } = useOutletContext<AppContext>();
+    const { network, setModalContent } = useAppContext();
 
     const showModal = (e: React.MouseEvent<HTMLDivElement>, item: SuiItem) => {
         e.preventDefault();
-        setModalContent(<CardSuiItem item={item} network={network} verbose={true} />);
+        setModalContent(<CardSuiItem item={item} verbose={true} />);
     };
 
     return <>
         <div className="grid">
             {items.map((item, idx) => (
                 <div className="card grid-item" key={idx} onClick={(e) => showModal(e, item)}>
-                    <CardSuiItem item={item} network={network} />
+                    <CardSuiItem item={item} />
                 </div>
             ))}
             {hiddenItemCount > 0 &&
@@ -223,7 +221,7 @@ export const Balance: React.FC<{
     coinType,
 }) =>
 {
-    const { bidderClient } = useOutletContext<AppContext>();
+    const { bidderClient } = useAppContext();
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, coinType);
 
@@ -241,7 +239,7 @@ export const ObjectLinkList: React.FC<{
 }> = ({
     ids,
 }) => {
-    const { network } = useOutletContext<AppContext>();
+    const { network } = useAppContext();
     return <>{ids.map((id, idx) => (
         <React.Fragment key={idx}>
             {idx > 0 && ", "}
@@ -287,7 +285,7 @@ export const FullCardMsg: React.FC<{
 // }> = ({
 //     auction,
 // }) => {
-//     const { network } = useOutletContext<AppContext>();
+//     const { network } = useAppContext();
 //     return <>
 //         <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
 //         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
@@ -314,7 +312,7 @@ export const FullCardMsg: React.FC<{
 // }> = ({
 //     tx,
 // }) => {
-//     const { network } = useOutletContext<AppContext>();
+//     const { network } = useAppContext();
 //     return <>
 //         <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
 //         <div>timestamp: {msToDate(tx.timestamp)}</div>
@@ -331,7 +329,7 @@ export const FullCardMsg: React.FC<{
 //     tx,
 // }) =>
 // {
-//     const { network } = useOutletContext<AppContext>();
+//     const { network } = useAppContext();
 //     return <>
 //         <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
 //         <div>timestamp: {msToDate(tx.timestamp)}</div>

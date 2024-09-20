@@ -1,7 +1,7 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import React from "react";
 import { useOutletContext } from "react-router-dom";
-import { AppContext } from "../App";
+import { AppContext, useAppContext } from "../App";
 
 export const ConnectToGetStarted: React.FC = () =>
 {
@@ -22,7 +22,7 @@ export const BtnConnect: React.FC = () =>
     const currAcct = useCurrentAccount();
     const { mutate: disconnect } = useDisconnectWallet();
 
-    const { isWorking, openConnectModal, setShowMobileNav } = useOutletContext<AppContext>();
+    const { isWorking, openConnectModal, setShowMobileNav } = useAppContext();
 
     const connectWallet = () => {
         currAcct ? disconnect() : openConnectModal();
