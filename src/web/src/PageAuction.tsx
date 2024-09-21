@@ -11,7 +11,7 @@ import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { Balance, CardAuctionItems, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
-import { IconCart, IconDetails, IconGears, IconHistory, IconItems } from "./components/icons";
+import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } from "./components/icons";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
@@ -251,7 +251,7 @@ const SectionBid: React.FC<{
 {
     const currAcct = useCurrentAccount();
 
-    const { bidderClient } = useAppContext();
+    const { bidderClient, setModalContent } = useAppContext();
 
     const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
 
@@ -260,6 +260,15 @@ const SectionBid: React.FC<{
     // === effects ===
 
     // === functions ===
+
+    const showInfoModal = () => {
+        setModalContent(<>
+            <div className="card-title"><IconInfo />How bids work</div>
+            <div className="card-description">When you place a bid, you become the auction leader.</div>
+            <div className="card-description">If nobody bids higher, you win the auction and can claim the items.</div>
+            <div className="card-description">If someone bids higher, your bid is automatically returned to your address.</div>
+        </>);
+    };
 
     // === html ===
 
@@ -275,7 +284,10 @@ const SectionBid: React.FC<{
     } else {
         content = <>
             <div className="card compact">
-                <div className="card-title">Place a bid</div>
+                <div className="card-header">
+                    <div className="card-title">Place a bid</div>
+                    <IconInfo onClick={showInfoModal} />
+                </div>
                 <FormBid auction={auction} coinMeta={coinMeta} userId={userId} updateUserId={updateUserId} fetchAuction={fetchAuction} />
             </div>
             {auction.has_balance &&

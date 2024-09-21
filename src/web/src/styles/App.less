@@ -91,6 +91,7 @@ h1, h2, h3, h4, h5, button, input {
     fill: @color-text;
     &:hover {
         fill: @color-blue;
+        cursor: pointer;
     }
 }
 
@@ -138,10 +139,6 @@ header {
         color: yellow;
         text-transform: uppercase;
     }
-    // #header-logo {
-    //     height: 2.5rem;
-    //     aspect-ratio: 692 / 643;
-    // }
 }
 
 footer {
@@ -366,8 +363,17 @@ footer {
         padding: 1.5rem;
     }
     .card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
         font-size: 1.3em;
         font-weight: bold;
+        .icon {
+            &:hover {
+                cursor: default;
+                fill: @color-text;
+            }
+        }
     }
 }
 
@@ -745,7 +751,10 @@ body.modal-open {
 
         .modal-scrollable-content {
             overflow-y: auto;
-            .hide-scrollbar
+            .hide-scrollbar;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
     }
 
