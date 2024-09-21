@@ -194,10 +194,12 @@ const App: React.FC<{
 
 const Header: React.FC = () =>
 {
+    const { network } = useAppContext();
     return <header>
         <div className="header-item">
             <Link to="/">
                 <Glitch text="BIDDER" />
+                {network !== "mainnet" && <span className="header-network-label">{network}</span>}
             </Link>
         </div>
         <Link to="/new" className="header-item" title="Create Auction">
