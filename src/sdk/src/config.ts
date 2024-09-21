@@ -1,6 +1,6 @@
 // === network ===
 
-export type NetworkName =  "mainnet" | "testnet" | "devnet" | "localnet";
+import { NetworkName } from "@polymedia/suitcase-core";
 
 export type NetworkConfig = {
     packageId: string;

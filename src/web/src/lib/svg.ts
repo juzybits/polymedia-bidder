@@ -80,4 +80,18 @@ export function trimSvg(svg: string): string
 export function svgToDataUrl(svg: string): string
 {
     return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-}
+};
+
+export const getRandomDarkColor = () => {
+    const h = Math.floor(Math.random() * 360);
+    const s = Math.floor(Math.random() * 30) + 70; // 70-100%
+    const l = Math.floor(Math.random() * 20) + 10; // 10-30%
+    return `hsl(${h}, ${s}%, ${l}%)`;
+};
+
+export const getRandomLightColor = () => {
+    const h = Math.floor(Math.random() * 360);
+    const s = Math.floor(Math.random() * 30) + 70; // 70-100%
+    const l = Math.floor(Math.random() * 20) + 70; // 70-90%
+    return `hsl(${h}, ${s}%, ${l}%)`;
+};

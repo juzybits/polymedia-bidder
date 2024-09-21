@@ -8,6 +8,7 @@ import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { CardChosenItem, CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { DevNftCreator } from "./components/DevNftCreator";
 import { IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
@@ -296,7 +297,7 @@ const ItemGridSelector: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient } = useAppContext();
+    const { bidderClient, network } = useAppContext();
 
     const [ ownedItems, setOwnedItems ] = useState<PaginatedItemsResponse>();
 
@@ -337,7 +338,14 @@ const ItemGridSelector: React.FC<{
     return <>
     <div className="card">
     <div className="card-title">Choose items</div>
-    <div className="card-subtitle">Select the items you want to sell.</div>
+    <div className="card-description">
+        {ownedItems.data.length > 0
+        ? <>Select the items you want to sell.</>
+        : network === "mainnet"
+            ? <>You don't own any items.</>
+            : <DevNftCreator onNftCreated={() => fetchOwnedItems()} />}
+    </div>
+    {ownedItems.data.length > 0 &&
     <div className="grid">
         {ownedItems.data.map(item =>
         {
@@ -362,7 +370,7 @@ const ItemGridSelector: React.FC<{
             </div>
             );
         })}
-    </div>
+    </div>}
     </div>
 
     {ownedItems.hasNextPage &&

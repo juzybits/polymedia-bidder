@@ -19,7 +19,7 @@ public struct DevNft has key, store {
 
 // === public-mutative functions ===
 
-public fun new(
+public fun new_dev_nft(
     name: vector<u8>,
     description: vector<u8>,
     image_url: vector<u8>,
