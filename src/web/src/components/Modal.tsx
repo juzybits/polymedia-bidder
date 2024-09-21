@@ -1,3 +1,5 @@
+// TODO: move to @polymedia/suitcase-react
+
 import React, { useRef, useEffect } from "react";
 import { useClickOutside } from "@polymedia/suitcase-react";
 import { IconClose } from "./icons";

@@ -264,9 +264,9 @@ const SectionBid: React.FC<{
     const showInfoModal = () => {
         setModalContent(<>
             <div className="card-title"><IconInfo />How bids work</div>
-            <div className="card-description">When you place a bid, you become the auction leader.</div>
-            <div className="card-description">If nobody bids higher, you win the auction and can claim the items.</div>
-            <div className="card-description">If someone bids higher, your bid is automatically returned to your address.</div>
+            <div>When you place a bid, you become the auction leader.</div>
+            <div>If nobody bids higher, you win the auction and can claim the items.</div>
+            <div>If someone bids higher, your bid is automatically returned to your address.</div>
         </>);
     };
 

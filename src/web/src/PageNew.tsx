@@ -8,6 +8,7 @@ import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { CardChosenItem, CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
@@ -86,7 +87,7 @@ const FormCreateAuction: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient, isWorking, setIsWorking } = useAppContext();
+    const { bidderClient, isWorking, setIsWorking, setModalContent } = useAppContext();
 
     const { userId, updateUserId } = useFetchUserId(currAcct.address);
 
@@ -195,6 +196,21 @@ const FormCreateAuction: React.FC<{
         }
     };
 
+    const showInfoModal = () => {
+        setModalContent(<>
+            <div className="card-title"><IconInfo />Advanced options</div>
+            <div><b>Payment address:</b> The Sui address that will receive the auction proceeds.</div>
+            <div><b>Begin delay:</b> The time before the auction starts. 0 = starts immediately.</div>
+            <div><b>Minimum bid increase:</b> The required percentage increase for each new bid.</div>
+            <div><b>Extension period:</b> Bids placed within this time before the auction ends will delay the end time by the same amount.</div>
+        </>);
+    };
+
+    // useEffect(() => { // dev only
+    //     setShowAdvancedForm(true);
+    //     showInfoModal();
+    // }, [chosenItems]);
+
     // === html ===
 
     const DevModeToggle = () => {
@@ -223,9 +239,17 @@ const FormCreateAuction: React.FC<{
             {showDevModeToggle && <DevModeToggle />}
         </div>
         <div className="form-section">
-            <div className="section-toggle" onClick={() => setShowAdvancedForm(!showAdvancedForm)}>
-                {showAdvancedForm ? "- hide" : "+ show"} advanced options
-            </div>
+            {!showAdvancedForm &&
+            <div className="section-toggle" onClick={() => setShowAdvancedForm(true)}>
+                + show advanced options
+            </div>}
+            {showAdvancedForm &&
+            <div className="card-header">
+                <div className="card-title cursor-pointer" onClick={() => setShowAdvancedForm(false)}>
+                    Advanced options
+                </div>
+                <IconInfo onClick={showInfoModal} />
+            </div>}
             {showAdvancedForm && <>
                 {form.type_coin.input}
                 {form.pay_addr.input}
