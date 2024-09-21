@@ -21,11 +21,10 @@ export const BtnConnect: React.FC = () =>
     const currAcct = useCurrentAccount();
     const { mutate: disconnect } = useDisconnectWallet();
 
-    const { isWorking, openConnectModal, setShowMobileNav } = useAppContext();
+    const { isWorking, openConnectModal } = useAppContext();
 
     const connectWallet = () => {
         currAcct ? disconnect() : openConnectModal();
-        setShowMobileNav(false);
     };
 
     return (

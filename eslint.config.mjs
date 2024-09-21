@@ -1,8 +1,9 @@
+import { fixupConfigRules } from "@eslint/compat";
 import eslint from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
-import tsEslint from "typescript-eslint";
+import eslintPluginImport from "eslint-plugin-import";
 import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
-import { fixupConfigRules } from "@eslint/compat";
+import tsEslint from "typescript-eslint";
 
 export default [
     eslint.configs.recommended,
@@ -22,6 +23,7 @@ export default [
         },
         plugins: {
             "@stylistic": stylistic,
+            import: eslintPluginImport,
         },
         rules: {
             "@stylistic/jsx-quotes": [ "error", "prefer-double" ],
@@ -37,6 +39,7 @@ export default [
             "@typescript-eslint/no-namespace": "off",
             "@typescript-eslint/no-non-null-assertion": "off",
             "@typescript-eslint/no-unnecessary-condition": "off",
+            "@typescript-eslint/no-unnecessary-type-parameters": "off",
             // "@typescript-eslint/no-unused-expressions": [ "error", { allowShortCircuit: true, allowTernary: true } ],
             // "@typescript-eslint/no-unused-vars": [ "error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" } ],
             "@typescript-eslint/no-unused-expressions": "off",
@@ -44,6 +47,7 @@ export default [
             "@typescript-eslint/prefer-nullish-coalescing": "off",
             "@typescript-eslint/restrict-template-expressions": "off",
             "@typescript-eslint/use-unknown-in-catch-callback-variable": "off",
+            "import/extensions": ["error", "ignorePackages", { ts: "never", tsx: "never" }],
             "no-constant-condition": "off",
             "react/display-name": "off",
             "react/no-unescaped-entities": "off",
@@ -54,6 +58,12 @@ export default [
             react: {
                 version: "18"
             }
+        },
+    },
+    {
+        files: ["**/__tests__/**/*.ts?(x)", "src/web/**/*.ts?(x)"],
+        rules: {
+            "import/extensions": ["off", "ignorePackages"],
         },
     },
 ];

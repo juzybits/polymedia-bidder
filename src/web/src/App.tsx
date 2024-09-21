@@ -150,12 +150,12 @@ const App: React.FC<{
 
     useEffect(() => {
         if (modalContent) {
-            document.body.classList.add('modal-open');
+            document.body.classList.add("modal-open");
         } else {
-            document.body.classList.remove('modal-open');
+            document.body.classList.remove("modal-open");
         }
         return () => { // cleanup
-            document.body.classList.remove('modal-open');
+            document.body.classList.remove("modal-open");
         };
     }, [modalContent]);
 
