@@ -10,7 +10,7 @@ import { Btn } from "./Btn";
 export const DEV_PACKAGE_IDS: Record<NetworkName, string> = {
     mainnet: "",
     testnet: "",
-    devnet: "",
+    devnet: "0xe8ca2e57dacb4c6a28267ad0bfe5a1d3f83624659ec8d927d60a7630f166ae8b",
     localnet: "",
 };
 
@@ -21,10 +21,10 @@ const getRandomNftName = () => {
     return "Dev NFT #" + (Math.floor(Math.random() * 9000) + 1000);
 };
 
-const getNftSvgDataUrl = (): string =>
+const getNftSvgDataUrl = (titleText: string): string =>
 {
     const svgRaw = makeDisplaySvg({
-        titleText: "{name}",
+        titleText,
         textColor: getRandomLightColor(),
         backgroundColor: getRandomDarkColor(),
         titleFontSize: "150px",
@@ -62,13 +62,15 @@ export const DevNftCreator: React.FC<{
             setCreateRes({ ok: null });
 
             const tx = new Transaction();
-            for (let i = 0; i < NFT_COUNT; i++) {
+            for (let i = 0; i < NFT_COUNT; i++)
+            {
+                const nftName = getRandomNftName();
                 const [nftArg] = tx.moveCall({
-                    target: `${DEV_PACKAGE_IDS[network]}::user::new_dev_nft`,
+                    target: `${DEV_PACKAGE_IDS[network]}::dev_nft::new_dev_nft`,
                     arguments: [
-                        tx.pure.string(getRandomNftName()),
+                        tx.pure.string(nftName),
                         tx.pure.string(NFT_DESCRIPTION),
-                        tx.pure.string(getNftSvgDataUrl()),
+                        tx.pure.string(getNftSvgDataUrl(nftName)),
                     ],
                 });
                 tx.transferObjects([nftArg], currAcc.address);
@@ -80,9 +82,9 @@ export const DevNftCreator: React.FC<{
             }
 
             setCreateRes({ ok: true });
-            onNftCreated();
+            setTimeout(onNftCreated, 1000);
         } catch (err) {
-            setCreateRes({ ok: false, err: "Failed to create NFTs" });
+            setCreateRes({ ok: false, err: bidderClient.errCodeToStr(err, "Failed to create NFTs") });
             console.warn("[createNft]", err);
         } finally {
             setIsWorking(false);
@@ -98,7 +100,7 @@ export const DevNftCreator: React.FC<{
             <div className="card-title">No items? No problem!</div>
             <div className="card-description">You can create free NFTs to test the BIDDER app.</div>
             <div className="btn-submit">
-                <Btn onClick={createNft}>Create {NFT_COUNT} NFTs</Btn>
+                <Btn onClick={createNft}>Create NFTs</Btn>
 
                 {createRes.ok === true &&
                 <div className="success">NFTs created!</div>}
