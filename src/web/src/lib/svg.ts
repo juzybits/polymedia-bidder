@@ -71,14 +71,14 @@ export function makeDevNftDisplay({
     fontFamily = "Arial, sans-serif",
     titleLine1 = "Dev NFT",
     titleLine2 = "#1234",
-    titleFontSize = 15,
+    titleFontSize = 14,
 }): string {
     return `
     <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" fill="${backgroundColor}"/>
-        <text x="50" y="50" font-family="${fontFamily}" font-size="${titleFontSize}" font-weight="bold" fill="${textColor}" text-anchor="middle" dominant-baseline="middle">
-            <tspan x="50" dy="-0.6em">${titleLine1}</tspan>
-            <tspan x="50" dy="1.2em">${titleLine2}</tspan>
+        <text x="50" y="54" font-family="${fontFamily}" font-size="${titleFontSize}" font-weight="bold" fill="${textColor}" text-anchor="middle">
+            <tspan x="50" dy="-0.7em">${titleLine1}</tspan>
+            <tspan x="50" dy="1.5em">${titleLine2}</tspan>
         </text>
     </svg>
     `.trim();
