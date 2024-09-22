@@ -3,7 +3,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { NetworkName } from "@polymedia/suitcase-core";
 import { useState } from "react";
 import { useAppContext } from "../App";
-import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
+import { getRandomDarkColor, getRandomLightColor, makeDevNftDisplay, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
 import { SubmitRes } from "../lib/types";
 import { Btn } from "./Btn";
 
@@ -16,18 +16,18 @@ export const DEV_PACKAGE_IDS: Record<NetworkName, string> = {
 
 const NFT_COUNT = 10;
 const NFT_DESCRIPTION = "A free NFT to test the BIDDER app";
-
-const getRandomNftName = () => {
-    return "Dev NFT #" + (Math.floor(Math.random() * 9000) + 1000);
+const NFT_TITLE_LINE_1 = "Dev NFT";
+const getNftTitleLine2 = () => {
+    return `#${Math.floor(Math.random() * 9000) + 1000}`;
 };
 
-const getNftSvgDataUrl = (titleText: string): string =>
+const getNftSvgDataUrl = (titleLine1: string, titleLine2: string): string =>
 {
-    const svgRaw = makeDisplaySvg({
-        titleText,
+    const svgRaw = makeDevNftDisplay({
+        titleLine1,
+        titleLine2,
         textColor: getRandomLightColor(),
         backgroundColor: getRandomDarkColor(),
-        titleFontSize: "150px",
     });
 
     const svgTrimmed = trimSvg(svgRaw);
@@ -64,13 +64,13 @@ export const DevNftCreator: React.FC<{
             const tx = new Transaction();
             for (let i = 0; i < NFT_COUNT; i++)
             {
-                const nftName = getRandomNftName();
+                const nftTitleLine2 = getNftTitleLine2();
                 const [nftArg] = tx.moveCall({
                     target: `${DEV_PACKAGE_IDS[network]}::dev_nft::new_dev_nft`,
                     arguments: [
-                        tx.pure.string(nftName),
+                        tx.pure.string(`${NFT_TITLE_LINE_1} #${nftTitleLine2}`),
                         tx.pure.string(NFT_DESCRIPTION),
-                        tx.pure.string(getNftSvgDataUrl(nftName)),
+                        tx.pure.string(getNftSvgDataUrl(NFT_TITLE_LINE_1, nftTitleLine2)),
                     ],
                 });
                 tx.transferObjects([nftArg], currAcc.address);
