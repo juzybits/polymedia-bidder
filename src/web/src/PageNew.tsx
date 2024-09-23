@@ -8,7 +8,7 @@ import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { CardChosenItem, CardLoading, CardSuiItem } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { DevNftCreator } from "./components/DevNftCreator";
+import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
@@ -341,7 +341,7 @@ const ItemGridSelector: React.FC<{
     <div className="card-description">
         {ownedItems.data.length > 0
         ? <>Select the items you want to sell.</>
-        : network === "mainnet"
+        : (network === "mainnet" || DEV_PACKAGE_IDS[network] === "")
             ? <>You don't own any items.</>
             : <DevNftCreator onNftCreated={() => fetchOwnedItems()} />}
     </div>

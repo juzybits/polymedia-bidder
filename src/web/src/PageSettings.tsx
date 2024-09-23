@@ -1,8 +1,7 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { NetworkName } from "@polymedia/bidder-sdk";
 import { NetworkSelector } from "@polymedia/suitcase-react";
 import React from "react";
-import { networkConfig, supportedNetworks, useAppContext } from "./App";
+import { networkConfig, NetworkName, supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 
 export const PageSettings: React.FC = () =>

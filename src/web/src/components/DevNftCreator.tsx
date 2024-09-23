@@ -46,8 +46,10 @@ export const DevNftCreator: React.FC<{
 
     const currAcc = useCurrentAccount();
 
-    const { bidderClient, network, isWorking, setIsWorking } = useAppContext();
+    const { bidderClient, network, setIsWorking } = useAppContext();
     const [ createRes, setCreateRes ] = useState<SubmitRes>({ ok: null });
+
+    const packageId = DEV_PACKAGE_IDS[network];
 
     // === functions ===
 
@@ -66,7 +68,7 @@ export const DevNftCreator: React.FC<{
             {
                 const nftTitleLine2 = getNftTitleLine2();
                 const [nftArg] = tx.moveCall({
-                    target: `${DEV_PACKAGE_IDS[network]}::dev_nft::new_dev_nft`,
+                    target: `${packageId}::dev_nft::new_dev_nft`,
                     arguments: [
                         tx.pure.string(`${NFT_TITLE_LINE_1} #${nftTitleLine2}`),
                         tx.pure.string(NFT_DESCRIPTION),
