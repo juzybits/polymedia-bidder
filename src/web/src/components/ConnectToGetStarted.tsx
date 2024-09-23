@@ -5,12 +5,12 @@ import { useAppContext } from "../App";
 export const ConnectToGetStarted: React.FC = () =>
 {
     return (
-        <div className="page-section card">
-            <div className="section-description">
+        <>
+            <div className="card-description">
                 Connect your Sui wallet to get started.
             </div>
             <BtnConnect />
-        </div>
+        </>
     );
 };
 

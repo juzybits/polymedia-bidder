@@ -108,7 +108,7 @@ export const PageUser: React.FC = () =>
 
     let content: React.ReactNode;
     if (!currAcct) {
-        content = <ConnectToGetStarted />;
+        content = <div className="card compact"><ConnectToGetStarted /></div>
     } else if (errMsg) {
         content = <CardWithMsg>{errMsg}</CardWithMsg>;
     } else {
@@ -136,13 +136,14 @@ export const PageUser: React.FC = () =>
         {header}
         <div id="page-user" className="page-regular">
             <div className="page-content">
+                <div className="page-title">USER HISTORY</div>
                 <div className="page-section">
-                    <div className="page-title">USER HISTORY</div>
+                    {currAcct &&
                     <div className="page-description">
                         <div>This is the BIDDER history for address {addressLink} {userId &&
                             <>(user <LinkToPolymedia addr={userId} kind="object" network={network} />)</>}
                         </div>
-                    </div>
+                    </div>}
                     {content}
                 </div>
             </div>

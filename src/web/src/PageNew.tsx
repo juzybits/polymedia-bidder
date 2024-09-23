@@ -54,7 +54,7 @@ export const PageNew: React.FC = () =>
             <div className="page-title">NEW AUCTION</div>
 
             {!currAcct
-            ? <ConnectToGetStarted />
+            ? <div className="card compact"><ConnectToGetStarted /></div>
             : <>
                 <div className="page-section">
                     <FormCreateAuction chosenItems={chosenItems} addOrRemoveItem={addOrRemoveItem} />

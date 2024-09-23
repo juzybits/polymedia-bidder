@@ -37,13 +37,13 @@ const SectionConnection: React.FC = () =>
 
     // === html ===
 
-    return <div className="page-section">
-        <div className="section-title">
+    return <div className="card compact">
+        <div className="card-title">
             Wallet
         </div>
         {!currAcct
             ? <ConnectToGetStarted />
-            : <div className="card">
+            : <>
                 <div>You are connected with address:</div>
                 <div className="address">{currAcct.address}</div>
                 <div>
@@ -51,18 +51,18 @@ const SectionConnection: React.FC = () =>
                         DISCONNECT
                         </button>
                     </div>
-            </div>
+            </>
         }
-    </div>;
+        </div>;
 };
 
 const SectionExplorer: React.FC = () => // TODO: radio buttons
 {
-    return <div className="page-section">
-        <div className="section-title">
+    return <div className="card compact">
+        <div className="card-title">
             Explorer
         </div>
-        <div className="card">
+        <div className="card-description">
             <div>Polymedia Explorer</div>
         </div>
     </div>;
@@ -78,11 +78,11 @@ const SectionRpc: React.FC = () => // TODO: selector / input
 
     // === html ===
 
-    return <div className="page-section">
-        <div className="section-title">
+    return <div className="card compact">
+        <div className="card-title">
             RPC
         </div>
-        <div className="card">
+        <div className="card-description">
             <div className="break-any">{rpcUrl}</div>
         </div>
     </div>;
@@ -98,11 +98,11 @@ const SectionNetwork: React.FC = () => // TODO: style
         setNetwork(newNet);
     };
 
-    return <div className="page-section">
-        <div className="section-title">
+    return <div className="card compact">
+        <div className="card-title">
             Network
         </div>
-        <div className="card">
+        <div className="card-description">
             <NetworkSelector
                 currentNetwork={network}
                 supportedNetworks={supportedNetworks}
