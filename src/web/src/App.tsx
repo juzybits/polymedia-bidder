@@ -8,7 +8,7 @@ import {
 import "@mysten/dapp-kit/dist/index.css";
 import { getFullnodeUrl } from "@mysten/sui/client";
 import * as sdk from "@polymedia/bidder-sdk";
-import { ReactSetter, isLocalhost, loadNetwork } from "@polymedia/suitcase-react";
+import { EXPLORER_NAMES, ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useMemo, useState, createContext, useContext, useEffect } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
@@ -94,6 +94,7 @@ export const useAppContext = () => {
 
 export type AppContext = {
     network: NetworkName; setNetwork: ReactSetter<NetworkName>;
+    explorer: ExplorerName; setExplorer: ReactSetter<ExplorerName>;
     isWorking: boolean; setIsWorking: ReactSetter<boolean>;
     // showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
@@ -114,9 +115,11 @@ const App: React.FC<{
 
     const suiClient = useSuiClient();
     const { mutateAsync: walletSignTx } = useSignTransaction();
+
     const packageId = sdk.AUCTION_IDS[network].packageId;
     const registryId = sdk.AUCTION_IDS[network].registryId;
 
+    const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
@@ -138,6 +141,7 @@ const App: React.FC<{
 
     const appContext: AppContext = {
         network, setNetwork,
+        explorer, setExplorer,
         isWorking, setIsWorking,
         // showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,

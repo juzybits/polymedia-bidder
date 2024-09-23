@@ -1,5 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { NetworkSelector } from "@polymedia/suitcase-react";
+import { EXPLORER_NAMES, ExplorerName, ExplorerSelector, NetworkSelector, switchExplorer } from "@polymedia/suitcase-react";
 import React from "react";
 import { networkConfig, NetworkName, supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -56,15 +56,18 @@ const SectionConnection: React.FC = () =>
         </div>;
 };
 
-const SectionExplorer: React.FC = () => // TODO: radio buttons
+const SectionExplorer: React.FC = () =>
 {
+    const { explorer, setExplorer } = useAppContext();
+
     return <div className="card compact">
         <div className="card-title">
             Explorer
         </div>
-        <div className="card-description">
-            <div>Polymedia Explorer</div>
-        </div>
+        <ExplorerSelector
+            selectedExplorer={explorer}
+            onSwitch={setExplorer}
+        />
     </div>;
 };
 
