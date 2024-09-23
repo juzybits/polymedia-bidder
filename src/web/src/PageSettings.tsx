@@ -1,5 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { ExplorerRadioSelector, NetworkDropdownSelector } from "@polymedia/suitcase-react";
+import { ExplorerRadioSelector, NetworkDropdownSelector, NetworkRadioSelector } from "@polymedia/suitcase-react";
 import React from "react";
 import { networkConfig, NetworkName, supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -20,8 +20,8 @@ export const PageSettings: React.FC = () =>
             <div className="page-title">SETTINGS</div>
             <SectionConnection />
             <SectionExplorer />
-            <SectionRpc />
             <SectionNetwork />
+            <SectionRpc />
         </div>
 
     </div>
@@ -71,6 +71,23 @@ const SectionExplorer: React.FC = () =>
     </div>;
 };
 
+const SectionNetwork: React.FC = () =>
+{
+    const { network, setNetwork } = useAppContext();
+
+    return <div className="card compact">
+        <div className="card-title">
+            Network
+        </div>
+        <NetworkRadioSelector
+            selectedNetwork={network}
+            supportedNetworks={supportedNetworks}
+            onSwitch={setNetwork}
+        />
+    </div>;
+};
+
+
 const SectionRpc: React.FC = () => // TODO: selector / input
 {
     // === state ===
@@ -87,32 +104,6 @@ const SectionRpc: React.FC = () => // TODO: selector / input
         </div>
         <div className="card-description">
             <div className="break-any">{rpcUrl}</div>
-        </div>
-    </div>;
-};
-
-const SectionNetwork: React.FC = () => // TODO: style
-{
-    // === state ===
-
-    const { isWorking, network, setNetwork } = useAppContext();
-
-    const onSwitchNetwork = (newNet: NetworkName) => {
-        setNetwork(newNet);
-    };
-
-    return <div className="card compact">
-        <div className="card-title">
-            Network
-        </div>
-        <div className="card-description">
-            <NetworkDropdownSelector
-                currentNetwork={network}
-                supportedNetworks={supportedNetworks}
-                onSwitch={onSwitchNetwork}
-                disabled={isWorking}
-                id="btn-network"
-            />
         </div>
     </div>;
 };

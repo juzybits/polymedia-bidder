@@ -10,7 +10,7 @@ import { Btn } from "./Btn";
 export const DEV_PACKAGE_IDS: Record<NetworkName, string> = {
     mainnet: "",
     testnet: "",
-    devnet: "0xe8ca2e57dacb4c6a28267ad0bfe5a1d3f83624659ec8d927d60a7630f166ae8b",
+    devnet: "0xb64d01374dbae81966fe999bd340deaa4a893ebd6c36e55aaa48f91286a2b5d9",
     localnet: "",
 };
 
