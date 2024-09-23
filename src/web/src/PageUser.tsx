@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid, UserRecentHistory } from "@polymedia/bidder-sdk";
 import { formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
-import { LinkToPolymedia } from "@polymedia/suitcase-react";
+import { LinkToExplorer } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -21,7 +21,7 @@ export const PageUser: React.FC = () =>
     // === external state ===
 
     const currAcct = useCurrentAccount();
-    const { header, network, bidderClient } = useAppContext();
+    const { header, explorer, network, bidderClient } = useAppContext();
 
     // === url validation ===
 
@@ -131,7 +131,7 @@ export const PageUser: React.FC = () =>
 
     const addressLink = addressToFetch === undefined
         ? <i>..loading..</i>
-        : <LinkToPolymedia addr={addressToFetch} kind="address" network={network} />;
+        : <LinkToExplorer addr={addressToFetch} kind="address" explorer={explorer} network={network} />;
     return <>
         {header}
         <div id="page-user" className="page-regular">
@@ -141,7 +141,7 @@ export const PageUser: React.FC = () =>
                     {currAcct &&
                     <div className="page-description">
                         <div>This is the BIDDER history for address {addressLink} {userId &&
-                            <>(user <LinkToPolymedia addr={userId} kind="object" network={network} />)</>}
+                            <>(user <LinkToExplorer addr={userId} kind="object" explorer={explorer} network={network} />)</>}
                         </div>
                     </div>}
                     {content}

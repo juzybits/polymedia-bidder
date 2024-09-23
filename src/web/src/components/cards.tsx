@@ -1,7 +1,7 @@
 import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@polymedia/suitcase-core";
-import { LinkExternal, LinkToPolymedia } from "@polymedia/suitcase-react";
+import { LinkExternal, LinkToExplorer } from "@polymedia/suitcase-react";
 import React from "react";
 import { useAppContext } from "../App";
 import { IconCheck } from "./icons";
@@ -36,7 +36,7 @@ export const CardSuiItem: React.FC<{
     onClick = undefined,
 }) =>
 {
-    const { network } = useAppContext();
+    const { explorer, network } = useAppContext();
 
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
@@ -54,14 +54,14 @@ export const CardSuiItem: React.FC<{
                         {item.id &&
                         <div className="detail">
                             <span className="detail-label">ID:</span>
-                            <LinkToPolymedia addr={item.id} kind="object" network={network} />
+                            <LinkToExplorer addr={item.id} kind="object" explorer={explorer} network={network} />
                         </div>}
                         {item.type &&
                             <div className="detail">
                             <span className="detail-label">Type:</span>
-                            <LinkToPolymedia addr={item.type.split("::")[0]} kind="object" network={network}>
+                            <LinkToExplorer addr={item.type.split("::")[0]} kind="package" explorer={explorer} network={network}>
                                 {shortenAddress(item.type)}
-                            </LinkToPolymedia>
+                            </LinkToExplorer>
                         </div>}
                         {item.nameFull &&
                         <div className="detail">
@@ -239,11 +239,11 @@ export const ObjectLinkList: React.FC<{
 }> = ({
     ids,
 }) => {
-    const { network } = useAppContext();
+    const { explorer, network } = useAppContext();
     return <>{ids.map((id, idx) => (
         <React.Fragment key={idx}>
             {idx > 0 && ", "}
-            <LinkToPolymedia addr={id} kind="object" network={network} />
+            <LinkToExplorer addr={id} kind="object" explorer={explorer} network={network} />
         </React.Fragment>
     ))}</>;
 };
@@ -287,15 +287,15 @@ export const FullCardMsg: React.FC<{
 // }) => {
 //     const { network } = useAppContext();
 //     return <>
-//         <div>Auction: <LinkToPolymedia addr={auction.id} kind="object" network={network} /></div>
-//         <div>Currency: <LinkToPolymedia addr={auction.type_coin} kind="coin" network={network} /></div>
+//         <div>Auction: <LinkToExplorer addr={auction.id} kind="object" network={network} /></div>
+//         <div>Currency: <LinkToExplorer addr={auction.type_coin} kind="coin" network={network} /></div>
 //         {/* <div>Name: {auction.name}</div>
 //         <div>Description: {auction.description}</div> */}
 //         <div>Auctioned items: <ObjectLinkList ids={auction.item_addrs} /></div>
-//         <div>Item bag: <LinkToPolymedia addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
-//         <div>Admin address: <LinkToPolymedia addr={auction.admin_addr} kind="address" network={network} /></div>
-//         <div>Payment address: <LinkToPolymedia addr={auction.pay_addr} kind="address" network={network} /></div>
-//         <div>Leader address: <LinkToPolymedia addr={auction.lead_addr} kind="address" network={network} /></div>
+//         <div>Item bag: <LinkToExplorer addr={auction.item_bag.id} kind="object" network={network} /> ({auction.item_bag.size} items)</div>
+//         <div>Admin address: <LinkToExplorer addr={auction.admin_addr} kind="address" network={network} /></div>
+//         <div>Payment address: <LinkToExplorer addr={auction.pay_addr} kind="address" network={network} /></div>
+//         <div>Leader address: <LinkToExplorer addr={auction.lead_addr} kind="address" network={network} /></div>
 //         <div>Leader amount: <Balance balance={auction.lead_value} coinType={auction.type_coin} /></div>
 //         <div>Start time: {msToDate(auction.begin_time_ms)}</div>
 //         <div>End time: {msToDate(auction.end_time_ms)}</div>
@@ -314,11 +314,11 @@ export const FullCardMsg: React.FC<{
 // }) => {
 //     const { network } = useAppContext();
 //     return <>
-//         <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
+//         <div>digest: <LinkToExplorer addr={tx.digest} kind="txblock" network={network} /></div>
 //         <div>timestamp: {msToDate(tx.timestamp)}</div>
-//         <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
-//         <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
-//         <div>auction_addr: <LinkToPolymedia addr={tx.inputs.auction_addr} kind="object" network={network} /></div>
+//         <div>sender: <LinkToExplorer addr={tx.sender} kind="address" network={network} /></div>
+//         <div>type_coin: <LinkToExplorer addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
+//         <div>auction_addr: <LinkToExplorer addr={tx.inputs.auction_addr} kind="object" network={network} /></div>
 //         <div>amount: <Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} /></div>
 //     </>;
 // };
@@ -331,14 +331,14 @@ export const FullCardMsg: React.FC<{
 // {
 //     const { network } = useAppContext();
 //     return <>
-//         <div>digest: <LinkToPolymedia addr={tx.digest} kind="txblock" network={network} /></div>
+//         <div>digest: <LinkToExplorer addr={tx.digest} kind="txblock" network={network} /></div>
 //         <div>timestamp: {msToDate(tx.timestamp)}</div>
-//         <div>sender: <LinkToPolymedia addr={tx.sender} kind="address" network={network} /></div>
-//         <div>auctionId: <LinkToPolymedia addr={tx.auctionId} kind="object" network={network} /></div>
-//         <div>type_coin: <LinkToPolymedia addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
+//         <div>sender: <LinkToExplorer addr={tx.sender} kind="address" network={network} /></div>
+//         <div>auctionId: <LinkToExplorer addr={tx.auctionId} kind="object" network={network} /></div>
+//         <div>type_coin: <LinkToExplorer addr={tx.inputs.type_coin} kind="coin" network={network} /></div>
 //         <div>name: {tx.inputs.name}</div>
 //         <div>description: {tx.inputs.description}</div>
-//         <div>pay_addr: <LinkToPolymedia addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
+//         <div>pay_addr: <LinkToExplorer addr={tx.inputs.pay_addr} kind="address" network={network} /></div>
 //         <div>begin_delay_ms: {msToHours(tx.inputs.begin_delay_ms)}</div>
 //         <div>duration_ms: {msToHours(tx.inputs.duration_ms)}</div>
 //         <div>minimum_bid: <Balance balance={tx.inputs.minimum_bid} coinType={tx.inputs.type_coin} /></div>
