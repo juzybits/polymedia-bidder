@@ -53,27 +53,37 @@ const isTestDomain = ["test.bidder.polymedia.app", "test.polymedia-bidder.pages.
 
 export const [ defaultNetwork, supportedNetworks ] =
     isLocalhost()  ? ["localnet" as const, ["mainnet", "testnet", "devnet", "localnet"] as const]
-    : isDevDomain  ? ["devnet" as const,   ["mainnet", "testnet", "devnet"] as const]
-    : isTestDomain ? ["testnet" as const,  ["mainnet", "testnet"] as const]
-    : ["mainnet" as const, ["mainnet", "testnet"] as const];
+    : isDevDomain  ? ["devnet"   as const, ["mainnet", "testnet", "devnet"] as const]
+    : isTestDomain ? ["testnet"  as const, ["mainnet", "testnet"] as const]
+    : /* prod */     ["mainnet"  as const, ["mainnet", "testnet"] as const];
 
 export type NetworkName = typeof supportedNetworks[number];
 
-export const { networkConfig } = createNetworkConfig({
-    mainnet: { url: getFullnodeUrl("mainnet") },
-    testnet: { url: getFullnodeUrl("testnet") },
-    devnet: { url: getFullnodeUrl("devnet") },
-    localnet: { url: getFullnodeUrl("localnet") },
-});
-
 const queryClient = new QueryClient();
-const AppSuiProviders: React.FC = () => {
-    const [network, setNetwork] = useState(loadNetwork(supportedNetworks, defaultNetwork));
+const AppSuiProviders: React.FC = () =>
+{
+    const [ network, setNetwork ] = useState(loadNetwork(supportedNetworks, defaultNetwork));
+
+    const [ networkConfig, setNetworkConfig ] = useState({
+        mainnet: { url: loadRpc("mainnet") },
+        testnet: { url: loadRpc("testnet") },
+        devnet: { url: loadRpc("devnet") },
+        localnet: { url: loadRpc("localnet") },
+    });
+
+    const rpc = networkConfig[network].url;
+    const setRpc = (rpc: string) => {
+        setNetworkConfig({
+            ...networkConfig,
+            [network]: { url: rpc },
+        });
+    };
+
     return (
     <QueryClientProvider client={queryClient}>
         <SuiClientProvider networks={networkConfig} network={network}>
             <WalletProvider autoConnect={true}>
-                <App network={network} setNetwork={setNetwork} />
+                <App network={network} setNetwork={setNetwork} rpc={rpc} setRpc={setRpc} />
             </WalletProvider>
         </SuiClientProvider>
     </QueryClientProvider>
@@ -95,7 +105,7 @@ export const useAppContext = () => {
 export type AppContext = {
     explorer: ExplorerName; setExplorer: ReactSetter<ExplorerName>;
     network: NetworkName; setNetwork: ReactSetter<NetworkName>;
-    rpc: string; setRpc: ReactSetter<string>;
+    rpc: string; setRpc: (rpc: string) => void;
     isWorking: boolean; setIsWorking: ReactSetter<boolean>;
     // showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
@@ -107,9 +117,13 @@ export type AppContext = {
 const App: React.FC<{
     network: NetworkName;
     setNetwork: ReactSetter<NetworkName>;
+    rpc: string;
+    setRpc: (rpc: string) => void;
 }> = ({
     network,
     setNetwork,
+    rpc,
+    setRpc,
 }) =>
 {
     // === state ===
@@ -121,7 +135,6 @@ const App: React.FC<{
     const registryId = sdk.AUCTION_IDS[network].registryId;
 
     const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
-    const [ rpc, setRpc ] = useState(loadRpc(network));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
