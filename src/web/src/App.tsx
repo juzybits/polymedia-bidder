@@ -8,12 +8,13 @@ import {
 import "@mysten/dapp-kit/dist/index.css";
 import { getFullnodeUrl } from "@mysten/sui/client";
 import * as sdk from "@polymedia/bidder-sdk";
-import { EXPLORER_NAMES, ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
+import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork, loadRpc } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { useMemo, useState, createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
-import { IconHistory, IconNew, IconGears } from "./components/icons";
+import { IconGears, IconHistory, IconNew } from "./components/icons";
+import { Modal } from "./components/Modal";
 import { PageAuction } from "./PageAuction";
 import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHome } from "./PageHome";
@@ -21,7 +22,6 @@ import { PageNew } from "./PageNew";
 import { PageSettings } from "./PageSettings";
 import { PageUser } from "./PageUser";
 import "./styles/App.less";
-import { Modal } from "./components/Modal";
 
 /* App router */
 
@@ -59,7 +59,7 @@ export const [ defaultNetwork, supportedNetworks ] =
 
 export type NetworkName = typeof supportedNetworks[number];
 
-export const { networkConfig} = createNetworkConfig({
+export const { networkConfig } = createNetworkConfig({
     mainnet: { url: getFullnodeUrl("mainnet") },
     testnet: { url: getFullnodeUrl("testnet") },
     devnet: { url: getFullnodeUrl("devnet") },
@@ -93,8 +93,9 @@ export const useAppContext = () => {
 };
 
 export type AppContext = {
-    network: NetworkName; setNetwork: ReactSetter<NetworkName>;
     explorer: ExplorerName; setExplorer: ReactSetter<ExplorerName>;
+    network: NetworkName; setNetwork: ReactSetter<NetworkName>;
+    rpc: string; setRpc: ReactSetter<string>;
     isWorking: boolean; setIsWorking: ReactSetter<boolean>;
     // showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
     openConnectModal: () => void;
@@ -120,6 +121,7 @@ const App: React.FC<{
     const registryId = sdk.AUCTION_IDS[network].registryId;
 
     const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
+    const [ rpc, setRpc ] = useState(loadRpc(network));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
@@ -140,8 +142,9 @@ const App: React.FC<{
     };
 
     const appContext: AppContext = {
-        network, setNetwork,
         explorer, setExplorer,
+        network, setNetwork,
+        rpc, setRpc,
         isWorking, setIsWorking,
         // showMobileNav, setShowMobileNav,
         openConnectModal: openConnectModal,

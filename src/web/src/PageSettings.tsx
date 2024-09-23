@@ -1,5 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { ExplorerRadioSelector, NetworkDropdownSelector, NetworkRadioSelector } from "@polymedia/suitcase-react";
+import { ExplorerRadioSelector, NetworkDropdownSelector, NetworkRadioSelector, RpcRadioSelector } from "@polymedia/suitcase-react";
 import React from "react";
 import { networkConfig, NetworkName, supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -88,13 +88,12 @@ const SectionNetwork: React.FC = () =>
 };
 
 
-const SectionRpc: React.FC = () => // TODO: selector / input
+const SectionRpc: React.FC = () =>
 {
     // === state ===
 
     const { network } = useAppContext();
-
-    const rpcUrl = networkConfig[network].url;
+    const { rpc, setRpc } = useAppContext();
 
     // === html ===
 
@@ -102,8 +101,10 @@ const SectionRpc: React.FC = () => // TODO: selector / input
         <div className="card-title">
             RPC
         </div>
-        <div className="card-description">
-            <div className="break-any">{rpcUrl}</div>
-        </div>
+        <RpcRadioSelector
+            network={network}
+            selectedRpc={rpc}
+            onSwitch={setRpc}
+        />
     </div>;
 };
