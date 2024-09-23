@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { NetworkName } from "@polymedia/suitcase-core";
+import { NestedResult, NetworkName } from "@polymedia/suitcase-core";
 import { useState } from "react";
 import { useAppContext } from "../App";
 import { getRandomDarkColor, getRandomLightColor, makeDevNftDisplay, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
@@ -63,11 +63,12 @@ export const DevNftCreator: React.FC<{
             setIsWorking(true);
             setCreateRes({ ok: null });
 
+            const nfts: NestedResult[] = [];
             const tx = new Transaction();
             for (let i = 0; i < NFT_COUNT; i++)
             {
                 const nftTitleLine2 = getNftTitleLine2();
-                const [nftArg] = tx.moveCall({
+                const [nft] = tx.moveCall({
                     target: `${packageId}::dev_nft::new_dev_nft`,
                     arguments: [
                         tx.pure.string(`${NFT_TITLE_LINE_1} #${nftTitleLine2}`),
@@ -75,8 +76,9 @@ export const DevNftCreator: React.FC<{
                         tx.pure.string(getNftSvgDataUrl(NFT_TITLE_LINE_1, nftTitleLine2)),
                     ],
                 });
-                tx.transferObjects([nftArg], currAcc.address);
+                nfts.push(nft);
             }
+            tx.transferObjects(nfts, currAcc.address);
 
             const resp = await bidderClient.signAndExecuteTransaction(tx);
             if (resp.effects?.status.status !== "success") {
