@@ -107,7 +107,7 @@ export const PageUser: React.FC = () =>
     const errMsg = errorFetchUserId ?? errFetchHistory ?? errFetchAuctions;
 
     let content: React.ReactNode;
-    if (!currAcct) {
+    if (!addressToFetch) {
         content = <div className="card compact"><ConnectToGetStarted /></div>
     } else if (errMsg) {
         content = <CardWithMsg>{errMsg}</CardWithMsg>;
@@ -129,18 +129,15 @@ export const PageUser: React.FC = () =>
         </div>;
     }
 
-    const addressLink = addressToFetch === undefined
-        ? <i>..loading..</i>
-        : <LinkToExplorer addr={addressToFetch} kind="address" explorer={explorer} network={network} />;
     return <>
         {header}
         <div id="page-user" className="page-regular">
             <div className="page-content">
                 <div className="page-title">USER HISTORY</div>
                 <div className="page-section">
-                    {currAcct &&
+                    {addressToFetch &&
                     <div className="page-description">
-                        <div>This is the BIDDER history for address {addressLink} {userId &&
+                        <div>This is the BIDDER history for address {<LinkToExplorer addr={addressToFetch} kind="address" explorer={explorer} network={network} />} {userId &&
                             <>(user <LinkToExplorer addr={userId} kind="object" explorer={explorer} network={network} />)</>}
                         </div>
                     </div>}

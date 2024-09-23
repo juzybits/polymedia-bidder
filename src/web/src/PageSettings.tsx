@@ -1,5 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { EXPLORER_NAMES, ExplorerName, ExplorerSelector, NetworkSelector, switchExplorer } from "@polymedia/suitcase-react";
+import { ExplorerRadioSelector, NetworkDropdownSelector } from "@polymedia/suitcase-react";
 import React from "react";
 import { networkConfig, NetworkName, supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -64,7 +64,7 @@ const SectionExplorer: React.FC = () =>
         <div className="card-title">
             Explorer
         </div>
-        <ExplorerSelector
+        <ExplorerRadioSelector
             selectedExplorer={explorer}
             onSwitch={setExplorer}
         />
@@ -106,7 +106,7 @@ const SectionNetwork: React.FC = () => // TODO: style
             Network
         </div>
         <div className="card-description">
-            <NetworkSelector
+            <NetworkDropdownSelector
                 currentNetwork={network}
                 supportedNetworks={supportedNetworks}
                 onSwitch={onSwitchNetwork}
