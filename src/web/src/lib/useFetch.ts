@@ -48,8 +48,9 @@ export function useFetchAndLoadMore<T>(
     dependencies: unknown[] = [],
 ) {
     const [ data, setData ] = useState<T[]>([]);
-    const [ hasNextPage, setHasNextPage ] = useState(false);
+    const [ error, setError ] = useState<string | null>(null);
     const [ isLoading, setIsLoading ] = useState(false);
+    const [ hasNextPage, setHasNextPage ] = useState(false);
     const [ cursor, setCursor ] = useState<string | null | undefined>(null);
 
     const loadMore = async () =>
@@ -63,7 +64,8 @@ export function useFetchAndLoadMore<T>(
             setHasNextPage(response.hasNextPage);
             setCursor(response.nextCursor);
         } catch (err) {
-            console.warn("[useLoadMore]", err);
+            setError(err instanceof Error ? err.message : "Failed to load more data");
+            console.warn("[useFetchAndLoadMore]", err);
         } finally {
             setIsLoading(false);
         }
@@ -73,5 +75,5 @@ export function useFetchAndLoadMore<T>(
         loadMore();
     }, dependencies);
 
-    return { data, hasNextPage, isLoading, loadMore };
+    return { data, error, isLoading, hasNextPage, loadMore };
 }
