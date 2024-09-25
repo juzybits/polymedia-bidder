@@ -279,8 +279,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
-    ): Promise<UserAuction[]>
-    {
+    ) {
         const tx = new Transaction();
 
         if (cursor === undefined) {
@@ -304,11 +303,14 @@ export class BidderClient extends SuiClientBase
             ],
         ]);
         const auctionsRaw = blockReturns[0][0] as UserAuction[];
-        const auctionsTyped: UserAuction[] = auctionsRaw.map(auction => ({
-            auction_addr: auction.auction_addr,
-            time: Number(auction.time),
-        }));
-        return auctionsTyped;
+        return {
+            auctions: auctionsRaw.map(auction => ({
+                auction_addr: auction.auction_addr,
+                time: Number(auction.time),
+            })),
+            hasMore: blockReturns[0][1] as boolean,
+            cursor: blockReturns[0][2] as number,
+        };
     }
 
     public async fetchUserBids(
@@ -316,8 +318,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
-    ): Promise<UserBid[]>
-    {
+    ) {
         const tx = new Transaction();
 
         if (cursor === undefined) {
@@ -341,12 +342,15 @@ export class BidderClient extends SuiClientBase
             ],
         ]);
         const bidsRaw = blockReturns[0][0] as UserBid[];
-        const bidsTyped: UserBid[] = bidsRaw.map(bid => ({
-            auction_addr: bid.auction_addr,
-            time: Number(bid.time),
-            amount: BigInt(bid.amount),
-        }));
-        return bidsTyped;
+        return {
+            bids: bidsRaw.map(bid => ({
+                auction_addr: bid.auction_addr,
+                time: Number(bid.time),
+                amount: BigInt(bid.amount),
+            })),
+            hasMore: blockReturns[0][1] as boolean,
+            cursor: blockReturns[0][2] as number,
+        };
     }
 
     public async fetchUserRecentAuctionsAndBids(
