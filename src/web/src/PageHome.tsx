@@ -1,4 +1,5 @@
 import { AuctionObj, SuiItem, TxAdminCreatesAuction } from "@polymedia/bidder-sdk";
+import { NetworkName } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -30,6 +31,8 @@ export const PageHome: React.FC = () =>
                 </div>
             </div>
 
+            <SectionFeaturedAuctions />
+
             <SectionRecentAuctions />
 
         </div>
@@ -46,6 +49,96 @@ type TxWithAuctionAndItems = {
     items: SuiItem[];
 };
 
+type AuctionWithItems = AuctionObj & {
+    items: SuiItem[];
+};
+
+type FeaturedAuctionAndItemIds = {
+    auctionId: string;
+    itemIds: string[];
+}
+
+const featuredAuctionAndItemIds: Record<NetworkName, FeaturedAuctionAndItemIds[]> = {
+    "mainnet": [],
+    "testnet": [],
+    "devnet": [
+        {
+            auctionId: "0x4c5eef05f1bb1548f9e411195f15d114814681235cd7eb1246cc2645453138dd",
+            itemIds: [
+                "0x009026f03a0678e7b88dcf69f07d0b1d37ae94f8b729ad3c45ccef8a147e2b2d",
+                "0x8786cbab7fd8a65e421b4f1078420583898b50a600fd55478d75bbd4aea7e999",
+                "0x5973f7c0f890554ded16768a9a30c509e39ffcc9f042a9852c5c609e590e33d9",
+            ],
+        },
+    ],
+    "localnet": [],
+};
+
+const SectionFeaturedAuctions: React.FC = () =>
+{
+    // === state ===
+
+    const { bidderClient, network } = useAppContext();
+
+    const [ auctionsWithItems, setAuctionsWithItems ] = useState<AuctionWithItems[] | undefined>();
+    const [ errFetchFeatured, setErrFetchFeatured ] = useState<string | null>(null);
+
+    // === effects ===
+
+    useEffect(() => {
+        fetchFeaturedAuctions();
+    }, []);
+
+    // === functions ===
+
+    const fetchFeaturedAuctions = async () =>
+    {
+        setAuctionsWithItems(undefined);
+        setErrFetchFeatured(null);
+        try {
+            const auctionIds = featuredAuctionAndItemIds[network].map(({ auctionId }) => auctionId);
+            const itemIds = featuredAuctionAndItemIds[network].flatMap(({ itemIds }) => itemIds);
+            const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, itemIds);
+            setAuctionsWithItems(auctionsAndItems.auctions.map(auction => ({
+                ...auction,
+                items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
+            })));
+        } catch (err) {
+            setErrFetchFeatured("Failed to fetch featured auctions");
+            console.warn("[fetchFeaturedAuctions]", err);
+        }
+    };
+
+    // === html ===
+
+    let content: React.ReactNode;
+    if (auctionsWithItems === undefined) {
+        content = <CardLoading />;
+    } else if (errFetchFeatured) {
+        content = <CardWithMsg>{errFetchFeatured}</CardWithMsg>;
+    } else {
+        content = <div className="card-list">
+            {auctionsWithItems.map((auctionWithItems) => (
+                <CardAuctionWithItems
+                    key={auctionWithItems.id}
+                    auction={auctionWithItems}
+                    items={auctionWithItems.items}
+                    hiddenItemCount={Math.max(0, auctionWithItems.item_addrs.length - MAX_ITEMS_PER_AUCTION)}
+                />
+            ))}
+        </div>;
+    }
+
+    return (
+        <div className="page-section">
+            <div className="section-title">
+                Featured auctions
+            </div>
+            {content}
+        </div>
+    );
+};
+
 const SectionRecentAuctions: React.FC = () =>
 {
     // === state ===
@@ -53,7 +146,7 @@ const SectionRecentAuctions: React.FC = () =>
     const { bidderClient } = useAppContext();
 
     const [ txs, setTxs ] = useState<TxWithAuctionAndItems[] | undefined>();
-    const [ errFetch, setErrFetch ] = useState<string | null>(null);
+    const [ errFetchRecent, setErrFetchRecent ] = useState<string | null>(null);
 
     // === effects ===
 
@@ -66,7 +159,7 @@ const SectionRecentAuctions: React.FC = () =>
     const fetchRecentAuctions = async () => // TODO: pagination
     {
         setTxs(undefined);
-        setErrFetch(null);
+        setErrFetchRecent(null);
         try {
             // fetch recent txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(null, 12);
@@ -95,7 +188,7 @@ const SectionRecentAuctions: React.FC = () =>
 
             setTxs(newTxs);
         } catch (err) {
-            setErrFetch("Failed to fetch recent auctions");
+            setErrFetchRecent("Failed to fetch recent auctions");
             console.warn("[fetchRecentAuctions]", err);
         }
     };
@@ -105,17 +198,16 @@ const SectionRecentAuctions: React.FC = () =>
     let content: React.ReactNode;
     if (txs === undefined) {
         content = <CardLoading />;
-    } else if (errFetch) {
-        content = <CardWithMsg>{errFetch}</CardWithMsg>;
+    } else if (errFetchRecent) {
+        content = <CardWithMsg>{errFetchRecent}</CardWithMsg>;
     } else {
         content = <div className="card-list">
-            {txs.map(({ tx, auction, items }) => (
-                <CardTxAdminCreatesAuction
-                    tx={tx}
-                    key={tx.digest}
+            {txs.map(({ auction, items }) => (
+                <CardAuctionWithItems
+                    key={auction.id}
                     auction={auction}
                     items={items}
-                    hiddenItemCount={Math.max(0, tx.inputs.item_addrs.length - MAX_ITEMS_PER_AUCTION)}
+                    hiddenItemCount={Math.max(0, auction.item_addrs.length - MAX_ITEMS_PER_AUCTION)}
                 />
             ))}
         </div>;
@@ -131,30 +223,28 @@ const SectionRecentAuctions: React.FC = () =>
     );
 };
 
-const CardTxAdminCreatesAuction: React.FC<{
-    tx: TxAdminCreatesAuction;
+const CardAuctionWithItems: React.FC<{
     auction: AuctionObj;
     items: SuiItem[];
     hiddenItemCount: number;
 }> = ({
-    tx,
     auction,
     items,
     hiddenItemCount,
 }) =>
 {
     return (
-        <Link to={`/auction/${tx.auctionId}/items`} className="card link">
+        <Link to={`/auction/${auction.id}/items`} className="card link">
             <div className="card-header column-on-small">
-                <div className="card-title">{tx.inputs.name}</div>
+                <div className="card-title">{auction.name}</div>
                 <div className="auction-header-info">
                     <TopBid auction={auction} />
                     <HeaderLabel auction={auction} />
                 </div>
             </div>
 
-            {tx.inputs.description.length > 0 &&
-            <div className="card-description">{tx.inputs.description}</div>}
+            {auction.description.length > 0 &&
+            <div className="card-description">{auction.description}</div>}
 
             <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} />
         </Link>
