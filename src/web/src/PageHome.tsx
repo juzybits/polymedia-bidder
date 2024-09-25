@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { useFetch } from "./lib/useFetch";
 
 const MAX_ITEMS_PER_AUCTION = 3;
 
@@ -65,42 +66,26 @@ const SectionFeaturedAuctions: React.FC = () =>
 
     const { bidderClient, network } = useAppContext();
 
-    const [ auctionsWithItems, setAuctionsWithItems ] = useState<AuctionWithItems[] | undefined>();
-    const [ errFetchFeatured, setErrFetchFeatured ] = useState<string | null>(null);
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchFeaturedAuctions();
-    }, []);
-
-    // === functions ===
-
-    const fetchFeaturedAuctions = async () =>
-    {
-        setAuctionsWithItems(undefined);
-        setErrFetchFeatured(null);
-        try {
+    const { data: auctionsWithItems, error: errFetchFeatured } = useFetch<AuctionWithItems[]>(
+        async () => {
             const auctionIds = featuredAuctionAndItemIds[network].map(({ auctionId }) => auctionId);
             const itemIds = featuredAuctionAndItemIds[network].flatMap(({ itemIds }) => itemIds);
             const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, itemIds);
-            setAuctionsWithItems(auctionsAndItems.auctions.map(auction => ({
+            return auctionsAndItems.auctions.map(auction => ({
                 ...auction,
                 items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
-            })));
-        } catch (err) {
-            setErrFetchFeatured("Failed to fetch featured auctions");
-            console.warn("[fetchFeaturedAuctions]", err);
-        }
-    };
+            }));
+        },
+        [bidderClient],
+    );
 
     // === html ===
 
     let content: React.ReactNode;
-    if (auctionsWithItems === undefined) {
-        content = <CardLoading />;
-    } else if (errFetchFeatured) {
+    if (errFetchFeatured) {
         content = <CardWithMsg>{errFetchFeatured}</CardWithMsg>;
+    }  else if (auctionsWithItems === undefined) {
+        content = <CardLoading />;
     } else {
         content = <div className="card-list">
             {auctionsWithItems.map((auctionWithItems) => (
@@ -129,22 +114,8 @@ const SectionRecentAuctions: React.FC = () =>
 
     const { bidderClient } = useAppContext();
 
-    const [ auctionsWithItems, setAuctionsWithItems ] = useState<AuctionWithItems[] | undefined>();
-    const [ errFetchRecent, setErrFetchRecent ] = useState<string | null>(null);
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchRecentAuctions();
-    }, []);
-
-    // === functions ===
-
-    const fetchRecentAuctions = async () => // TODO: pagination
-    {
-        setAuctionsWithItems(undefined);
-        setErrFetchRecent(null);
-        try {
+    const { data: auctionsWithItems, error: errFetchRecent } = useFetch<AuctionWithItems[]>(
+        async () => {
             // fetch recent "create auction" txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(null, 12);
             const auctionIds = recentTxs.data.map(tx => tx.auctionId);
@@ -154,24 +125,21 @@ const SectionRecentAuctions: React.FC = () =>
 
             // fetch all auctions and items with a single RPC call
             const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
-            const newAuctionsWithItems = auctionsAndItems.auctions.map(auction => ({
+            return auctionsAndItems.auctions.map(auction => ({
                 ...auction,
                 items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
             }));
-            setAuctionsWithItems(newAuctionsWithItems);
-        } catch (err) {
-            setErrFetchRecent("Failed to fetch recent auctions");
-            console.warn("[fetchRecentAuctions]", err);
-        }
-    };
+        },
+        [bidderClient],
+    );
 
     // === html ===
 
     let content: React.ReactNode;
-    if (auctionsWithItems === undefined) {
-        content = <CardLoading />;
-    } else if (errFetchRecent) {
+    if (errFetchRecent) {
         content = <CardWithMsg>{errFetchRecent}</CardWithMsg>;
+    } else if (auctionsWithItems === undefined) {
+        content = <CardLoading />;
     } else {
         content = <div className="card-list">
             {auctionsWithItems.map((auctionWithItems) => (
