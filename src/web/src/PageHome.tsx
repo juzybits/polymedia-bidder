@@ -123,7 +123,6 @@ const SectionFeaturedAuctions: React.FC = () =>
                     key={auctionWithItems.id}
                     auction={auctionWithItems}
                     items={auctionWithItems.items}
-                    hiddenItemCount={Math.max(0, auctionWithItems.item_addrs.length - MAX_ITEMS_PER_AUCTION)}
                 />
             ))}
         </div>;
@@ -145,7 +144,7 @@ const SectionRecentAuctions: React.FC = () =>
 
     const { bidderClient } = useAppContext();
 
-    const [ txs, setTxs ] = useState<TxWithAuctionAndItems[] | undefined>();
+    const [ auctionsWithItems, setAuctionsWithItems ] = useState<AuctionWithItems[] | undefined>();
     const [ errFetchRecent, setErrFetchRecent ] = useState<string | null>(null);
 
     // === effects ===
@@ -158,35 +157,23 @@ const SectionRecentAuctions: React.FC = () =>
 
     const fetchRecentAuctions = async () => // TODO: pagination
     {
-        setTxs(undefined);
+        setAuctionsWithItems(undefined);
         setErrFetchRecent(null);
         try {
-            // fetch recent txs
+            // fetch recent "create auction" txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(null, 12);
-
-            // collect all unique item addresses
+            const auctionIds = recentTxs.data.map(tx => tx.auctionId);
             const itemIds = new Set(
                 recentTxs.data.flatMap(tx => tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION))
             );
 
-            const auctionIds = recentTxs.data.map(tx => tx.auctionId);
-
-            // fetch all items with a single RPC call
+            // fetch all auctions and items with a single RPC call
             const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
-            const auctionMap = new Map(auctionsAndItems.auctions.map(auction => [auction.id, auction]));
-            const itemMap = new Map(auctionsAndItems.items.map(item => [item.id, item]));
-
-            // assign items to each transaction
-            const newTxs = recentTxs.data.map(tx => ({
-                tx,
-                auction: auctionMap.get(tx.auctionId)!,
-                items: tx.inputs.item_addrs
-                    .slice(0, MAX_ITEMS_PER_AUCTION)
-                    .map(addr => itemMap.get(addr))
-                    .filter((item): item is SuiItem => item !== undefined)
-                }));
-
-            setTxs(newTxs);
+            const newAuctionsWithItems = auctionsAndItems.auctions.map(auction => ({
+                ...auction,
+                items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
+            }));
+            setAuctionsWithItems(newAuctionsWithItems);
         } catch (err) {
             setErrFetchRecent("Failed to fetch recent auctions");
             console.warn("[fetchRecentAuctions]", err);
@@ -196,18 +183,17 @@ const SectionRecentAuctions: React.FC = () =>
     // === html ===
 
     let content: React.ReactNode;
-    if (txs === undefined) {
+    if (auctionsWithItems === undefined) {
         content = <CardLoading />;
     } else if (errFetchRecent) {
         content = <CardWithMsg>{errFetchRecent}</CardWithMsg>;
     } else {
         content = <div className="card-list">
-            {txs.map(({ auction, items }) => (
+            {auctionsWithItems.map((auctionWithItems) => (
                 <CardAuctionWithItems
-                    key={auction.id}
-                    auction={auction}
-                    items={items}
-                    hiddenItemCount={Math.max(0, auction.item_addrs.length - MAX_ITEMS_PER_AUCTION)}
+                    key={auctionWithItems.id}
+                    auction={auctionWithItems}
+                    items={auctionWithItems.items}
                 />
             ))}
         </div>;
@@ -226,13 +212,12 @@ const SectionRecentAuctions: React.FC = () =>
 const CardAuctionWithItems: React.FC<{
     auction: AuctionObj;
     items: SuiItem[];
-    hiddenItemCount: number;
 }> = ({
     auction,
     items,
-    hiddenItemCount,
 }) =>
 {
+    const hiddenItemCount = Math.max(0, auction.item_addrs.length - MAX_ITEMS_PER_AUCTION);
     return (
         <Link to={`/auction/${auction.id}/items`} className="card link">
             <div className="card-header column-on-small">
