@@ -51,7 +51,7 @@ export function useFetchAndLoadMore<T>(
     const [ error, setError ] = useState<string | null>(null);
     const [ isLoading, setIsLoading ] = useState(false);
     const [ hasNextPage, setHasNextPage ] = useState(false);
-    const [ cursor, setCursor ] = useState<string | null | undefined>(null);
+    const [ nextCursor, setNextCursor ] = useState<string | null | undefined>(null);
 
     const loadMore = async () =>
     {
@@ -59,10 +59,10 @@ export function useFetchAndLoadMore<T>(
 
         setIsLoading(true);
         try {
-            const response = await fetchFunction(cursor);
+            const response = await fetchFunction(nextCursor);
             setData((prevData) => [...prevData, ...response.data]);
             setHasNextPage(response.hasNextPage);
-            setCursor(response.nextCursor);
+            setNextCursor(response.nextCursor);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load more data");
             console.warn("[useFetchAndLoadMore]", err);
@@ -76,4 +76,71 @@ export function useFetchAndLoadMore<T>(
     }, dependencies);
 
     return { data, error, isLoading, hasNextPage, loadMore };
+}
+
+/**
+ * A hook to handle data fetching and paginating through the results.
+ *
+ * @template T The type of data returned by the fetch function
+ * @param fetchFunction An async function that returns a `Promise<PaginatedResponse<T>>`
+ * @param dependencies An array of dependencies that trigger a re-fetch when changed
+ * @returns An object containing the fetched data, whether there is a next page, and functions to load more data
+ */
+export function useFetchAndPaginate<T>(
+    fetchFunction: (cursor: string | null | undefined) => Promise<PaginatedResponse<T>>,
+    dependencies: unknown[] = [],
+) {
+    const [ pages, setPages ] = useState<T[][]>([]);
+    const [ error, setError ] = useState<string | null>(null);
+    const [ isLoading, setIsLoading ] = useState(false);
+    const [ pageIndex, setPageIndex ] = useState(-1);
+    const [ hasNextPage, setHasNextPage ] = useState(true);
+    const [ nextCursor, setNextCursor ] = useState<string | null | undefined>(null);
+
+    const goToNextPage = async () => {
+        if (isLoading) return;
+        const nextPageIndex = pageIndex + 1;
+        const isLastPage = nextPageIndex === pages.length;
+        if (isLastPage && !hasNextPage) return;
+
+        setIsLoading(true);
+        try {
+            if (isLastPage) {
+                const response = await fetchFunction(nextCursor);
+                setPages((prevPages) => [...prevPages, response.data]);
+                setHasNextPage(response.hasNextPage);
+                setNextCursor(response.nextCursor);
+            }
+            setPageIndex(nextPageIndex);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load more data");
+            console.warn("[useFetchAndPaginate]", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const goToPreviousPage = () => {
+        if (pageIndex > 0) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    useEffect(() => {
+        setPages([]);
+        setPageIndex(0);
+        setNextCursor(null);
+        goToNextPage();
+    }, dependencies);
+
+    return {
+        page: pages[pageIndex] ?? [],
+        error,
+        isLoading,
+        isFirstPage: pageIndex === 0,
+        isLastPage: pageIndex === pages.length - 1,
+        hasMorePages: hasNextPage,
+        goToNextPage,
+        goToPreviousPage,
+    };
 }

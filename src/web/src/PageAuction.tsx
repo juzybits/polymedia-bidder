@@ -9,13 +9,13 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { Balance, CardAuctionItems, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { Balance, CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } from "./components/icons";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
-import { useFetch } from "./lib/useFetch";
+import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
@@ -430,24 +430,41 @@ const SectionHistory: React.FC<{
 
     const { bidderClient } = useAppContext();
 
-    const { data: txs, error: errFetch } = useFetch(() => {
-        return bidderClient.fetchTxsByAuctionId(auction.id, null);
-    }, [auction]);
+    const activity = useFetchAndPaginate(
+        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor),
+        [auction, bidderClient],
+    );
 
     // === html ===
 
-    if (errFetch) {
-        return <CardWithMsg className="compact">{errFetch}</CardWithMsg>;
-    } else if (txs === undefined) {
-        return <CardWithMsg className="compact">Loading…</CardWithMsg>;
+    if (activity.error) {
+        return <CardWithMsg className="compact">{activity.error}</CardWithMsg>;
+    } else if (activity.isLoading && activity.page.length === 0) {
+        return <CardLoading />;
     }
     return (
         <div className="card compact">
             <div className="card-title">Activity</div>
             <div className="card-list tx-list">
-                {txs?.data.map(tx =>
-                <CardTransaction tx={tx} key={tx.digest} />
+                {activity.page.map(tx =>
+                    <CardTransaction tx={tx} key={tx.digest} />
                 )}
+            </div>
+            <div className="center-element">
+                <Btn
+                    disabled={activity.isFirstPage}
+                    working={activity.isLoading}
+                    onClick={activity.goToPreviousPage}
+                >
+                    PREVIOUS
+                </Btn>
+                <Btn
+                    disabled={activity.isLastPage && !activity.hasMorePages}
+                    working={activity.isLoading}
+                    onClick={activity.goToNextPage}
+                >
+                    NEXT
+                </Btn>
             </div>
         </div>
     );
