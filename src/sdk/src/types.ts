@@ -56,6 +56,9 @@ export function isAuctionObj(obj: unknown): obj is AuctionObj {
     return typeof obj === "object" && obj !== null && "can_admin_cancel_auction" in obj;
 }
 
+/**
+ * A paginated response from a Sui RPC call.
+ */
 export type PaginatedResponse<T> = {
     data: T[];
     hasNextPage: boolean;

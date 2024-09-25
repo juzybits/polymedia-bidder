@@ -14,11 +14,11 @@ const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemId
     "testnet": [],
     "devnet": [
         {
-            auctionId: "0x4c5eef05f1bb1548f9e411195f15d114814681235cd7eb1246cc2645453138dd",
+            auctionId: "0x12c94cc99274fc594af5c4537d4b3fbe28b42ec3d3a48e9428fa36969eff5ed7",
             itemIds: [
-                "0x009026f03a0678e7b88dcf69f07d0b1d37ae94f8b729ad3c45ccef8a147e2b2d",
-                "0x8786cbab7fd8a65e421b4f1078420583898b50a600fd55478d75bbd4aea7e999",
-                "0x5973f7c0f890554ded16768a9a30c509e39ffcc9f042a9852c5c609e590e33d9",
+                "0x047aa29bdd60c7a6fbb419db8f36c1b1adda2c16e35303df6c40d4873d3c4f48",
+                "0x07f9468858915f1e296c3d12340d8b0d2bec7c31502c7ef34fe1645e33ca47ad",
+                "0x1c248fce32af583739b5beebe039c2d2deff88c5d12f9850bd508c395607f35e",
             ],
         },
     ],
