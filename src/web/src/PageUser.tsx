@@ -2,7 +2,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid, UserRecentHistory } from "@polymedia/bidder-sdk";
 import { formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToExplorer } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";

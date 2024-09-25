@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 /**
- * A custom hook for handling asynchronous data fetching.
+ * A hook to handle data fetching.
  *
  * @template T The type of data returned by the fetch function
  * @param fetchFunction An async function that returns a `Promise<T>`
@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
  */
 export function useFetch<T>( // TODO move to @polymedia/suitcase-react
     fetchFunction: () => Promise<T>,
-    dependencies: unknown[] = []
+    dependencies: unknown[] = [],
 ) {
     const [data, setData] = useState<T | undefined>(undefined);
     const [error, setError] = useState<string | null>(null);

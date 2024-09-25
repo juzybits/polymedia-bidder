@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/bidder-sdk";
+import { AUCTION_IDS, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { LinkToExplorer, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
@@ -15,13 +15,14 @@ import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } fr
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
+import { useFetch } from "./lib/useFetch";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
     { name: "items", icon: <IconItems />, tooltip: "Items" },
     { name: "bid", icon: <IconCart />, tooltip: "Bid" },
     { name: "details", icon: <IconDetails />, tooltip: "Details" },
-    { name: "history", icon: <IconHistory />, tooltip: "Activity" },
+    { name: "activity", icon: <IconHistory />, tooltip: "Activity" },
     { name: "admin", icon: <IconGears />, tooltip: "Admin" },
 ]);
 
@@ -30,7 +31,7 @@ export const PageAuction: React.FC = () =>
     // === url validation ===
 
     const { auctionId, tabName } = useParams();
-    if (!auctionId) { return <PageNotFound />; };
+    if (!auctionId) { return <PageNotFound />; }
     if (!tabs.isTabName(tabName)) { return <PageNotFound />; }
 
     // === state ===
@@ -140,7 +141,7 @@ export const PageAuction: React.FC = () =>
                         {activeTab === "items" && <SectionItems items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                         {activeTab === "details" && <SectionDetails auction={auction} />}
-                        {activeTab === "history" && <SectionHistory auction={auction} />}
+                        {activeTab === "activity" && <SectionHistory auction={auction} />}
                         {activeTab === "admin" && <SectionAdmin auction={auction} items={items} fetchAuction={fetchAuction} />}
                     </div>
                 </div>
@@ -429,28 +430,9 @@ const SectionHistory: React.FC<{
 
     const { bidderClient } = useAppContext();
 
-    const [ txs, setTxs ] = useState<Awaited<ReturnType<InstanceType<typeof BidderClient>["fetchTxsByAuctionId"]>> | undefined>();
-    const [ errFetch, setErrFetch ] = useState<string | null>(null);
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchRecentBids();
+    const { data: txs, error: errFetch } = useFetch(() => {
+        return bidderClient.fetchTxsByAuctionId(auction.id, null);
     }, [auction]);
-
-    // === functions ===
-
-    const fetchRecentBids = async () => { // TODO: pagination
-        setTxs(undefined);
-        setErrFetch(null);
-        try {
-            const newTxs = await bidderClient.fetchTxsByAuctionId(auction.id, null);
-            setTxs(newTxs);
-        } catch (err) {
-            setErrFetch("Failed to fetch recent bids");
-            console.warn("[fetchRecentBids]", err);
-        }
-    };
 
     // === html ===
 
