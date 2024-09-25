@@ -28,8 +28,8 @@ import {
 } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { objResToSuiItem, PaginatedItemsResponse, SuiItem } from "./items.js";
-import { AuctionObj, isAuctionObj, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
+import { objResToSuiItem, SuiItem } from "./items.js";
+import { AuctionObj, isAuctionObj, PaginatedResponse, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 export type UserRecentHistory = Awaited<ReturnType<BidderClient["fetchUserRecentAuctionsAndBids"]>>;
@@ -151,13 +151,15 @@ export class BidderClient extends SuiClientBase
     public async fetchOwnedItems(
         owner: string,
         cursor: string | null | undefined,
-    ): Promise<PaginatedItemsResponse>
+        limit?: number,
+    ): Promise<PaginatedResponse<SuiItem>>
     {
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
             filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
             options: { showContent: true, showDisplay: true, showType: true },
             cursor,
+            limit,
         });
 
         const items: SuiItem[] = [];

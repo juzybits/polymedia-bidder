@@ -37,12 +37,6 @@ export function newItemPlaceholder(addr: string): SuiItem {
     };
 }
 
-export type PaginatedItemsResponse = {
-    data: SuiItem[];
-    hasNextPage: boolean;
-    nextCursor?: string | null;
-};
-
 /* eslint-disable */
 export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
 {

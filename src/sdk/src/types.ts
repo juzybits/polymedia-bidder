@@ -56,6 +56,12 @@ export function isAuctionObj(obj: unknown): obj is AuctionObj {
     return typeof obj === "object" && obj !== null && "can_admin_cancel_auction" in obj;
 }
 
+export type PaginatedResponse<T> = {
+    data: T[];
+    hasNextPage: boolean;
+    nextCursor: string | null | undefined;
+};
+
 /**
  * A `bidder::auction::admin_creates_auction` transaction
  */
