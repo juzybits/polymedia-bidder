@@ -117,13 +117,16 @@ const SectionRecentAuctions: React.FC = () =>
 {
     // === state ===
 
-    const { bidderClient } = useAppContext();
+    const { bidderClient, network } = useAppContext();
+    const featuredAuctionIds = featuredAuctionAndItemIds[network].map(({ auctionId }) => auctionId);
 
     const { data: auctionsWithItems, error: errFetchRecent } = useFetch<AuctionWithItems[]>(
         async () => {
             // fetch recent "create auction" txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(null, 12);
-            const auctionIds = recentTxs.data.map(tx => tx.auctionId);
+            const auctionIds = recentTxs.data
+                .filter(tx => !featuredAuctionIds.includes(tx.auctionId))
+                .map(tx => tx.auctionId);
             const itemIds = new Set(
                 recentTxs.data.flatMap(tx => tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION))
             );
