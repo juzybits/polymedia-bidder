@@ -15,7 +15,7 @@ import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } fr
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
-import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
+import { useFetchAndPaginate } from "./lib/useFetch";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
@@ -141,7 +141,7 @@ export const PageAuction: React.FC = () =>
                         {activeTab === "items" && <SectionItems items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                         {activeTab === "details" && <SectionDetails auction={auction} />}
-                        {activeTab === "activity" && <SectionHistory auction={auction} />}
+                        {activeTab === "activity" && <SectionActivity auction={auction} />}
                         {activeTab === "admin" && <SectionAdmin auction={auction} items={items} fetchAuction={fetchAuction} />}
                     </div>
                 </div>
@@ -420,7 +420,7 @@ const SectionDetails: React.FC<{
     );
 };
 
-const SectionHistory: React.FC<{
+const SectionActivity: React.FC<{
     auction: AuctionObj;
 }> = ({
     auction,
@@ -450,22 +450,23 @@ const SectionHistory: React.FC<{
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}
             </div>
-            <div className="center-element">
+            {activity.hasMoreThanOnePage &&
+            <div className="center-element" style={{ display: "flex", gap: "1rem" }}>
                 <Btn
                     disabled={activity.isFirstPage}
                     working={activity.isLoading}
                     onClick={activity.goToPreviousPage}
                 >
-                    PREVIOUS
+                    PREV
                 </Btn>
                 <Btn
-                    disabled={activity.isLastPage && !activity.hasMorePages}
+                    disabled={activity.isLastPage && !activity.hasNextPage}
                     working={activity.isLoading}
                     onClick={activity.goToNextPage}
                 >
                     NEXT
                 </Btn>
-            </div>
+            </div>}
         </div>
     );
 };

@@ -1,3 +1,5 @@
+// TODO move to @polymedia/suitcase-react
+
 import { PaginatedResponse } from "@polymedia/suitcase-core";
 import { useEffect, useState } from "react";
 
@@ -9,7 +11,7 @@ import { useEffect, useState } from "react";
  * @param dependencies An array of dependencies that trigger a re-fetch when changed
  * @returns An object containing the fetched data and any error that occurred
  */
-export function useFetch<T>( // TODO move to @polymedia/suitcase-react
+export function useFetch<T>(
     fetchFunction: () => Promise<T>,
     dependencies: unknown[] = [],
 ) {
@@ -136,10 +138,11 @@ export function useFetchAndPaginate<T>(
     return {
         page: pages[pageIndex] ?? [],
         error,
+        hasMoreThanOnePage: pages.length > 1 || (pages.length === 1 && hasNextPage),
         isLoading,
         isFirstPage: pageIndex === 0,
         isLastPage: pageIndex === pages.length - 1,
-        hasMorePages: hasNextPage,
+        hasNextPage,
         goToNextPage,
         goToPreviousPage,
     };
