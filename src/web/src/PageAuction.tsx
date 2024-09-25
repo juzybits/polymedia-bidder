@@ -450,7 +450,7 @@ const SectionActivity: React.FC<{
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}
             </div>
-            {activity.hasMoreThanOnePage &&
+            {activity.hasMultiplePages &&
             <div className="center-element" style={{ display: "flex", gap: "1rem" }}>
                 <Btn
                     disabled={activity.isFirstPage}

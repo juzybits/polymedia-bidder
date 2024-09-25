@@ -52,12 +52,13 @@ export function useFetchAndLoadMore<T>(
     const [ data, setData ] = useState<T[]>([]);
     const [ error, setError ] = useState<string | null>(null);
     const [ isLoading, setIsLoading ] = useState(false);
-    const [ hasNextPage, setHasNextPage ] = useState(false);
+    const [ hasNextPage, setHasNextPage ] = useState(true);
     const [ nextCursor, setNextCursor ] = useState<string | null | undefined>(null);
 
     const loadMore = async () =>
     {
-        if (isLoading) return;
+        if (isLoading || !hasNextPage)
+            return;
 
         setIsLoading(true);
         try {
@@ -74,6 +75,9 @@ export function useFetchAndLoadMore<T>(
     };
 
     useEffect(() => {
+        setData([]);
+        setHasNextPage(true);
+        setNextCursor(null);
         loadMore();
     }, dependencies);
 
@@ -99,11 +103,12 @@ export function useFetchAndPaginate<T>(
     const [ hasNextPage, setHasNextPage ] = useState(true);
     const [ nextCursor, setNextCursor ] = useState<string | null | undefined>(null);
 
-    const goToNextPage = async () => {
-        if (isLoading) return;
+    const goToNextPage = async () =>
+    {
         const nextPageIndex = pageIndex + 1;
         const isLastPage = nextPageIndex === pages.length;
-        if (isLastPage && !hasNextPage) return;
+        if (isLoading || (isLastPage && !hasNextPage))
+            return;
 
         setIsLoading(true);
         try {
@@ -130,7 +135,8 @@ export function useFetchAndPaginate<T>(
 
     useEffect(() => {
         setPages([]);
-        setPageIndex(0);
+        setPageIndex(-1);
+        setHasNextPage(true);
         setNextCursor(null);
         goToNextPage();
     }, dependencies);
@@ -138,8 +144,8 @@ export function useFetchAndPaginate<T>(
     return {
         page: pages[pageIndex] ?? [],
         error,
-        hasMoreThanOnePage: pages.length > 1 || (pages.length === 1 && hasNextPage),
         isLoading,
+        hasMultiplePages: pages.length > 1 || (pages.length === 1 && hasNextPage),
         isFirstPage: pageIndex === 0,
         isLastPage: pageIndex === pages.length - 1,
         hasNextPage,
