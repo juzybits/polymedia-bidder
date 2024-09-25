@@ -57,15 +57,6 @@ export function isAuctionObj(obj: unknown): obj is AuctionObj {
 }
 
 /**
- * A paginated response from a Sui RPC call.
- */
-export type PaginatedResponse<T> = {
-    data: T[];
-    hasNextPage: boolean;
-    nextCursor: string | null | undefined;
-};
-
-/**
  * A `bidder::auction::admin_creates_auction` transaction
  */
 export type TxAdminCreatesAuction = {

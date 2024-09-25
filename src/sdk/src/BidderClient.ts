@@ -16,6 +16,7 @@ import {
     objResToFields,
     objResToId,
     objResToType,
+    PaginatedResponse,
     parseTxError,
     SignTransaction,
     SuiClientBase,
@@ -29,7 +30,16 @@ import {
 import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
-import { AuctionObj, isAuctionObj, PaginatedResponse, TxAdminCreatesAuction, TxAnyoneBids, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
+import {
+    AuctionObj,
+    isAuctionObj,
+    TxAdminCreatesAuction,
+    TxAnyoneBids,
+    UserAuction,
+    UserAuctionBcs,
+    UserBid,
+    UserBidBcs,
+} from "./types.js";
 import { UserModule } from "./UserModule.js";
 
 export type UserRecentHistory = Awaited<ReturnType<BidderClient["fetchUserRecentAuctionsAndBids"]>>;

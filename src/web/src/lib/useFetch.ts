@@ -1,4 +1,4 @@
-import { PaginatedResponse } from "@polymedia/bidder-sdk";
+import { PaginatedResponse } from "@polymedia/suitcase-core";
 import { useEffect, useState } from "react";
 
 /**
