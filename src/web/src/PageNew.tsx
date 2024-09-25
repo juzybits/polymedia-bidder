@@ -1,8 +1,8 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, PaginatedItemsResponse, SuiItem } from "@polymedia/bidder-sdk";
+import { AUCTION_CONFIG as cnf, SuiItem } from "@polymedia/bidder-sdk";
 import { TimeUnit } from "@polymedia/suitcase-core";
 import { useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
@@ -12,6 +12,7 @@ import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
+import { useFetchAndLoadMore } from "./lib/useFetch";
 
 export const PageNew: React.FC = () =>
 {
@@ -299,39 +300,14 @@ const ItemGridSelector: React.FC<{
 
     const { bidderClient, network } = useAppContext();
 
-    const [ ownedItems, setOwnedItems ] = useState<PaginatedItemsResponse>();
-
-    // === effects ===
-
-    useEffect(() => {
-        fetchOwnedItems();
-    }, [bidderClient, currAcct]);
-
-    // === functions ===
-
-    const fetchOwnedItems = async (): Promise<void> =>
-    {
-        try {
-            const newItems = await bidderClient.fetchOwnedItems(
-                currAcct.address,
-                // "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", // death
-                // "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", // trevin
-                ownedItems?.nextCursor,
-            );
-
-            setOwnedItems((prevItems) => ({
-                data: [...(prevItems?.data ?? []), ...newItems.data],
-                hasNextPage: newItems.hasNextPage,
-                nextCursor: newItems.nextCursor,
-            }));
-        } catch (err) {
-            console.warn("[fetchOwnedItems]", err);
-        }
-    };
+    const ownedItems = useFetchAndLoadMore(
+        (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
+        [bidderClient, currAcct],
+    );
 
     // === html ===
 
-    if (ownedItems === undefined) {
+    if (ownedItems.isLoading && ownedItems.data.length === 0) {
         return <CardLoading />;
     }
 
@@ -343,7 +319,7 @@ const ItemGridSelector: React.FC<{
         ? <>Select the items you want to sell.</>
         : (network === "mainnet" || DEV_PACKAGE_IDS[network] === "")
             ? <>You don't own any items.</>
-            : <DevNftCreator onNftCreated={() => fetchOwnedItems()} />}
+            : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAcct.address, null)} />}
     </div>
     {ownedItems.data.length > 0 &&
     <div className="grid">
@@ -375,9 +351,12 @@ const ItemGridSelector: React.FC<{
 
     {ownedItems.hasNextPage &&
     <div className="center-element">
-        <button className="btn" onClick={fetchOwnedItems}>
+        <Btn
+            working={ownedItems.isLoading}
+            onClick={ownedItems.loadMore}
+        >
             LOAD MORE ITEMS
-        </button>
+        </Btn>
     </div>}
     </>;
 };
