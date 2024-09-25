@@ -9,6 +9,7 @@ import { CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/card
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { makeTabs, TabsHeader } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
+import { useFetch } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
@@ -51,55 +52,30 @@ export const PageUser: React.FC = () =>
 
     // === user history ===
 
-    const [ userHistory, setUserHistory ] = useState<UserRecentHistory | null | undefined>();
-    const [ errFetchHistory, setErrFetchHistory ] = useState<string | null>(null);
-
-    useEffect(() => {
-        setErrFetchHistory(null);
+    const { data: userHistory, error: errFetchHistory } = useFetch<UserRecentHistory | null | undefined>(async () =>
+    {
         if (userId === undefined) {
-            setUserHistory(undefined);
+            return Promise.resolve(undefined);
         } else if (userId === null) {
-            setUserHistory(null);
+            return Promise.resolve(null);
         } else {
-            bidderClient
-                .fetchUserRecentAuctionsAndBids(userId, 25, 25)
-                .then((newUserHistory) => {
-                    console.log("[fetchUserHistory]", newUserHistory);
-                    setUserHistory(newUserHistory);
-                })
-                .catch(err => {
-                    console.warn("[fetchUserHistory]", err);
-                    setErrFetchHistory("Failed to fetch user history");
-                    setUserHistory(null);
-                });
+            return await bidderClient.fetchUserRecentAuctionsAndBids(userId, 25, 25);
         }
     }, [userId, bidderClient]);
 
     // === auctions created or bid on ===
 
-    const [ auctions, setAuctions ] = useState<Map<string, AuctionObj> | null | undefined>();
-    const [ errFetchAuctions, setErrFetchAuctions ] = useState<string | null>(null);
-
-    useEffect(() =>
+    const { data: auctions, error: errFetchAuctions } = useFetch<Map<string, AuctionObj> | null | undefined>(async () =>
     {
-        setErrFetchAuctions(null);
         if (!userHistory) {
-            return;
+            return Promise.resolve(null);
         }
         const uniqueAuctionIds = Array.from(new Set([
             ...userHistory.created.data.map(a => a.auction_addr),
             ...userHistory.bids.data.map(b => b.auction_addr)
         ]));
-        bidderClient
-            .fetchAuctions(uniqueAuctionIds)
-            .then(auctionObjs => {
-                setAuctions(new Map(auctionObjs.map(a => [a.id, a])));
-            })
-            .catch(err => {
-                setAuctions(null);
-                setErrFetchAuctions("Failed to fetch auctions");
-                console.warn("[fetchAuctions]", err);
-            });
+        const auctionObjs = await bidderClient.fetchAuctions(uniqueAuctionIds);
+        return new Map(auctionObjs.map(a => [a.id, a]));
     }, [userHistory, bidderClient]);
 
     // === html ===

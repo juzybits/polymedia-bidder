@@ -259,7 +259,7 @@ export const CardWithMsg: React.FC<{
     className,
     children,
 }) => {
-    return <div className={`card ${className ?? ""}`}>
+    return <div className={`card break-any ${className ?? ""}`}>
         <FullCardMsg>
             {children}
         </FullCardMsg>
