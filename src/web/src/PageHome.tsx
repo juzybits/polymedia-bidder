@@ -1,10 +1,28 @@
-import { AuctionObj, SuiItem, TxAdminCreatesAuction } from "@polymedia/bidder-sdk";
+import { AuctionObj, AuctionWithItems, SuiItem } from "@polymedia/bidder-sdk";
 import { NetworkName } from "@polymedia/suitcase-core";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+
+const MAX_ITEMS_PER_AUCTION = 3;
+
+const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[]; }[]> = {
+    "mainnet": [],
+    "testnet": [],
+    "devnet": [
+        {
+            auctionId: "0x4c5eef05f1bb1548f9e411195f15d114814681235cd7eb1246cc2645453138dd",
+            itemIds: [
+                "0x009026f03a0678e7b88dcf69f07d0b1d37ae94f8b729ad3c45ccef8a147e2b2d",
+                "0x8786cbab7fd8a65e421b4f1078420583898b50a600fd55478d75bbd4aea7e999",
+                "0x5973f7c0f890554ded16768a9a30c509e39ffcc9f042a9852c5c609e590e33d9",
+            ],
+        },
+    ],
+    "localnet": [],
+};
 
 export const PageHome: React.FC = () =>
 {
@@ -39,39 +57,6 @@ export const PageHome: React.FC = () =>
 
     </div>
     </>;
-};
-
-const MAX_ITEMS_PER_AUCTION = 3;
-
-type TxWithAuctionAndItems = {
-    tx: TxAdminCreatesAuction;
-    auction: AuctionObj;
-    items: SuiItem[];
-};
-
-type AuctionWithItems = AuctionObj & {
-    items: SuiItem[];
-};
-
-type FeaturedAuctionAndItemIds = {
-    auctionId: string;
-    itemIds: string[];
-}
-
-const featuredAuctionAndItemIds: Record<NetworkName, FeaturedAuctionAndItemIds[]> = {
-    "mainnet": [],
-    "testnet": [],
-    "devnet": [
-        {
-            auctionId: "0x4c5eef05f1bb1548f9e411195f15d114814681235cd7eb1246cc2645453138dd",
-            itemIds: [
-                "0x009026f03a0678e7b88dcf69f07d0b1d37ae94f8b729ad3c45ccef8a147e2b2d",
-                "0x8786cbab7fd8a65e421b4f1078420583898b50a600fd55478d75bbd4aea7e999",
-                "0x5973f7c0f890554ded16768a9a30c509e39ffcc9f042a9852c5c609e590e33d9",
-            ],
-        },
-    ],
-    "localnet": [],
 };
 
 const SectionFeaturedAuctions: React.FC = () =>
@@ -235,8 +220,3 @@ const CardAuctionWithItems: React.FC<{
         </Link>
     );
 };
-
-// const fetchConfig = async () => {
-//     const config = await bidderClient.fetchConfig();
-//     console.log(JSON.stringify(config, null, 2));
-// };

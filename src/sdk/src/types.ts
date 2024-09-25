@@ -1,4 +1,5 @@
 import { bcs } from "@mysten/sui/bcs";
+import { SuiItem } from "./items";
 
 /**
  * A Sui bidder::auction::Auction object
@@ -45,6 +46,10 @@ export type AuctionObj = {
     can_admin_cancel_auction: boolean;
     can_admin_reclaim_items: boolean;
     can_admin_set_pay_addr: boolean;
+};
+
+export type AuctionWithItems = AuctionObj & {
+    items: SuiItem[];
 };
 
 export function isAuctionObj(obj: unknown): obj is AuctionObj {
