@@ -65,12 +65,17 @@ const SectionFeaturedAuctions: React.FC = () =>
     // === state ===
 
     const { bidderClient, network } = useAppContext();
+    const auctionAndItemIds = featuredAuctionAndItemIds[network];
+    if (auctionAndItemIds.length === 0) {
+        return null;
+    }
 
     const { data: auctionsWithItems, error: errFetchFeatured } = useFetch<AuctionWithItems[]>(
         async () => {
-            const auctionIds = featuredAuctionAndItemIds[network].map(({ auctionId }) => auctionId);
-            const itemIds = featuredAuctionAndItemIds[network].flatMap(({ itemIds }) => itemIds);
-            const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, itemIds);
+            const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(
+                auctionAndItemIds.map(({ auctionId }) => auctionId),
+                auctionAndItemIds.flatMap(({ itemIds }) => itemIds),
+            );
             return auctionsAndItems.auctions.map(auction => ({
                 ...auction,
                 items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
