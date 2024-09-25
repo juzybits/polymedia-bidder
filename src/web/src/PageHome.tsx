@@ -105,8 +105,8 @@ const SectionFeaturedAuctions: React.FC = () =>
 
     return (
         <div className="page-section">
-            <div className="section-title">
-                Featured auctions
+            <div className="page-title">
+                FEATURED AUCTIONS
             </div>
             {content}
         </div>
@@ -159,8 +159,8 @@ const SectionRecentAuctions: React.FC = () =>
 
     return (
         <div className="page-section">
-            <div className="section-title">
-                Recent auctions
+            <div className="page-title">
+                RECENT AUCTIONS
             </div>
             {content}
         </div>
