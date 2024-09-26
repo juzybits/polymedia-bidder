@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
+import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Balance, CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } from "./components/icons";
@@ -450,23 +451,7 @@ const SectionActivity: React.FC<{
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}
             </div>
-            {activity.hasMultiplePages &&
-            <div className="center-element" style={{ display: "flex", gap: "1rem" }}>
-                <Btn
-                    disabled={activity.isFirstPage}
-                    working={activity.isLoading}
-                    onClick={activity.goToPreviousPage}
-                >
-                    PREV
-                </Btn>
-                <Btn
-                    disabled={activity.isLastPage && !activity.hasNextPage}
-                    working={activity.isLoading}
-                    onClick={activity.goToNextPage}
-                >
-                    NEXT
-                </Btn>
-            </div>}
+            <BtnPrevNext data={activity} />
         </div>
     );
 };
