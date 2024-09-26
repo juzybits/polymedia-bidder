@@ -73,13 +73,15 @@ const SectionFeaturedAuctions: React.FC = () =>
 
     const { data: auctionsWithItems, error: errFetchFeatured } = useFetch<AuctionWithItems[]>(
         async () => {
-            const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(
+            const { auctions, items } = await bidderClient.fetchAuctionsAndItems(
                 auctionAndItemIds.map(({ auctionId }) => auctionId),
                 auctionAndItemIds.flatMap(({ itemIds }) => itemIds),
             );
-            return auctionsAndItems.auctions.map(auction => ({
+            return auctions.map(auction => ({
                 ...auction,
-                items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
+                items: auction.item_addrs
+                    .map(id => items.get(id))
+                    .filter((item): item is SuiItem => item !== undefined)
             }));
         },
         [bidderClient],
@@ -133,15 +135,13 @@ const SectionRecentAuctions: React.FC = () =>
             );
 
             // fetch all auctions and items with a single RPC call
-            const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
-
-            const itemMap = new Map(auctionsAndItems.items.map(item => [item.id, item]));
+            const { auctions, items } = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
             return {
-                data: auctionsAndItems.auctions.map(auction => ({
+                data: auctions.map(auction => ({
                     ...auction,
                     items: auction.item_addrs
                         .slice(0, MAX_ITEMS_PER_AUCTION)
-                        .map(id => itemMap.get(id))
+                        .map(id => items.get(id))
                         .filter((item): item is SuiItem => item !== undefined)
                 })),
                 hasNextPage: recentTxs.hasNextPage,
