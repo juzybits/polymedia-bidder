@@ -101,6 +101,8 @@ export const PageAuction: React.FC = () =>
 
     // === html ===
 
+    const tabsContainerRef = React.useRef<HTMLDivElement>(null);
+
     if (err) {
         return <PageFullScreenMsg>{err.toUpperCase()}</PageFullScreenMsg>;
     }
@@ -110,8 +112,6 @@ export const PageAuction: React.FC = () =>
     if (auction === undefined || items === undefined) {
         return <PageFullScreenMsg>LOADING…</PageFullScreenMsg>;
     }
-
-    // === html ===
 
     return <>
     {header}
@@ -136,13 +136,13 @@ export const PageAuction: React.FC = () =>
 
                 <CardFinalize auction={auction} items={items} fetchAuction={fetchAuction} />
 
-                <div className="tabs-container">
+                <div className="tabs-container" ref={tabsContainerRef}>
                     <HeaderTabs tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
                     <div className="tabs-content">
                         {activeTab === "items" && <SectionItems items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
                         {activeTab === "details" && <SectionDetails auction={auction} />}
-                        {activeTab === "activity" && <SectionActivity auction={auction} />}
+                        {activeTab === "activity" && <SectionActivity auction={auction} tabsContainerRef={tabsContainerRef} />}
                         {activeTab === "admin" && <SectionAdmin auction={auction} items={items} fetchAuction={fetchAuction} />}
                     </div>
                 </div>
@@ -423,10 +423,11 @@ const SectionDetails: React.FC<{
 
 const SectionActivity: React.FC<{
     auction: AuctionObj;
+    tabsContainerRef: React.RefObject<HTMLDivElement>;
 }> = ({
     auction,
+    tabsContainerRef,
 }) => {
-
     // === state ===
 
     const { bidderClient } = useAppContext();
@@ -440,7 +441,7 @@ const SectionActivity: React.FC<{
 
     if (activity.error) {
         return <CardWithMsg className="compact">{activity.error}</CardWithMsg>;
-    } else if (activity.isLoading && activity.page.length === 0) {
+    } else if (activity.isLoading) {
         return <CardLoading />;
     }
     return (
@@ -451,7 +452,7 @@ const SectionActivity: React.FC<{
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}
             </div>
-            <BtnPrevNext data={activity} />
+            <BtnPrevNext data={activity} scrollToRefOnPageChange={tabsContainerRef} />
         </div>
     );
 };
