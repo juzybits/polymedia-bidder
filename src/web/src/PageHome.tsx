@@ -156,7 +156,7 @@ const SectionRecentAuctions: React.FC = () =>
     let content: React.ReactNode;
     if (recent.error) {
         content = <CardWithMsg>{recent.error}</CardWithMsg>;
-    } else if (recent.isLoading && recent.page.length === 0) {
+    } else if (recent.isLoading) {
         content = <CardLoading />;
     } else {
         content = <div className="card-list">
@@ -170,13 +170,24 @@ const SectionRecentAuctions: React.FC = () =>
         </div>;
     }
 
+    const sectionRef = React.useRef<HTMLDivElement>(null);
+
+    const handlePageChange = () => {
+        if (!sectionRef.current) return;
+        const navBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-bar-height'));
+        const extraOffset = 9;
+        const totalOffset = navBarHeight + extraOffset;
+        const yOffset = sectionRef.current.getBoundingClientRect().top + window.scrollY - totalOffset;
+        window.scrollTo({ top: yOffset });
+    };
+
     return (
-        <div className="page-section">
+        <div className="page-section" ref={sectionRef}>
             <div className="page-title">
                 RECENT AUCTIONS
             </div>
             {content}
-            <BtnPrevNext data={recent} />
+            <BtnPrevNext data={recent} onPageChange={handlePageChange} />
         </div>
     );
 };

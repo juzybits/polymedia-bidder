@@ -4,6 +4,10 @@
 
 // === constants ===
 
+:root {
+    --nav-bar-height: 62px;
+}
+
 @border-gray: 1px solid @color-border-gray;
 @border-radius: 1.5rem;
 @color-bg: rgb(10 12 14);
@@ -111,7 +115,7 @@ header {
     justify-content: right;
     gap: 1rem 2.5rem;
     padding: 0 1rem*1.25;
-    height: 62px;
+    height: var(--nav-bar-height);
     width: 100%;
     overflow-x: scroll;
     overflow-y: hidden;
