@@ -1,11 +1,12 @@
 import { AuctionObj, AuctionWithItems, SuiItem } from "@polymedia/bidder-sdk";
 import { NetworkName } from "@polymedia/suitcase-core";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
+import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
-import { useFetch } from "./lib/useFetch";
+import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
 
 const MAX_ITEMS_PER_AUCTION = 3;
 
@@ -120,10 +121,10 @@ const SectionRecentAuctions: React.FC = () =>
     const { bidderClient, network } = useAppContext();
     const featuredAuctionIds = featuredAuctionAndItemIds[network].map(({ auctionId }) => auctionId);
 
-    const { data: auctionsWithItems, error: errFetchRecent } = useFetch<AuctionWithItems[]>(
-        async () => {
+    const recent = useFetchAndPaginate<AuctionWithItems>(
+        async (cursor) => {
             // fetch recent "create auction" txs
-            const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(null, 12);
+            const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, 12);
             const auctionIds = recentTxs.data
                 .filter(tx => !featuredAuctionIds.includes(tx.auctionId))
                 .map(tx => tx.auctionId);
@@ -133,10 +134,14 @@ const SectionRecentAuctions: React.FC = () =>
 
             // fetch all auctions and items with a single RPC call
             const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
-            return auctionsAndItems.auctions.map(auction => ({
-                ...auction,
-                items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
-            }));
+            return {
+                data: auctionsAndItems.auctions.map(auction => ({
+                    ...auction,
+                    items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
+                })),
+                hasNextPage: recentTxs.hasNextPage,
+                nextCursor: recentTxs.nextCursor,
+            };
         },
         [bidderClient],
     );
@@ -144,13 +149,13 @@ const SectionRecentAuctions: React.FC = () =>
     // === html ===
 
     let content: React.ReactNode;
-    if (errFetchRecent) {
-        content = <CardWithMsg>{errFetchRecent}</CardWithMsg>;
-    } else if (auctionsWithItems === undefined) {
+    if (recent.error) {
+        content = <CardWithMsg>{recent.error}</CardWithMsg>;
+    } else if (recent.isLoading && recent.page.length === 0) {
         content = <CardLoading />;
     } else {
         content = <div className="card-list">
-            {auctionsWithItems.map((auctionWithItems) => (
+            {recent.page.map((auctionWithItems) => (
                 <CardAuctionWithItems
                     key={auctionWithItems.id}
                     auction={auctionWithItems}
@@ -166,6 +171,7 @@ const SectionRecentAuctions: React.FC = () =>
                 RECENT AUCTIONS
             </div>
             {content}
+            <BtnPrevNext data={recent} />
         </div>
     );
 };
