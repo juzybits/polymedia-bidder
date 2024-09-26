@@ -90,7 +90,16 @@ export function useFetchAndLoadMore<T>(
  * @template T The type of data returned by the fetch function
  * @param fetchFunction An async function that returns a `Promise<PaginatedResponse<T>>`
  * @param dependencies An array of dependencies that trigger a re-fetch when changed
- * @returns An object containing the fetched data, whether there is a next page, and functions to load more data
+ * @returns An object containing the following properties:
+ *   - page - The current page of data
+ *   - error - Any error that occurred during fetching
+ *   - isLoading - Whether data is currently being fetched
+ *   - hasMultiplePages - Whether there are multiple pages of data
+ *   - isFirstPage - Whether the current page is the first page
+ *   - isLastPage - Whether the current page is the last fetched page
+ *   - hasNextPage - Whether there is a next page available to fetch
+ *   - goToNextPage - Function to navigate to the next page
+ *   - goToPreviousPage - Function to navigate to the previous page
  */
 export function useFetchAndPaginate<T>(
     fetchFunction: (cursor: string | null | undefined) => Promise<PaginatedResponse<T>>,
@@ -105,19 +114,22 @@ export function useFetchAndPaginate<T>(
 
     const goToNextPage = async () =>
     {
+        const isLastPage = pageIndex === pages.length - 1;
         const nextPageIndex = pageIndex + 1;
-        const isLastPage = nextPageIndex === pages.length;
-        if (isLoading || (isLastPage && !hasNextPage))
-            return;
 
+        if (isLoading) return; // already fetching
+        if (isLastPage && !hasNextPage) return; // no more pages available
+        if (!isLastPage) { // next page already fetched
+            setPageIndex(nextPageIndex);
+            return;
+        }
+        // fetch the next page
         setIsLoading(true);
         try {
-            if (isLastPage) {
-                const response = await fetchFunction(nextCursor);
-                setPages((prevPages) => [...prevPages, response.data]);
-                setHasNextPage(response.hasNextPage);
-                setNextCursor(response.nextCursor);
-            }
+            const response = await fetchFunction(nextCursor);
+            setPages((prevPages) => [...prevPages, response.data]);
+            setHasNextPage(response.hasNextPage);
+            setNextCursor(response.nextCursor);
             setPageIndex(nextPageIndex);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load more data");

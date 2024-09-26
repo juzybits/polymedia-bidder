@@ -14,14 +14,13 @@ export const BtnPrevNext: React.FC<{
     return (
     <div className="btn-prev-next">
         <Btn
-            disabled={data.isFirstPage}
-            working={data.isLoading}
+            disabled={data.isLoading || data.isFirstPage}
             onClick={data.goToPreviousPage}
         >
             PREV
         </Btn>
         <Btn
-            disabled={data.isLastPage && !data.hasNextPage}
+            disabled={data.isLoading || (data.isLastPage && !data.hasNextPage)}
             working={data.isLoading}
             onClick={data.goToNextPage}
         >
