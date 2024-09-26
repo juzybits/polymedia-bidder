@@ -137,7 +137,9 @@ const SectionRecentAuctions: React.FC = () =>
             return {
                 data: auctionsAndItems.auctions.map(auction => ({
                     ...auction,
-                    items: auctionsAndItems.items.filter(item => auction.item_addrs.includes(item.id))
+                    items: auctionsAndItems.items
+                        .filter(item => auction.item_addrs.includes(item.id))
+                        .slice(0, MAX_ITEMS_PER_AUCTION) // the same item can be included in multiple auctions
                 })),
                 hasNextPage: recentTxs.hasNextPage,
                 nextCursor: recentTxs.nextCursor,
