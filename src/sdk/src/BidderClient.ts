@@ -190,6 +190,7 @@ export class BidderClient extends SuiClientBase
     public async fetchTxsAdminCreatesAuction(
         cursor: string | null | undefined,
         limit?: number,
+        order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
             this.parseTxAdminCreatesAuction.bind(this),
@@ -200,6 +201,7 @@ export class BidderClient extends SuiClientBase
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
                 cursor,
                 limit,
+                order,
             }
         );
     }
@@ -207,6 +209,7 @@ export class BidderClient extends SuiClientBase
     public async fetchTxsAnyoneBids(
         cursor: string | null | undefined,
         limit?: number,
+        order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
             this.parseTxAnyoneBids.bind(this),
@@ -217,6 +220,7 @@ export class BidderClient extends SuiClientBase
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
                 cursor,
                 limit,
+                order,
             },
         );
     }
@@ -225,6 +229,7 @@ export class BidderClient extends SuiClientBase
         auctionId: string,
         cursor: string | null | undefined,
         limit?: number,
+        order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
             this.parseAuctionTx.bind(this),
@@ -233,6 +238,7 @@ export class BidderClient extends SuiClientBase
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
                 cursor,
                 limit,
+                order,
             },
         );
     }
