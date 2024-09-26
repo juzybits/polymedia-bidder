@@ -441,13 +441,13 @@ const SectionActivity: React.FC<{
 
     if (activity.error) {
         return <CardWithMsg className="compact">{activity.error}</CardWithMsg>;
-    } else if (activity.isLoading) {
+    } else if (activity.isLoading && activity.page.length === 0) {
         return <CardLoading />;
     }
     return (
         <div className="card compact">
             <div className="card-title">Activity</div>
-            <div className="card-list tx-list">
+            <div className={`card-list tx-list ${activity.isLoading ? "loading" : ""}`}>
                 {activity.page.map(tx =>
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}

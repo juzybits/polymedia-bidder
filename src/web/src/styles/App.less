@@ -357,6 +357,13 @@ footer {
     flex-direction: column;
     gap: 1rem;
     width: 100%;
+    &.loading {
+        opacity: 0.4;
+        cursor: wait;
+        * {
+            pointer-events: none;
+        }
+    }
 }
 
 .card {

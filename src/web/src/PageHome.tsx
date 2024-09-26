@@ -156,10 +156,10 @@ const SectionRecentAuctions: React.FC = () =>
     let content: React.ReactNode;
     if (recent.error) {
         content = <CardWithMsg>{recent.error}</CardWithMsg>;
-    } else if (recent.isLoading) {
+    } else if (recent.isLoading && recent.page.length === 0) {
         content = <CardLoading />;
     } else {
-        content = <div className="card-list">
+        content = <div className={`card-list ${recent.isLoading ? "loading" : ""}`}>
             {recent.page.map((auctionWithItems) => (
                 <CardAuctionWithItems
                     key={auctionWithItems.id}
