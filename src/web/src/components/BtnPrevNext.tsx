@@ -1,27 +1,40 @@
-import { useAppContext } from "../App";
 import { useFetchAndPaginate } from "../lib/useFetch";
 import { Btn } from "./Btn";
+import { RefObject } from "react";
 
 export const BtnPrevNext: React.FC<{
     data: ReturnType<typeof useFetchAndPaginate>;
     onPageChange?: () => void;
+    scrollToRefOnPageChange?: RefObject<HTMLElement>;
 }> = ({
     data,
-    onPageChange
-}) =>
-{
+    onPageChange,
+    scrollToRefOnPageChange,
+}) => {
     if (!data.hasMultiplePages) {
         return null;
     }
 
+    const handlePageChange = () => {
+        if (scrollToRefOnPageChange?.current) {
+            const navBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-bar-height'));
+            const extraOffset = 9;
+            const totalOffset = navBarHeight + extraOffset;
+            const yOffset = scrollToRefOnPageChange.current.getBoundingClientRect().top + window.scrollY - totalOffset;
+            window.scrollTo({ top: yOffset });
+        }
+
+        onPageChange?.();
+    };
+
     const handlePrevClick = () => {
         data.goToPreviousPage();
-        onPageChange?.();
+        handlePageChange();
     };
 
     const handleNextClick = () => {
         data.goToNextPage();
-        onPageChange?.();
+        handlePageChange();
     };
 
     return (

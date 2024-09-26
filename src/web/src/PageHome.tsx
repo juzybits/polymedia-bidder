@@ -172,22 +172,13 @@ const SectionRecentAuctions: React.FC = () =>
 
     const sectionRef = React.useRef<HTMLDivElement>(null);
 
-    const handlePageChange = () => {
-        if (!sectionRef.current) return;
-        const navBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-bar-height'));
-        const extraOffset = 9;
-        const totalOffset = navBarHeight + extraOffset;
-        const yOffset = sectionRef.current.getBoundingClientRect().top + window.scrollY - totalOffset;
-        window.scrollTo({ top: yOffset });
-    };
-
     return (
         <div className="page-section" ref={sectionRef}>
             <div className="page-title">
                 RECENT AUCTIONS
             </div>
             {content}
-            <BtnPrevNext data={recent} onPageChange={handlePageChange} />
+            <BtnPrevNext data={recent} scrollToRefOnPageChange={sectionRef} />
         </div>
     );
 };
