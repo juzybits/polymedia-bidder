@@ -134,12 +134,15 @@ const SectionRecentAuctions: React.FC = () =>
 
             // fetch all auctions and items with a single RPC call
             const auctionsAndItems = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
+
+            const itemMap = new Map(auctionsAndItems.items.map(item => [item.id, item]));
             return {
                 data: auctionsAndItems.auctions.map(auction => ({
                     ...auction,
-                    items: auctionsAndItems.items
-                        .filter(item => auction.item_addrs.includes(item.id))
-                        .slice(0, MAX_ITEMS_PER_AUCTION) // the same item can be included in multiple auctions
+                    items: auction.item_addrs
+                        .slice(0, MAX_ITEMS_PER_AUCTION)
+                        .map(id => itemMap.get(id))
+                        .filter((item): item is SuiItem => item !== undefined)
                 })),
                 hasNextPage: recentTxs.hasNextPage,
                 nextCursor: recentTxs.nextCursor,
