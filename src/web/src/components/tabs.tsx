@@ -21,7 +21,7 @@ export function makeTabs<T extends readonly Tab[]>(tabs: T)
     };
 }
 
-export const TabsHeader: React.FC<{
+export const HeaderTabs: React.FC<{
     tabs: Tab[];
     activeTab: string;
     onChangeTab: (tab: string) => void;

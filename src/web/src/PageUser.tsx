@@ -7,7 +7,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { makeTabs, TabsHeader } from "./components/tabs";
+import { makeTabs, HeaderTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { useFetch } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
@@ -89,7 +89,7 @@ export const PageUser: React.FC = () =>
         content = <CardWithMsg>{errMsg}</CardWithMsg>;
     } else {
         content = <div className="tabs-container">
-            <TabsHeader tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
+            <HeaderTabs tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
             <div className="tabs-content">
                 {activeTab === "auctions" &&
                 <SectionUserAuctions

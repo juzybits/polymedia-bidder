@@ -13,7 +13,7 @@ import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Balance, CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } from "./components/icons";
-import { makeTabs, TabsHeader } from "./components/tabs";
+import { makeTabs, HeaderTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 import { useFetchAndPaginate } from "./lib/useFetch";
@@ -137,7 +137,7 @@ export const PageAuction: React.FC = () =>
                 <CardFinalize auction={auction} items={items} fetchAuction={fetchAuction} />
 
                 <div className="tabs-container">
-                    <TabsHeader tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
+                    <HeaderTabs tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
                     <div className="tabs-content">
                         {activeTab === "items" && <SectionItems items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
