@@ -5,10 +5,12 @@ import { normalizeSuiAddress } from "@mysten/sui/utils";
 import { devInspectAndGetReturnValues, getCoinOfValue, isTxMoveCall, ObjectInput, objResToFields, objResToId, objResToType, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, txResToData, WaitForTxOptions, ZERO_ADDRESS } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
+import { AnyAuctionTx } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
-import { AnyAuctionTx, AuctionObj, isAuctionObj, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
+import { AuctionObj, isAuctionObj } from "./AuctionModuleTypes.js";
 import { UserModule } from "./UserModule.js";
+import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserModuleTypes.js";
 
 export type UserHistoryAuctions = Awaited<ReturnType<BidderClient["fetchUserAuctions"]>>;
 export type UserHistoryBids = Awaited<ReturnType<BidderClient["fetchUserBids"]>>;

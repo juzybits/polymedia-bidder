@@ -1,6 +1,6 @@
 import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
-import { TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./types.js";
+import { TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
 
 /**
  * Parse transactions for the `bidder::auction` Sui module.
