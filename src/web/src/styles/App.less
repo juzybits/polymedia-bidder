@@ -810,31 +810,49 @@ body.modal-open {
     }
 }
 
-// === specific pages ===
-
-#page-home {
-    #home-hero {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 2.5rem;
-        gap: 1.5rem;
-        border-radius: @border-radius;
-        background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-        .glitch, .glitch * {
-            font-size: 4rem;
-            font-weight: bold;
-            letter-spacing: 0.05em;
+.hero-banner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2.5rem;
+    gap: 1.5rem;
+    border-radius: @border-radius;
+    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+    .glitch, .glitch span {
+        font-size: 4rem;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+    }
+    .hero-description {
+        padding: 1rem 0;
+    }
+    @media (max-width: @screen-medium) {
+        padding: 2rem;
+    }
+}
+.dev-open-graph {
+    padding: 2rem;
+    .hero-banner {
+        height: 600px;
+        width: 1200px;
+        border-radius: 0;
+        .glitch, .glitch span {
+            font-size: 11rem;
+            animation-play-state: paused;
         }
-        @media (max-width: @screen-medium) {
-            padding: 2rem;
+        .hero-subtitle {
+            font-size: 2rem;
         }
-        #hero-description {
-            padding: 1rem 0;
+        .hero-description, .hero-actions {
+            display: none;
         }
     }
 }
+
+// === specific pages ===
 
 #page-user {
     .tabs-container {
@@ -842,18 +860,6 @@ body.modal-open {
         margin: 0 auto;
     }
 }
-
-// #page-new {
-//     #dialog-create-auction {
-//         position: fixed;
-//         bottom: @gap;
-//         right: @gap;
-//         background-color: @color-bg;
-//         padding: @gap;
-//         border-radius: @border-radius;
-//         border: @border-gray;
-//     }
-// }
 
 // === animations ===
 

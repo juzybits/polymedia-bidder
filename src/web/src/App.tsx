@@ -2,11 +2,10 @@ import {
     ConnectModal,
     SuiClientProvider,
     WalletProvider,
-    createNetworkConfig, useSignTransaction,
-    useSuiClient
+    useSignTransaction,
+    useSuiClient,
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
-import { getFullnodeUrl } from "@mysten/sui/client";
 import * as sdk from "@polymedia/bidder-sdk";
 import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork, loadRpc } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -37,6 +36,7 @@ export const AppRouter: React.FC = () => {
                 <Route path="/user/:tabName" element={<PageUser />} />
                 <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId/:tabName" element={<PageAuction />} />
+                {/* <Route path="/dev/open-graph" element={<PageDevOpenGraph />} /> */}
                 {/* <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
                 <Route path="/dev/display/user" element={<PageDevDisplayUser />} />
                 <Route path="/dev/display/registry" element={<PageDevDisplayUserRegistry />} /> */}

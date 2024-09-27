@@ -36,20 +36,7 @@ export const PageHome: React.FC = () =>
 
         <div className="page-content">
 
-            <div id="home-hero" className="page-section">
-                <Glitch text="BIDDER" />
-                <div id="hero-title">
-                    <h1>Sui's Auction House</h1>
-                </div>
-                <div id="hero-description">
-                    <p>
-                        BIDDER is a decentralized platform for creating and bidding on auctions.
-                    </p>
-                </div>
-                <div>
-                    <Link to="/new" className="btn">CREATE AUCTION</Link>
-                </div>
-            </div>
+            <HeroBanner />
 
             <SectionFeaturedAuctions />
 
@@ -60,6 +47,25 @@ export const PageHome: React.FC = () =>
     </div>
     </>;
 };
+
+export const HeroBanner: React.FC = () => {
+    return (
+        <div className="hero-banner">
+            <Glitch text="BIDDER" />
+            <div className="hero-subtitle">
+                <h1>Sui's Auction House</h1>
+            </div>
+            <div className="hero-description">
+                <p>
+                    BIDDER is a decentralized platform for creating and bidding on auctions.
+                </p>
+            </div>
+            <div className="hero-actions">
+                <Link to="/new" className="btn">CREATE AUCTION</Link>
+            </div>
+        </div>
+    );
+}
 
 const SectionFeaturedAuctions: React.FC = () =>
 {
