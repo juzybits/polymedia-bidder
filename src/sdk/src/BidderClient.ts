@@ -31,10 +31,13 @@ import { AuctionModule } from "./AuctionModule.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
 import {
+    AnyAuctionTx,
     AuctionObj,
     isAuctionObj,
     TxAdminCreatesAuction,
     TxAnyoneBids,
+    TxAnyonePaysFunds,
+    TxAnyoneSendsItemToWinner,
     UserAuction,
     UserAuctionBcs,
     UserBid,
@@ -565,47 +568,6 @@ export class BidderClient extends SuiClientBase
     }
 
     /**
-     * A simpler but less correct approach as it makes more assumptions about the tx block.
-     */
-    public parseTxAdminCreatesAuctionSimpler(
-        resp: SuiTransactionBlockResponse,
-    ): TxAdminCreatesAuction | null
-    {
-        const auctionObjChange = this.extractAuctionObjChange(resp);
-        if (!auctionObjChange) { return null; }
-
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const inputs = txData.inputs;
-
-        const tx = txData.txs[1]; // see BidderClient.createAndShareAuction()
-        if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
-        const type_coin = tx.MoveCall.type_arguments[0];
-
-        return {
-            kind: "admin_creates_auction",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            auctionId: auctionObjChange.objectId,
-            inputs: {
-                type_coin,
-                name: getArgVal(inputs[1]),
-                description: getArgVal(inputs[2]),
-                pay_addr: getArgVal(inputs[3]),
-                begin_delay_ms: getArgVal(inputs[4]),
-                duration_ms: getArgVal(inputs[5]),
-                minimum_bid: getArgVal(inputs[6]),
-                minimum_increase_bps: getArgVal(inputs[7]),
-                extension_period_ms: getArgVal(inputs[8]),
-                // clock: getArgVal(inputs[9]),
-                item_addrs: inputs.slice(10).map(input => getArgVal(input)),
-            },
-        };
-    }
-
-    /**
      * Parse an `auction::anyone_bids` transaction.
      * Assumes the tx block contains only one `anyone_bids` call.
      */
@@ -670,30 +632,109 @@ export class BidderClient extends SuiClientBase
     }
 
     /**
-     * A simpler but less correct approach as it makes more assumptions about the tx block.
+     * Parse an `auction::anyone_pays_funds` transaction.
+     * Assumes the tx block contains only one `anyone_pays_funds` call.
      */
-    public parseTxAnyoneBidsSimpler(
+    public parseTxAnyonePaysFunds(
         resp: SuiTransactionBlockResponse,
-    ): TxAnyoneBids | null
+    ): TxAnyonePaysFunds | null
     {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(resp); }
         catch (_err) { return null; }
-        const inputs = txData.inputs;
+        const allInputs = txData.inputs;
 
-        const tx = txData.txs[2]; // see BidderClient.bid()
-        if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
-        const type_coin = tx.MoveCall.type_arguments[0];
+        let type_coin: string | undefined;
+        let auction_addr: string | undefined;
+
+        for (const tx of txData.txs)
+        {
+            // find the `anyone_pays_funds` tx
+            if (isTxMoveCall(tx) &&
+                tx.MoveCall.package === this.packageId &&
+                tx.MoveCall.module === "auction" &&
+                tx.MoveCall.function === "anyone_pays_funds" &&
+                tx.MoveCall.arguments &&
+                tx.MoveCall.type_arguments
+            ) {
+                const txInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => allInputs[arg.Input]);
+
+                if (txInputs.length !== 2) { return null; }
+
+                type_coin = tx.MoveCall.type_arguments[0];
+                auction_addr = getArgVal(txInputs[0]);
+            }
+        }
+
+        if (!auction_addr || !type_coin) { return null; }
 
         return {
-            kind: "anyone_bids",
+            kind: "anyone_pays_funds",
             digest: resp.digest,
             timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
             inputs: {
                 type_coin,
-                auction_addr: getArgVal(inputs[2]),
-                amount: getArgVal(inputs[0]),
+                auction_addr,
+            },
+        };
+    }
+
+    /**
+     * Parse an `auction::anyone_sends_item_to_winner` transaction.
+     * Assumes the tx block contains only one `anyone_sends_item_to_winner` call.
+     */
+    public parseTxAnyoneSendsItemToWinner(
+        resp: SuiTransactionBlockResponse,
+    ): TxAnyoneSendsItemToWinner | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(resp); }
+        catch (_err) { return null; }
+        const allInputs = txData.inputs;
+
+        let type_coin: string | undefined;
+        let type_item: string | undefined;
+        let auction_addr: string | undefined;
+        let item_addr: string | undefined;
+
+        for (const tx of txData.txs)
+        {
+            // find the `anyone_sends_item_to_winner` tx
+            if (isTxMoveCall(tx) &&
+                tx.MoveCall.package === this.packageId &&
+                tx.MoveCall.module === "auction" &&
+                tx.MoveCall.function === "anyone_sends_item_to_winner" &&
+                tx.MoveCall.arguments &&
+                tx.MoveCall.type_arguments
+            ) {
+                const txInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => allInputs[arg.Input]);
+
+                if (txInputs.length !== 3) { return null; }
+
+                type_coin = tx.MoveCall.type_arguments[0];
+                type_item = tx.MoveCall.type_arguments[1];
+                auction_addr = getArgVal(txInputs[0]);
+                item_addr = getArgVal(txInputs[1]);
+            }
+        }
+
+        if (!auction_addr || !item_addr || !type_coin || !type_item) { return null; }
+
+        return {
+            kind: "anyone_sends_item_to_winner",
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+            sender: txData.sender,
+            inputs: {
+                type_coin,
+                type_item,
+                auction_addr,
+                item_addr,
             },
         };
     }
@@ -703,7 +744,7 @@ export class BidderClient extends SuiClientBase
      */
     public parseAuctionTx(
         resp: SuiTransactionBlockResponse,
-    ): TxAdminCreatesAuction | TxAnyoneBids | null
+    ): AnyAuctionTx | null
     {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(resp); }
@@ -718,6 +759,13 @@ export class BidderClient extends SuiClientBase
             }
             if (tx.MoveCall.function === "anyone_bids") {
                 return this.parseTxAnyoneBids(resp);
+            }
+            // typically these two calls are executed in the same tx, so only one of them will be returned
+            if (tx.MoveCall.function === "anyone_pays_funds") {
+                return this.parseTxAnyonePaysFunds(resp);
+            }
+            if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
+                return this.parseTxAnyoneSendsItemToWinner(resp);
             }
         }
 
@@ -948,3 +996,73 @@ export class BidderClient extends SuiClientBase
         return code || defaultMessage;
     }
 }
+
+    // /**
+    //  * A simpler but less correct approach as it makes more assumptions about the tx block.
+    //  */
+    // public parseTxAdminCreatesAuctionSimpler(
+    //     resp: SuiTransactionBlockResponse,
+    // ): TxAdminCreatesAuction | null
+    // {
+    //     const auctionObjChange = this.extractAuctionObjChange(resp);
+    //     if (!auctionObjChange) { return null; }
+
+    //     let txData: ReturnType<typeof txResToData>;
+    //     try { txData = txResToData(resp); }
+    //     catch (_err) { return null; }
+    //     const inputs = txData.inputs;
+
+    //     const tx = txData.txs[1]; // see BidderClient.createAndShareAuction()
+    //     if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
+    //     const type_coin = tx.MoveCall.type_arguments[0];
+
+    //     return {
+    //         kind: "admin_creates_auction",
+    //         digest: resp.digest,
+    //         timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+    //         sender: txData.sender,
+    //         auctionId: auctionObjChange.objectId,
+    //         inputs: {
+    //             type_coin,
+    //             name: getArgVal(inputs[1]),
+    //             description: getArgVal(inputs[2]),
+    //             pay_addr: getArgVal(inputs[3]),
+    //             begin_delay_ms: getArgVal(inputs[4]),
+    //             duration_ms: getArgVal(inputs[5]),
+    //             minimum_bid: getArgVal(inputs[6]),
+    //             minimum_increase_bps: getArgVal(inputs[7]),
+    //             extension_period_ms: getArgVal(inputs[8]),
+    //             // clock: getArgVal(inputs[9]),
+    //             item_addrs: inputs.slice(10).map(input => getArgVal(input)),
+    //         },
+    //     };
+    // }
+
+    // /**
+    //  * A simpler but less correct approach as it makes more assumptions about the tx block.
+    //  */
+    // public parseTxAnyoneBidsSimpler(
+    //     resp: SuiTransactionBlockResponse,
+    // ): TxAnyoneBids | null
+    // {
+    //     let txData: ReturnType<typeof txResToData>;
+    //     try { txData = txResToData(resp); }
+    //     catch (_err) { return null; }
+    //     const inputs = txData.inputs;
+
+    //     const tx = txData.txs[2]; // see BidderClient.bid()
+    //     if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
+    //     const type_coin = tx.MoveCall.type_arguments[0];
+
+    //     return {
+    //         kind: "anyone_bids",
+    //         digest: resp.digest,
+    //         timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+    //         sender: txData.sender,
+    //         inputs: {
+    //             type_coin,
+    //             auction_addr: getArgVal(inputs[2]),
+    //             amount: getArgVal(inputs[0]),
+    //         },
+    //     };
+    // }

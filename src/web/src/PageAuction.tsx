@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AUCTION_IDS, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids } from "@polymedia/bidder-sdk";
+import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { LinkToExplorer, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
@@ -434,7 +434,7 @@ const SectionActivity: React.FC<{
 
     const { bidderClient } = useAppContext();
 
-    const activity = useFetchAndPaginate<TxAdminCreatesAuction|TxAnyoneBids, string|null|undefined>(
+    const activity = useFetchAndPaginate<AnyAuctionTx, string|null|undefined>(
         (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY),
         [auction, bidderClient],
     );
@@ -782,7 +782,7 @@ const CardAuctionDetails: React.FC<{
 };
 
 const CardTransaction: React.FC<{
-    tx: TxAdminCreatesAuction | TxAnyoneBids;
+    tx: AnyAuctionTx;
 }> = ({
     tx,
 }) =>
@@ -792,6 +792,9 @@ const CardTransaction: React.FC<{
     }
     if (tx.kind === "anyone_bids") {
         return <CardTxAnyoneBids tx={tx} />;
+    }
+    if (tx.kind === "anyone_pays_funds" || tx.kind === "anyone_sends_item_to_winner") {
+        return <CardTxFinalize tx={tx} />;
     }
     return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
         {JSON.stringify(tx, null, 2)}
@@ -835,6 +838,29 @@ const CardTxAnyoneBids: React.FC<{
                     BID&nbsp;
                     {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}
                 </div>
+                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
+            </div>
+            <div className="card-body">
+                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+                <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
+                            {shortenDigest(tx.digest)}
+                        </LinkToExplorer>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const CardTxFinalize: React.FC<{
+    tx: TxAnyonePaysFunds | TxAnyoneSendsItemToWinner;
+}> = ({
+    tx,
+}) => {
+    const { explorer, network } = useAppContext();
+    return (
+        <div className="card tx tx-bid">
+            <div className="card-header">
+                <div className="card-title">FINALIZED</div>
                 <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
             </div>
             <div className="card-body">

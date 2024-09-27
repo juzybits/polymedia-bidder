@@ -94,6 +94,38 @@ export type TxAnyoneBids = {
     };
 };
 
+/**
+ * A `bidder::auction::anyone_pays_funds`
+ */
+export type TxAnyonePaysFunds = {
+    kind: "anyone_pays_funds";
+    digest: string;
+    timestamp: number;
+    sender: string;
+    inputs: {
+        type_coin: string;
+        auction_addr: string;
+    };
+};
+
+/**
+ * A `bidder::auction::anyone_sends_item_to_winner` transaction
+ */
+export type TxAnyoneSendsItemToWinner = {
+    kind: "anyone_sends_item_to_winner";
+    digest: string;
+    timestamp: number;
+    sender: string;
+    inputs: {
+        type_coin: string;
+        type_item: string;
+        auction_addr: string;
+        item_addr: string;
+    };
+};
+
+export type AnyAuctionTx = TxAdminCreatesAuction | TxAnyoneBids | TxAnyonePaysFunds | TxAnyoneSendsItemToWinner;
+
 export const UserAuctionBcs = bcs.struct("UserAuction", {
     auction_addr: bcs.Address,
     time: bcs.U64,
