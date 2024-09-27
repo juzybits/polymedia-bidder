@@ -166,6 +166,7 @@ const SectionRecentAuctions: React.FC = () =>
         content = <CardLoading />;
     } else {
         content = <div className={`card-list ${recent.isLoading ? "loading" : ""}`}>
+            {recent.isLoading && <CardLoading />}
             {recent.page.map((auctionWithItems) => (
                 <CardAuctionWithItems
                     key={auctionWithItems.id}

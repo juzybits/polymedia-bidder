@@ -448,6 +448,7 @@ const SectionActivity: React.FC<{
         <div className="card compact">
             <div className="card-title">Activity</div>
             <div className={`card-list tx-list ${activity.isLoading ? "loading" : ""}`}>
+                {activity.isLoading && <CardLoading />}
                 {activity.page.map(tx =>
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}
