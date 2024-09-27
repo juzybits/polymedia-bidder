@@ -52,7 +52,7 @@ export const PageUser: React.FC = () =>
 
     // === user history ===
 
-    const { data: userHistory, error: errFetchHistory } = useFetch<UserRecentHistory | null | undefined>(async () =>
+    const userHistory = useFetch<UserRecentHistory | null | undefined>(async () =>
     {
         if (userId === undefined) {
             return Promise.resolve(undefined);
@@ -65,22 +65,22 @@ export const PageUser: React.FC = () =>
 
     // === auctions created or bid on ===
 
-    const { data: auctions, error: errFetchAuctions } = useFetch<Map<string, AuctionObj> | null | undefined>(async () =>
+    const userAuctions = useFetch<Map<string, AuctionObj> | null | undefined>(async () =>
     {
-        if (!userHistory) {
+        if (!userHistory.data) {
             return Promise.resolve(null);
         }
         const uniqueAuctionIds = Array.from(new Set([
-            ...userHistory.created.data.map(a => a.auction_addr),
-            ...userHistory.bids.data.map(b => b.auction_addr)
+            ...userHistory.data.created.data.map(a => a.auction_addr),
+            ...userHistory.data.bids.data.map(b => b.auction_addr)
         ]));
         const auctionObjs = await bidderClient.fetchAuctions(uniqueAuctionIds);
         return new Map(auctionObjs.map(a => [a.id, a]));
-    }, [userHistory, bidderClient]);
+    }, [userHistory.data, bidderClient]);
 
     // === html ===
 
-    const errMsg = errorFetchUserId ?? errFetchHistory ?? errFetchAuctions;
+    const errMsg = errorFetchUserId ?? userHistory.error ?? userAuctions.error;
 
     let content: React.ReactNode;
     if (!addressToFetch) {
@@ -93,13 +93,13 @@ export const PageUser: React.FC = () =>
             <div className="tabs-content">
                 {activeTab === "auctions" &&
                 <SectionUserAuctions
-                    history={userHistory === null ? null : userHistory?.created}
-                    auctions={auctions}
+                    history={userHistory.data === null ? null : userHistory.data?.created}
+                    auctions={userAuctions.data}
                 />}
                 {activeTab === "bids" &&
                 <SectionUserBids
-                    history={userHistory === null ? null : userHistory?.bids}
-                    auctions={auctions}
+                    history={userHistory.data === null ? null : userHistory.data?.bids}
+                    auctions={userAuctions.data}
                 />}
             </div>
         </div>;

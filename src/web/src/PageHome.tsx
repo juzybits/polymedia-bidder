@@ -77,7 +77,7 @@ const SectionFeaturedAuctions: React.FC = () =>
         return null;
     }
 
-    const { data: auctionsWithItems, error: errFetchFeatured } = useFetch<AuctionWithItems[]>(
+    const auctionsWithItems = useFetch<AuctionWithItems[]>(
         async () => {
             const { auctions, items } = await bidderClient.fetchAuctionsAndItems(
                 auctionAndItemIds.map(({ auctionId }) => auctionId),
@@ -96,13 +96,13 @@ const SectionFeaturedAuctions: React.FC = () =>
     // === html ===
 
     let content: React.ReactNode;
-    if (errFetchFeatured) {
-        content = <CardWithMsg>{errFetchFeatured}</CardWithMsg>;
-    }  else if (auctionsWithItems === undefined) {
+    if (auctionsWithItems.error) {
+        content = <CardWithMsg>{auctionsWithItems.error}</CardWithMsg>;
+    }  else if (auctionsWithItems.isLoading || auctionsWithItems.data === undefined) {
         content = <CardSpinner />;
     } else {
         content = <div className="card-list">
-            {auctionsWithItems.map((auctionWithItems) => (
+            {auctionsWithItems.data.map((auctionWithItems) => (
                 <CardAuctionWithItems
                     key={auctionWithItems.id}
                     auction={auctionWithItems}
