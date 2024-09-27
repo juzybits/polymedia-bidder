@@ -1,7 +1,5 @@
 import { SuiItem } from "./items";
 
-// === auction module objects ===
-
 /**
  * A Sui bidder::auction::Auction object
  */

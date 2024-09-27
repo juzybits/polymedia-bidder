@@ -3,14 +3,14 @@ import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransacti
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import { devInspectAndGetReturnValues, getCoinOfValue, isTxMoveCall, ObjectInput, objResToFields, objResToId, objResToType, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, txResToData, WaitForTxOptions, ZERO_ADDRESS } from "@polymedia/suitcase-core";
-import { AuctionModule } from "./AuctionModule.js";
+import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { AnyAuctionTx } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
-import { AuctionObj, isAuctionObj } from "./AuctionModuleTypes.js";
-import { UserModule } from "./UserModule.js";
-import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserModuleTypes.js";
+import { AuctionObj, isAuctionObj } from "./AuctionStructs.js";
+import { UserModule } from "./UserFunctions.js";
+import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserStructs.js";
 
 export type UserHistoryAuctions = Awaited<ReturnType<BidderClient["fetchUserAuctions"]>>;
 export type UserHistoryBids = Awaited<ReturnType<BidderClient["fetchUserBids"]>>;
