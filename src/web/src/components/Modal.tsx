@@ -31,12 +31,12 @@ export const Modal: React.FC<{
     }, [onClose]);
 
     return (
-        <div className="modal-background">
-            <div className="card modal-content" ref={modalContentRef}>
-                <div className="modal-scrollable-content">
+        <div className="poly-modal-background">
+            <div className="card poly-modal-content" ref={modalContentRef}>
+                <div className="poly-modal-scrollable-content">
                     {children}
                 </div>
-                <IconClose className="icon modal-close" onClick={onClose} />
+                <IconClose className="poly-modal-close icon" onClick={onClose} />
             </div>
         </div>
     );

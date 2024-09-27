@@ -661,7 +661,7 @@ a.card, .card.link {
     }
 }
 
-.polymedia-radio-selector {
+.poly-radio-selector {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -674,7 +674,7 @@ a.card, .card.link {
             cursor: pointer;
         }
     }
-    &.polymedia-network-radio-selector {
+    &.poly-network-radio-selector {
         text-transform: uppercase;
         text-transform: capitalize;
     }
@@ -738,7 +738,7 @@ a.card, .card.link {
 body.modal-open {
     overflow: hidden;
 }
-.modal-background {
+.poly-modal-background {
     position: fixed;
     top: 0;
     left: 0;
@@ -759,7 +759,7 @@ body.modal-open {
         padding: 0.5rem;
     }
 
-    .card.modal-content {
+    .card.poly-modal-content {
         position: relative;
         width: min(700px, 100%);
         max-height: calc(100dvh - 4rem);
@@ -770,7 +770,7 @@ body.modal-open {
         display: flex;
         flex-direction: column;
 
-        .modal-close {
+        .poly-modal-close {
             position: absolute;
             cursor: pointer;
             top: 1rem;
@@ -797,7 +797,7 @@ body.modal-open {
             }
         }
 
-        .modal-scrollable-content {
+        .poly-modal-scrollable-content {
             overflow-y: auto;
             .hide-scrollbar;
             display: flex;
@@ -808,7 +808,7 @@ body.modal-open {
 
     // modal animation
 
-    .card.modal-content {
+    .card.poly-modal-content {
         animation: modalFadeIn 0.1s ease-in-out forwards;
     }
     @keyframes modalFadeIn {
