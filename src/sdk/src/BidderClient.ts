@@ -205,7 +205,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            (resp) => this.parseAuctionTx(resp),
+            (resp) => this.txParser.parseAuctionTx(resp),
             {
                 filter: { ChangedObject: auctionId },
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
@@ -468,39 +468,6 @@ export class BidderClient extends SuiClientBase
             return this.parseAuctionObj(objRes);
         }
         return objResToSuiItem(objRes);
-    }
-
-    /**
-     * Parse various transactions on the `auction` module.
-     */
-    public parseAuctionTx(
-        resp: SuiTransactionBlockResponse,
-    ): AnyAuctionTx | null
-    {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-
-        for (const tx of txData.txs) {
-            if (!isTxMoveCall(tx) || tx.MoveCall.package !== this.packageId || tx.MoveCall.module !== "auction") {
-                continue;
-            }
-            if (tx.MoveCall.function === "admin_creates_auction") {
-                return this.txParser.admin_creates_auction(resp);
-            }
-            if (tx.MoveCall.function === "anyone_bids") {
-                return this.txParser.anyone_bids(resp);
-            }
-            // typically these two calls are executed in the same tx, so only one of them will be returned
-            if (tx.MoveCall.function === "anyone_pays_funds") {
-                return this.txParser.anyone_pays_funds(resp);
-            }
-            if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
-                return this.txParser.anyone_sends_item_to_winner(resp);
-            }
-        }
-
-        return null;
     }
 
     // === module interactions ===

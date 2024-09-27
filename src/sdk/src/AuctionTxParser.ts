@@ -1,6 +1,6 @@
 import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
-import { TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
+import { AnyAuctionTx, TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
 
 /**
  * Parse transactions for the `bidder::auction` Sui module.
@@ -10,6 +10,39 @@ export class AuctionTxParser
     constructor(protected readonly packageId: string) {}
 
     // === transaction parsers ===
+
+    /**
+     * Parse various transactions on the `auction` module.
+     */
+    public parseAuctionTx(
+        resp: SuiTransactionBlockResponse,
+    ): AnyAuctionTx | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(resp); }
+        catch (_err) { return null; }
+
+        for (const tx of txData.txs) {
+            if (!isTxMoveCall(tx) || tx.MoveCall.package !== this.packageId || tx.MoveCall.module !== "auction") {
+                continue;
+            }
+            if (tx.MoveCall.function === "admin_creates_auction") {
+                return this.admin_creates_auction(resp);
+            }
+            if (tx.MoveCall.function === "anyone_bids") {
+                return this.anyone_bids(resp);
+            }
+            // typically these two calls are executed in the same tx, so only one of them will be returned
+            if (tx.MoveCall.function === "anyone_pays_funds") {
+                return this.anyone_pays_funds(resp);
+            }
+            if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
+                return this.anyone_sends_item_to_winner(resp);
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Parse an `auction::admin_creates_auction` transaction.
