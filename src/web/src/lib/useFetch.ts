@@ -22,6 +22,10 @@ export function useFetch<T>(
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    useEffect(() => {
+        fetchData();
+    }, dependencies);
+
     const fetchData = async () =>
     {
         setData(undefined);
@@ -37,10 +41,6 @@ export function useFetch<T>(
             setIsLoading(false);
         }
     };
-
-    useEffect(() => {
-        fetchData();
-    }, dependencies);
 
     return { data, error, isLoading };
 }
@@ -66,15 +66,26 @@ export function useFetchAndLoadMore<T, C>(
 ) {
     const [ data, setData ] = useState<T[]>([]);
     const [ error, setError ] = useState<string | null>(null);
-    const [ isLoading, setIsLoading ] = useState(false);
+    const [ isLoading, setIsLoading ] = useState(true);
     const [ hasNextPage, setHasNextPage ] = useState(true);
-    const [ nextCursor, setNextCursor ] = useState<C>();
+    const [ nextCursor, setNextCursor ] = useState<C | undefined>(undefined);
+
+    useEffect(() => {
+        // reset state
+        setData([]);
+        setError(null);
+        setIsLoading(true);
+        setHasNextPage(true);
+        setNextCursor(undefined);
+        // fetch initial data
+        loadMore();
+    }, dependencies);
 
     const loadMore = async () =>
     {
-        if (isLoading || !hasNextPage)
-            return;
+        if (!hasNextPage) return;
 
+        setError(null);
         setIsLoading(true);
         try {
             const response = await fetchFunction(nextCursor);
@@ -88,13 +99,6 @@ export function useFetchAndLoadMore<T, C>(
             setIsLoading(false);
         }
     };
-
-    useEffect(() => {
-        setData([]);
-        setHasNextPage(true);
-        setNextCursor(undefined);
-        loadMore();
-    }, dependencies);
 
     return { data, error, isLoading, hasNextPage, loadMore };
 }
@@ -123,23 +127,35 @@ export function useFetchAndPaginate<T, C>(
 ) {
     const [ pages, setPages ] = useState<T[][]>([]);
     const [ error, setError ] = useState<string | null>(null);
-    const [ isLoading, setIsLoading ] = useState(false);
+    const [ isLoading, setIsLoading ] = useState(true);
     const [ pageIndex, setPageIndex ] = useState(-1);
     const [ hasNextPage, setHasNextPage ] = useState(true);
-    const [ nextCursor, setNextCursor ] = useState<C>();
+    const [ nextCursor, setNextCursor ] = useState<C | undefined>(undefined);
+
+    useEffect(() => {
+        // reset state
+        setPages([]);
+        setError(null);
+        setIsLoading(true);
+        setPageIndex(-1);
+        setHasNextPage(true);
+        setNextCursor(undefined);
+        // fetch initial data
+        goToNextPage();
+    }, dependencies);
 
     const goToNextPage = async () =>
     {
         const isLastPage = pageIndex === pages.length - 1;
         const nextPageIndex = pageIndex + 1;
 
-        if (isLoading) return; // already fetching
         if (isLastPage && !hasNextPage) return; // no more pages available
         if (!isLastPage) { // next page already fetched
             setPageIndex(nextPageIndex);
             return;
         }
         // fetch the next page
+        setError(null);
         setIsLoading(true);
         try {
             const response = await fetchFunction(nextCursor);
@@ -160,14 +176,6 @@ export function useFetchAndPaginate<T, C>(
             setPageIndex(pageIndex - 1);
         }
     };
-
-    useEffect(() => {
-        setPages([]);
-        setPageIndex(-1);
-        setHasNextPage(true);
-        setNextCursor(undefined);
-        goToNextPage();
-    }, dependencies);
 
     return {
         page: pages[pageIndex] ?? [],

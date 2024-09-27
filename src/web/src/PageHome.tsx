@@ -132,7 +132,7 @@ const SectionRecentAuctions: React.FC = () =>
     const recent = useFetchAndPaginate<AuctionWithItems, string|null|undefined>(
         async (cursor) => {
             // fetch recent "create auction" txs
-            const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, 12);
+            const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, 6); // TODO change to 12
             const auctionIds = recentTxs.data
                 .filter(tx => !featuredAuctionIds.includes(tx.auctionId))
                 .map(tx => tx.auctionId);

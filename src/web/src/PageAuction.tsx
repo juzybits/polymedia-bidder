@@ -433,7 +433,7 @@ const SectionActivity: React.FC<{
     const { bidderClient } = useAppContext();
 
     const activity = useFetchAndPaginate<TxAdminCreatesAuction|TxAnyoneBids, string|null|undefined>(
-        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, 3),
+        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, 3), // TODO change to 25
         [auction, bidderClient],
     );
 

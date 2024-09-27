@@ -2,14 +2,14 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToExplorer } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
+import { useFetchAndPaginate } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
@@ -52,10 +52,10 @@ export const PageUser: React.FC = () =>
     // === html ===
 
     let content: React.ReactNode;
-    if (!addressToFetch) {
-        content = <div className="card compact"><ConnectToGetStarted /></div>
-    } else if (errorFetchUserId) {
+    if (errorFetchUserId) {
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
+    } else if (!addressToFetch) {
+        content = <div className="card compact"><ConnectToGetStarted /></div>
     } else {
         content = <div className="tabs-container">
             <HeaderTabs tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
