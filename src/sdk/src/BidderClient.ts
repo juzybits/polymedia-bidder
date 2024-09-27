@@ -294,9 +294,9 @@ export class BidderClient extends SuiClientBase
 
     public async fetchUserAuctions(
         user_id: string,
-        order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
+        order: "ascending" | "descending" = "descending",
     ) {
         const tx = new Transaction();
 
@@ -308,9 +308,9 @@ export class BidderClient extends SuiClientBase
             tx,
             this.packageId,
             user_id,
-            order === "ascending",
             cursor,
             limit,
+            order === "ascending",
         );
 
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
@@ -333,9 +333,9 @@ export class BidderClient extends SuiClientBase
 
     public async fetchUserBids(
         user_id: string,
-        order: "ascending" | "descending" = "descending",
         cursor?: number,
         limit = 50,
+        order: "ascending" | "descending" = "descending",
     ) {
         const tx = new Transaction();
 
@@ -347,9 +347,9 @@ export class BidderClient extends SuiClientBase
             tx,
             this.packageId,
             user_id,
-            order === "ascending",
             cursor,
             limit,
+            order === "ascending",
         );
 
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [
@@ -382,11 +382,11 @@ export class BidderClient extends SuiClientBase
             tx,
             this.packageId,
             user_id,
-            false, // descending
             Number.MAX_SAFE_INTEGER,
             Number.MAX_SAFE_INTEGER,
             limitCreated,
             limitBids,
+            false, // descending
         );
 
         const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx, [

@@ -14,9 +14,9 @@ public struct PAGINATOR has drop {}
 
 public fun get_page<T: store + copy>(
     items: &TableVec<T>,
-    ascending: bool,
     cursor: u64,
     limit: u64,
+    ascending: bool,
 ): (vector<T>, bool, u64)
 {
     if (items.length() == 0) {

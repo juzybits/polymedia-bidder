@@ -111,35 +111,35 @@ public fun get_user_addresses(
 
 public fun get_auctions_created(
     user: &User,
-    ascending: bool,
     cursor: u64,
     limit: u64,
+    ascending: bool,
 ): (vector<UserAuction>, bool, u64)
 {
-    return paginator::get_page(&user.created, ascending, cursor, limit)
+    return paginator::get_page(&user.created, cursor, limit, ascending)
 }
 
 public fun get_bids_placed(
     user: &User,
-    ascending: bool,
     cursor: u64,
     limit: u64,
+    ascending: bool,
 ): (vector<UserBid>, bool, u64)
 {
-    return paginator::get_page(&user.bids, ascending, cursor, limit)
+    return paginator::get_page(&user.bids, cursor, limit, ascending)
 }
 
 public fun get_auctions_and_bids(
     user: &User,
-    ascending: bool,
     cursor_created: u64,
     cursor_bids: u64,
     limit_created: u64,
     limit_bids: u64,
+    ascending: bool,
 ): ((u64, u64, vector<UserAuction>, vector<UserBid>, bool, bool, u64, u64))
 {
-   let (crtd_page, crtd_more, crtd_cursor) = get_auctions_created(user, ascending, cursor_created, limit_created);
-   let (bids_page, bids_more, bids_cursor) = get_bids_placed(user, ascending, cursor_bids, limit_bids);
+   let (crtd_page, crtd_more, crtd_cursor) = get_auctions_created(user, cursor_created, limit_created, ascending);
+   let (bids_page, bids_more, bids_cursor) = get_bids_placed(user, cursor_bids, limit_bids, ascending);
    return (
         user.created.length(), user.bids.length(),
         crtd_page, bids_page,

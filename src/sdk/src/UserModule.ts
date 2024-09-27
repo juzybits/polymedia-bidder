@@ -6,28 +6,6 @@ import { ObjectInput, objectArg } from "@polymedia/suitcase-core";
  */
 export const UserModule =
 {
-    get_auctions: (
-        tx: Transaction,
-        packageId: string,
-        history: ObjectInput,
-        creator_addr: string,
-        ascending: boolean,
-        cursor: number,
-        limit: number,
-    ): TransactionResult =>
-    {
-        return tx.moveCall({
-            target: `${packageId}::user::get_auctions`,
-            arguments: [
-                objectArg(tx, history),
-                tx.pure.address(creator_addr),
-                tx.pure.bool(ascending),
-                tx.pure.u64(cursor),
-                tx.pure.u64(limit),
-            ],
-        });
-    },
-
     get_user_address: (
         tx: Transaction,
         packageId: string,
@@ -62,17 +40,17 @@ export const UserModule =
         tx: Transaction,
         packageId: string,
         user: ObjectInput,
-        ascending: boolean,
         cursor: number,
         limit: number,
+        ascending: boolean,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::get_auctions_created`,
             arguments: [
                 objectArg(tx, user),
-                tx.pure.bool(ascending),
                 tx.pure.u64(cursor),
                 tx.pure.u64(limit),
+                tx.pure.bool(ascending),
             ],
         });
     },
@@ -81,17 +59,17 @@ export const UserModule =
         tx: Transaction,
         packageId: string,
         user: ObjectInput,
-        ascending: boolean,
         cursor: number,
         limit: number,
+        ascending: boolean,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::get_bids_placed`,
             arguments: [
                 objectArg(tx, user),
-                tx.pure.bool(ascending),
                 tx.pure.u64(cursor),
                 tx.pure.u64(limit),
+                tx.pure.bool(ascending),
             ],
         });
     },
@@ -100,21 +78,21 @@ export const UserModule =
         tx: Transaction,
         packageId: string,
         user: ObjectInput,
-        ascending: boolean,
         cursor_created: number,
         cursor_bids: number,
         limit_created: number,
         limit_bids: number,
+        ascending: boolean,
     ): TransactionResult => {
         return tx.moveCall({
             target: `${packageId}::user::get_auctions_and_bids`,
             arguments: [
                 objectArg(tx, user),
-                tx.pure.bool(ascending),
                 tx.pure.u64(cursor_created),
                 tx.pure.u64(cursor_bids),
                 tx.pure.u64(limit_created),
                 tx.pure.u64(limit_bids),
+                tx.pure.bool(ascending),
             ],
         });
     },
