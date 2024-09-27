@@ -8,6 +8,7 @@ import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
 
+const PAGE_SIZE_RECENT = 12;
 const MAX_ITEMS_PER_AUCTION = 3;
 
 const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[]; }[]> = {
@@ -132,7 +133,7 @@ const SectionRecentAuctions: React.FC = () =>
     const recent = useFetchAndPaginate<AuctionWithItems, string|null|undefined>(
         async (cursor) => {
             // fetch recent "create auction" txs
-            const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, 6); // TODO change to 12
+            const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, PAGE_SIZE_RECENT);
             const auctionIds = recentTxs.data
                 .filter(tx => !featuredAuctionIds.includes(tx.auctionId))
                 .map(tx => tx.auctionId);

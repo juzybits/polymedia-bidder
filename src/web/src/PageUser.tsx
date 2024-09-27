@@ -2,15 +2,18 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToExplorer } from "@polymedia/suitcase-react";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
+import { BtnPrevNext } from "./components/BtnPrevNext";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { useFetchAndPaginate } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
+
+const PAGE_SIZE = 25;
 
 const tabs = makeTabs([
     { name: "bids" },
@@ -51,6 +54,8 @@ export const PageUser: React.FC = () =>
 
     // === html ===
 
+    const tabsContainerRef = useRef<HTMLDivElement>(null);
+
     let content: React.ReactNode;
     if (errorFetchUserId) {
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
@@ -59,11 +64,11 @@ export const PageUser: React.FC = () =>
     } else if (userId === undefined) {
         content = <CardSpinner />;
     } else {
-        content = <div className="tabs-container">
+        content = <div className="tabs-container" ref={tabsContainerRef}>
             <HeaderTabs tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
             <div className="tabs-content">
-                {activeTab === "bids" && <SectionUserBids userId={userId} />}
-                {activeTab === "auctions" && <SectionUserAuctions  userId={userId} />}
+                {activeTab === "bids" && <SectionUserBids userId={userId} tabsRef={tabsContainerRef}/>}
+                {activeTab === "auctions" && <SectionUserAuctions  userId={userId} tabsRef={tabsContainerRef}/>}
             </div>
         </div>;
     }
@@ -89,9 +94,11 @@ export const PageUser: React.FC = () =>
 
 const SectionUserBids: React.FC<{
     userId: string | null;
+    tabsRef: React.RefObject<HTMLDivElement>;
 }> = ({
     userId,
-}) => // TODO: pagination
+    tabsRef,
+}) =>
 {
     const { bidderClient } = useAppContext();
 
@@ -100,7 +107,7 @@ const SectionUserBids: React.FC<{
             if (!userId) {
                 return EmptyPaginatedResponse;
             }
-            const events = await bidderClient.fetchUserBids(userId, cursor, 25);
+            const events = await bidderClient.fetchUserBids(userId, cursor, PAGE_SIZE);
             const auctions = await bidderClient.fetchAuctions(
                 [...new Set(events.bids.map(a => a.auction_addr))] // deduplicate object IDs
             );
@@ -126,21 +133,24 @@ const SectionUserBids: React.FC<{
     if (!history.isLoading && history.page.length === 0) {
         return <CardWithMsg>No bids yet</CardWithMsg>;
     }
-    return (
+    return <>
         <div className={`card-list ${history.isLoading ? "loading" : ""}`}>
             {history.isLoading && <CardSpinner />}
             {history.page.map(bid =>
                 <CardUserAuctionOrBid history={bid.evt} auction={bid.obj} key={bid.evt.auction_addr + bid.evt.amount} />
             )}
         </div>
-    );
+        <BtnPrevNext data={history} scrollToRefOnPageChange={tabsRef} />
+    </>;
 };
 
 const SectionUserAuctions: React.FC<{
     userId: string | null;
+    tabsRef: React.RefObject<HTMLDivElement>;
 }> = ({
     userId,
-}) => // TODO: pagination
+    tabsRef,
+}) =>
 {
     const { bidderClient } = useAppContext();
 
@@ -149,7 +159,7 @@ const SectionUserAuctions: React.FC<{
             if (!userId) {
                 return EmptyPaginatedResponse;
             }
-            const events = await bidderClient.fetchUserAuctions(userId, cursor, 25);
+            const events = await bidderClient.fetchUserAuctions(userId, cursor, PAGE_SIZE);
             const auctions = await bidderClient.fetchAuctions(
                 events.auctions.map(a => a.auction_addr) // no risk of duplicate object IDs
             );
@@ -175,14 +185,15 @@ const SectionUserAuctions: React.FC<{
     if (!history.isLoading && history.page.length === 0) {
         return <CardWithMsg>No auctions yet</CardWithMsg>;
     }
-    return (
+    return <>
         <div className={`card-list ${history.isLoading ? "loading" : ""}`}>
             {history.isLoading && <CardSpinner />}
             {history.page.map(h =>
                 <CardUserAuctionOrBid history={h.evt} auction={h.obj} key={h.evt.auction_addr} />
             )}
         </div>
-    );
+        <BtnPrevNext data={history} scrollToRefOnPageChange={tabsRef} />
+    </>;
 };
 
 const CardUserAuctionOrBid: React.FC<{

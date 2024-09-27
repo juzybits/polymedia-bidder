@@ -19,6 +19,8 @@ import { SubmitRes } from "./lib/types";
 import { useFetchAndPaginate } from "./lib/useFetch";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
+const PAGE_SIZE_ACTIVITY = 25;
+
 const tabs = makeTabs([
     { name: "items", icon: <IconItems />, tooltip: "Items" },
     { name: "bid", icon: <IconCart />, tooltip: "Bid" },
@@ -433,7 +435,7 @@ const SectionActivity: React.FC<{
     const { bidderClient } = useAppContext();
 
     const activity = useFetchAndPaginate<TxAdminCreatesAuction|TxAnyoneBids, string|null|undefined>(
-        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, 3), // TODO change to 25
+        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY),
         [auction, bidderClient],
     );
 
