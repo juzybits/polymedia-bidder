@@ -1,20 +1,23 @@
 import { SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, txResToData } from "@polymedia/suitcase-core";
+import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
 import { TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./types.js";
 
 /**
  * Parse transactions for the `bidder::auction` Sui module.
  */
-export const newAuctionTxParser = (packageId: string) =>
-({
-    packageId,
+export class AuctionTxParser
+{
+    constructor(protected readonly packageId: string) {}
+
+    // === transaction parsers ===
+
     /**
      * Parse an `auction::admin_creates_auction` transaction.
      * Assumes the tx block contains only one `admin_creates_auction` call.
      */
-    admin_creates_auction: (
+    public admin_creates_auction(
         resp: SuiTransactionBlockResponse,
-    ): TxAdminCreatesAuction | null =>
+    ): TxAdminCreatesAuction | null
     {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(resp); }
@@ -22,7 +25,7 @@ export const newAuctionTxParser = (packageId: string) =>
         const allInputs = txData.inputs;
 
         // find the created auction object
-        const auctionObjChange = extractAuctionObjChange(packageId, resp);
+        const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) { return null; }
 
         let createTxInputs: TxAdminCreatesAuction["inputs"] | undefined;
@@ -34,7 +37,7 @@ export const newAuctionTxParser = (packageId: string) =>
                 !isTxMoveCall(tx) ||
                 !tx.MoveCall.arguments ||
                 !tx.MoveCall.type_arguments ||
-                tx.MoveCall.package !== packageId ||
+                tx.MoveCall.package !== this.packageId ||
                 tx.MoveCall.module !== "auction" ||
                 tx.MoveCall.function !== "admin_creates_auction"
             ) {
@@ -72,15 +75,15 @@ export const newAuctionTxParser = (packageId: string) =>
             auctionId: auctionObjChange.objectId,
             inputs: createTxInputs,
         };
-    },
+    }
 
     /**
      * Parse an `auction::anyone_bids` transaction.
      * Assumes the tx block contains only one `anyone_bids` call.
      */
-    anyone_bids: (
+    public anyone_bids(
         resp: SuiTransactionBlockResponse,
-    ): TxAnyoneBids | null =>
+    ): TxAnyoneBids | null
     {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(resp); }
@@ -106,7 +109,7 @@ export const newAuctionTxParser = (packageId: string) =>
             }
             // find the `anyone_bids` tx and parse the userId and auctionId
             if (isTxMoveCall(tx) &&
-                tx.MoveCall.package === packageId &&
+                tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
                 tx.MoveCall.function === "anyone_bids" &&
                 tx.MoveCall.arguments &&
@@ -136,15 +139,15 @@ export const newAuctionTxParser = (packageId: string) =>
                 amount,
             },
         };
-    },
+    }
 
     /**
      * Parse an `auction::anyone_pays_funds` transaction.
      * Assumes the tx block contains only one `anyone_pays_funds` call.
      */
-    anyone_pays_funds: (
+    public anyone_pays_funds(
         resp: SuiTransactionBlockResponse,
-    ): TxAnyonePaysFunds | null =>
+    ): TxAnyonePaysFunds | null
     {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(resp); }
@@ -158,7 +161,7 @@ export const newAuctionTxParser = (packageId: string) =>
         {
             // find the `anyone_pays_funds` tx
             if (isTxMoveCall(tx) &&
-                tx.MoveCall.package === packageId &&
+                tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
                 tx.MoveCall.function === "anyone_pays_funds" &&
                 tx.MoveCall.arguments &&
@@ -187,15 +190,15 @@ export const newAuctionTxParser = (packageId: string) =>
                 auction_addr,
             },
         };
-    },
+    }
 
     /**
      * Parse an `auction::anyone_sends_item_to_winner` transaction.
      * Assumes the tx block contains only one `anyone_sends_item_to_winner` call.
      */
-    anyone_sends_item_to_winner:(
+    public anyone_sends_item_to_winner(
         resp: SuiTransactionBlockResponse,
-    ): TxAnyoneSendsItemToWinner | null =>
+    ): TxAnyoneSendsItemToWinner | null
     {
         let txData: ReturnType<typeof txResToData>;
         try { txData = txResToData(resp); }
@@ -211,7 +214,7 @@ export const newAuctionTxParser = (packageId: string) =>
         {
             // find the `anyone_sends_item_to_winner` tx
             if (isTxMoveCall(tx) &&
-                tx.MoveCall.package === packageId &&
+                tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
                 tx.MoveCall.function === "anyone_sends_item_to_winner" &&
                 tx.MoveCall.arguments &&
@@ -245,17 +248,30 @@ export const newAuctionTxParser = (packageId: string) =>
             },
         };
     }
-});
 
-/**
- * Extract the created Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
- */
-export const extractAuctionObjChange = (
-    packageId: string,
-    resp: SuiTransactionBlockResponse,
-): SuiObjectChangeCreated | undefined =>
-{
-    return resp.objectChanges?.find(o =>
-        o.type === "created" && o.objectType.startsWith(`${packageId}::auction::Auction<`)
-    ) as SuiObjectChangeCreated | undefined;
+    // === object extractors ===
+
+    /**
+     * Extract the created Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
+     */
+    public extractAuctionObjChange(
+        resp: SuiTransactionBlockResponse,
+    ): SuiObjectChangeCreated | undefined
+    {
+        return resp.objectChanges?.find(o =>
+            o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
+        ) as SuiObjectChangeCreated | undefined;
+    }
+
+    /**
+     * Extract the created or mutated User object (if any) from `SuiTransactionBlockResponse.objectChanges`.
+     */
+    public extractUserObjChange(
+        resp: SuiTransactionBlockResponse,
+    ): SuiObjectChangeCreated | SuiObjectChangeMutated | undefined
+    {
+        return resp.objectChanges?.find(o =>
+            (o.type === "created" || o.type === "mutated") && o.objectType === `${this.packageId}::user::User`
+        ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
+    }
 }

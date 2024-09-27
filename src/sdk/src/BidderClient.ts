@@ -4,7 +4,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import { devInspectAndGetReturnValues, getCoinOfValue, isTxMoveCall, ObjectInput, objResToFields, objResToId, objResToType, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, txResToData, WaitForTxOptions, ZERO_ADDRESS } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionModule.js";
-import { newAuctionTxParser } from "./AuctionTxParser.js";
+import { AuctionTxParser } from "./AuctionTxParser.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
 import { AnyAuctionTx, AuctionObj, isAuctionObj, UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./types.js";
@@ -21,7 +21,7 @@ export class BidderClient extends SuiClientBase
 {
     public readonly packageId: string;
     public readonly registryId: string;
-    public txParser: ReturnType<typeof newAuctionTxParser>;
+    public txParser: AuctionTxParser;
     protected readonly cache: {
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
@@ -39,7 +39,7 @@ export class BidderClient extends SuiClientBase
         super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
         this.packageId = packageId;
         this.registryId = registryId;
-        this.txParser = newAuctionTxParser(packageId);
+        this.txParser = new AuctionTxParser(packageId);
         this.cache = {
             auctions: new Map(),
             items: new Map(),
@@ -70,7 +70,7 @@ export class BidderClient extends SuiClientBase
                 ids,
                 options: { showContent: true },
             }),
-            this.parseAuctionObj.bind(this)
+            (resp) => this.parseAuctionObj(resp),
         );
     }
 
@@ -89,7 +89,7 @@ export class BidderClient extends SuiClientBase
                 ids,
                 options: { showContent: true, showDisplay: true, showType: true },
             }),
-            this.parseAuctionOrItemObj.bind(this)
+            (resp) => this.parseAuctionOrItemObj(resp),
         );
         const auctions: AuctionObj[] = [];
         const items = new Map<string, SuiItem>();
@@ -164,7 +164,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            this.txParser.admin_creates_auction.bind(this),
+            (resp) => this.txParser.admin_creates_auction(resp),
             {
                 filter: { MoveFunction: {
                     package: this.packageId, module: "auction", function: "admin_creates_auction" }
@@ -183,7 +183,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            this.txParser.anyone_bids.bind(this),
+            (resp) => this.txParser.anyone_bids(resp),
             {
                 filter: { MoveFunction: {
                     package: this.packageId, module: "auction", function: "anyone_bids" }
@@ -203,7 +203,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            this.parseAuctionTx.bind(this),
+            (resp) => this.parseAuctionTx(resp),
             {
                 filter: { ChangedObject: auctionId },
                 options: { showEffects: true, showObjectChanges: true, showInput: true },
@@ -501,31 +501,6 @@ export class BidderClient extends SuiClientBase
         return null;
     }
 
-    /**
-     * Extract the created Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
-     */
-    public extractAuctionObjChange(
-        resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeCreated | undefined
-    {
-        return resp.objectChanges?.find(o =>
-            o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
-        ) as SuiObjectChangeCreated | undefined;
-    }
-
-    /**
-     * Extract the created or mutated User object (if any) from `SuiTransactionBlockResponse.objectChanges`.
-     */
-    public extractUserObjChange(
-        resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeCreated | SuiObjectChangeMutated | undefined
-    {
-        const obj = resp.objectChanges?.find(o =>
-            (o.type === "created" || o.type === "mutated") && o.objectType === `${this.packageId}::user::User`
-        ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
-        return obj;
-    }
-
     // === module interactions ===
 
     public async createAndShareAuction(
@@ -602,12 +577,12 @@ export class BidderClient extends SuiClientBase
             throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        const auctionObjChange = this.extractAuctionObjChange(resp);
+        const auctionObjChange = this.txParser.extractAuctionObjChange(resp);
         if (!auctionObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        const userObjChange = this.extractUserObjChange(resp);
+        const userObjChange = this.txParser.extractUserObjChange(resp);
         if (!userObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
         }
@@ -647,7 +622,7 @@ export class BidderClient extends SuiClientBase
 
         const resp = await this.dryRunOrSignAndExecute(tx, dryRun, sender);
 
-        const userObjChange = this.extractUserObjChange(resp);
+        const userObjChange = this.txParser.extractUserObjChange(resp);
         if (!dryRun && !userObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
         }
