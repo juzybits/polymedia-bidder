@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
-import { formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
+import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkToExplorer } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -9,7 +9,7 @@ import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/card
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { useFetch } from "./lib/useFetch";
+import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const tabs = makeTabs([
@@ -93,36 +93,41 @@ const SectionUserAuctions: React.FC<{
 {
     const { bidderClient } = useAppContext();
 
-    const history = useFetch<{evt: UserAuction, obj: AuctionObj}[] | undefined>(
-        async () => {
-            if (userId === undefined) {
-                return Promise.resolve(undefined);
+    const history = useFetchAndPaginate<{evt: UserAuction, obj: AuctionObj}, number|undefined>(
+        async (cursor) => {
+            if (!userId) {
+                return EmptyPaginatedResponse;
             }
-            if (userId === null) {
-                return Promise.resolve([]);
-            }
-            const events = await bidderClient.fetchUserAuctions(userId, undefined, 25);
+            const events = await bidderClient.fetchUserAuctions(userId, cursor, 25);
             const auctions = await bidderClient.fetchAuctions(
                 events.auctions.map(a => a.auction_addr) // no risk of duplicate object IDs
             );
             const auctionMap = new Map(auctions.map(a => [a.id, a]));
-            return events.auctions.map(evt => ({
-                evt,
-                obj: auctionMap.get(evt.auction_addr) as AuctionObj,
-            }));
+            return {
+                data: events.auctions.map(evt => ({
+                    evt,
+                    obj: auctionMap.get(evt.auction_addr) as AuctionObj,
+                })),
+                hasNextPage: events.hasNextPage,
+                nextCursor: events.nextCursor,
+            };
         },
         [userId, bidderClient],
     );
 
-    if (history.isLoading || history.data === undefined) {
+    if (history.error) {
+        return <CardWithMsg>{history.error}</CardWithMsg>;
+    }
+    if (history.isLoading && history.page.length === 0) {
         return <CardSpinner />;
     }
-    if (history.data.length === 0) {
+    if (!history.isLoading && history.page.length === 0) {
         return <CardWithMsg>No auctions yet</CardWithMsg>;
     }
     return (
-        <div className="card-list">
-            {history.data.map(h =>
+        <div className={`card-list ${history.isLoading ? "loading" : ""}`}>
+            {history.isLoading && <CardSpinner />}
+            {history.page.map(h =>
                 <CardUserAuctionOrBid history={h.evt} auction={h.obj} key={h.evt.auction_addr} />
             )}
         </div>
@@ -137,36 +142,41 @@ const SectionUserBids: React.FC<{
 {
     const { bidderClient } = useAppContext();
 
-    const history = useFetch<{evt: UserBid, obj: AuctionObj}[] | undefined>(
-        async () => {
-            if (userId === undefined) {
-                return undefined;
+    const history = useFetchAndPaginate<{evt: UserBid, obj: AuctionObj}, number|undefined>(
+        async (cursor) => {
+            if (!userId) {
+                return EmptyPaginatedResponse;
             }
-            if (userId === null) {
-                return [];
-            }
-            const events = await bidderClient.fetchUserBids(userId, undefined, 25);
+            const events = await bidderClient.fetchUserBids(userId, cursor, 25);
             const auctions = await bidderClient.fetchAuctions(
                 [...new Set(events.bids.map(a => a.auction_addr))] // deduplicate object IDs
             );
             const auctionMap = new Map(auctions.map(a => [a.id, a]));
-            return events.bids.map(evt => ({
-                evt,
-                obj: auctionMap.get(evt.auction_addr) as AuctionObj,
-            }));
+            return {
+                data: events.bids.map(evt => ({
+                    evt,
+                    obj: auctionMap.get(evt.auction_addr) as AuctionObj,
+                })),
+                hasNextPage: events.hasNextPage,
+                nextCursor: events.nextCursor,
+            };
         },
         [userId, bidderClient],
     );
 
-    if (history.isLoading || history.data === undefined) {
+    if (history.error) {
+        return <CardWithMsg>{history.error}</CardWithMsg>;
+    }
+    if (history.isLoading && history.page.length === 0) {
         return <CardSpinner />;
     }
-    if (history === null || history.data.length === 0) {
+    if (!history.isLoading && history.page.length === 0) {
         return <CardWithMsg>No bids yet</CardWithMsg>;
     }
     return (
-        <div className="card-list">
-            {history.data.map(bid =>
+        <div className={`card-list ${history.isLoading ? "loading" : ""}`}>
+            {history.isLoading && <CardSpinner />}
+            {history.page.map(bid =>
                 <CardUserAuctionOrBid history={bid.evt} auction={bid.obj} key={bid.evt.auction_addr + bid.evt.amount} />
             )}
         </div>

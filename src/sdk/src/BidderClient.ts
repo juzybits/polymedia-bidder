@@ -327,8 +327,8 @@ export class BidderClient extends SuiClientBase
                 auction_addr: auction.auction_addr,
                 time: Number(auction.time),
             })),
-            hasMore: blockReturns[0][1] as boolean,
-            cursor: blockReturns[0][2] as number,
+            hasNextPage: blockReturns[0][1] as boolean,
+            nextCursor: blockReturns[0][2] as number,
         };
     }
 
@@ -367,8 +367,8 @@ export class BidderClient extends SuiClientBase
                 time: Number(bid.time),
                 amount: BigInt(bid.amount),
             })),
-            hasMore: blockReturns[0][1] as boolean,
-            cursor: blockReturns[0][2] as number,
+            hasNextPage: blockReturns[0][1] as boolean,
+            nextCursor: blockReturns[0][2] as number,
         };
     }
 
@@ -407,14 +407,14 @@ export class BidderClient extends SuiClientBase
             created: {
                 total: blockReturns[0][0] as number,
                 data: blockReturns[0][2] as UserAuction[],
-                hasMore: blockReturns[0][4] as boolean,
-                cursor: blockReturns[0][6] as number,
+                hasNextPage: blockReturns[0][4] as boolean,
+                nextCursor: blockReturns[0][6] as number,
             },
             bids: {
                 total: blockReturns[0][1] as number,
                 data: blockReturns[0][3] as UserBid[],
-                hasMore: blockReturns[0][5] as boolean,
-                cursor: blockReturns[0][7] as number,
+                hasNextPage: blockReturns[0][5] as boolean,
+                nextCursor: blockReturns[0][7] as number,
             }
         };
     }
