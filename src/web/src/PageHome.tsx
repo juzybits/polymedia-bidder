@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
 import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Glitch } from "./components/Glitch";
-import { CardAuctionItems, CardLoading, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
 
 const MAX_ITEMS_PER_AUCTION = 3;
@@ -99,7 +99,7 @@ const SectionFeaturedAuctions: React.FC = () =>
     if (errFetchFeatured) {
         content = <CardWithMsg>{errFetchFeatured}</CardWithMsg>;
     }  else if (auctionsWithItems === undefined) {
-        content = <CardLoading />;
+        content = <CardSpinner />;
     } else {
         content = <div className="card-list">
             {auctionsWithItems.map((auctionWithItems) => (
@@ -163,10 +163,10 @@ const SectionRecentAuctions: React.FC = () =>
     if (recent.error) {
         content = <CardWithMsg>{recent.error}</CardWithMsg>;
     } else if (recent.isLoading && recent.page.length === 0) {
-        content = <CardLoading />;
+        content = <CardSpinner />;
     } else {
         content = <div className={`card-list ${recent.isLoading ? "loading" : ""}`}>
-            {recent.isLoading && <CardLoading />}
+            {recent.isLoading && <CardSpinner />}
             {recent.page.map((auctionWithItems) => (
                 <CardAuctionWithItems
                     key={auctionWithItems.id}

@@ -10,10 +10,10 @@ import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { BtnPrevNext } from "./components/BtnPrevNext";
-import { Balance, CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } from "./components/icons";
-import { makeTabs, HeaderTabs } from "./components/tabs";
+import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 import { useFetchAndPaginate } from "./lib/useFetch";
@@ -433,7 +433,7 @@ const SectionActivity: React.FC<{
     const { bidderClient } = useAppContext();
 
     const activity = useFetchAndPaginate(
-        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor),
+        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, 3),
         [auction, bidderClient],
     );
 
@@ -442,13 +442,13 @@ const SectionActivity: React.FC<{
     if (activity.error) {
         return <CardWithMsg className="compact">{activity.error}</CardWithMsg>;
     } else if (activity.isLoading && activity.page.length === 0) {
-        return <CardLoading />;
+        return <CardSpinner />;
     }
     return (
         <div className="card compact">
             <div className="card-title">Activity</div>
             <div className={`card-list tx-list ${activity.isLoading ? "loading" : ""}`}>
-                {activity.isLoading && <CardLoading />}
+                {activity.isLoading && <CardSpinner />}
                 {activity.page.map(tx =>
                     <CardTransaction tx={tx} key={tx.digest} />
                 )}

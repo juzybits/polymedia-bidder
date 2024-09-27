@@ -248,9 +248,9 @@ export const ObjectLinkList: React.FC<{
     ))}</>;
 };
 
-export const CardLoading: React.FC = () => {
-    return <CardWithMsg>Loading...</CardWithMsg>;
-};
+// export const CardLoading: React.FC = () => {
+//     return <CardWithMsg>Loading...</CardWithMsg>;
+// };
 
 export const CardSpinner: React.FC = () => {
     return <div className="card">

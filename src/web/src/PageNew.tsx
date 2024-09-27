@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { CardChosenItem, CardLoading, CardSuiItem, CardWithMsg } from "./components/cards";
+import { CardChosenItem, CardSpinner, CardSuiItem, CardWithMsg } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconInfo } from "./components/icons";
@@ -311,7 +311,7 @@ const ItemGridSelector: React.FC<{
         return <CardWithMsg>{ownedItems.error}</CardWithMsg>;
     }
     if (ownedItems.isLoading && ownedItems.data.length === 0) {
-        return <CardLoading />;
+        return <CardSpinner />;
     }
 
     return <>

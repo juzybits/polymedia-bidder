@@ -5,9 +5,9 @@ import { LinkToExplorer } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
-import { CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { makeTabs, HeaderTabs } from "./components/tabs";
+import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { useFetch } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
@@ -133,7 +133,7 @@ const SectionUserAuctions: React.FC<{
 }) => // TODO: pagination
 {
     if (history === undefined) {
-        return <CardLoading />;
+        return <CardSpinner />;
     }
     if (history === null || history.data.length === 0) {
         return <CardWithMsg>No auctions yet</CardWithMsg>;
@@ -157,7 +157,7 @@ const SectionUserBids: React.FC<{
 }) => // TODO: pagination
 {
     if (history === undefined) {
-        return <CardLoading />;
+        return <CardSpinner />;
     }
     if (history === null || history.data.length === 0) {
         return <CardWithMsg>No bids yet</CardWithMsg>;
