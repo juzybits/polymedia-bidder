@@ -9,7 +9,10 @@ import { useEffect, useState } from "react";
  * @template T The type of data returned by the fetch function
  * @param fetchFunction An async function that returns a `Promise<T>`
  * @param dependencies An array of dependencies that trigger a re-fetch when changed
- * @returns An object containing the fetched data and any error that occurred
+ * @returns An object containing:
+ *   - data: The fetched data
+ *   - error: Any error that occurred
+ *   - isLoading: Whether data is currently being fetched
  */
 export function useFetch<T>(
     fetchFunction: () => Promise<T>,
@@ -17,33 +20,44 @@ export function useFetch<T>(
 ) {
     const [data, setData] = useState<T | undefined>(undefined);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchData = async () =>
+    {
+        setData(undefined);
+        setError(null);
+        setIsLoading(true);
+        try {
+            const result = await fetchFunction();
+            setData(result);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "An unknown error occurred");
+            console.warn("[useFetch]", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () =>
-        {
-            setData(undefined);
-            setError(null);
-            try {
-                const result = await fetchFunction();
-                setData(result);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "An unknown error occurred");
-                console.warn("[useFetch]", err);
-            }
-        };
         fetchData();
     }, dependencies);
 
-    return { data, error };
+    return { data, error, isLoading };
 }
 
+/**
 /**
  * A hook to handle data fetching and loading more data.
  *
  * @template T The type of data returned by the fetch function
  * @param fetchFunction An async function that returns a `Promise<PaginatedResponse<T>>`
  * @param dependencies An array of dependencies that trigger a re-fetch when changed
- * @returns An object containing the fetched data, whether there is a next page, and functions to load more data
+ * @returns An object containing:
+ *   - data: The fetched data
+ *   - error: Any error that occurred
+ *   - isLoading: Whether data is currently being fetched
+ *   - hasNextPage: Whether there is a next page available to fetch
+ *   - loadMore: A function to load more data
  */
 export function useFetchAndLoadMore<T>(
     fetchFunction: (cursor: string | null | undefined) => Promise<PaginatedResponse<T>>,
