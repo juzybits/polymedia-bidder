@@ -252,6 +252,14 @@ export const CardLoading: React.FC = () => {
     return <CardWithMsg>Loading...</CardWithMsg>;
 };
 
+export const CardSpinner: React.FC = () => {
+    return <div className="card">
+        <FullCardMsg>
+            <div className="card-spinner" />
+        </FullCardMsg>
+    </div>;
+};
+
 export const CardWithMsg: React.FC<{
     className?: string;
     children: React.ReactNode;

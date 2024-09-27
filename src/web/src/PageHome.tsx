@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
 import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Glitch } from "./components/Glitch";
-import { CardAuctionItems, CardLoading, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { CardAuctionItems, CardLoading, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { useFetch, useFetchAndPaginate } from "./lib/useFetch";
 
 const MAX_ITEMS_PER_AUCTION = 3;

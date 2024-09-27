@@ -107,6 +107,25 @@ h1, h2, h3, h4, h5, button, input {
     }
 }
 
+.spinner(@size: 1.2em, @border-width: 0.17em, @color: @btn-white) {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: calc(50% - @size/2 - @border-width);
+        top: calc(50% - @size/2 - @border-width);
+        width: @size;
+        height: @size;
+        border: @border-width solid @color;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+    }
+}
+
 // === layout ===
 
 header {
@@ -392,6 +411,10 @@ footer {
     }
 }
 
+.card-spinner {
+    .spinner();
+}
+
 .sui-item {
     display: flex;
     flex-direction: column;
@@ -593,23 +616,7 @@ a.card, .card.link {
         background-color: gray;
     }
     &.working {
-        position: relative;
-        color: transparent;
-        pointer-events: none;
-        @spin-size: 1.2em;
-        @spin-border-width: 0.17em;
-        &::after {
-            content: '';
-            position: absolute;
-            left: calc(50% - @spin-size/2 - @spin-border-width);
-            top: calc(50% - @spin-size/2 - @spin-border-width);
-            width: @spin-size;
-            height: @spin-size;
-            border: @spin-border-width solid @btn-white;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-        }
+        .spinner();
     }
 }
 
