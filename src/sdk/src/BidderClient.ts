@@ -42,7 +42,9 @@ import {
 } from "./types.js";
 import { UserModule } from "./UserModule.js";
 
-export type UserRecentHistory = Awaited<ReturnType<BidderClient["fetchUserRecentAuctionsAndBids"]>>;
+export type UserHistoryAuctions = Awaited<ReturnType<BidderClient["fetchUserAuctions"]>>;
+export type UserHistoryBids = Awaited<ReturnType<BidderClient["fetchUserBids"]>>;
+export type UserHistoryBoth = Awaited<ReturnType<BidderClient["fetchUserRecentAuctionsAndBids"]>>;
 
 /**
  * Execute transactions on the bidder::auction Sui module.
