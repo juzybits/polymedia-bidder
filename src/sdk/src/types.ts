@@ -155,3 +155,37 @@ export type TxAnyoneSendsItemToWinner = TxBase & {
         item_addr: string;
     };
 };
+
+/**
+ * A `bidder::auction::admin_accepts_bid` transaction
+ */
+export type TxAdminAcceptsBid = TxBase & {
+    kind: "admin_accepts_bid";
+    inputs: {
+        type_coin: string;
+        auction_addr: string;
+    };
+};
+
+/**
+ * A `bidder::auction::admin_cancels_auction` transaction
+ */
+export type TxAdminCancelsAuction = TxBase & {
+    kind: "admin_cancels_auction";
+    inputs: {
+        type_coin: string;
+        auction_addr: string;
+    };
+};
+
+/**
+ * A `bidder::auction::admin_sets_pay_addr` transaction
+ */
+export type TxAdminSetsPayAddr = TxBase & {
+    kind: "admin_sets_pay_addr";
+    inputs: {
+        type_coin: string;
+        auction_addr: string;
+        pay_addr: string;
+    };
+};
