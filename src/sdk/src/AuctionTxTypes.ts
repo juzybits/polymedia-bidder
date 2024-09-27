@@ -5,7 +5,10 @@ export type AnyAuctionTx =
     | TxAdminCreatesAuction
     | TxAnyoneBids
     | TxAnyonePaysFunds
-    | TxAnyoneSendsItemToWinner;
+    | TxAnyoneSendsItemToWinner
+    // | TxAdminAcceptsBid
+    | TxAdminCancelsAuction
+    | TxAdminSetsPayAddr;
 
 type TxBase = {
     digest: string;

@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, SuiItem, TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "@polymedia/bidder-sdk";
+import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, SuiItem, TxAdminCancelsAuction, TxAdminCreatesAuction, TxAdminSetsPayAddr, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { LinkToExplorer, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
@@ -796,6 +796,12 @@ const CardTransaction: React.FC<{
     if (tx.kind === "anyone_pays_funds" || tx.kind === "anyone_sends_item_to_winner") {
         return <CardTxFinalize tx={tx} />;
     }
+    if (tx.kind === "admin_cancels_auction") {
+        return <CardTxAdminCancelsAuction tx={tx} />;
+    }
+    if (tx.kind === "admin_sets_pay_addr") {
+        return <CardTxAdminSetsPayAddr tx={tx} />;
+    }
     return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
         {JSON.stringify(tx, null, 2)}
     </div>;
@@ -871,6 +877,52 @@ const CardTxFinalize: React.FC<{
                 </div>
             </div>
         </div>
+    );
+};
+
+const CardTxAdminCancelsAuction: React.FC<{
+    tx: TxAdminCancelsAuction;
+}> = ({
+    tx,
+}) => {
+    const { explorer, network } = useAppContext();
+    return (
+        <div className="card tx tx-cancel">
+            <div className="card-header">
+                <div className="card-title">CANCELLED</div>
+                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
+            </div>
+            <div className="card-body">
+                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+                <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
+                            {shortenDigest(tx.digest)}
+                        </LinkToExplorer>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const CardTxAdminSetsPayAddr: React.FC<{
+    tx: TxAdminSetsPayAddr;
+}> = ({
+    tx,
+}) => {
+    const { explorer, network } = useAppContext();
+    return (
+    <div className="card tx tx-set-pay-addr">
+        <div className="card-header">
+            <div className="card-title">SET PAY ADDRESS</div>
+            <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
+        </div>
+        <div className="card-body">
+            <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
+            <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
+                        {shortenDigest(tx.digest)}
+                    </LinkToExplorer>
+            </div>
+        </div>
+    </div>
     );
 };
 

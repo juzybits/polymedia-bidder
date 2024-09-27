@@ -1,6 +1,6 @@
 import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
-import { AnyAuctionTx, TxAdminCreatesAuction, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
+import { AnyAuctionTx, TxAdminCancelsAuction, TxAdminCreatesAuction, TxAdminSetsPayAddr, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
 
 /**
  * Parse transactions for the `bidder::auction` Sui module.
@@ -31,6 +31,15 @@ export class AuctionTxParser
             }
             if (tx.MoveCall.function === "anyone_bids") {
                 return this.anyone_bids(resp);
+            }
+            // if (tx.MoveCall.function === "admin_accepts_bid") {
+            //     return this.admin_accepts_bid(resp);
+            // }
+            if (tx.MoveCall.function === "admin_cancels_auction") {
+                return this.admin_cancels_auction(resp);
+            }
+            if (tx.MoveCall.function === "admin_sets_pay_addr") {
+                return this.admin_sets_pay_addr(resp);
             }
             // typically these two calls are executed in the same tx, so only one of them will be returned
             if (tx.MoveCall.function === "anyone_pays_funds") {
@@ -282,6 +291,112 @@ export class AuctionTxParser
         };
     }
 
+    /**
+     * Parse an `auction::admin_cancels_auction` transaction.
+     * Assumes the tx block contains only one `admin_cancels_auction` call.
+     */
+    public admin_cancels_auction(
+        resp: SuiTransactionBlockResponse,
+    ): TxAdminCancelsAuction | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(resp); }
+        catch (_err) { return null; }
+        const allInputs = txData.inputs;
+
+        const auctionObjChange = this.extractAuctionObjChange(resp);
+        if (!auctionObjChange) { return null; }
+
+        let type_coin: string | undefined;
+        let auction_addr: string | undefined;
+
+        for (const tx of txData.txs)
+        {
+            // find the `admin_cancels_auction` tx
+            if (isTxMoveCall(tx) &&
+                tx.MoveCall.package === this.packageId &&
+                tx.MoveCall.module === "auction" &&
+                tx.MoveCall.function === "admin_cancels_auction" &&
+                tx.MoveCall.arguments &&
+                tx.MoveCall.type_arguments
+            ) {
+                const txInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => allInputs[arg.Input]);
+
+                if (txInputs.length !== 2) { return null; }
+
+                type_coin = tx.MoveCall.type_arguments[0];
+                auction_addr = getArgVal(txInputs[0]);
+            }
+        }
+
+        if (!auction_addr || !type_coin) { return null; }
+
+        return {
+            kind: "admin_cancels_auction",
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+            sender: txData.sender,
+            inputs: {
+                type_coin,
+                auction_addr,
+            },
+        };
+    }
+
+    public admin_sets_pay_addr(
+        resp: SuiTransactionBlockResponse,
+    ): TxAdminSetsPayAddr | null
+    {
+        let txData: ReturnType<typeof txResToData>;
+        try { txData = txResToData(resp); }
+        catch (_err) { return null; }
+        const allInputs = txData.inputs;
+
+        const auctionObjChange = this.extractAuctionObjChange(resp);
+        if (!auctionObjChange) { return null; }
+
+        let type_coin: string | undefined;
+        let auction_addr: string | undefined;
+        let pay_addr: string | undefined;
+        for (const tx of txData.txs)
+        {
+            // find the `admin_sets_pay_addr` tx
+            if (isTxMoveCall(tx) &&
+                tx.MoveCall.package === this.packageId &&
+                tx.MoveCall.module === "auction" &&
+                tx.MoveCall.function === "admin_sets_pay_addr" &&
+                tx.MoveCall.arguments &&
+                tx.MoveCall.type_arguments
+            ) {
+                const txInputs = tx.MoveCall.arguments
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => allInputs[arg.Input]);
+
+                if (txInputs.length !== 3) { return null; }
+
+                type_coin = tx.MoveCall.type_arguments[0];
+                auction_addr = getArgVal(txInputs[0]);
+                pay_addr = getArgVal(txInputs[1]);
+            }
+        }
+
+        if (!auction_addr || !type_coin || !pay_addr) { return null; }
+
+        return {
+            kind: "admin_sets_pay_addr",
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+            sender: txData.sender,
+            inputs: {
+                type_coin,
+                auction_addr,
+                pay_addr,
+            },
+        };
+    }
+
     // === object extractors ===
 
     /**
@@ -289,11 +404,11 @@ export class AuctionTxParser
      */
     public extractAuctionObjChange(
         resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeCreated | undefined
+    ): SuiObjectChangeCreated | SuiObjectChangeMutated | undefined
     {
         return resp.objectChanges?.find(o =>
-            o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
-        ) as SuiObjectChangeCreated | undefined;
+            o.type === "created" || o.type === "mutated" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
+        ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
     }
 
     /**
