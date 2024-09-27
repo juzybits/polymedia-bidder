@@ -56,12 +56,14 @@ export const PageUser: React.FC = () =>
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
     } else if (!addressToFetch) {
         content = <div className="card compact"><ConnectToGetStarted /></div>
+    } else if (userId === undefined) {
+        content = <CardSpinner />;
     } else {
         content = <div className="tabs-container">
             <HeaderTabs tabs={tabs.all} activeTab={activeTab} onChangeTab={changeTab} />
             <div className="tabs-content">
-                {activeTab === "auctions" && <SectionUserAuctions  userId={userId} />}
                 {activeTab === "bids" && <SectionUserBids userId={userId} />}
+                {activeTab === "auctions" && <SectionUserAuctions  userId={userId} />}
             </div>
         </div>;
     }
@@ -85,57 +87,8 @@ export const PageUser: React.FC = () =>
     </>;
 };
 
-const SectionUserAuctions: React.FC<{
-    userId: string | null | undefined;
-}> = ({
-    userId,
-}) => // TODO: pagination
-{
-    const { bidderClient } = useAppContext();
-
-    const history = useFetchAndPaginate<{evt: UserAuction, obj: AuctionObj}, number|undefined>(
-        async (cursor) => {
-            if (!userId) {
-                return EmptyPaginatedResponse;
-            }
-            const events = await bidderClient.fetchUserAuctions(userId, cursor, 25);
-            const auctions = await bidderClient.fetchAuctions(
-                events.auctions.map(a => a.auction_addr) // no risk of duplicate object IDs
-            );
-            const auctionMap = new Map(auctions.map(a => [a.id, a]));
-            return {
-                data: events.auctions.map(evt => ({
-                    evt,
-                    obj: auctionMap.get(evt.auction_addr) as AuctionObj,
-                })),
-                hasNextPage: events.hasNextPage,
-                nextCursor: events.nextCursor,
-            };
-        },
-        [userId, bidderClient],
-    );
-
-    if (history.error) {
-        return <CardWithMsg>{history.error}</CardWithMsg>;
-    }
-    if (history.isLoading && history.page.length === 0) {
-        return <CardSpinner />;
-    }
-    if (!history.isLoading && history.page.length === 0) {
-        return <CardWithMsg>No auctions yet</CardWithMsg>;
-    }
-    return (
-        <div className={`card-list ${history.isLoading ? "loading" : ""}`}>
-            {history.isLoading && <CardSpinner />}
-            {history.page.map(h =>
-                <CardUserAuctionOrBid history={h.evt} auction={h.obj} key={h.evt.auction_addr} />
-            )}
-        </div>
-    );
-};
-
 const SectionUserBids: React.FC<{
-    userId: string | null | undefined;
+    userId: string | null;
 }> = ({
     userId,
 }) => // TODO: pagination
@@ -178,6 +131,55 @@ const SectionUserBids: React.FC<{
             {history.isLoading && <CardSpinner />}
             {history.page.map(bid =>
                 <CardUserAuctionOrBid history={bid.evt} auction={bid.obj} key={bid.evt.auction_addr + bid.evt.amount} />
+            )}
+        </div>
+    );
+};
+
+const SectionUserAuctions: React.FC<{
+    userId: string | null;
+}> = ({
+    userId,
+}) => // TODO: pagination
+{
+    const { bidderClient } = useAppContext();
+
+    const history = useFetchAndPaginate<{evt: UserAuction, obj: AuctionObj}, number|undefined>(
+        async (cursor) => {
+            if (!userId) {
+                return EmptyPaginatedResponse;
+            }
+            const events = await bidderClient.fetchUserAuctions(userId, cursor, 25);
+            const auctions = await bidderClient.fetchAuctions(
+                events.auctions.map(a => a.auction_addr) // no risk of duplicate object IDs
+            );
+            const auctionMap = new Map(auctions.map(a => [a.id, a]));
+            return {
+                data: events.auctions.map(evt => ({
+                    evt,
+                    obj: auctionMap.get(evt.auction_addr) as AuctionObj,
+                })),
+                hasNextPage: events.hasNextPage,
+                nextCursor: events.nextCursor,
+            };
+        },
+        [userId, bidderClient],
+    );
+
+    if (history.error) {
+        return <CardWithMsg>{history.error}</CardWithMsg>;
+    }
+    if (history.isLoading && history.page.length === 0) {
+        return <CardSpinner />;
+    }
+    if (!history.isLoading && history.page.length === 0) {
+        return <CardWithMsg>No auctions yet</CardWithMsg>;
+    }
+    return (
+        <div className={`card-list ${history.isLoading ? "loading" : ""}`}>
+            {history.isLoading && <CardSpinner />}
+            {history.page.map(h =>
+                <CardUserAuctionOrBid history={h.evt} auction={h.obj} key={h.evt.auction_addr} />
             )}
         </div>
     );
