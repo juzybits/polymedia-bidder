@@ -164,8 +164,7 @@ export class BidderClient extends SuiClientBase
         owner: string,
         cursor: string | null | undefined,
         limit?: number,
-    ): Promise<PaginatedResponse<SuiItem>>
-    {
+    ) {
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
             filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },

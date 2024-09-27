@@ -300,7 +300,7 @@ const ItemGridSelector: React.FC<{
 
     const { bidderClient, network } = useAppContext();
 
-    const ownedItems = useFetchAndLoadMore(
+    const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
         [bidderClient, currAcct],
     );

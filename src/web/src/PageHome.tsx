@@ -129,7 +129,7 @@ const SectionRecentAuctions: React.FC = () =>
     const { bidderClient, network } = useAppContext();
     const featuredAuctionIds = featuredAuctionAndItemIds[network].map(({ auctionId }) => auctionId);
 
-    const recent = useFetchAndPaginate<AuctionWithItems>(
+    const recent = useFetchAndPaginate<AuctionWithItems, string|null|undefined>(
         async (cursor) => {
             // fetch recent "create auction" txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, 12);

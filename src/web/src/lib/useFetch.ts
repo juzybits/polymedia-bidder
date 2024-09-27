@@ -50,6 +50,7 @@ export function useFetch<T>(
  * A hook to handle data fetching and loading more data.
  *
  * @template T The type of data returned by the fetch function
+ * @template C The type of cursor used to paginate through the data
  * @param fetchFunction An async function that returns a `Promise<PaginatedResponse<T>>`
  * @param dependencies An array of dependencies that trigger a re-fetch when changed
  * @returns An object containing:
@@ -59,15 +60,15 @@ export function useFetch<T>(
  *   - hasNextPage: Whether there is a next page available to fetch
  *   - loadMore: A function to load more data
  */
-export function useFetchAndLoadMore<T>(
-    fetchFunction: (cursor: string | null | undefined) => Promise<PaginatedResponse<T>>,
+export function useFetchAndLoadMore<T, C>(
+    fetchFunction: (cursor: C | undefined) => Promise<PaginatedResponse<T, C>>,
     dependencies: unknown[] = [],
 ) {
     const [ data, setData ] = useState<T[]>([]);
     const [ error, setError ] = useState<string | null>(null);
     const [ isLoading, setIsLoading ] = useState(false);
     const [ hasNextPage, setHasNextPage ] = useState(true);
-    const [ nextCursor, setNextCursor ] = useState<string | null | undefined>(null);
+    const [ nextCursor, setNextCursor ] = useState<C>();
 
     const loadMore = async () =>
     {
@@ -91,7 +92,7 @@ export function useFetchAndLoadMore<T>(
     useEffect(() => {
         setData([]);
         setHasNextPage(true);
-        setNextCursor(null);
+        setNextCursor(undefined);
         loadMore();
     }, dependencies);
 
@@ -102,6 +103,7 @@ export function useFetchAndLoadMore<T>(
  * A hook to handle data fetching and paginating through the results.
  *
  * @template T The type of data returned by the fetch function
+ * @template C The type of cursor used to paginate through the data
  * @param fetchFunction An async function that returns a `Promise<PaginatedResponse<T>>`
  * @param dependencies An array of dependencies that trigger a re-fetch when changed
  * @returns An object containing the following properties:
@@ -115,8 +117,8 @@ export function useFetchAndLoadMore<T>(
  *   - goToNextPage - Function to navigate to the next page
  *   - goToPreviousPage - Function to navigate to the previous page
  */
-export function useFetchAndPaginate<T>(
-    fetchFunction: (cursor: string | null | undefined) => Promise<PaginatedResponse<T>>,
+export function useFetchAndPaginate<T, C>(
+    fetchFunction: (cursor: C | undefined) => Promise<PaginatedResponse<T, C>>,
     dependencies: unknown[] = [],
 ) {
     const [ pages, setPages ] = useState<T[][]>([]);
@@ -124,7 +126,7 @@ export function useFetchAndPaginate<T>(
     const [ isLoading, setIsLoading ] = useState(false);
     const [ pageIndex, setPageIndex ] = useState(-1);
     const [ hasNextPage, setHasNextPage ] = useState(true);
-    const [ nextCursor, setNextCursor ] = useState<string | null | undefined>(null);
+    const [ nextCursor, setNextCursor ] = useState<C>();
 
     const goToNextPage = async () =>
     {
@@ -163,7 +165,7 @@ export function useFetchAndPaginate<T>(
         setPages([]);
         setPageIndex(-1);
         setHasNextPage(true);
-        setNextCursor(null);
+        setNextCursor(undefined);
         goToNextPage();
     }, dependencies);
 

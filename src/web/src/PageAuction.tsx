@@ -432,7 +432,7 @@ const SectionActivity: React.FC<{
 
     const { bidderClient } = useAppContext();
 
-    const activity = useFetchAndPaginate(
+    const activity = useFetchAndPaginate<TxAdminCreatesAuction|TxAnyoneBids, string|null|undefined>(
         (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, 3),
         [auction, bidderClient],
     );
