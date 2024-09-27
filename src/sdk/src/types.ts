@@ -1,6 +1,8 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiItem } from "./items";
 
+// === auction module objects ===
+
 /**
  * A Sui bidder::auction::Auction object
  */
@@ -57,74 +59,14 @@ export function isAuctionObj(obj: unknown): obj is AuctionObj {
 }
 
 /**
- * A `bidder::auction::admin_creates_auction` transaction
+ * Check if an auction is live based on the current time.
  */
-export type TxAdminCreatesAuction = {
-    kind: "admin_creates_auction";
-    digest: string;
-    timestamp: number;
-    sender: string;
-    auctionId: string;
-    inputs: {
-        type_coin: string;
-        name: string;
-        description: string;
-        item_addrs: string[];
-        pay_addr: string;
-        begin_delay_ms: number;
-        duration_ms: number;
-        minimum_bid: bigint;
-        minimum_increase_bps: number;
-        extension_period_ms: number;
-    };
-};
+export function isAuctionLive(auction: AuctionObj): boolean {
+    const currentTimeMs = Date.now();
+    return currentTimeMs >= auction.begin_time_ms && currentTimeMs < auction.end_time_ms;
+}
 
-/**
- * A `bidder::auction::anyone_bids` transaction
- */
-export type TxAnyoneBids = {
-    kind: "anyone_bids";
-    digest: string;
-    timestamp: number;
-    sender: string;
-    inputs: {
-        type_coin: string;
-        auction_addr: string;
-        amount: bigint;
-    };
-};
-
-/**
- * A `bidder::auction::anyone_pays_funds`
- */
-export type TxAnyonePaysFunds = {
-    kind: "anyone_pays_funds";
-    digest: string;
-    timestamp: number;
-    sender: string;
-    inputs: {
-        type_coin: string;
-        auction_addr: string;
-    };
-};
-
-/**
- * A `bidder::auction::anyone_sends_item_to_winner` transaction
- */
-export type TxAnyoneSendsItemToWinner = {
-    kind: "anyone_sends_item_to_winner";
-    digest: string;
-    timestamp: number;
-    sender: string;
-    inputs: {
-        type_coin: string;
-        type_item: string;
-        auction_addr: string;
-        item_addr: string;
-    };
-};
-
-export type AnyAuctionTx = TxAdminCreatesAuction | TxAnyoneBids | TxAnyonePaysFunds | TxAnyoneSendsItemToWinner;
+// === user module objects ===
 
 export const UserAuctionBcs = bcs.struct("UserAuction", {
     auction_addr: bcs.Address,
@@ -148,10 +90,68 @@ export type UserBid = {
     amount: bigint;
 };
 
+// === transactions ===
+
+export type AnyAuctionTx = TxAdminCreatesAuction | TxAnyoneBids | TxAnyonePaysFunds | TxAnyoneSendsItemToWinner;
+
+type TxBase = {
+    digest: string;
+    timestamp: number;
+    sender: string;
+};
+
 /**
- * Check if an auction is live based on the current time.
+ * A `bidder::auction::admin_creates_auction` transaction
  */
-export function isAuctionLive(auction: AuctionObj): boolean {
-    const currentTimeMs = Date.now();
-    return currentTimeMs >= auction.begin_time_ms && currentTimeMs < auction.end_time_ms;
-}
+export type TxAdminCreatesAuction = TxBase & {
+    kind: "admin_creates_auction";
+    auctionId: string;
+    inputs: {
+        type_coin: string;
+        name: string;
+        description: string;
+        item_addrs: string[];
+        pay_addr: string;
+        begin_delay_ms: number;
+        duration_ms: number;
+        minimum_bid: bigint;
+        minimum_increase_bps: number;
+        extension_period_ms: number;
+    };
+};
+
+/**
+ * A `bidder::auction::anyone_bids` transaction
+ */
+export type TxAnyoneBids = TxBase & {
+    kind: "anyone_bids";
+    inputs: {
+        type_coin: string;
+        auction_addr: string;
+        amount: bigint;
+    };
+};
+
+/**
+ * A `bidder::auction::anyone_pays_funds`
+ */
+export type TxAnyonePaysFunds = TxBase & {
+    kind: "anyone_pays_funds";
+    inputs: {
+        type_coin: string;
+        auction_addr: string;
+    };
+};
+
+/**
+ * A `bidder::auction::anyone_sends_item_to_winner` transaction
+ */
+export type TxAnyoneSendsItemToWinner = TxBase & {
+    kind: "anyone_sends_item_to_winner";
+    inputs: {
+        type_coin: string;
+        type_item: string;
+        auction_addr: string;
+        item_addr: string;
+    };
+};
