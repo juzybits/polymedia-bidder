@@ -785,64 +785,48 @@ const CardTransaction: React.FC<{
     tx: AnyAuctionTx;
 }> = ({
     tx,
-}) =>
-{
-    if (tx.kind === "admin_creates_auction") {
-        return <CardTxAdminCreatesAuction tx={tx} />;
-    }
-    if (tx.kind === "anyone_bids") {
-        return <CardTxAnyoneBids tx={tx} />;
-    }
-    if (tx.kind === "anyone_pays_funds" || tx.kind === "anyone_sends_item_to_winner") {
-        return <CardTxFinalize tx={tx} />;
-    }
-    if (tx.kind === "admin_cancels_auction") {
-        return <CardTxAdminCancelsAuction tx={tx} />;
-    }
-    if (tx.kind === "admin_sets_pay_addr") {
-        return <CardTxAdminSetsPayAddr tx={tx} />;
-    }
-    return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
-        {JSON.stringify(tx, null, 2)}
-    </div>;
-};
-
-const CardTxAdminCreatesAuction: React.FC<{
-    tx: TxAdminCreatesAuction;
-}> = ({
-    tx,
-}) =>
-{
-    const { explorer, network } = useAppContext();
-    return (
-        <div className="card tx tx-create">
-            <div className="card-header">
-                <div className="card-title">CREATED</div>
-                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
-            </div>
-            <div className="card-body">
-                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
-                <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
-                            {shortenDigest(tx.digest)}
-                        </LinkToExplorer>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const CardTxAnyoneBids: React.FC<{
-    tx: TxAnyoneBids;
-}> = ({
-    tx,
 }) => {
     const { explorer, network } = useAppContext();
+
+    let title: string;
+    let className: string;
+    let extraInfo: React.ReactNode | null = null;
+
+    switch (tx.kind) {
+        case "admin_creates_auction":
+            title = "CREATED";
+            className = "tx-create";
+            break;
+        case "anyone_bids":
+            title = "BID";
+            className = "tx-bid";
+            extraInfo = <Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />;
+            break;
+        case "anyone_pays_funds":
+        case "anyone_sends_item_to_winner":
+            title = "FINALIZED";
+            className = "tx-bid";
+            break;
+        case "admin_cancels_auction":
+            title = "CANCELLED";
+            className = "tx-cancel";
+            break;
+        case "admin_sets_pay_addr":
+            title = "SET PAY ADDRESS";
+            className = "tx-set-pay-addr";
+            break;
+        default:
+            return <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                {JSON.stringify(tx, null, 2)}
+            </div>;
+    }
+
     return (
-        <div className="card tx tx-bid">
+        <div className={`card tx ${className}`}>
             <div className="card-header">
                 <div className="card-title">
-                    BID&nbsp;
-                    {<Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />}
+                    {title}
+                    {extraInfo && <>&nbsp;{extraInfo}</>}
                 </div>
                 <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
             </div>
@@ -854,75 +838,6 @@ const CardTxAnyoneBids: React.FC<{
                 </div>
             </div>
         </div>
-    );
-};
-
-const CardTxFinalize: React.FC<{
-    tx: TxAnyonePaysFunds | TxAnyoneSendsItemToWinner;
-}> = ({
-    tx,
-}) => {
-    const { explorer, network } = useAppContext();
-    return (
-        <div className="card tx tx-bid">
-            <div className="card-header">
-                <div className="card-title">FINALIZED</div>
-                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
-            </div>
-            <div className="card-body">
-                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
-                <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
-                            {shortenDigest(tx.digest)}
-                        </LinkToExplorer>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const CardTxAdminCancelsAuction: React.FC<{
-    tx: TxAdminCancelsAuction;
-}> = ({
-    tx,
-}) => {
-    const { explorer, network } = useAppContext();
-    return (
-        <div className="card tx tx-cancel">
-            <div className="card-header">
-                <div className="card-title">CANCELLED</div>
-                <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
-            </div>
-            <div className="card-body">
-                <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
-                <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
-                            {shortenDigest(tx.digest)}
-                        </LinkToExplorer>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const CardTxAdminSetsPayAddr: React.FC<{
-    tx: TxAdminSetsPayAddr;
-}> = ({
-    tx,
-}) => {
-    const { explorer, network } = useAppContext();
-    return (
-    <div className="card tx tx-set-pay-addr">
-        <div className="card-header">
-            <div className="card-title">SET PAY ADDRESS</div>
-            <span className="header-label">{formatTimeDiff(tx.timestamp)}</span>
-        </div>
-        <div className="card-body">
-            <div>Sender: <LinkToUser addr={tx.sender} kind="bids" /></div>
-            <div>tx: <LinkToExplorer addr={tx.digest} kind="txblock" explorer={explorer} network={network}>
-                        {shortenDigest(tx.digest)}
-                    </LinkToExplorer>
-            </div>
-        </div>
-    </div>
     );
 };
 
