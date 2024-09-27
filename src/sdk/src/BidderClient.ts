@@ -1,14 +1,12 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { normalizeSuiAddress } from "@mysten/sui/utils";
-import { devInspectAndGetReturnValues, getCoinOfValue, isTxMoveCall, ObjectInput, objResToFields, objResToId, objResToType, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, txResToData, WaitForTxOptions, ZERO_ADDRESS } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, getCoinOfValue, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
+import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionStructs.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
-import { AnyAuctionTx } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
-import { AuctionObj, isAuctionObj } from "./AuctionStructs.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserStructs.js";
 
@@ -72,7 +70,7 @@ export class BidderClient extends SuiClientBase
                 ids,
                 options: { showContent: true },
             }),
-            (resp) => this.parseAuctionObj(resp),
+            (resp) => parseAuctionObj(resp),
         );
     }
 
@@ -393,79 +391,12 @@ export class BidderClient extends SuiClientBase
 
     // === data parsing ===
 
-    /* eslint-disable */
-    public parseAuctionObj(
-        objRes: SuiObjectResponse,
-    ): AuctionObj | null
-    {
-        let fields: Record<string, any>;
-        let objType: string;
-        try {
-            fields = objResToFields(objRes);
-            objType = objResToType(objRes);
-        } catch (_err) {
-            return null;
-        }
-
-        const currentTimeMs = Date.now();
-        const beginTimeMs = Number(fields.begin_time_ms);
-        const endTimeMs = Number(fields.end_time_ms);
-
-        // example objType: "0x12345::auction::Auction<0x2::sui::SUI>"
-        const type_coin = objType.split("<")[1].split(">")[0];
-
-        const lead_addr = normalizeSuiAddress(fields.lead_addr);
-        const lead_value = BigInt(fields.lead_bal);
-        const has_started = currentTimeMs >= beginTimeMs;
-        const has_ended = currentTimeMs >= endTimeMs;
-        const is_live = has_started && !has_ended;
-        const has_leader = lead_addr !== ZERO_ADDRESS;
-        const has_balance = lead_value > 0n;
-        const is_cancelled = has_ended && !has_leader;
-        return {
-            // struct types
-            type_coin,
-            // fields that map 1:1 to on-chain struct fields
-            id: fields.id.id,
-            name: fields.name,
-            description: fields.description,
-            item_addrs: fields.item_addrs,
-            item_bag: {
-                id: fields.item_bag.fields.id.id,
-                size: fields.item_bag.fields.size,
-            },
-            admin_addr: fields.admin_addr,
-            pay_addr: fields.pay_addr,
-            lead_addr,
-            lead_value,
-            begin_time_ms: beginTimeMs,
-            end_time_ms: endTimeMs,
-            minimum_bid: BigInt(fields.minimum_bid),
-            minimum_increase_bps: Number(fields.minimum_increase_bps),
-            extension_period_ms: Number(fields.extension_period_ms),
-            // derived fields
-            has_started,
-            has_ended,
-            is_live,
-            is_cancelled,
-            has_leader,
-            has_balance,
-            can_anyone_pay_funds: has_ended && has_balance,
-            can_anyone_send_items_to_winner: has_ended && has_leader && Number(fields.item_bag.fields.size) > 0,
-            can_admin_accept_bid: is_live && has_leader,
-            can_admin_cancel_auction: !has_ended,
-            can_admin_reclaim_items: has_ended && !has_leader && Number(fields.item_bag.fields.size) > 0,
-            can_admin_set_pay_addr: !has_ended || (has_ended && has_balance),
-        };
-    }
-    /* eslint-enable */
-
     public parseAuctionOrItemObj(
         objRes: SuiObjectResponse,
     ): AuctionObj | SuiItem | null
     {
         if (objRes.data?.type?.startsWith(`${this.packageId}::auction::Auction<`)) {
-            return this.parseAuctionObj(objRes);
+            return parseAuctionObj(objRes);
         }
         return objResToSuiItem(objRes);
     }
