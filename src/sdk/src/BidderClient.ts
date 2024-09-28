@@ -5,6 +5,7 @@ import { devInspectAndGetReturnValues, getCoinOfValue, ObjectInput, objResToId, 
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
+import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objResToSuiItem, SuiItem } from "./items.js";
 import { UserModule } from "./UserFunctions.js";
@@ -164,14 +165,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            (resp) => {
-                try {
-                    const txData = txResToData(resp);
-                    return this.txParser.admin_creates_auction(resp, txData);
-                } catch (_err) {
-                    return null;
-                }
-            },
+            (resp) => this.txParser.parseAuctionTx(resp) as TxAdminCreatesAuction | null,
             {
                 filter: { MoveFunction: {
                     package: this.packageId, module: "auction", function: "admin_creates_auction" }
@@ -190,14 +184,7 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            (resp) => {
-                try {
-                    const txData = txResToData(resp);
-                    return this.txParser.anyone_bids(resp, txData);
-                } catch (_err) {
-                    return null;
-                }
-            },
+            (resp) => this.txParser.parseAuctionTx(resp) as TxAnyoneBids | null,
             {
                 filter: { MoveFunction: {
                     package: this.packageId, module: "auction", function: "anyone_bids" }
