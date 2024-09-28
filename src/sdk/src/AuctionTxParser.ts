@@ -43,9 +43,6 @@ export class AuctionTxParser
 
                 return {
                     kind: "admin_creates_auction",
-                    digest: resp.digest,
-                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-                    sender: txData.sender,
                     auctionId: auctionObjChange.objectId,
                     inputs: {
                         type_coin: tx.MoveCall.type_arguments[0],
@@ -59,49 +56,45 @@ export class AuctionTxParser
                         minimum_increase_bps: getArgVal<number>(txInputs[7]),
                         extension_period_ms: getArgVal(txInputs[8]),
                     },
+                    ...this.getCommonTxProps(resp, txData),
                 };
             }
             if (tx.MoveCall.function === "anyone_bids") {
                 return this.anyone_bids(resp, txData);
             }
+            // typically followed by anyone_pays_funds and anyone_sends_item_to_winner
             if (tx.MoveCall.function === "admin_accepts_bid") {
                 if (txInputs.length !== 2) return null;
                 return {
                     kind: "admin_accepts_bid",
-                    digest: resp.digest,
-                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-                    sender: txData.sender,
                     inputs: {
                         type_coin: tx.MoveCall.type_arguments[0],
                         auction_addr: getArgVal(txInputs[0]),
                     },
+                    ...this.getCommonTxProps(resp, txData),
                 };
             }
             if (tx.MoveCall.function === "admin_cancels_auction") {
                 if (txInputs.length !== 2) return null;
                 return {
                     kind: "admin_cancels_auction",
-                    digest: resp.digest,
-                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-                    sender: txData.sender,
                     inputs: {
                         type_coin: tx.MoveCall.type_arguments[0],
                         auction_addr: getArgVal(txInputs[0]),
                     },
+                    ...this.getCommonTxProps(resp, txData),
                 };
             }
             if (tx.MoveCall.function === "admin_sets_pay_addr") {
                 if (txInputs.length !== 3) return null;
                 return {
                     kind: "admin_sets_pay_addr",
-                    digest: resp.digest,
-                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-                    sender: txData.sender,
                     inputs: {
                         type_coin: tx.MoveCall.type_arguments[0],
                         auction_addr: getArgVal(txInputs[0]),
                         pay_addr: getArgVal(txInputs[1]),
                     },
+                    ...this.getCommonTxProps(resp, txData),
                 };
             }
             // typically these two calls are executed in the same tx, so only one of them will be returned
@@ -109,28 +102,24 @@ export class AuctionTxParser
                 if (txInputs.length !== 2) return null;
                 return {
                     kind: "anyone_pays_funds",
-                    digest: resp.digest,
-                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-                    sender: txData.sender,
                     inputs: {
                         type_coin: tx.MoveCall.type_arguments[0],
                         auction_addr: getArgVal(txInputs[0]),
                     },
+                    ...this.getCommonTxProps(resp, txData),
                 };
             }
             if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
                 if (txInputs.length !== 3) return null;
                 return {
                     kind: "anyone_sends_item_to_winner",
-                    digest: resp.digest,
-                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-                    sender: txData.sender,
                     inputs: {
                         type_coin: tx.MoveCall.type_arguments[0],
                         type_item: tx.MoveCall.type_arguments[1],
                         auction_addr: getArgVal(txInputs[0]),
                         item_addr: getArgVal(txInputs[1]),
                     },
+                    ...this.getCommonTxProps(resp, txData),
                 };
             }
         }
@@ -234,5 +223,18 @@ export class AuctionTxParser
         return resp.objectChanges?.find(o =>
             (o.type === "created" || o.type === "mutated") && o.objectType === `${this.packageId}::user::User`
         ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
+    }
+
+    // === helpers ===
+
+    /**
+     * Get common properties for all auction transaction types.
+     */
+    protected getCommonTxProps(resp: SuiTransactionBlockResponse, txData: TxData) {
+        return {
+            digest: resp.digest,
+            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+            sender: txData.sender,
+        };
     }
 }
