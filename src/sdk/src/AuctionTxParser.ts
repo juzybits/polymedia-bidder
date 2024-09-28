@@ -2,14 +2,14 @@ import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
 import { AnyAuctionTx, TxAdminCancelsAuction, TxAdminCreatesAuction, TxAdminSetsPayAddr, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
 
+type TxData = ReturnType<typeof txResToData>;
+
 /**
  * Parse transactions for the `bidder::auction` Sui module.
  */
 export class AuctionTxParser
 {
     constructor(protected readonly packageId: string) {}
-
-    // === transaction parsers ===
 
     /**
      * Parse various transactions on the `auction` module.
@@ -18,7 +18,7 @@ export class AuctionTxParser
         resp: SuiTransactionBlockResponse,
     ): AnyAuctionTx | null
     {
-        let txData: ReturnType<typeof txResToData>;
+        let txData: TxData;
         try { txData = txResToData(resp); }
         catch (_err) { return null; }
 
@@ -27,26 +27,26 @@ export class AuctionTxParser
                 continue;
             }
             if (tx.MoveCall.function === "admin_creates_auction") {
-                return this.admin_creates_auction(resp);
+                return this.admin_creates_auction(resp, txData);
             }
             if (tx.MoveCall.function === "anyone_bids") {
-                return this.anyone_bids(resp);
+                return this.anyone_bids(resp, txData);
             }
             // if (tx.MoveCall.function === "admin_accepts_bid") {
-            //     return this.admin_accepts_bid(resp);
+            //     return this.admin_accepts_bid(resp, txData);
             // }
             if (tx.MoveCall.function === "admin_cancels_auction") {
-                return this.admin_cancels_auction(resp);
+                return this.admin_cancels_auction(resp, txData);
             }
             if (tx.MoveCall.function === "admin_sets_pay_addr") {
-                return this.admin_sets_pay_addr(resp);
+                return this.admin_sets_pay_addr(resp, txData);
             }
             // typically these two calls are executed in the same tx, so only one of them will be returned
             if (tx.MoveCall.function === "anyone_pays_funds") {
-                return this.anyone_pays_funds(resp);
+                return this.anyone_pays_funds(resp, txData);
             }
             if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
-                return this.anyone_sends_item_to_winner(resp);
+                return this.anyone_sends_item_to_winner(resp, txData);
             }
         }
 
@@ -59,13 +59,9 @@ export class AuctionTxParser
      */
     public admin_creates_auction(
         resp: SuiTransactionBlockResponse,
+        txData: TxData,
     ): TxAdminCreatesAuction | null
     {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const allInputs = txData.inputs;
-
         const auctionObjChange = this.extractAuctionObjCreated(resp);
         if (!auctionObjChange) { return null; }
 
@@ -86,7 +82,7 @@ export class AuctionTxParser
 
             const txInputs = tx.MoveCall.arguments
                 .filter(arg => isArgInput(arg))
-                .map(arg => allInputs[arg.Input]);
+                .map(arg => txData.inputs[arg.Input]);
 
             if (txInputs.length !== 10) { return null; }
 
@@ -122,13 +118,9 @@ export class AuctionTxParser
      */
     public anyone_bids(
         resp: SuiTransactionBlockResponse,
+        txData: TxData,
     ): TxAnyoneBids | null
     {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const allInputs = txData.inputs;
-
         let amount: bigint | undefined;
         let type_coin: string | undefined;
         let auction_addr: string | undefined;
@@ -140,7 +132,7 @@ export class AuctionTxParser
             {
                 const splitTxInputs = tx.SplitCoins[1]
                     .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+                    .map(arg => txData.inputs[arg.Input]);
 
                 if (splitTxInputs.length !== 1) { return null; }
 
@@ -156,7 +148,7 @@ export class AuctionTxParser
             ) {
                 const bidTxInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+                    .map(arg => txData.inputs[arg.Input]);
 
                 if (bidTxInputs.length !== 2) { return null; }
 
@@ -186,15 +178,10 @@ export class AuctionTxParser
      */
     public anyone_pays_funds(
         resp: SuiTransactionBlockResponse,
+        txData: TxData,
     ): TxAnyonePaysFunds | null
     {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const allInputs = txData.inputs;
-
         let inputs: TxAnyonePaysFunds["inputs"] | undefined;
-
         for (const tx of txData.txs)
         {
             if (isTxMoveCall(tx) &&
@@ -206,7 +193,7 @@ export class AuctionTxParser
             ) {
                 const txInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+                    .map(arg => txData.inputs[arg.Input]);
 
                 if (txInputs.length !== 2) { return null; }
 
@@ -234,15 +221,10 @@ export class AuctionTxParser
      */
     public anyone_sends_item_to_winner(
         resp: SuiTransactionBlockResponse,
+        txData: TxData,
     ): TxAnyoneSendsItemToWinner | null
     {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const allInputs = txData.inputs;
-
         let inputs: TxAnyoneSendsItemToWinner["inputs"] | undefined;
-
         for (const tx of txData.txs)
         {
             if (isTxMoveCall(tx) &&
@@ -254,7 +236,7 @@ export class AuctionTxParser
             ) {
                 const txInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+                    .map(arg => txData.inputs[arg.Input]);
 
                 if (txInputs.length !== 3) { return null; }
 
@@ -284,13 +266,9 @@ export class AuctionTxParser
      */
     public admin_cancels_auction(
         resp: SuiTransactionBlockResponse,
+        txData: TxData,
     ): TxAdminCancelsAuction | null
     {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const allInputs = txData.inputs;
-
         const auctionObjChange = this.extractAuctionObjMutated(resp);
         if (!auctionObjChange) { return null; }
 
@@ -307,7 +285,7 @@ export class AuctionTxParser
             ) {
                 const txInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+                    .map(arg => txData.inputs[arg.Input]);
 
                 if (txInputs.length !== 2) { return null; }
 
@@ -331,13 +309,9 @@ export class AuctionTxParser
 
     public admin_sets_pay_addr(
         resp: SuiTransactionBlockResponse,
+        txData: TxData,
     ): TxAdminSetsPayAddr | null
     {
-        let txData: ReturnType<typeof txResToData>;
-        try { txData = txResToData(resp); }
-        catch (_err) { return null; }
-        const allInputs = txData.inputs;
-
         const auctionObjChange = this.extractAuctionObjMutated(resp);
         if (!auctionObjChange) { return null; }
 
@@ -354,7 +328,7 @@ export class AuctionTxParser
             ) {
                 const txInputs = tx.MoveCall.arguments
                     .filter(arg => isArgInput(arg))
-                    .map(arg => allInputs[arg.Input]);
+                    .map(arg => txData.inputs[arg.Input]);
 
                 if (txInputs.length !== 3) { return null; }
 

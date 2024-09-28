@@ -1,7 +1,7 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, getCoinOfValue, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, getCoinOfValue, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, SuiObjectChangeCreated, SuiObjectChangeMutated, TransferModule, txResToData, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
@@ -164,7 +164,14 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            (resp) => this.txParser.admin_creates_auction(resp),
+            (resp) => {
+                try {
+                    const txData = txResToData(resp);
+                    return this.txParser.admin_creates_auction(resp, txData);
+                } catch (_err) {
+                    return null;
+                }
+            },
             {
                 filter: { MoveFunction: {
                     package: this.packageId, module: "auction", function: "admin_creates_auction" }
@@ -183,7 +190,14 @@ export class BidderClient extends SuiClientBase
         order: "ascending" | "descending" = "descending",
     ) {
         return this.fetchAndParseTxs(
-            (resp) => this.txParser.anyone_bids(resp),
+            (resp) => {
+                try {
+                    const txData = txResToData(resp);
+                    return this.txParser.anyone_bids(resp, txData);
+                } catch (_err) {
+                    return null;
+                }
+            },
             {
                 filter: { MoveFunction: {
                     package: this.packageId, module: "auction", function: "anyone_bids" }
