@@ -483,11 +483,18 @@ footer {
             flex-direction: column;
         }
     }
-    &.tx-create {
+    &.tx-create, &.tx-finalize {
         border-left: 2px solid #4CAF50;
     }
     &.tx-bid {
         border-left: 2px solid #9C27B0;
+        border-left: 2px solid #2196F3;
+    }
+    &.tx-cancel {
+        border-left: 2px solid #F44336;
+    }
+    &.tx-set-pay-addr {
+        border-left: 2px solid #FF9800;
     }
     .card-title {
         font-size: 1.2em;

@@ -804,12 +804,12 @@ const CardTransaction: React.FC<{
             break;
         case "admin_accepts_bid":
             title = "ENDED EARLY";
-            className = "tx-accept";
+            className = "tx-finalize";
             break;
         case "anyone_pays_funds":
         case "anyone_sends_item_to_winner":
             title = "FINALIZED";
-            className = "tx-bid";
+            className = "tx-finalize";
             break;
         case "admin_cancels_auction":
             title = "CANCELLED";
