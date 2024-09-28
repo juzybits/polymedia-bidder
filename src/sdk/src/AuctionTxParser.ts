@@ -1,6 +1,6 @@
-import { MoveCallSuiTransaction, SuiCallArg, SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
-import { AnyAuctionTx, TxAdminCancelsAuction, TxAdminCreatesAuction, TxAdminSetsPayAddr, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
+import { SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { getArgVal, isArgInput, isTxKind, SuiObjectChangeCreated, SuiObjectChangeMutated, TxKind, txResToData } from "@polymedia/suitcase-core";
+import { AnyAuctionTx } from "./AuctionTxTypes";
 
 type TxData = ReturnType<typeof txResToData>;
 
@@ -22,9 +22,16 @@ export class AuctionTxParser
         try { txData = txResToData(resp); }
         catch (_err) { return null; }
 
+        let splitCoinsTx: TxKind<"SplitCoins"> | undefined;
+
         for (const tx of txData.txs)
         {
-            if (!isTxMoveCall(tx) ||
+            if (isTxKind(tx, "SplitCoins")) {
+                splitCoinsTx = tx;
+                continue;
+            }
+
+            if (!isTxKind(tx, "MoveCall") ||
                 tx.MoveCall.package !== this.packageId ||
                 tx.MoveCall.module !== "auction" ||
                 !tx.MoveCall.arguments ||
@@ -59,11 +66,35 @@ export class AuctionTxParser
                     ...this.getCommonTxProps(resp, txData),
                 };
             }
-            if (tx.MoveCall.function === "anyone_bids") {
-                return this.anyone_bids(resp, txData);
+
+            if (tx.MoveCall.function === "anyone_bids")
+            {
+                if (txInputs.length !== 2) { return null; }
+
+                if (!splitCoinsTx) {
+                    console.warn("[AuctionTxParser] unexpected call to `anyone_bids` with no preceding `SplitCoins` tx");
+                    return null;
+                }
+                const splitTxInputs = splitCoinsTx.SplitCoins[1]
+                    .filter(arg => isArgInput(arg))
+                    .map(arg => txData.inputs[arg.Input]);
+
+                if (splitTxInputs.length !== 1) { return null; }
+
+                return {
+                    kind: "anyone_bids",
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        auction_addr: getArgVal(txInputs[0]),
+                        amount: getArgVal(splitTxInputs[0]),
+                    },
+                    ...this.getCommonTxProps(resp, txData),
+                };
             }
+
             // typically followed by anyone_pays_funds and anyone_sends_item_to_winner
-            if (tx.MoveCall.function === "admin_accepts_bid") {
+            if (tx.MoveCall.function === "admin_accepts_bid")
+            {
                 if (txInputs.length !== 2) return null;
                 return {
                     kind: "admin_accepts_bid",
@@ -74,7 +105,9 @@ export class AuctionTxParser
                     ...this.getCommonTxProps(resp, txData),
                 };
             }
-            if (tx.MoveCall.function === "admin_cancels_auction") {
+
+            if (tx.MoveCall.function === "admin_cancels_auction")
+            {
                 if (txInputs.length !== 2) return null;
                 return {
                     kind: "admin_cancels_auction",
@@ -85,7 +118,9 @@ export class AuctionTxParser
                     ...this.getCommonTxProps(resp, txData),
                 };
             }
-            if (tx.MoveCall.function === "admin_sets_pay_addr") {
+
+            if (tx.MoveCall.function === "admin_sets_pay_addr")
+            {
                 if (txInputs.length !== 3) return null;
                 return {
                     kind: "admin_sets_pay_addr",
@@ -97,8 +132,11 @@ export class AuctionTxParser
                     ...this.getCommonTxProps(resp, txData),
                 };
             }
+
             // typically these two calls are executed in the same tx, so only one of them will be returned
-            if (tx.MoveCall.function === "anyone_pays_funds") {
+
+            if (tx.MoveCall.function === "anyone_pays_funds")
+            {
                 if (txInputs.length !== 2) return null;
                 return {
                     kind: "anyone_pays_funds",
@@ -109,7 +147,9 @@ export class AuctionTxParser
                     ...this.getCommonTxProps(resp, txData),
                 };
             }
-            if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
+
+            if (tx.MoveCall.function === "anyone_sends_item_to_winner")
+            {
                 if (txInputs.length !== 3) return null;
                 return {
                     kind: "anyone_sends_item_to_winner",
@@ -125,66 +165,6 @@ export class AuctionTxParser
         }
 
         return null;
-    }
-
-    /**
-     * Parse an `auction::anyone_bids` transaction.
-     * Assumes the tx block contains only one `anyone_bids` call.
-     */
-    protected anyone_bids(
-        resp: SuiTransactionBlockResponse,
-        txData: TxData,
-    ): TxAnyoneBids | null
-    {
-        let amount: bigint | undefined;
-        let type_coin: string | undefined;
-        let auction_addr: string | undefined;
-
-        for (const tx of txData.txs)
-        {
-            // find the SplitCoins tx and parse the bid amount
-            if (isTxSplitCoins(tx))
-            {
-                const splitTxInputs = tx.SplitCoins[1]
-                    .filter(arg => isArgInput(arg))
-                    .map(arg => txData.inputs[arg.Input]);
-
-                if (splitTxInputs.length !== 1) { return null; }
-
-                amount = getArgVal(splitTxInputs[0]);
-            }
-            // find the `anyone_bids` tx and parse the userId and auctionId
-            if (isTxMoveCall(tx) &&
-                tx.MoveCall.package === this.packageId &&
-                tx.MoveCall.module === "auction" &&
-                tx.MoveCall.function === "anyone_bids" &&
-                tx.MoveCall.arguments &&
-                tx.MoveCall.type_arguments
-            ) {
-                const bidTxInputs = tx.MoveCall.arguments
-                    .filter(arg => isArgInput(arg))
-                    .map(arg => txData.inputs[arg.Input]);
-
-                if (bidTxInputs.length !== 2) { return null; }
-
-                type_coin = tx.MoveCall.type_arguments[0];
-                auction_addr = getArgVal(bidTxInputs[0]);
-            }
-        }
-
-        if (!amount || !type_coin || !auction_addr) { return null; }
-
-        return {
-            kind: "anyone_bids",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            inputs: {
-                type_coin,
-                auction_addr,
-                amount,
-            },
-        };
     }
 
     // === object extractors ===
