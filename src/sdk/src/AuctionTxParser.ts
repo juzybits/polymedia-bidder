@@ -66,7 +66,6 @@ export class AuctionTxParser
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        // find the created auction object
         const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) { return null; }
 
@@ -74,7 +73,6 @@ export class AuctionTxParser
 
         for (const tx of txData.txs)
         {
-            // find the `admin_creates_auction` tx
             if (
                 !isTxMoveCall(tx) ||
                 !tx.MoveCall.arguments ||
@@ -86,7 +84,6 @@ export class AuctionTxParser
                 continue;
             }
 
-            // parse the tx inputs
             const txInputs = tx.MoveCall.arguments
                 .filter(arg => isArgInput(arg))
                 .map(arg => allInputs[arg.Input]);
@@ -196,12 +193,10 @@ export class AuctionTxParser
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        let type_coin: string | undefined;
-        let auction_addr: string | undefined;
+        let inputs: TxAnyonePaysFunds["inputs"] | undefined;
 
         for (const tx of txData.txs)
         {
-            // find the `anyone_pays_funds` tx
             if (isTxMoveCall(tx) &&
                 tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
@@ -215,22 +210,21 @@ export class AuctionTxParser
 
                 if (txInputs.length !== 2) { return null; }
 
-                type_coin = tx.MoveCall.type_arguments[0];
-                auction_addr = getArgVal(txInputs[0]);
+                inputs = {
+                    type_coin: tx.MoveCall.type_arguments[0],
+                    auction_addr: getArgVal(txInputs[0]),
+                };
             }
         }
 
-        if (!auction_addr || !type_coin) { return null; }
+        if (!inputs) { return null; }
 
         return {
             kind: "anyone_pays_funds",
             digest: resp.digest,
             timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
-            inputs: {
-                type_coin,
-                auction_addr,
-            },
+            inputs,
         };
     }
 
@@ -247,14 +241,10 @@ export class AuctionTxParser
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        let type_coin: string | undefined;
-        let type_item: string | undefined;
-        let auction_addr: string | undefined;
-        let item_addr: string | undefined;
+        let inputs: TxAnyoneSendsItemToWinner["inputs"] | undefined;
 
         for (const tx of txData.txs)
         {
-            // find the `anyone_sends_item_to_winner` tx
             if (isTxMoveCall(tx) &&
                 tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
@@ -268,26 +258,23 @@ export class AuctionTxParser
 
                 if (txInputs.length !== 3) { return null; }
 
-                type_coin = tx.MoveCall.type_arguments[0];
-                type_item = tx.MoveCall.type_arguments[1];
-                auction_addr = getArgVal(txInputs[0]);
-                item_addr = getArgVal(txInputs[1]);
+                inputs = {
+                    type_coin: tx.MoveCall.type_arguments[0],
+                    type_item: tx.MoveCall.type_arguments[1],
+                    auction_addr: getArgVal(txInputs[0]),
+                    item_addr: getArgVal(txInputs[1]),
+                };
             }
         }
 
-        if (!auction_addr || !item_addr || !type_coin || !type_item) { return null; }
+        if (!inputs) { return null; }
 
         return {
             kind: "anyone_sends_item_to_winner",
             digest: resp.digest,
             timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
-            inputs: {
-                type_coin,
-                type_item,
-                auction_addr,
-                item_addr,
-            },
+            inputs,
         };
     }
 
@@ -307,12 +294,10 @@ export class AuctionTxParser
         const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) { return null; }
 
-        let type_coin: string | undefined;
-        let auction_addr: string | undefined;
+        let inputs: TxAdminCancelsAuction["inputs"] | undefined;
 
         for (const tx of txData.txs)
         {
-            // find the `admin_cancels_auction` tx
             if (isTxMoveCall(tx) &&
                 tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
@@ -326,22 +311,21 @@ export class AuctionTxParser
 
                 if (txInputs.length !== 2) { return null; }
 
-                type_coin = tx.MoveCall.type_arguments[0];
-                auction_addr = getArgVal(txInputs[0]);
+                inputs = {
+                    type_coin: tx.MoveCall.type_arguments[0],
+                    auction_addr: getArgVal(txInputs[0]),
+                };
             }
         }
 
-        if (!auction_addr || !type_coin) { return null; }
+        if (!inputs) { return null; }
 
         return {
             kind: "admin_cancels_auction",
             digest: resp.digest,
             timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
-            inputs: {
-                type_coin,
-                auction_addr,
-            },
+            inputs,
         };
     }
 
@@ -357,12 +341,10 @@ export class AuctionTxParser
         const auctionObjChange = this.extractAuctionObjChange(resp);
         if (!auctionObjChange) { return null; }
 
-        let type_coin: string | undefined;
-        let auction_addr: string | undefined;
-        let pay_addr: string | undefined;
+        let inputs: TxAdminSetsPayAddr["inputs"] | undefined;
+
         for (const tx of txData.txs)
         {
-            // find the `admin_sets_pay_addr` tx
             if (isTxMoveCall(tx) &&
                 tx.MoveCall.package === this.packageId &&
                 tx.MoveCall.module === "auction" &&
@@ -376,24 +358,22 @@ export class AuctionTxParser
 
                 if (txInputs.length !== 3) { return null; }
 
-                type_coin = tx.MoveCall.type_arguments[0];
-                auction_addr = getArgVal(txInputs[0]);
-                pay_addr = getArgVal(txInputs[1]);
+                inputs = {
+                    type_coin: tx.MoveCall.type_arguments[0],
+                    auction_addr: getArgVal(txInputs[0]),
+                    pay_addr: getArgVal(txInputs[1]),
+                };
             }
         }
 
-        if (!auction_addr || !type_coin || !pay_addr) { return null; }
+        if (!inputs) { return null; }
 
         return {
             kind: "admin_sets_pay_addr",
             digest: resp.digest,
             timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
             sender: txData.sender,
-            inputs: {
-                type_coin,
-                auction_addr,
-                pay_addr,
-            },
+            inputs,
         };
     }
 
