@@ -477,7 +477,7 @@ export class BidderClient extends SuiClientBase
             throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
         }
 
-        const auctionObjChange = this.txParser.extractAuctionObjChange(resp) as SuiObjectChangeCreated;
+        const auctionObjChange = this.txParser.extractAuctionObjCreated(resp);
         if (!auctionObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
         }

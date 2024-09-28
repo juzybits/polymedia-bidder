@@ -66,7 +66,7 @@ export class AuctionTxParser
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        const auctionObjChange = this.extractAuctionObjChange(resp);
+        const auctionObjChange = this.extractAuctionObjCreated(resp);
         if (!auctionObjChange) { return null; }
 
         let createTxInputs: TxAdminCreatesAuction["inputs"] | undefined;
@@ -291,7 +291,7 @@ export class AuctionTxParser
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        const auctionObjChange = this.extractAuctionObjChange(resp);
+        const auctionObjChange = this.extractAuctionObjMutated(resp);
         if (!auctionObjChange) { return null; }
 
         let inputs: TxAdminCancelsAuction["inputs"] | undefined;
@@ -338,7 +338,7 @@ export class AuctionTxParser
         catch (_err) { return null; }
         const allInputs = txData.inputs;
 
-        const auctionObjChange = this.extractAuctionObjChange(resp);
+        const auctionObjChange = this.extractAuctionObjMutated(resp);
         if (!auctionObjChange) { return null; }
 
         let inputs: TxAdminSetsPayAddr["inputs"] | undefined;
@@ -382,13 +382,25 @@ export class AuctionTxParser
     /**
      * Extract the created Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
      */
-    public extractAuctionObjChange(
+    public extractAuctionObjCreated(
         resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeCreated | SuiObjectChangeMutated | undefined
+    ): SuiObjectChangeCreated | undefined
     {
         return resp.objectChanges?.find(o =>
-            o.type === "created" || o.type === "mutated" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
-        ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
+            o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
+        ) as SuiObjectChangeCreated | undefined;
+    }
+
+    /**
+     * Extract the mutated Auction object (if any) from `SuiTransactionBlockResponse.objectChanges`.
+     */
+    public extractAuctionObjMutated(
+        resp: SuiTransactionBlockResponse,
+    ): SuiObjectChangeMutated | undefined
+    {
+        return resp.objectChanges?.find(o =>
+            o.type === "mutated" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
+        ) as SuiObjectChangeMutated | undefined;
     }
 
     /**
