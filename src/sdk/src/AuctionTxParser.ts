@@ -1,4 +1,4 @@
-import { MoveCallSuiTransaction, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { MoveCallSuiTransaction, SuiCallArg, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgInput, isTxMoveCall, isTxSplitCoins, SuiObjectChangeCreated, SuiObjectChangeMutated, txResToData } from "@polymedia/suitcase-core";
 import { AnyAuctionTx, TxAdminCancelsAuction, TxAdminCreatesAuction, TxAdminSetsPayAddr, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "./AuctionTxTypes";
 
@@ -24,18 +24,19 @@ export class AuctionTxParser
 
         for (const tx of txData.txs)
         {
-            const isAuctionTx =
-                isTxMoveCall(tx) &&
-                tx.MoveCall.package === this.packageId &&
-                tx.MoveCall.module === "auction" &&
-                tx.MoveCall.arguments &&
-                tx.MoveCall.type_arguments;
+            if (!isTxMoveCall(tx) ||
+                tx.MoveCall.package !== this.packageId ||
+                tx.MoveCall.module !== "auction" ||
+                !tx.MoveCall.arguments ||
+                !tx.MoveCall.type_arguments
+            ) continue;
 
-            if (!isAuctionTx) {
-                continue;
-            }
+            const txInputs = tx.MoveCall.arguments
+                .filter(arg => isArgInput(arg))
+                .map(arg => txData.inputs[arg.Input]);
+
             if (tx.MoveCall.function === "admin_creates_auction") {
-                return this.admin_creates_auction(resp, txData, tx.MoveCall);
+                return this.admin_creates_auction(resp, txData, txInputs, tx.MoveCall);
             }
             if (tx.MoveCall.function === "anyone_bids") {
                 return this.anyone_bids(resp, txData);
@@ -44,17 +45,17 @@ export class AuctionTxParser
             //     return this.admin_accepts_bid(resp, txData);
             // }
             if (tx.MoveCall.function === "admin_cancels_auction") {
-                return this.admin_cancels_auction(resp, txData, tx.MoveCall);
+                return this.admin_cancels_auction(resp, txData, txInputs, tx.MoveCall);
             }
             if (tx.MoveCall.function === "admin_sets_pay_addr") {
-                return this.admin_sets_pay_addr(resp, txData, tx.MoveCall);
+                return this.admin_sets_pay_addr(resp, txData, txInputs, tx.MoveCall);
             }
             // typically these two calls are executed in the same tx, so only one of them will be returned
             if (tx.MoveCall.function === "anyone_pays_funds") {
-                return this.anyone_pays_funds(resp, txData, tx.MoveCall);
+                return this.anyone_pays_funds(resp, txData, txInputs, tx.MoveCall);
             }
             if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
-                return this.anyone_sends_item_to_winner(resp, txData, tx.MoveCall);
+                return this.anyone_sends_item_to_winner(resp, txData, txInputs, tx.MoveCall);
             }
         }
 
@@ -67,17 +68,14 @@ export class AuctionTxParser
     protected admin_creates_auction(
         resp: SuiTransactionBlockResponse,
         txData: TxData,
+        txInputs: SuiCallArg[],
         moveCall: MoveCallSuiTransaction,
     ): TxAdminCreatesAuction | null
     {
+        if (txInputs.length !== 10) { return null; }
+
         const auctionObjChange = this.extractAuctionObjCreated(resp);
         if (!auctionObjChange) { return null; }
-
-        const txInputs = moveCall.arguments!
-            .filter(arg => isArgInput(arg))
-            .map(arg => txData.inputs[arg.Input]);
-
-        if (txInputs.length !== 10) { return null; }
 
         return {
             kind: "admin_creates_auction",
@@ -166,15 +164,11 @@ export class AuctionTxParser
     protected anyone_pays_funds(
         resp: SuiTransactionBlockResponse,
         txData: TxData,
+        txInputs: SuiCallArg[],
         moveCall: MoveCallSuiTransaction,
     ): TxAnyonePaysFunds | null
     {
-        const txInputs = moveCall.arguments!
-            .filter(arg => isArgInput(arg))
-            .map(arg => txData.inputs[arg.Input]);
-
         if (txInputs.length !== 2) { return null; }
-
         return {
             kind: "anyone_pays_funds",
             digest: resp.digest,
@@ -193,15 +187,11 @@ export class AuctionTxParser
     protected anyone_sends_item_to_winner(
         resp: SuiTransactionBlockResponse,
         txData: TxData,
+        txInputs: SuiCallArg[],
         moveCall: MoveCallSuiTransaction,
     ): TxAnyoneSendsItemToWinner | null
     {
-        const txInputs = moveCall.arguments!
-            .filter(arg => isArgInput(arg))
-            .map(arg => txData.inputs[arg.Input]);
-
         if (txInputs.length !== 3) { return null; }
-
         return {
             kind: "anyone_sends_item_to_winner",
             digest: resp.digest,
@@ -218,20 +208,15 @@ export class AuctionTxParser
 
     /**
      * Parse an `auction::admin_cancels_auction` transaction.
-     * Assumes the tx block contains only one `admin_cancels_auction` call.
      */
     protected admin_cancels_auction(
         resp: SuiTransactionBlockResponse,
         txData: TxData,
+        txInputs: SuiCallArg[],
         moveCall: MoveCallSuiTransaction,
     ): TxAdminCancelsAuction | null
     {
-        const txInputs = moveCall.arguments!
-            .filter(arg => isArgInput(arg))
-            .map(arg => txData.inputs[arg.Input]);
-
         if (txInputs.length !== 2) { return null; }
-
         return {
             kind: "admin_cancels_auction",
             digest: resp.digest,
@@ -247,15 +232,11 @@ export class AuctionTxParser
     protected admin_sets_pay_addr(
         resp: SuiTransactionBlockResponse,
         txData: TxData,
+        txInputs: SuiCallArg[],
         moveCall: MoveCallSuiTransaction,
     ): TxAdminSetsPayAddr | null
     {
-        const txInputs = moveCall.arguments!
-            .filter(arg => isArgInput(arg))
-            .map(arg => txData.inputs[arg.Input]);
-
         if (txInputs.length !== 3) { return null; }
-
         return {
             kind: "admin_sets_pay_addr",
             digest: resp.digest,
