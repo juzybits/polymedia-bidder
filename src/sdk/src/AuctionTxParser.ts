@@ -36,7 +36,30 @@ export class AuctionTxParser
                 .map(arg => txData.inputs[arg.Input]);
 
             if (tx.MoveCall.function === "admin_creates_auction") {
-                return this.admin_creates_auction(resp, txData, txInputs, tx.MoveCall);
+                if (txInputs.length !== 10) return null;
+
+                const auctionObjChange = this.extractAuctionObjCreated(resp);
+                if (!auctionObjChange) { return null; }
+
+                return {
+                    kind: "admin_creates_auction",
+                    digest: resp.digest,
+                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+                    sender: txData.sender,
+                    auctionId: auctionObjChange.objectId,
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        name: getArgVal(txInputs[0]),
+                        description: getArgVal(txInputs[1]),
+                        item_addrs: getArgVal(txInputs[2]),
+                        pay_addr: getArgVal(txInputs[3]),
+                        begin_delay_ms: getArgVal(txInputs[4]),
+                        duration_ms: getArgVal(txInputs[5]),
+                        minimum_bid: getArgVal(txInputs[6]),
+                        minimum_increase_bps: getArgVal<number>(txInputs[7]),
+                        extension_period_ms: getArgVal(txInputs[8]),
+                    },
+                };
             }
             if (tx.MoveCall.function === "anyone_bids") {
                 return this.anyone_bids(resp, txData);
@@ -45,57 +68,64 @@ export class AuctionTxParser
             //     return this.admin_accepts_bid(resp, txData);
             // }
             if (tx.MoveCall.function === "admin_cancels_auction") {
-                return this.admin_cancels_auction(resp, txData, txInputs, tx.MoveCall);
+                if (txInputs.length !== 2) return null;
+                return {
+                    kind: "admin_cancels_auction",
+                    digest: resp.digest,
+                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+                    sender: txData.sender,
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        auction_addr: getArgVal(txInputs[0]),
+                    },
+                };
             }
             if (tx.MoveCall.function === "admin_sets_pay_addr") {
-                return this.admin_sets_pay_addr(resp, txData, txInputs, tx.MoveCall);
+                if (txInputs.length !== 3) return null;
+                return {
+                    kind: "admin_sets_pay_addr",
+                    digest: resp.digest,
+                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+                    sender: txData.sender,
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        auction_addr: getArgVal(txInputs[0]),
+                        pay_addr: getArgVal(txInputs[1]),
+                    },
+                };
             }
             // typically these two calls are executed in the same tx, so only one of them will be returned
             if (tx.MoveCall.function === "anyone_pays_funds") {
-                return this.anyone_pays_funds(resp, txData, txInputs, tx.MoveCall);
+                if (txInputs.length !== 2) return null;
+                return {
+                    kind: "anyone_pays_funds",
+                    digest: resp.digest,
+                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+                    sender: txData.sender,
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        auction_addr: getArgVal(txInputs[0]),
+                    },
+                };
             }
             if (tx.MoveCall.function === "anyone_sends_item_to_winner") {
-                return this.anyone_sends_item_to_winner(resp, txData, txInputs, tx.MoveCall);
+                if (txInputs.length !== 3) return null;
+                return {
+                    kind: "anyone_sends_item_to_winner",
+                    digest: resp.digest,
+                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+                    sender: txData.sender,
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        type_item: tx.MoveCall.type_arguments[1],
+                        auction_addr: getArgVal(txInputs[0]),
+                        item_addr: getArgVal(txInputs[1]),
+                    },
+                };
             }
         }
 
         return null;
-    }
-
-    /**
-     * Parse an `auction::admin_creates_auction` transaction.
-     */
-    protected admin_creates_auction(
-        resp: SuiTransactionBlockResponse,
-        txData: TxData,
-        txInputs: SuiCallArg[],
-        moveCall: MoveCallSuiTransaction,
-    ): TxAdminCreatesAuction | null
-    {
-        if (txInputs.length !== 10) { return null; }
-
-        const auctionObjChange = this.extractAuctionObjCreated(resp);
-        if (!auctionObjChange) { return null; }
-
-        return {
-            kind: "admin_creates_auction",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            auctionId: auctionObjChange.objectId,
-            inputs: {
-                type_coin: moveCall.type_arguments![0],
-                name: getArgVal(txInputs[0]),
-                description: getArgVal(txInputs[1]),
-                item_addrs: getArgVal(txInputs[2]),
-                pay_addr: getArgVal(txInputs[3]),
-                begin_delay_ms: getArgVal(txInputs[4]),
-                duration_ms: getArgVal(txInputs[5]),
-                minimum_bid: getArgVal(txInputs[6]),
-                minimum_increase_bps: getArgVal<number>(txInputs[7]),
-                extension_period_ms: getArgVal(txInputs[8]),
-            },
-        };
     }
 
     /**
@@ -154,98 +184,6 @@ export class AuctionTxParser
                 type_coin,
                 auction_addr,
                 amount,
-            },
-        };
-    }
-
-    /**
-     * Parse an `auction::anyone_pays_funds` transaction.
-     */
-    protected anyone_pays_funds(
-        resp: SuiTransactionBlockResponse,
-        txData: TxData,
-        txInputs: SuiCallArg[],
-        moveCall: MoveCallSuiTransaction,
-    ): TxAnyonePaysFunds | null
-    {
-        if (txInputs.length !== 2) { return null; }
-        return {
-            kind: "anyone_pays_funds",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            inputs: {
-                type_coin: moveCall.type_arguments![0],
-                auction_addr: getArgVal(txInputs[0]),
-            },
-        };
-    }
-
-    /**
-     * Parse an `auction::anyone_sends_item_to_winner` transaction.
-     */
-    protected anyone_sends_item_to_winner(
-        resp: SuiTransactionBlockResponse,
-        txData: TxData,
-        txInputs: SuiCallArg[],
-        moveCall: MoveCallSuiTransaction,
-    ): TxAnyoneSendsItemToWinner | null
-    {
-        if (txInputs.length !== 3) { return null; }
-        return {
-            kind: "anyone_sends_item_to_winner",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            inputs: {
-                type_coin: moveCall.type_arguments![0],
-                type_item: moveCall.type_arguments![1],
-                auction_addr: getArgVal(txInputs[0]),
-                item_addr: getArgVal(txInputs[1]),
-            },
-        };
-    }
-
-    /**
-     * Parse an `auction::admin_cancels_auction` transaction.
-     */
-    protected admin_cancels_auction(
-        resp: SuiTransactionBlockResponse,
-        txData: TxData,
-        txInputs: SuiCallArg[],
-        moveCall: MoveCallSuiTransaction,
-    ): TxAdminCancelsAuction | null
-    {
-        if (txInputs.length !== 2) { return null; }
-        return {
-            kind: "admin_cancels_auction",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            inputs: {
-                type_coin: moveCall.type_arguments![0],
-                auction_addr: getArgVal(txInputs[0]),
-            },
-        };
-    }
-
-    protected admin_sets_pay_addr(
-        resp: SuiTransactionBlockResponse,
-        txData: TxData,
-        txInputs: SuiCallArg[],
-        moveCall: MoveCallSuiTransaction,
-    ): TxAdminSetsPayAddr | null
-    {
-        if (txInputs.length !== 3) { return null; }
-        return {
-            kind: "admin_sets_pay_addr",
-            digest: resp.digest,
-            timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-            sender: txData.sender,
-            inputs: {
-                type_coin: moveCall.type_arguments![0],
-                auction_addr: getArgVal(txInputs[0]),
-                pay_addr: getArgVal(txInputs[1]),
             },
         };
     }
