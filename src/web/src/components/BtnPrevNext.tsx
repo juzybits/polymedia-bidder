@@ -1,6 +1,6 @@
-import { useFetchAndPaginate } from "../lib/useFetch";
-import { Btn } from "./Btn";
+import { useFetchAndPaginate } from "@polymedia/suitcase-react";
 import { RefObject } from "react";
+import { Btn } from "./Btn";
 
 export const BtnPrevNext: React.FC<{
     data: ReturnType<typeof useFetchAndPaginate>;

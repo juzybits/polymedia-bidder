@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
-import { LinkToExplorer } from "@polymedia/suitcase-react";
+import { LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";
 import React, { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -10,7 +10,6 @@ import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/card
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
-import { useFetchAndPaginate } from "./lib/useFetch";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const PAGE_SIZE = 25;

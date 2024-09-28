@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem } from "@polymedia/bidder-sdk";
 import { TimeUnit } from "@polymedia/suitcase-core";
-import { useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -12,7 +12,6 @@ import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
-import { useFetchAndLoadMore } from "./lib/useFetch";
 
 export const PageNew: React.FC = () =>
 {

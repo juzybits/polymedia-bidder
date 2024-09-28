@@ -1,10 +1,10 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, SuiItem, TxAdminCancelsAuction, TxAdminCreatesAuction, TxAdminSetsPayAddr, TxAnyoneBids, TxAnyonePaysFunds, TxAnyoneSendsItemToWinner } from "@polymedia/bidder-sdk";
+import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, SuiItem } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
-import { LinkToExplorer, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
+import { LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -16,7 +16,6 @@ import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } fr
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
-import { useFetchAndPaginate } from "./lib/useFetch";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
 const PAGE_SIZE_ACTIVITY = 25;
