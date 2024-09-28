@@ -802,6 +802,10 @@ const CardTransaction: React.FC<{
             className = "tx-bid";
             extraInfo = <Balance balance={tx.inputs.amount} coinType={tx.inputs.type_coin} />;
             break;
+        case "admin_accepts_bid":
+            title = "ENDED EARLY";
+            className = "tx-accept";
+            break;
         case "anyone_pays_funds":
         case "anyone_sends_item_to_winner":
             title = "FINALIZED";

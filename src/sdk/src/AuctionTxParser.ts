@@ -64,9 +64,19 @@ export class AuctionTxParser
             if (tx.MoveCall.function === "anyone_bids") {
                 return this.anyone_bids(resp, txData);
             }
-            // if (tx.MoveCall.function === "admin_accepts_bid") {
-            //     return this.admin_accepts_bid(resp, txData);
-            // }
+            if (tx.MoveCall.function === "admin_accepts_bid") {
+                if (txInputs.length !== 2) return null;
+                return {
+                    kind: "admin_accepts_bid",
+                    digest: resp.digest,
+                    timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
+                    sender: txData.sender,
+                    inputs: {
+                        type_coin: tx.MoveCall.type_arguments[0],
+                        auction_addr: getArgVal(txInputs[0]),
+                    },
+                };
+            }
             if (tx.MoveCall.function === "admin_cancels_auction") {
                 if (txInputs.length !== 2) return null;
                 return {

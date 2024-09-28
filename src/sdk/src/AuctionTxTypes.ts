@@ -6,7 +6,7 @@ export type AnyAuctionTx =
     | TxAnyoneBids
     | TxAnyonePaysFunds
     | TxAnyoneSendsItemToWinner
-    // | TxAdminAcceptsBid
+    | TxAdminAcceptsBid
     | TxAdminCancelsAuction
     | TxAdminSetsPayAddr;
 
