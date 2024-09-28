@@ -56,6 +56,9 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const id = objRes.data.objectId;
     const type = objRes.data.content.type;
     const display = objResToDisplay(objRes);
+    if (display.image_url?.startsWith("ipfs://")) {
+        display.image_url = display.image_url.replace("ipfs://", "https://ipfs.io/ipfs/");
+    }
     const fields = objRes.data.content.fields as Record<string, any>;
     const hasPublicTransfer = objRes.data.content.hasPublicTransfer;
     const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? "";
