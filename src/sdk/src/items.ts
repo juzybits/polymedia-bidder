@@ -1,6 +1,6 @@
 import { SuiObjectResponse } from "@mysten/sui/client";
 import {
-    isParsedDataObject,
+    isParsedDataKind,
     newEmptyDisplay,
     objResToDisplay,
     objResToFields,
@@ -49,7 +49,7 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     if (!objRes.data?.content) {
         throw Error(`response has no content: ${JSON.stringify(objRes, null, 2)}`);
     }
-    if (!isParsedDataObject(objRes.data.content)) {
+    if (!isParsedDataKind(objRes.data.content, "moveObject")) {
         throw Error(`response data is not a moveObject: ${JSON.stringify(objRes, null, 2)}`);
     }
 

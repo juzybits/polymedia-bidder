@@ -1,5 +1,5 @@
 import { SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { getArgVal, isArgInput, isTxKind, SuiObjectChangeCreated, SuiObjectChangeMutated, TxKind, txResToData } from "@polymedia/suitcase-core";
+import { getArgVal, isArgKind, isTxKind, ObjChangeKind, TxKind, txResToData } from "@polymedia/suitcase-core";
 import { AnyAuctionTx } from "./AuctionTxTypes";
 
 type TxData = ReturnType<typeof txResToData>;
@@ -39,7 +39,7 @@ export class AuctionTxParser
             ) continue;
 
             const txInputs = tx.MoveCall.arguments
-                .filter(arg => isArgInput(arg))
+                .filter(arg => isArgKind(arg, "Input"))
                 .map(arg => txData.inputs[arg.Input]);
 
             if (tx.MoveCall.function === "admin_creates_auction") {
@@ -76,7 +76,7 @@ export class AuctionTxParser
                     return null;
                 }
                 const splitTxInputs = splitCoinsTx.SplitCoins[1]
-                    .filter(arg => isArgInput(arg))
+                    .filter(arg => isArgKind(arg, "Input"))
                     .map(arg => txData.inputs[arg.Input]);
 
                 if (splitTxInputs.length !== 1) { return null; }
@@ -174,11 +174,11 @@ export class AuctionTxParser
      */
     public extractAuctionObjCreated(
         resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeCreated | undefined
+    ): ObjChangeKind<"created"> | undefined
     {
         return resp.objectChanges?.find(o =>
             o.type === "created" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
-        ) as SuiObjectChangeCreated | undefined;
+        ) as ObjChangeKind<"created"> | undefined;
     }
 
     /**
@@ -186,11 +186,11 @@ export class AuctionTxParser
      */
     public extractAuctionObjMutated(
         resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeMutated | undefined
+    ): ObjChangeKind<"mutated"> | undefined
     {
         return resp.objectChanges?.find(o =>
             o.type === "mutated" && o.objectType.startsWith(`${this.packageId}::auction::Auction<`)
-        ) as SuiObjectChangeMutated | undefined;
+        ) as ObjChangeKind<"mutated"> | undefined;
     }
 
     /**
@@ -198,11 +198,11 @@ export class AuctionTxParser
      */
     public extractUserObjChange(
         resp: SuiTransactionBlockResponse,
-    ): SuiObjectChangeCreated | SuiObjectChangeMutated | undefined
+    ): ObjChangeKind<"created" | "mutated"> | undefined
     {
         return resp.objectChanges?.find(o =>
             (o.type === "created" || o.type === "mutated") && o.objectType === `${this.packageId}::user::User`
-        ) as SuiObjectChangeCreated | SuiObjectChangeMutated | undefined;
+        ) as ObjChangeKind<"created" | "mutated"> | undefined;
     }
 
     // === helpers ===
