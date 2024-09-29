@@ -23,6 +23,12 @@ const PageDisplay: React.FC<DisplaySvgProps> = (displayProps) =>
 };
 
 const backgroundColor = "#0F4C75";
+const logo = {
+    name: "BIDDER",
+    borderColor: "black",
+    textColor: "yellow",
+    textSize: 7,
+};
 
 export const PageDevDisplayAuction: React.FC = () => (
     <PageDisplay
@@ -30,6 +36,7 @@ export const PageDevDisplayAuction: React.FC = () => (
         titleColor="#fff"
         titleSize={17}
         titleLine1="AUCTION"
+        logo={logo}
     />
 );
 
@@ -39,6 +46,7 @@ export const PageDevDisplayUser: React.FC = () => (
         titleColor="#fff"
         titleSize={25}
         titleLine1="USER"
+        logo={logo}
     />
 );
 
@@ -49,6 +57,7 @@ export const PageDevDisplayUserRegistry: React.FC = () => (
         titleSize={16}
         titleLine1="USER"
         titleLine2="REGISTRY"
+        logo={logo}
     />
 );
 
