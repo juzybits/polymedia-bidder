@@ -300,6 +300,8 @@ const ItemGridSelector: React.FC<{
     const { bidderClient, network } = useAppContext();
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
+        // (cursor) => bidderClient.fetchOwnedItems("0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505", cursor), // trevinsbuyingwallet.sui
+        // (cursor) => bidderClient.fetchOwnedItems("0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", cursor), // death.sui
         (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
         [bidderClient, currAcct],
     );

@@ -138,7 +138,11 @@ export class BidderClient extends SuiClientBase
     ) {
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
-            filter: { MatchNone: [{ StructType: "0x2::coin::Coin" }], },
+            filter: { MatchNone: [
+                { StructType: "0x2::coin::Coin" },
+                { StructType: "0x2::kiosk::KioskOwnerCap" },
+                { StructType: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap" },
+            ]},
             options: { showContent: true, showDisplay: true, showType: true },
             cursor,
             limit,
