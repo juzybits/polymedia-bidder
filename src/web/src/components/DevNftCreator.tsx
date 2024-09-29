@@ -3,7 +3,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { NestedResult, NetworkName } from "@polymedia/suitcase-core";
 import { useState } from "react";
 import { useAppContext } from "../App";
-import { getRandomDarkColor, getRandomLightColor, makeDevNftDisplay, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
+import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
 import { SubmitRes } from "../lib/types";
 import { Btn } from "./Btn";
 
@@ -16,14 +16,14 @@ export const DEV_PACKAGE_IDS: Record<NetworkName, string> = {
 
 const NFT_COUNT = 10;
 const NFT_DESCRIPTION = "A free NFT to test the BIDDER app";
-const NFT_TITLE_LINE_1 = "Dev NFT";
-const getNftTitleLine2 = () => {
+export const NFT_TITLE_LINE_1 = "Dev NFT";
+export const getNftTitleLine2 = () => {
     return `#${Math.floor(Math.random() * 9000) + 1000}`;
 };
 
 const getNftSvgDataUrl = (titleLine1: string, titleLine2: string): string =>
 {
-    const svgRaw = makeDevNftDisplay({
+    const svgRaw = makeDisplaySvg({
         titleLine1,
         titleLine2,
         textColor: getRandomLightColor(),

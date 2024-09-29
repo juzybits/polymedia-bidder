@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
+import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
+import { getNftTitleLine2, NFT_TITLE_LINE_1 } from "./components/DevNftCreator";
 
 type DisplayProps = {
+    textColor?: string;
+    backgroundColor?: string;
     titleLine1: string;
     titleLine2?: string;
     titleFontSize: number;
 }
 
 const PageDisplay: React.FC<DisplayProps> = ({
-    titleLine1, titleLine2, titleFontSize,
+    textColor, backgroundColor, titleLine1, titleLine2, titleFontSize,
 }) => {
     const [svgDataUrl, setSvgDataUrl] = useState("");
 
     useEffect(() =>
     {
         const svgRaw = makeDisplaySvg({
+            textColor,
+            backgroundColor,
             titleLine1,
             titleLine2,
             titleFontSize,
@@ -58,5 +63,15 @@ export const PageDevDisplayAuction: React.FC = () => (
     <PageDisplay
         titleLine1="AUCTION"
         titleFontSize={15}
+    />
+);
+
+export const PageDevDisplayDevNft: React.FC = () => (
+    <PageDisplay
+        titleLine1={NFT_TITLE_LINE_1}
+        titleLine2={getNftTitleLine2()}
+        titleFontSize={15}
+        textColor={getRandomLightColor()}
+        backgroundColor={getRandomDarkColor()}
     />
 );
