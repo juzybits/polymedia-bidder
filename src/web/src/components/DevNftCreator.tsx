@@ -24,10 +24,11 @@ export const getNftTitleLine2 = () => {
 const getNftSvgDataUrl = (titleLine1: string, titleLine2: string): string =>
 {
     const svgRaw = makeDisplaySvg({
+        backgroundColor: getRandomDarkColor(),
+        titleColor: getRandomLightColor(),
+        titleSize: 20,
         titleLine1,
         titleLine2,
-        textColor: getRandomLightColor(),
-        backgroundColor: getRandomDarkColor(),
     });
 
     const svgTrimmed = trimSvg(svgRaw);

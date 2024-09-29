@@ -1,11 +1,20 @@
+export type DisplaySvgProps = {
+    backgroundColor: string;
+    titleColor: string;
+    titleSize: number;
+    titleLine1: string;
+    titleLine2?: string;
+    fontFamily?: string;
+};
+
 export function makeDisplaySvg({
-    textColor = "white",
-    backgroundColor = "#0F4C75",
-    fontFamily = "Arial,sans-serif",
-    titleLine1 = "PLACEHOLDER",
+    backgroundColor,
+    titleColor,
+    titleSize,
+    titleLine1,
     titleLine2 = "",
-    titleFontSize = 20,
-}): string {
+    fontFamily = "system-ui,sans-serif",
+}: DisplaySvgProps): string {
     return `
     <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" fill="${backgroundColor}"/>
@@ -13,9 +22,9 @@ export function makeDisplaySvg({
             x="50"
             y="50"
             font-family="${fontFamily}"
-            font-size="${titleFontSize}"
+            font-size="${titleSize}"
             font-weight="bold"
-            fill="${textColor}"
+            fill="${titleColor}"
             text-anchor="middle"
             dominant-baseline="middle"
         >

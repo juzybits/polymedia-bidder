@@ -1,77 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
 import { getNftTitleLine2, NFT_TITLE_LINE_1 } from "./components/DevNftCreator";
+import { DisplaySvgProps, getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
 
-type DisplayProps = {
-    textColor?: string;
-    backgroundColor?: string;
-    titleLine1: string;
-    titleLine2?: string;
-    titleFontSize: number;
-}
+const PageDisplay: React.FC<DisplaySvgProps> = (displayProps) =>
+{
+    const svgRaw = makeDisplaySvg(displayProps);
+    const svgTrimmed = trimSvg(svgRaw);
+    const svgDataUrl = svgToDataUrl(svgTrimmed);
 
-const PageDisplay: React.FC<DisplayProps> = ({
-    textColor, backgroundColor, titleLine1, titleLine2, titleFontSize,
-}) => {
-    const [svgDataUrl, setSvgDataUrl] = useState("");
-
-    useEffect(() =>
-    {
-        const svgRaw = makeDisplaySvg({
-            textColor,
-            backgroundColor,
-            titleLine1,
-            titleLine2,
-            titleFontSize,
-        });
-
-        const svgTrimmed = trimSvg(svgRaw);
-        const svgDataUrl = svgToDataUrl(svgTrimmed);
-        setSvgDataUrl(svgDataUrl);
-
-        console.log(svgDataUrl.length);
-        console.log(svgDataUrl);
-    }, [titleLine1, titleLine2, titleFontSize]);
+    console.log(svgDataUrl.length);
+    console.log(svgDataUrl);
 
     return (
         <div className="page-regular">
             <div className="page-content">
                 <div className="page-section" style={{border: "1px solid", marginTop: "1rem"}}>
-                    <img src={svgDataUrl} alt={`${titleLine1} ${titleLine2 || ''}`} />
+                    <img src={svgDataUrl} />
                 </div>
             </div>
         </div>
     );
 };
 
-export const PageDevDisplayUserRegistry: React.FC = () => (
+export const PageDevDisplayAuction: React.FC = () => (
     <PageDisplay
-        titleLine1="USER"
-        titleLine2="REGISTRY"
-        titleFontSize={15}
+        backgroundColor={getRandomDarkColor()}
+        titleColor="#fff"
+        titleSize={15}
+        titleLine1="AUCTION"
     />
 );
 
 export const PageDevDisplayUser: React.FC = () => (
     <PageDisplay
+        backgroundColor={getRandomDarkColor()}
+        titleColor="#fff"
+        titleSize={20}
         titleLine1="USER"
-        titleFontSize={20}
     />
 );
 
-export const PageDevDisplayAuction: React.FC = () => (
+export const PageDevDisplayUserRegistry: React.FC = () => (
     <PageDisplay
-        titleLine1="AUCTION"
-        titleFontSize={15}
+        backgroundColor={getRandomDarkColor()}
+        titleColor="#fff"
+        titleSize={15}
+        titleLine1="USER"
+        titleLine2="REGISTRY"
     />
 );
 
 export const PageDevDisplayDevNft: React.FC = () => (
     <PageDisplay
+        backgroundColor={getRandomDarkColor()}
+        titleColor={getRandomLightColor()}
         titleLine1={NFT_TITLE_LINE_1}
         titleLine2={getNftTitleLine2()}
-        titleFontSize={15}
-        textColor={getRandomLightColor()}
-        backgroundColor={getRandomDarkColor()}
+        titleSize={15}
     />
 );
