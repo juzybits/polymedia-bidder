@@ -120,33 +120,6 @@ export const CardSuiItem: React.FC<{
     );
 };
 
-export const CardChosenItem: React.FC<{
-    item: SuiItem;
-    isChosen?: boolean;
-    onClick?: () => void;
-}> = ({
-    item,
-    isChosen = false,
-    onClick = undefined,
-}) =>
-{
-    const imgSrc = item.display.image_url ?? svgNoImage;
-    const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
-    return (
-        <div className="chosen-item" onClick={onClick}>
-            <div className="item-img">
-                <img src={imgSrc} className={imgClass}/>
-                {isChosen && <IconCheck className="item-chosen icon" /> }
-            </div>
-            <div className="item-info">
-                <div className="item-title break-any">
-                    {item.nameShort ? item.nameShort : shortenAddress(item.type)}
-                </div>
-            </div>
-        </div>
-    );
-};
-
 export const CardAuctionItems: React.FC<{
     items: SuiItem[];
     hiddenItemCount: number;

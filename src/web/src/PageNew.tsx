@@ -1,15 +1,15 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, SuiItem } from "@polymedia/bidder-sdk";
-import { TimeUnit } from "@polymedia/suitcase-core";
+import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
-import { CardChosenItem, CardSpinner, CardSuiItem, CardWithMsg } from "./components/cards";
+import { CardSpinner, CardSuiItem, CardWithMsg } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
-import { IconInfo } from "./components/icons";
+import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
@@ -363,4 +363,31 @@ const ItemGridSelector: React.FC<{
         </Btn>
     </div>}
     </>;
+};
+
+const CardChosenItem: React.FC<{
+    item: SuiItem;
+    isChosen?: boolean;
+    onClick?: () => void;
+}> = ({
+    item,
+    isChosen = false,
+    onClick = undefined,
+}) =>
+{
+    const imgSrc = item.display.image_url ?? svgNoImage;
+    const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
+    return (
+        <div className="chosen-item" onClick={onClick}>
+            <div className="item-img">
+                <img src={imgSrc} className={imgClass}/>
+                {isChosen && <IconCheck className="item-chosen icon" /> }
+            </div>
+            <div className="item-info">
+                <div className="item-title break-any">
+                    {item.nameShort ? item.nameShort : shortenAddress(item.type)}
+                </div>
+            </div>
+        </div>
+    );
 };
