@@ -297,7 +297,7 @@ const ItemGridSelector: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient, network } = useAppContext();
+    const { bidderClient, network, setModalContent } = useAppContext();
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         // (cursor) => bidderClient.fetchOwnedItems("0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505", cursor), // trevinsbuyingwallet.sui
@@ -332,7 +332,7 @@ const ItemGridSelector: React.FC<{
             const isChosen = isChosenItem(item);
             return (
             <div className="card grid-item" key={item.id}
-                onClick={() => (isChosen || !disableAddItem) && addOrRemoveItem(item)}
+                onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
             >
                 <CardSuiItem item={item}
                     isChosen={isChosen}
@@ -341,6 +341,10 @@ const ItemGridSelector: React.FC<{
                             <button
                                 className={`btn ${isChosen ? "red" : ""}`}
                                 disabled={!isChosen && disableAddItem}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    (isChosen || !disableAddItem) && addOrRemoveItem(item);
+                                }}
                             >
                                 {isChosen ? "REMOVE" : "ADD"}
                             </button>

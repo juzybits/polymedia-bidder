@@ -130,7 +130,7 @@ export const CardAuctionItems: React.FC<{
 {
     const { setModalContent } = useAppContext();
 
-    const showModal = (e: React.MouseEvent<HTMLDivElement>, item: SuiItem) => {
+    const showItemModal = (e: React.MouseEvent<HTMLDivElement>, item: SuiItem) => {
         e.preventDefault();
         setModalContent(<CardSuiItem item={item} verbose={true} />);
     };
@@ -138,7 +138,7 @@ export const CardAuctionItems: React.FC<{
     return <>
         <div className="grid">
             {items.map((item, idx) => (
-                <div className="card grid-item" key={idx} onClick={(e) => showModal(e, item)}>
+                <div className="card grid-item" key={idx} onClick={(e) => showItemModal(e, item)}>
                     <CardSuiItem item={item} />
                 </div>
             ))}
