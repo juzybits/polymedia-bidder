@@ -15,7 +15,7 @@ import { Glitch } from "./components/Glitch";
 import { IconGears, IconHistory, IconNew } from "./components/icons";
 import { Modal } from "./components/Modal";
 import { PageAuction } from "./PageAuction";
-import { PageDevDisplayAuction, PageDevDisplayUser, PageDevDisplayUserRegistry } from "./PageDev";
+import { PageDevDisplayAuction, PageDevDisplayUser, PageDevDisplayUserRegistry } from "./PageDisplay";
 import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
