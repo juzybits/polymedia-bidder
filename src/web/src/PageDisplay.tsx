@@ -14,37 +14,39 @@ const PageDisplay: React.FC<DisplaySvgProps> = (displayProps) =>
     return (
         <div className="page-regular">
             <div className="page-content">
-                <div className="page-section" style={{border: "1px solid", marginTop: "1rem"}}>
-                    <img src={svgDataUrl} />
+                <div className="page-section">
+                    <img className="display-demo" src={svgDataUrl} />
                 </div>
             </div>
         </div>
     );
 };
 
+const backgroundColor = "#0F4C75";
+
 export const PageDevDisplayAuction: React.FC = () => (
     <PageDisplay
-        backgroundColor={getRandomDarkColor()}
+        backgroundColor={backgroundColor}
         titleColor="#fff"
-        titleSize={15}
+        titleSize={17}
         titleLine1="AUCTION"
     />
 );
 
 export const PageDevDisplayUser: React.FC = () => (
     <PageDisplay
-        backgroundColor={getRandomDarkColor()}
+        backgroundColor={backgroundColor}
         titleColor="#fff"
-        titleSize={20}
+        titleSize={25}
         titleLine1="USER"
     />
 );
 
 export const PageDevDisplayUserRegistry: React.FC = () => (
     <PageDisplay
-        backgroundColor={getRandomDarkColor()}
+        backgroundColor={backgroundColor}
         titleColor="#fff"
-        titleSize={15}
+        titleSize={16}
         titleLine1="USER"
         titleLine2="REGISTRY"
     />
