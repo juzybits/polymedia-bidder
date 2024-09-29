@@ -8,24 +8,17 @@ export const PageDevDisplayAuction: React.FC = () =>
     useEffect(() =>
     {
         const svgRaw = makeDisplaySvg({
-            appName: "BIDDER",
-            titleText: "AUCTION",
-            descriptionText: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore",
-            titleFontSize: "150px",
-            descriptionFontSize: "70px",
+            // appName: "BIDDER",
+            titleLine1: "AUCTION",
+            titleFontSize: 15,
         });
 
         const svgTrimmed = trimSvg(svgRaw);
         const svgDataUrl = svgToDataUrl(svgTrimmed);
         setSvgDataUrl(svgDataUrl);
 
-        const displayUrl = svgDataUrl.replace(
-            "Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit%2C%20sed%20do%20eiusmod%20tempor%20incididunt%20ut%20labore",
-            "{name}",
-        );
-
-        console.log(displayUrl.length);
-        console.log(displayUrl);
+        console.log(svgDataUrl.length);
+        console.log(svgDataUrl);
     }, []);
 
     return (

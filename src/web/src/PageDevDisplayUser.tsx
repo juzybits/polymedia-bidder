@@ -8,9 +8,9 @@ export const PageDevDisplayUser: React.FC = () =>
     useEffect(() =>
     {
         const svgRaw = makeDisplaySvg({
-            appName: "BIDDER",
-            titleText: "USER",
-            titleFontSize: "200px",
+            // appName: "BIDDER",
+            titleLine1: "USER",
+            titleFontSize: 20,
         });
 
         const svgTrimmed = trimSvg(svgRaw);
