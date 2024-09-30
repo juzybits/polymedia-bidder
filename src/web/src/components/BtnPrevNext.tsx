@@ -17,7 +17,7 @@ export const BtnPrevNext: React.FC<{
 
     const handlePageChange = () => {
         if (scrollToRefOnPageChange?.current) {
-            const navBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-bar-height'));
+            const navBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-bar-height"));
             const extraOffset = 9;
             const totalOffset = navBarHeight + extraOffset;
             const yOffset = scrollToRefOnPageChange.current.getBoundingClientRect().top + window.scrollY - totalOffset;

@@ -11,7 +11,7 @@ import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from 
 const PAGE_SIZE_RECENT = 12;
 const MAX_ITEMS_PER_AUCTION = 3;
 
-const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[]; }[]> = {
+const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[] }[]> = {
     "mainnet": [],
     "testnet": [],
     "devnet": [
@@ -66,7 +66,7 @@ export const HeroBanner: React.FC = () => {
             </div>
         </div>
     );
-}
+};
 
 const SectionFeaturedAuctions: React.FC = () =>
 {

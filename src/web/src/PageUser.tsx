@@ -59,7 +59,7 @@ export const PageUser: React.FC = () =>
     if (errorFetchUserId) {
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
     } else if (!addressToFetch) {
-        content = <div className="card compact"><ConnectToGetStarted /></div>
+        content = <div className="card compact"><ConnectToGetStarted /></div>;
     } else if (userId === undefined) {
         content = <CardSpinner />;
     } else {
@@ -101,7 +101,7 @@ const SectionUserBids: React.FC<{
 {
     const { bidderClient } = useAppContext();
 
-    const history = useFetchAndPaginate<{evt: UserBid, obj: AuctionObj}, number|undefined>(
+    const history = useFetchAndPaginate<{evt: UserBid; obj: AuctionObj}, number|undefined>(
         async (cursor) => {
             if (!userId) {
                 return EmptyPaginatedResponse;
@@ -114,7 +114,7 @@ const SectionUserBids: React.FC<{
             return {
                 data: events.bids.map(evt => ({
                     evt,
-                    obj: auctionMap.get(evt.auction_addr) as AuctionObj,
+                    obj: auctionMap.get(evt.auction_addr)!,
                 })),
                 hasNextPage: events.hasNextPage,
                 nextCursor: events.nextCursor,
@@ -153,7 +153,7 @@ const SectionUserAuctions: React.FC<{
 {
     const { bidderClient } = useAppContext();
 
-    const history = useFetchAndPaginate<{evt: UserAuction, obj: AuctionObj}, number|undefined>(
+    const history = useFetchAndPaginate<{evt: UserAuction; obj: AuctionObj}, number|undefined>(
         async (cursor) => {
             if (!userId) {
                 return EmptyPaginatedResponse;
@@ -166,7 +166,7 @@ const SectionUserAuctions: React.FC<{
             return {
                 data: events.auctions.map(evt => ({
                     evt,
-                    obj: auctionMap.get(evt.auction_addr) as AuctionObj,
+                    obj: auctionMap.get(evt.auction_addr)!,
                 })),
                 hasNextPage: events.hasNextPage,
                 nextCursor: events.nextCursor,

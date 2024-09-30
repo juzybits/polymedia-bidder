@@ -36,8 +36,8 @@ export function makeDisplaySvg({
             text-anchor="middle"
             dominant-baseline="middle"
         >
-            <tspan x="50" dy="${titleLine2 ? '-0.5em' : '0'}">${titleLine1}</tspan>
-            ${titleLine2 ? `<tspan x="50" dy="1.3em">${titleLine2}</tspan>` : ''}
+            <tspan x="50" dy="${titleLine2 ? "-0.5em" : "0"}">${titleLine1}</tspan>
+            ${titleLine2 ? `<tspan x="50" dy="1.3em">${titleLine2}</tspan>` : ""}
         </text>
         ${logo ? `
         <text
@@ -56,7 +56,7 @@ export function makeDisplaySvg({
                 paint-order="stroke"
             >${logo.name}</tspan>
         </text>
-        ` : ''}
+        ` : ""}
     </svg>`.trim();
 }
 

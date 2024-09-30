@@ -1,7 +1,7 @@
 import { SuiObjectResponse } from "@mysten/sui/client";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import { objResToFields, objResToType, ZERO_ADDRESS } from "@polymedia/suitcase-core";
-import { SuiItem } from "./items";
+import { SuiItem } from "./items.js";
 
 /**
  * A Sui bidder::auction::Auction object
