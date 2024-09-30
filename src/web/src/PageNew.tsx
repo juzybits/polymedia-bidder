@@ -331,7 +331,7 @@ const ItemGridSelector: React.FC<{
         {
             const isChosen = isChosenItem(item);
             return (
-            <div className="card grid-item" key={item.id}
+            <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
                 onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
             >
                 <CardSuiItem item={item}

@@ -71,5 +71,3 @@ export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
         registryId: "",
     },
 };
-
-// TODO: list of verified NFT collections
