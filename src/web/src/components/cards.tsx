@@ -4,7 +4,8 @@ import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@pol
 import { LinkExternal, LinkToExplorer } from "@polymedia/suitcase-react";
 import React from "react";
 import { useAppContext } from "../App";
-import { IconCheck } from "./icons";
+import { VERIFIED_IDS } from "../lib/verified";
+import { IconCheck, IconVerified } from "./icons";
 
 // === cards ===
 
@@ -38,13 +39,15 @@ export const CardSuiItem: React.FC<{
 {
     const { explorer, network } = useAppContext();
 
+    const isVerified = VERIFIED_IDS[network].includes(item.type.split("::")[0]);
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
     return (
         <div className="sui-item" onClick={onClick}>
             <div className="item-img">
                 <img src={imgSrc} className={imgClass}/>
-                {isChosen && <IconCheck className="item-chosen icon" /> }
+                {isChosen ? <IconCheck className="item-chosen icon" />
+                : isVerified && <IconVerified className="item-verified icon" />}
             </div>
             <div className="item-info">
                 <div className="item-title break-any">
@@ -86,7 +89,7 @@ export const CardSuiItem: React.FC<{
                         {item.display.link &&
                         <div className="detail">
                             <span className="detail-label">Object link:</span>
-                            <LinkExternal html={{ href: item.display.link }}>
+                            <LinkExternal href={item.display.link}>
                                 {urlToDomain(item.display.link)}
                             </LinkExternal>
                         </div>}
@@ -98,7 +101,7 @@ export const CardSuiItem: React.FC<{
                         {item.display.project_url &&
                         <div className="detail">
                             <span className="detail-label">Project URL:</span>
-                            <LinkExternal html={{ href: item.display.project_url }}>
+                            <LinkExternal href={item.display.project_url}>
                                 {urlToDomain(item.display.project_url)}
                             </LinkExternal>
                         </div>}
