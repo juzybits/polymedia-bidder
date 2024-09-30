@@ -48,9 +48,9 @@ export const UserModule =
             target: `${packageId}::user::get_auctions_created`,
             arguments: [
                 objectArg(tx, user),
-                tx.pure.bool(ascending), // TODO move to end after redeployment
                 tx.pure.u64(cursor),
                 tx.pure.u64(limit),
+                tx.pure.bool(ascending),
             ],
         });
     },
@@ -67,9 +67,9 @@ export const UserModule =
             target: `${packageId}::user::get_bids_placed`,
             arguments: [
                 objectArg(tx, user),
-                tx.pure.bool(ascending), // TODO move to end after redeployment
                 tx.pure.u64(cursor),
                 tx.pure.u64(limit),
+                tx.pure.bool(ascending),
             ],
         });
     },
@@ -88,11 +88,11 @@ export const UserModule =
             target: `${packageId}::user::get_auctions_and_bids`,
             arguments: [
                 objectArg(tx, user),
-                tx.pure.bool(ascending), // TODO move to end after redeployment
                 tx.pure.u64(cursor_created),
                 tx.pure.u64(cursor_bids),
                 tx.pure.u64(limit_created),
                 tx.pure.u64(limit_bids),
+                tx.pure.bool(ascending),
             ],
         });
     },
