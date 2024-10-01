@@ -299,18 +299,20 @@ const ItemGridSelector: React.FC<{
 
     const { bidderClient, network, setModalContent } = useAppContext();
 
+    const currAddr = currAcct.address;
+    // const currAddr = "0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505" // trevinsbuyingwallet.sui
+    // const currAddr = "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
+    // const currAddr = "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
+
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
-        // (cursor) => bidderClient.fetchOwnedItems("0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", cursor), // trevin.sui
-        // (cursor) => bidderClient.fetchOwnedItems("0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505", cursor), // trevinsbuyingwallet.sui
-        // (cursor) => bidderClient.fetchOwnedItems("0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", cursor), // death.sui
-        (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
+        (cursor) => bidderClient.fetchOwnedItems(currAddr, "item", cursor),
         [bidderClient, currAcct],
     );
 
     const showKiosks = true;
     const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
-    const kioskItems = useFetch<SuiItem[]>(async () => {
-        if (!showKiosks) { return []; }
+    const ownedKiosks = useFetch<SuiItem[]>(async () => {
+        if (!showKiosks || toggleChoice === "nfts") { return []; }
         const kioskIds = ownedItems.data
             .filter(i => !!i.kioskCap)
             .map(i => i.kioskCap!.forId);
@@ -320,7 +322,7 @@ const ItemGridSelector: React.FC<{
             items.push(...kioskItems);
         }
         return items;
-    }, [bidderClient, ownedItems.data]);
+    }, [bidderClient, ownedItems.data, toggleChoice]);
 
     // === html ===
 
@@ -345,7 +347,7 @@ const ItemGridSelector: React.FC<{
         ? <>Select the items you want to sell.</>
         : (network === "mainnet" || DEV_PACKAGE_IDS[network] === "")
             ? <>You don't own any items.</>
-            : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAcct.address, null)} />}
+            : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, "item", null)} />}
     </div>
     {ownedItems.data.length > 0 &&
     <div className="grid">
