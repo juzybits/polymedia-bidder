@@ -20,7 +20,8 @@ export type SuiItem = {
     nameFull: string;
     nameShort: string;
     desc: string;
-    kiosk: null | { forId: string; }
+    kioskCap: null | { forId: string; }
+    kioskItem: null | { ofId: string; }
 };
 
 export function newItemPlaceholder(addr: string): SuiItem {
@@ -35,7 +36,8 @@ export function newItemPlaceholder(addr: string): SuiItem {
         nameFull: addr,
         nameShort: shortenAddress(addr),
         desc: "",
-        kiosk: null,
+        kioskCap: null,
+        kioskItem: null,
     };
 }
 
@@ -67,9 +69,9 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const nameShort = nameFull.length <= MAX_NAME_LENGTH
         ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
     const desc = display.description?.trim() ?? fields.description ?? null;
-    const kiosk = type.match(/^0+x2::kiosk::KioskOwnerCap$/)
-        ? { forId: fields.for } : null;
-    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kiosk };
+    const kioskCap = type.match(/^0x0*2::kiosk::KioskOwnerCap$/) ? { forId: fields.for } : null;
+    const kioskItem = null; // set by BidderClient
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskCap, kioskItem };
 }
 /* eslint-enable */
 

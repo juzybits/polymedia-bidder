@@ -1,7 +1,7 @@
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, getCoinOfValue, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, fetchAllDynamicFields, getCoinOfValue, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
@@ -27,6 +27,7 @@ export class BidderClient extends SuiClientBase
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
         userIds: Map<string, string>;
+        kioskItemIds: Map<string, string[]>;
     };
 
     constructor(
@@ -45,6 +46,7 @@ export class BidderClient extends SuiClientBase
             auctions: new Map(),
             items: new Map(),
             userIds: new Map(),
+            kioskItemIds: new Map(),
         };
     }
 
@@ -131,6 +133,30 @@ export class BidderClient extends SuiClientBase
         );
     }
 
+    public async fetchAllKioskItems(
+        kioskId: string,
+        useCache = true,
+    ): Promise<SuiItem[]>
+    {
+        const cachedIds = this.cache.kioskItemIds.get(kioskId);
+        if (cachedIds) {
+            const items = await this.fetchItems(cachedIds, useCache);
+            return items;
+        }
+
+        const dfs = await fetchAllDynamicFields(this.suiClient, kioskId, 0);
+        const kioskItemIds = dfs
+            .filter(df => df.name.type.match(/^0x0*2::kiosk::Item$/))
+            .map(df => df.objectId);
+        this.cache.kioskItemIds.set(kioskId, kioskItemIds);
+
+        const kioskItems = await this.fetchItems(kioskItemIds, useCache);
+        for (const item of kioskItems) {
+            item.kioskItem = { ofId: kioskId };
+        }
+        return kioskItems;
+    }
+
     public async fetchOwnedItems(
         owner: string,
         cursor: string | null | undefined,
@@ -143,6 +169,7 @@ export class BidderClient extends SuiClientBase
                 { StructType: "0x2::kiosk::KioskOwnerCap" },
                 { StructType: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap" },
             ]},
+            // filter: { StructType: "0x2::kiosk::KioskOwnerCap" },
             options: { showContent: true, showDisplay: true, showType: true },
             cursor,
             limit,

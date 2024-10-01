@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
-import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { fetchAllDynamicFields, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
+import { useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -300,46 +300,23 @@ const ItemGridSelector: React.FC<{
     const { bidderClient, network, setModalContent } = useAppContext();
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
+        // (cursor) => bidderClient.fetchOwnedItems("0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b", cursor), // trevin.sui
         // (cursor) => bidderClient.fetchOwnedItems("0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505", cursor), // trevinsbuyingwallet.sui
         // (cursor) => bidderClient.fetchOwnedItems("0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031", cursor), // death.sui
         (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
         [bidderClient, currAcct],
     );
-
-    // === effects ===
-
-    useEffect(() =>
-    {
-        const uncachedKioskItemIds = ownedItems.data
-            .filter(item => item.kiosk && !kioskItems.has(item.kiosk.forId))
-            .map(item => item.kiosk!.forId);
-
-        if (uncachedKioskItemIds.length === 0) return;
-
-        const fetchKioskItems = async () => {
-            const promises = uncachedKioskItemIds.map(kioskId =>
-                bidderClient.suiClient.getDynamicFields({ parentId: kioskId })
-            );
-
-            try {
-                const results = await Promise.all(promises);
-                const newKioskItems = new Map(kioskItems);
-
-                results.forEach((result, index) => {
-                    const kioskId = uncachedKioskItemIds[index];
-                    const items = result.data.map(field => ({
-                        id: field.objectId,
-                    }));
-                    newKioskItems.set(kioskId, items);
-                });
-
-                setKioskItems(newKioskItems);
-            } catch (error) {
-                console.error("Error fetching kiosk items:", error);
-            }
-        };
-        fetchKioskItems();
-    }, [ownedItems]);
+    const kioskItems = useFetch<SuiItem[]>(async () => {
+        const kioskIds = ownedItems.data
+            .filter(i => !!i.kioskCap)
+            .map(i => i.kioskCap!.forId);
+        const items: SuiItem[] = [];
+        for (const kioskId of kioskIds) {
+            const kioskItems = await bidderClient.fetchAllKioskItems(kioskId, true);
+            items.push(...kioskItems);
+        }
+        return items;
+    }, [bidderClient, ownedItems.data]);
 
     // === html ===
 
