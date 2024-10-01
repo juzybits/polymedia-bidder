@@ -2,7 +2,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
@@ -305,6 +305,41 @@ const ItemGridSelector: React.FC<{
         (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
         [bidderClient, currAcct],
     );
+
+    // === effects ===
+
+    useEffect(() =>
+    {
+        const uncachedKioskItemIds = ownedItems.data
+            .filter(item => item.kiosk && !kioskItems.has(item.kiosk.forId))
+            .map(item => item.kiosk!.forId);
+
+        if (uncachedKioskItemIds.length === 0) return;
+
+        const fetchKioskItems = async () => {
+            const promises = uncachedKioskItemIds.map(kioskId =>
+                bidderClient.suiClient.getDynamicFields({ parentId: kioskId })
+            );
+
+            try {
+                const results = await Promise.all(promises);
+                const newKioskItems = new Map(kioskItems);
+
+                results.forEach((result, index) => {
+                    const kioskId = uncachedKioskItemIds[index];
+                    const items = result.data.map(field => ({
+                        id: field.objectId,
+                    }));
+                    newKioskItems.set(kioskId, items);
+                });
+
+                setKioskItems(newKioskItems);
+            } catch (error) {
+                console.error("Error fetching kiosk items:", error);
+            }
+        };
+        fetchKioskItems();
+    }, [ownedItems]);
 
     // === html ===
 
