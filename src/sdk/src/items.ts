@@ -20,8 +20,12 @@ export type SuiItem = {
     nameFull: string;
     nameShort: string;
     desc: string;
-    kioskCap: null | { forId: string; }
     kioskItem: null | { ofId: string; }
+};
+
+export type SuiKioskCap = {
+    id: ReturnType<typeof objResToId>;
+    forId: string;
 };
 
 export function newItemPlaceholder(addr: string): SuiItem {
@@ -36,7 +40,6 @@ export function newItemPlaceholder(addr: string): SuiItem {
         nameFull: addr,
         nameShort: shortenAddress(addr),
         desc: "",
-        kioskCap: null,
         kioskItem: null,
     };
 }
@@ -69,9 +72,32 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const nameShort = nameFull.length <= MAX_NAME_LENGTH
         ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
     const desc = display.description?.trim() ?? fields.description ?? null;
-    const kioskCap = type.match(/^0x0*2::kiosk::KioskOwnerCap$/) ? { forId: fields.for } : null;
     const kioskItem = null; // set by BidderClient
-    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskCap, kioskItem };
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskItem };
+}
+
+export function objResToSuiKioskCap(objRes: SuiObjectResponse): SuiKioskCap
+{
+    if (objRes.error) {
+        throw Error(`response error: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!objRes.data) {
+        throw Error(`response has no data: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!objRes.data?.content) {
+        throw Error(`response has no content: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!isParsedDataKind(objRes.data.content, "moveObject")) {
+        throw Error(`response data is not a moveObject: ${JSON.stringify(objRes, null, 2)}`);
+    }
+    if (!objRes.data.content.type.match(/^0x0*2::kiosk::KioskOwnerCap$/)) {
+        throw Error(`object is not a KioskOwnerCap: ${JSON.stringify(objRes, null, 2)}`);
+    }
+
+    const id = objRes.data.objectId;
+    const fields = objRes.data.content.fields as Record<string, any>;
+    const forId = fields.for;
+    return { id, forId };
 }
 /* eslint-enable */
 

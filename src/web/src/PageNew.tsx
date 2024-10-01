@@ -282,7 +282,7 @@ const FormCreateAuction: React.FC<{
     </>;
 };
 
-const showKiosks = isLocalhost();
+const showKioskToggle = isLocalhost();
 
 const ItemGridSelector: React.FC<{
     addOrRemoveItem: (item: SuiItem) => void;
@@ -313,22 +313,22 @@ const ItemGridSelector: React.FC<{
         [bidderClient, currAcct],
     );
 
-    const ownedKioskItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
+    const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
         async (cursor) => {
             // if (!showKiosks || toggleChoice === "nfts") { return []; } // TODO
-            const kioskIds = await bidderClient.fetchOwnedKioskIds(currAddr, cursor);
+            const kioskCaps = await bidderClient.fetchOwnedKioskCaps(currAddr, cursor);
             const items: SuiItem[] = [];
-            for (const kioskId of kioskIds.data) {
-                const kioskItems = await bidderClient.fetchAllKioskItems(kioskId, true);
+            for (const cap of kioskCaps.data) {
+                const kioskItems = await bidderClient.fetchAllKioskItems(cap.forId, true);
                 items.push(...kioskItems);
             }
             return {
                 data: items,
-                hasNextPage: kioskIds.hasNextPage,
-                nextCursor: kioskIds.nextCursor,
+                hasNextPage: kioskCaps.hasNextPage,
+                nextCursor: kioskCaps.nextCursor,
             };
         },
-        [bidderClient, currAcct, toggleChoice],
+        [bidderClient, currAcct],
     );
 
     // === html ===
@@ -345,7 +345,7 @@ const ItemGridSelector: React.FC<{
 
         <div className="card-header column-on-small">
             <div className="card-title">Choose items</div>
-            {showKiosks && <div className="card-toggle">
+            {showKioskToggle && <div className="card-toggle">
                 <div className={`header-label ${toggleChoice === "nfts" ? "selected" : ""}`} onClick={() => setToggleChoice("nfts")}>NFTs</div>
                 <div className={`header-label ${toggleChoice === "kiosks" ? "selected" : ""}`} onClick={() => setToggleChoice("kiosks")}>Kiosks</div>
             </div>}
@@ -359,7 +359,7 @@ const ItemGridSelector: React.FC<{
                 : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />}
         </div>
 
-        {ownedItems.data.length > 0 &&
+        {toggleChoice === "nfts" && ownedItems.data.length > 0 &&
         <div className="grid-selector">
             <div className="grid">
                 {ownedItems.data.map(item =>
@@ -401,6 +401,50 @@ const ItemGridSelector: React.FC<{
                 </Btn>
             </div>}
         </div> } {/* end of ownedItems */}
+
+        {toggleChoice === "kiosks" && ownedKioskItems && ownedKioskItems.data.length > 0 &&
+        <div className="grid-selector">
+            <div className="grid">
+                {ownedKioskItems.data.map(item =>
+                {
+                    const isChosen = isChosenItem(item);
+                    return (
+                    <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
+                        onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
+                    >
+                        <CardSuiItem item={item}
+                            isChosen={isChosen}
+                            extra={
+                                <div className="item-button">
+                                    <button
+                                        className={`btn ${isChosen ? "red" : ""}`}
+                                        disabled={!isChosen && disableAddItem}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            (isChosen || !disableAddItem) && addOrRemoveItem(item);
+                                        }}
+                                    >
+                                        {isChosen ? "REMOVE" : "ADD"}
+                                    </button>
+                                </div>
+                            }
+                            />
+                    </div>
+                    );
+                })}
+            </div>
+
+            {ownedKioskItems.hasNextPage &&
+            <div className="center-element">
+                <Btn
+                    working={ownedKioskItems.isLoading}
+                    onClick={ownedKioskItems.loadMore}
+                >
+                    LOAD MORE ITEMS
+                </Btn>
+            </div>}
+        </div> } {/* end of ownedKioskItems */}
+
     </div> {/* end of card */}
     </>;
 };

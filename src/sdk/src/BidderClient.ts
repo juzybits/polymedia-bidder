@@ -7,7 +7,7 @@ import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { objResToSuiItem, SuiItem } from "./items.js";
+import { objResToSuiItem, objResToSuiKioskCap, SuiItem, SuiKioskCap } from "./items.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -189,7 +189,7 @@ export class BidderClient extends SuiClientBase
         };
     }
 
-    public async fetchOwnedKioskIds(
+    public async fetchOwnedKioskCaps(
         owner: string,
         cursor: string | null | undefined,
         limit?: number,
@@ -197,14 +197,19 @@ export class BidderClient extends SuiClientBase
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
             filter: { StructType: "0x2::kiosk::KioskOwnerCap" },
+            options: { showContent: true },
             cursor,
             limit,
         });
 
-        const kioskIds = pagObjRes.data.map(objRes => objRes.data!.objectId);
+        const caps: SuiKioskCap[] = [];
+        for (const objRes of pagObjRes.data) {
+            const cap = objResToSuiKioskCap(objRes);
+            caps.push(cap);
+        }
 
         return {
-            data: kioskIds,
+            data: caps,
             hasNextPage: pagObjRes.hasNextPage,
             nextCursor: pagObjRes.nextCursor,
         };
