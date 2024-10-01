@@ -152,7 +152,7 @@ export class BidderClient extends SuiClientBase
 
         const kioskItems = await this.fetchItems(kioskItemIds, useCache);
         for (const item of kioskItems) {
-            item.kioskItem = { ofId: kioskId };
+            item.kiosk = { id: kioskId, ofId: kioskId };
         }
         return kioskItems;
     }

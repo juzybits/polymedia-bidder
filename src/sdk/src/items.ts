@@ -20,7 +20,7 @@ export type SuiItem = {
     nameFull: string;
     nameShort: string;
     desc: string;
-    kioskItem: null | { ofId: string; }
+    kiosk: null | { id: string, ofId: string; }
 };
 
 export type SuiKioskCap = {
@@ -40,7 +40,7 @@ export function newItemPlaceholder(addr: string): SuiItem {
         nameFull: addr,
         nameShort: shortenAddress(addr),
         desc: "",
-        kioskItem: null,
+        kiosk: null,
     };
 }
 
@@ -68,12 +68,12 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     }
     const fields = objRes.data.content.fields as Record<string, any>;
     const hasPublicTransfer = objRes.data.content.hasPublicTransfer;
-    const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? "";
+    const desc = display.description?.trim() ?? fields.description ?? null;
+    const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? desc ??"";
     const nameShort = nameFull.length <= MAX_NAME_LENGTH
         ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
-    const desc = display.description?.trim() ?? fields.description ?? null;
     const kioskItem = null; // set by BidderClient
-    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskItem };
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kiosk: kioskItem };
 }
 
 export function objResToSuiKioskCap(objRes: SuiObjectResponse): SuiKioskCap
