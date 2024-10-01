@@ -4,7 +4,7 @@ import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@pol
 import { LinkExternal, LinkToExplorer } from "@polymedia/suitcase-react";
 import React from "react";
 import { useAppContext } from "../App";
-import { VERIFIED_IDS } from "../lib/verified";
+import { isVerifiedItem } from "../lib/verified";
 import { IconCheck, IconVerified } from "./icons";
 
 // === cards ===
@@ -39,7 +39,7 @@ export const CardSuiItem: React.FC<{
 {
     const { explorer, network } = useAppContext();
 
-    const isVerified = VERIFIED_IDS[network].includes(item.type.split("::")[0]);
+    const isVerified = isVerifiedItem(network, item.type);
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
     return (
