@@ -306,7 +306,11 @@ const ItemGridSelector: React.FC<{
         (cursor) => bidderClient.fetchOwnedItems(currAcct.address, cursor),
         [bidderClient, currAcct],
     );
+
+    const showKiosks = true;
+    const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
     const kioskItems = useFetch<SuiItem[]>(async () => {
+        if (!showKiosks) { return []; }
         const kioskIds = ownedItems.data
             .filter(i => !!i.kioskCap)
             .map(i => i.kioskCap!.forId);
@@ -329,7 +333,13 @@ const ItemGridSelector: React.FC<{
 
     return <>
     <div className="card">
-    <div className="card-title">Choose items</div>
+    <div className="card-header column-on-small">
+        <div className="card-title">Choose items</div>
+        {showKiosks && <div className="card-toggle">
+            <div className={`header-label ${toggleChoice === "nfts" ? "selected" : ""}`} onClick={() => setToggleChoice("nfts")}>NFTs</div>
+            <div className={`header-label ${toggleChoice === "kiosks" ? "selected" : ""}`} onClick={() => setToggleChoice("kiosks")}>Kiosks</div>
+        </div>}
+    </div>
     <div className="card-description">
         {ownedItems.data.length > 0
         ? <>Select the items you want to sell.</>

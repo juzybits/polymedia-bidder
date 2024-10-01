@@ -212,6 +212,7 @@ footer {
 @color-bg-red: #cb3333;
 @color-bg-purple: #623cb9;
 @color-bg-green: #2e982e;
+@color-bg-blue: #2962ff;
 .section-header, .card-header {
     width: 100%;
     display: flex;
@@ -225,7 +226,7 @@ footer {
         }
     }
 
-    .auction-header-info {
+    .auction-header-info, .card-toggle {
         display: flex;
         align-items: center;
         gap: 1.5rem;
@@ -233,6 +234,24 @@ footer {
         @media (max-width: @screen-small) {
             width: 100%;
             justify-content: space-between;
+        }
+    }
+
+    .card-toggle {
+        .header-label {
+            border: @border-gray;
+            cursor: pointer;
+            &.selected {
+                cursor: default;
+            }
+            &.selected, &:hover {
+                background-color: @color-bg-blue;
+                border-color: @color-bg-blue;
+                color: white;
+            }
+        }
+        @media (max-width: @screen-small) {
+            justify-content: center;
         }
     }
 
