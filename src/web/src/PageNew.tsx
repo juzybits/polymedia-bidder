@@ -308,7 +308,7 @@ const ItemGridSelector: React.FC<{
     // const currAddr = "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
     // const currAddr = "0x57909e7d18c1092e05c9405997aa2238341e547cbf017eea4a65ef83adffbaa4" // bigbrain
 
-    const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("kiosks");
+    const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         (cursor) => bidderClient.fetchOwnedItems(currAddr, cursor),
@@ -442,7 +442,7 @@ const ItemGridSelector: React.FC<{
                     working={ownedKioskItems.isLoading}
                     onClick={ownedKioskItems.loadMore}
                 >
-                    LOAD MORE ITEMS
+                    LOAD MORE KIOSKS
                 </Btn>
             </div>}
         </div> } {/* end of ownedKioskItems */}
