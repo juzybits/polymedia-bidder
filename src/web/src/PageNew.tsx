@@ -1,8 +1,8 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
-import { fetchAllDynamicFields, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
+import { isLocalhost, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
@@ -282,6 +282,8 @@ const FormCreateAuction: React.FC<{
     </>;
 };
 
+const showKiosks = isLocalhost();
+
 const ItemGridSelector: React.FC<{
     addOrRemoveItem: (item: SuiItem) => void;
     isChosenItem: (item: SuiItem) => boolean;
@@ -299,30 +301,35 @@ const ItemGridSelector: React.FC<{
 
     const { bidderClient, network, setModalContent } = useAppContext();
 
-    const currAddr = currAcct.address;
-    // const currAddr = "0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505" // trevinsbuyingwallet.sui
+    // const currAddr = currAcct.address;
+    const currAddr = "0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505" // trevinsbuyingwallet.sui
     // const currAddr = "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
     // const currAddr = "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
+
+    const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         (cursor) => bidderClient.fetchOwnedItems(currAddr, "item", cursor),
         [bidderClient, currAcct],
     );
 
-    const showKiosks = true;
-    const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
-    const ownedKiosks = useFetch<SuiItem[]>(async () => {
-        if (!showKiosks || toggleChoice === "nfts") { return []; }
-        const kioskIds = ownedItems.data
-            .filter(i => !!i.kioskCap)
-            .map(i => i.kioskCap!.forId);
-        const items: SuiItem[] = [];
-        for (const kioskId of kioskIds) {
-            const kioskItems = await bidderClient.fetchAllKioskItems(kioskId, true);
-            items.push(...kioskItems);
-        }
-        return items;
-    }, [bidderClient, ownedItems.data, toggleChoice]);
+    const ownedKiosks = useFetchAndLoadMore<SuiItem, string|null|undefined>(
+        async (cursor) => {
+            // if (!showKiosks || toggleChoice === "nfts") { return []; }
+            const kiosks = await bidderClient.fetchOwnedItems(currAddr, "kiosk", cursor);
+            const items: SuiItem[] = [];
+            for (const kioskId of kiosks.data.map(k => k.id)) {
+                const kioskItems = await bidderClient.fetchAllKioskItems(kioskId, true);
+                items.push(...kioskItems);
+            }
+            return {
+                data: items,
+                hasNextPage: kiosks.hasNextPage,
+                nextCursor: kiosks.nextCursor,
+            };
+        },
+        [bidderClient, currAcct, toggleChoice],
+    );
 
     // === html ===
 
