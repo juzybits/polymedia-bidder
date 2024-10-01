@@ -16,6 +16,9 @@ export const isVerifiedItem = (network: NetworkName, itemType: string) => {
 
 export const VERIFIED_IDS: Record<NetworkName, VerifiedId[]> = {
     mainnet: [
+        // manually added:
+        {"name": "SuiNS subdomain", "id": "0x00c2f85e07181b90c140b15c5ce27d863f93c4d9159d2a4e7bdaeb40e286d6f5"},
+        // from TradePort:
         {"name": "Fuddies", "id": "0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b"},
         {"name": "Prime Machin", "id": "0x034c162f6b594cb5a1805264dd01ca5d80ce3eca6522e6ee37fd9ebfb9d3ddca::factory::PrimeMachin"},
         {"name": "SuiFrens: Bullsharks", "id": "0x8894fa02fc6f36cbc485ae9145d05f247a78e220814fb8419ab261bd81f08f32"},
