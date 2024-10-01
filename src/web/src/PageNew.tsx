@@ -309,23 +309,23 @@ const ItemGridSelector: React.FC<{
     const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
-        (cursor) => bidderClient.fetchOwnedItems(currAddr, "item", cursor),
+        (cursor) => bidderClient.fetchOwnedItems(currAddr, cursor),
         [bidderClient, currAcct],
     );
 
-    const ownedKiosks = useFetchAndLoadMore<SuiItem, string|null|undefined>(
+    const ownedKioskItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         async (cursor) => {
             // if (!showKiosks || toggleChoice === "nfts") { return []; }
-            const kiosks = await bidderClient.fetchOwnedItems(currAddr, "kiosk", cursor);
+            const kioskIds = await bidderClient.fetchOwnedKioskIds(currAddr, cursor);
             const items: SuiItem[] = [];
-            for (const kioskId of kiosks.data.map(k => k.id)) {
+            for (const kioskId of kioskIds.data) {
                 const kioskItems = await bidderClient.fetchAllKioskItems(kioskId, true);
                 items.push(...kioskItems);
             }
             return {
                 data: items,
-                hasNextPage: kiosks.hasNextPage,
-                nextCursor: kiosks.nextCursor,
+                hasNextPage: kioskIds.hasNextPage,
+                nextCursor: kioskIds.nextCursor,
             };
         },
         [bidderClient, currAcct, toggleChoice],
@@ -354,7 +354,7 @@ const ItemGridSelector: React.FC<{
         ? <>Select the items you want to sell.</>
         : (network === "mainnet" || DEV_PACKAGE_IDS[network] === "")
             ? <>You don't own any items.</>
-            : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, "item", null)} />}
+            : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />}
     </div>
     {ownedItems.data.length > 0 &&
     <div className="grid">
