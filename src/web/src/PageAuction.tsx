@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { CoinMetadata } from "@mysten/sui/client";
+import { CoinMetadata, SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, SuiItem } from "@polymedia/bidder-sdk";
+import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
@@ -431,10 +431,27 @@ const SectionActivity: React.FC<{
 }) => {
     // === state ===
 
-    const { bidderClient } = useAppContext();
+    const { bidderClient, rpc, network } = useAppContext();
 
     const activity = useFetchAndPaginate<AnyAuctionTx, string|null|undefined>(
-        (cursor) => bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY),
+        (cursor) => {
+            /**
+             * Hack for "The InputObject and ChangedObject transaction filters for the
+             * JSON-RPC method suix_queryTransactionBlocks are being deprecated for JSON-RPC"
+             */
+            if (network === "mainnet" && rpc === "https://fullnode.mainnet.sui.io:443") {
+                const suiClient = new SuiClient({ url: "https://mainnet.suiet.app" });
+                const bidderClient = new BidderClient(
+                    suiClient,
+                    (_tx) => Promise.resolve({ bytes: "", signature: "" }),
+                    AUCTION_IDS[network].packageId,
+                    AUCTION_IDS[network].registryId,
+                )
+                return bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY);
+            } else {
+                return bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY);
+            }
+        },
         [auction, bidderClient],
     );
 

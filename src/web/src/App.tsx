@@ -6,7 +6,7 @@ import {
     useSuiClient,
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
-import * as sdk from "@polymedia/bidder-sdk";
+import { AUCTION_IDS, BidderClient } from "@polymedia/bidder-sdk";
 import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork, loadRpc } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -115,7 +115,7 @@ export type AppContext = {
     openConnectModal: () => void;
     setModalContent: ReactSetter<React.ReactNode>;
     header: React.ReactNode;
-    bidderClient: sdk.BidderClient;
+    bidderClient: BidderClient;
 };
 
 const App: React.FC<{
@@ -135,14 +135,14 @@ const App: React.FC<{
     const suiClient = useSuiClient();
     const { mutateAsync: walletSignTx } = useSignTransaction();
 
-    const packageId = sdk.AUCTION_IDS[network].packageId;
-    const registryId = sdk.AUCTION_IDS[network].registryId;
+    const packageId = AUCTION_IDS[network].packageId;
+    const registryId = AUCTION_IDS[network].registryId;
 
     const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
-        return new sdk.BidderClient(
+        return new BidderClient(
             suiClient,
             (tx) => walletSignTx({ transaction: tx }),
             packageId,
