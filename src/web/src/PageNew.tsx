@@ -308,7 +308,7 @@ const ItemGridSelector: React.FC<{
     // const currAddr = "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
     // const currAddr = "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
     // const currAddr = "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
-    // const currAddr = "0x57909e7d18c1092e05c9405997aa2238341e547cbf017eea4a65ef83adffbaa4" // bigbrain
+    // const currAddr = "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432" // fuddies top holder
 
     const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
 

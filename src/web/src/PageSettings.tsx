@@ -1,5 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { ExplorerRadioSelector, NetworkRadioSelector, RpcRadioSelector } from "@polymedia/suitcase-react";
+import { ExplorerRadioSelector, LinkExternal, NetworkRadioSelector, RpcRadioSelector } from "@polymedia/suitcase-react";
 import React from "react";
 import { supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
@@ -106,5 +106,11 @@ const SectionRpc: React.FC = () =>
             selectedRpc={rpc}
             onSwitch={setRpc}
         />
+        {network === "mainnet" &&
+        <div>
+            Not sure? <LinkExternal href="https://rpcs.polymedia.app">
+                Find the fastest RPC for you
+            </LinkExternal>.
+        </div>}
     </div>;
 };
