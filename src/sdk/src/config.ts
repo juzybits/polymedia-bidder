@@ -55,8 +55,8 @@ export const AUCTION_ERRORS: Record<number, string> = {
 
 export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
     mainnet: {
-        packageId: "",
-        registryId: "",
+        packageId: "0x7bfe75f51565a2e03e169c85a50c490ee707692a14d5417e2b97740da0d48627",
+        registryId: "0x002d6570acc3b48efdfe1d70d89ffa2358b9370d99aa7ad556a4a48f0b8ee4e0",
         // dev only:
         // packageId: "0x4f0a1581686af92746f3313511e12f82543eaf2c6ca152fa1e77765dc38f9309",
         // registryId: "0x1e79fe85788018d0c54bd419ecfd706021e75560d1fd292efab7a28bdaa91e26",

@@ -28,7 +28,7 @@ const tabs = makeTabs([
     { name: "admin", icon: <IconGears />, tooltip: "Admin" },
 ]);
 
-export const PageAuction: React.FC = () =>
+export const PageAuction: React.FC = () => // TODO show success msg and button to tweet
 {
     // === url validation ===
 
