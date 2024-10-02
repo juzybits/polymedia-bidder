@@ -39,7 +39,7 @@ export const CardSuiItem: React.FC<{
 {
     const { explorer, network } = useAppContext();
 
-    const isVerified = isVerifiedItem(network, item.type);
+    const verified = isVerifiedItem(network, item.type);
     const imgSrc = item.display.image_url ?? svgNoImage;
     const imgClass = (!item.display.image_url || item.type === "_placeholder_") ? "no-image" : "";
     return (
@@ -48,7 +48,7 @@ export const CardSuiItem: React.FC<{
                 <img src={imgSrc} className={imgClass}/>
                 {!verbose && (
                     isChosen ? <IconCheck className="item-chosen icon" />
-                    : isVerified && <IconVerified className="item-verified icon" />
+                    : verified && <IconVerified className="item-verified icon" />
                 )}
             </div>
             <div className="item-info">
@@ -56,63 +56,68 @@ export const CardSuiItem: React.FC<{
                     {!verbose && (item.nameShort ? item.nameShort : shortenAddress(item.type))}
                     {verbose &&
                     <div className="card-details">
+                        {verified &&
                         <div className="detail">
-                            <span className="detail-label">ID:</span>
+                            <span className="label">Verified:</span>
+                            <span className="value"><IconVerified className="item-verified icon" />{verified.name}</span>
+                        </div>}
+                        <div className="detail">
+                            <span className="label">ID:</span>
                             <LinkToExplorer addr={item.id} kind="object" explorer={explorer} network={network} />
                         </div>
                         <div className="detail">
-                            <span className="detail-label">Type:</span>
+                            <span className="label">Type:</span>
                             <LinkToExplorer addr={item.type.split("::")[0]} kind="package" explorer={explorer} network={network}>
                                 {shortenAddress(item.type)}
                             </LinkToExplorer>
                         </div>
                         {item.nameFull &&
                         <div className="detail">
-                            <span className="detail-label">Name:</span>
+                            <span className="label">Name:</span>
                             {item.nameFull}
                         </div>}
                         {/* {item.nameShort &&
                         <div className="detail">
-                            <span className="detail-label">Short Name:</span>
+                            <span className="label">Short Name:</span>
                             {item.nameShort}
                         </div>} */}
                         {item.display.description &&
                         <div className="detail">
-                            <span className="detail-label">Description:</span>
+                            <span className="label">Description:</span>
                             {item.display.description}
                         </div>}
                         {/* {item.display.name &&
                         <div className="detail">
-                            <span className="detail-label">Display name:</span>
+                            <span className="label">Display name:</span>
                             {item.display.name}
                         </div>} */}
                         {item.display.link &&
                         <div className="detail">
-                            <span className="detail-label">Object link:</span>
+                            <span className="label">Object link:</span>
                             <LinkExternal href={item.display.link}>
                                 {urlToDomain(item.display.link)}
                             </LinkExternal>
                         </div>}
                         {item.display.project_name &&
                         <div className="detail">
-                            <span className="detail-label">Project name:</span>
+                            <span className="label">Project name:</span>
                             {item.display.project_name}
                         </div>}
                         {item.display.project_url &&
                         <div className="detail">
-                            <span className="detail-label">Project URL:</span>
+                            <span className="label">Project URL:</span>
                             <LinkExternal href={item.display.project_url}>
                                 {urlToDomain(item.display.project_url)}
                             </LinkExternal>
                         </div>}
                         {item.display.creator &&
                         <div className="detail">
-                            <span className="detail-label">Creator:</span>
+                            <span className="label">Creator:</span>
                             {item.display.creator}
                         </div>}
                         {/* {item.hasPublicTransfer &&
                         <div className="detail">
-                            <span className="detail-label">Public Transfer:</span>
+                            <span className="label">Public Transfer:</span>
                             {item.hasPublicTransfer ? "Yes" : "No"}
                         </div>} */}
                     </div>}

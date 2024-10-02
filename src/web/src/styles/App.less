@@ -97,6 +97,12 @@ h1, h2, h3, h4, h5, button, input {
         fill: @color-blue;
         cursor: pointer;
     }
+    &.item-chosen {
+        fill: rgb(0 255 0);
+    }
+    &.item-verified {
+        fill: #eac742;
+    }
 }
 
 .hide-scrollbar {
@@ -386,12 +392,6 @@ footer {
                 height: 18%;
                 width: 18%;
             }
-            .icon.item-chosen {
-                fill: rgb(0 255 0);
-            }
-            .icon.item-verified {
-                fill: #eac742;
-            }
         }
     }
 }
@@ -562,10 +562,22 @@ a.card, .card.link {
         align-items: center;
         padding: 0.25rem 0;
 
-        .detail-label {
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-weight: bold;
             color: @color-text-gray;
             flex-shrink: 0;
+        }
+
+        .value {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            .icon {
+                flex-shrink: 0;
+            }
         }
 
         @media (max-width: @screen-medium) {
