@@ -46,26 +46,26 @@ export const CardSuiItem: React.FC<{
         <div className="sui-item" onClick={onClick}>
             <div className="item-img">
                 <img src={imgSrc} className={imgClass}/>
-                {isChosen ? <IconCheck className="item-chosen icon" />
-                : isVerified && <IconVerified className="item-verified icon" />}
+                {!verbose && (
+                    isChosen ? <IconCheck className="item-chosen icon" />
+                    : isVerified && <IconVerified className="item-verified icon" />
+                )}
             </div>
             <div className="item-info">
                 <div className="item-title break-any">
                     {!verbose && (item.nameShort ? item.nameShort : shortenAddress(item.type))}
                     {verbose &&
                     <div className="card-details">
-                        {item.id &&
                         <div className="detail">
                             <span className="detail-label">ID:</span>
                             <LinkToExplorer addr={item.id} kind="object" explorer={explorer} network={network} />
-                        </div>}
-                        {item.type &&
-                            <div className="detail">
+                        </div>
+                        <div className="detail">
                             <span className="detail-label">Type:</span>
                             <LinkToExplorer addr={item.type.split("::")[0]} kind="package" explorer={explorer} network={network}>
                                 {shortenAddress(item.type)}
                             </LinkToExplorer>
-                        </div>}
+                        </div>
                         {item.nameFull &&
                         <div className="detail">
                             <span className="detail-label">Name:</span>
