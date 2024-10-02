@@ -21,6 +21,7 @@ export class AuctionTxParser
         let txData: TxData;
         try { txData = txResToData(resp); }
         catch (_err) { return null; }
+        if (resp.effects?.status.status !== "success") { return null; }
 
         let splitCoinsTx: TxKind<"SplitCoins"> | undefined;
 
