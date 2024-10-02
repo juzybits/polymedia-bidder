@@ -49,7 +49,7 @@ fun test_get_page()
     assert_eq(items.length(), 10);
 
     // ascending, oldest 4 items 0-3
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 0, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 0, 4, true);
     assert_eq(page.length(), 4);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 4);
@@ -57,7 +57,7 @@ fun test_get_page()
     assert_eq(*page.borrow(3), 3);
 
     // ascending, middle items 4-7
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 4, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 4, 4, true);
     assert_eq(page.length(), 4);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 8);
@@ -65,7 +65,7 @@ fun test_get_page()
     assert_eq(*page.borrow(3), 7);
 
     // ascending, newest items 8-9, limit > remaining items
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 8, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 8, 4, true);
     assert_eq(page.length(), 2);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 10);
@@ -73,7 +73,7 @@ fun test_get_page()
     assert_eq(*page.borrow(1), 9);
 
     // ascending, newest items 6-9, limit == remaining items
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 6, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 6, 4, true);
     assert_eq(page.length(), 4);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 10);
@@ -81,39 +81,39 @@ fun test_get_page()
     assert_eq(*page.borrow(3), 9);
 
     // ascending, cursor > length (out of range)
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 999, 3);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 999, 3, true);
     assert_eq(page.length(), 0);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 10);
 
     // ascending, limit = 0
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 3, 0);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 3, 0, true);
     assert_eq(page.length(), 0);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 3);
 
     // ascending, cursor at newest item, limit = 1
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 9, 1);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 9, 1, true);
     assert_eq(page.length(), 1);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 10);
     assert_eq(*page.borrow(0), 9);
 
     // ascending, cursor at newest item, limit > 1
-    let (page, has_more, next_cursor) = paginator::get_page(&items, true, 9, 5);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 9, 5, true);
     assert_eq(page.length(), 1);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 10);
     assert_eq(*page.borrow(0), 9);
 
     // ascending, empty list
-    let (page, has_more, next_cursor) = paginator::get_page(&items_empty, true, 0, 5);
+    let (page, has_more, next_cursor) = paginator::get_page(&items_empty, 0, 5, true);
     assert_eq(page.length(), 0);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 0);
 
     // descending, newest 4 items 9-6
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 9, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 9, 4, false);
     assert_eq(page.length(), 4);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 5);
@@ -121,7 +121,7 @@ fun test_get_page()
     assert_eq(*page.borrow(3), 6);
 
     // descending, middle items 5-2
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 5, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 5, 4, false);
     assert_eq(page.length(), 4);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 1);
@@ -129,7 +129,7 @@ fun test_get_page()
     assert_eq(*page.borrow(3), 2);
 
     // descending, oldest items 1-0, limit > remaining items
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 1, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 1, 4, false);
     assert_eq(page.length(), 2);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 0);
@@ -137,7 +137,7 @@ fun test_get_page()
     assert_eq(*page.borrow(1), 0);
 
     // descending, oldest 4 items 3-0, limit == remaining items
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 3, 4);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 3, 4, false);
     assert_eq(page.length(), 4);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 0);
@@ -145,7 +145,7 @@ fun test_get_page()
     assert_eq(*page.borrow(3), 0);
 
     // descending, cursor > length (out of range)
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 999, 3);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 999, 3, false);
     assert_eq(page.length(), 3);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 6);
@@ -153,27 +153,27 @@ fun test_get_page()
     assert_eq(*page.borrow(2), 7);
 
     // descending, limit = 0
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 3, 0);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 3, 0, false);
     assert_eq(page.length(), 0);
     assert_eq(has_more, true);
     assert_eq(next_cursor, 3);
 
     // descending, cursor at oldest item, limit = 1
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 0, 1);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 0, 1, false);
     assert_eq(page.length(), 1);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 0);
     assert_eq(*page.borrow(0), 0);
 
     // descending, cursor at oldest item, limit > 1
-    let (page, has_more, next_cursor) = paginator::get_page(&items, false, 0, 5);
+    let (page, has_more, next_cursor) = paginator::get_page(&items, 0, 5, false);
     assert_eq(page.length(), 1);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 0);
     assert_eq(*page.borrow(0), 0);
 
     // descending, empty list
-    let (page, has_more, next_cursor) = paginator::get_page(&items_empty, false, 0, 5);
+    let (page, has_more, next_cursor) = paginator::get_page(&items_empty, 0, 5, false);
     assert_eq(page.length(), 0);
     assert_eq(has_more, false);
     assert_eq(next_cursor, 0);
