@@ -321,7 +321,7 @@ const ItemGridSelector: React.FC<{
             const kioskCaps = await bidderClient.fetchOwnedKioskCaps(currAddr, cursor);
             const items: SuiItem[] = [];
             for (const cap of kioskCaps.data) {
-                const kioskItems = await bidderClient.fetchAllKioskItems(cap.forId, true);
+                const kioskItems = await bidderClient.fetchAllKioskItems(cap, true);
                 items.push(...kioskItems);
             }
             return {

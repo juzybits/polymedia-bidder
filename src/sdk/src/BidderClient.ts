@@ -7,7 +7,7 @@ import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { objResToSuiItem, objResToSuiKioskCap, SuiItem, SuiKioskCap } from "./items.js";
+import { objResToSuiItem, objResToKioskCap, SuiItem, KioskCap } from "./items.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -134,25 +134,25 @@ export class BidderClient extends SuiClientBase
     }
 
     public async fetchAllKioskItems(
-        kioskId: string,
+        cap: KioskCap,
         useCache = true,
     ): Promise<SuiItem[]>
     {
-        const cachedIds = this.cache.kioskItemIds.get(kioskId);
+        const cachedIds = this.cache.kioskItemIds.get(cap.kioskId);
         if (cachedIds) {
             const items = await this.fetchItems(cachedIds, useCache);
             return items;
         }
 
-        const dfs = await fetchAllDynamicFields(this.suiClient, kioskId, 0);
+        const dfs = await fetchAllDynamicFields(this.suiClient, cap.kioskId, 0);
         const kioskItemIds = dfs
             .filter(df => df.name.type.match(/^0x0*2::kiosk::Item$/))
             .map(df => df.objectId);
-        this.cache.kioskItemIds.set(kioskId, kioskItemIds);
+        this.cache.kioskItemIds.set(cap.kioskId, kioskItemIds);
 
         const kioskItems = await this.fetchItems(kioskItemIds, useCache);
         for (const item of kioskItems) {
-            item.kiosk = { id: kioskId, ofId: kioskId };
+            item.kioskCap = cap;
         }
         return kioskItems;
     }
@@ -167,6 +167,7 @@ export class BidderClient extends SuiClientBase
             filter: { MatchNone: [
                 { StructType: "0x2::coin::Coin" },
                 { StructType: "0x2::kiosk::KioskOwnerCap" },
+                { StructType: "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken" },
                 { StructType: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap" },
             ]},
             options: { showContent: true, showDisplay: true, showType: true },
@@ -196,15 +197,19 @@ export class BidderClient extends SuiClientBase
     ) {
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
-            filter: { StructType: "0x2::kiosk::KioskOwnerCap" },
+            filter: { MatchAny: [
+                { StructType: "0x2::kiosk::KioskOwnerCap" },
+                { StructType: "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken" },
+                // { StructType: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap" },
+            ]},
             options: { showContent: true },
             cursor,
             limit,
         });
 
-        const caps: SuiKioskCap[] = [];
+        const caps: KioskCap[] = [];
         for (const objRes of pagObjRes.data) {
-            const cap = objResToSuiKioskCap(objRes);
+            const cap = objResToKioskCap(objRes);
             caps.push(cap);
         }
 

@@ -12,20 +12,23 @@ import {
 const MAX_NAME_LENGTH = 100;
 
 export type SuiItem = {
-    id: ReturnType<typeof objResToId>;
-    type: ReturnType<typeof objResToType>;
+    id: string;
+    type: string;
     display: ReturnType<typeof objResToDisplay>;
     fields: ReturnType<typeof objResToFields>;
     hasPublicTransfer: boolean;
     nameFull: string;
     nameShort: string;
     desc: string;
-    kiosk: null | { id: string, ofId: string; }
+    kioskCap: null | KioskCap;
 };
 
-export type SuiKioskCap = {
-    id: ReturnType<typeof objResToId>;
-    forId: string;
+export type KioskKind = "kiosk" | "ob_kiosk" /* | "personal_kiosk" */;
+
+export type KioskCap = {
+    id: string;
+    kioskId: string;
+    kind: KioskKind;
 };
 
 export function newItemPlaceholder(addr: string): SuiItem {
@@ -40,7 +43,7 @@ export function newItemPlaceholder(addr: string): SuiItem {
         nameFull: addr,
         nameShort: shortenAddress(addr),
         desc: "",
-        kiosk: null,
+        kioskCap: null,
     };
 }
 
@@ -72,11 +75,11 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? desc ??"";
     const nameShort = nameFull.length <= MAX_NAME_LENGTH
         ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
-    const kioskItem = null; // set by BidderClient
-    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kiosk: kioskItem };
+    const kioskCap = null; // set by BidderClient
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskCap };
 }
 
-export function objResToSuiKioskCap(objRes: SuiObjectResponse): SuiKioskCap
+export function objResToKioskCap(objRes: SuiObjectResponse): KioskCap
 {
     if (objRes.error) {
         throw Error(`response error: ${JSON.stringify(objRes, null, 2)}`);
@@ -90,14 +93,30 @@ export function objResToSuiKioskCap(objRes: SuiObjectResponse): SuiKioskCap
     if (!isParsedDataKind(objRes.data.content, "moveObject")) {
         throw Error(`response data is not a moveObject: ${JSON.stringify(objRes, null, 2)}`);
     }
-    if (!objRes.data.content.type.match(/^0x0*2::kiosk::KioskOwnerCap$/)) {
-        throw Error(`object is not a KioskOwnerCap: ${JSON.stringify(objRes, null, 2)}`);
-    }
 
     const id = objRes.data.objectId;
     const fields = objRes.data.content.fields as Record<string, any>;
-    const forId = fields.for;
-    return { id, forId };
+    const type = objRes.data.content.type;
+    let kind: KioskKind;
+    let kioskId: string;
+
+    if (type.match(/^0x0*2::kiosk::KioskOwnerCap$/)) {
+        kind = "kiosk";
+        kioskId = fields.for;
+    }
+    else if (type === "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken") {
+        kind = "ob_kiosk";
+        kioskId = fields.kiosk;
+    }
+    // else if (type === "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap") {
+    //     kind = "personal_kiosk";
+    //     kioskId = fields.for;
+    // }
+    else {
+        throw Error(`object is not a KioskOwnerCap: ${JSON.stringify(objRes, null, 2)}`);
+    }
+
+    return { id, kioskId, kind };
 }
 /* eslint-enable */
 
