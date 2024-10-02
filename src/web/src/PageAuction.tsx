@@ -4,9 +4,9 @@ import { Transaction } from "@mysten/sui/transactions";
 import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
-import { LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
+import { LinkExternal, LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
 import { BtnPrevNext } from "./components/BtnPrevNext";
@@ -135,6 +135,7 @@ export const PageAuction: React.FC = () => // TODO show success msg and button t
                     {auction.description}
                 </div>}
 
+                <CardTweet auction={auction} />
                 <CardFinalize auction={auction} items={items} fetchAuction={fetchAuction} />
 
                 <div className="tabs-container" ref={tabsContainerRef}>
@@ -154,6 +155,37 @@ export const PageAuction: React.FC = () => // TODO show success msg and button t
 
     </div>
     </>;
+};
+
+const CardTweet: React.FC<{
+    auction: AuctionObj;
+}> = ({
+    auction,
+}) => {
+    const location = useLocation();
+    const justCreated = location.state?.justCreated === true;
+    if (!justCreated) { return null; }
+
+    const { bidderClient } = useAppContext();
+    const { coinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
+
+    if (!coinMeta) { return null; }
+
+    const tweetText = encodeURIComponent(
+        "I just created a new auction!\n\n" +
+        `🏆 Up for grabs: ${auction.name}\n\n` +
+        `💰 Starting bid: ${formatBalance(auction.minimum_bid, coinMeta.decimals)} ${coinMeta.symbol}\n\n` +
+        `⏰ Don't miss out! Bid now:\nhttps://bidder.polymedia.app/auction/${auction.id}/items`
+    );
+    return <div className="card">
+        <div className="card-title">Success!</div>
+        <div>Your auction has been created.</div>
+        <div>
+            <LinkExternal href={`https://x.com/share?text=${tweetText}`} className="btn">
+                TWEET IT
+            </LinkExternal>
+        </div>
+    </div>;
 };
 
 const CardFinalize: React.FC<{

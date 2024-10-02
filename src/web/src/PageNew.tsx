@@ -187,7 +187,9 @@ const FormCreateAuction: React.FC<{
             }
             !userId && updateUserId(userObjChange.objectId);
             setSubmitRes({ ok: true });
-            navigate(`/auction/${auctionObjChange.objectId}/items`);
+            navigate(`/auction/${auctionObjChange.objectId}/items`, {
+                state: { justCreated: true },
+            });
         } catch (err) {
             const errMsg = bidderClient.errCodeToStr(err, "Failed to create auction");
             setSubmitRes({ ok: false, err: errMsg });
