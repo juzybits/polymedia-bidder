@@ -7,7 +7,7 @@ import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { objResToSuiItem, objResToKioskCap, SuiItem, KioskCap } from "./items.js";
+import { objResToSuiItem, objResToKioskCap, SuiItem, KioskCap, SUI_KIOSK_CAP_TYPE, OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE } from "./items.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -166,9 +166,9 @@ export class BidderClient extends SuiClientBase
             owner: owner,
             filter: { MatchNone: [
                 { StructType: "0x2::coin::Coin" },
-                { StructType: "0x2::kiosk::KioskOwnerCap" },
-                { StructType: "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken" },
-                { StructType: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap" },
+                { StructType: SUI_KIOSK_CAP_TYPE },
+                { StructType: OB_KIOSK_CAP_TYPE },
+                { StructType: PERSONAL_KIOSK_CAP_TYPE },
             ]},
             options: { showContent: true, showDisplay: true, showType: true },
             cursor,
@@ -198,9 +198,9 @@ export class BidderClient extends SuiClientBase
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
             filter: { MatchAny: [
-                { StructType: "0x2::kiosk::KioskOwnerCap" },
-                { StructType: "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken" },
-                // { StructType: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap" },
+                { StructType: SUI_KIOSK_CAP_TYPE },
+                { StructType: OB_KIOSK_CAP_TYPE },
+                { StructType: PERSONAL_KIOSK_CAP_TYPE },
             ]},
             options: { showContent: true },
             cursor,

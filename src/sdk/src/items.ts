@@ -1,11 +1,10 @@
 import { SuiObjectResponse } from "@mysten/sui/client";
+import { normalizeStructTag } from "@mysten/sui/utils";
 import {
     isParsedDataKind,
     newEmptyDisplay,
     objResToDisplay,
     objResToFields,
-    objResToId,
-    objResToType,
     shortenAddress,
 } from "@polymedia/suitcase-core";
 
@@ -23,7 +22,11 @@ export type SuiItem = {
     kioskCap: null | KioskCap;
 };
 
-export type KioskKind = "kiosk" | "ob_kiosk" /* | "personal_kiosk" */;
+export type KioskKind = "sui_kiosk" | "ob_kiosk" | "personal_kiosk";
+
+export const SUI_KIOSK_CAP_TYPE = "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap";
+export const OB_KIOSK_CAP_TYPE = "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken";
+export const PERSONAL_KIOSK_CAP_TYPE = "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap";
 
 export type KioskCap = {
     id: string;
@@ -96,22 +99,42 @@ export function objResToKioskCap(objRes: SuiObjectResponse): KioskCap
 
     const id = objRes.data.objectId;
     const fields = objRes.data.content.fields as Record<string, any>;
-    const type = objRes.data.content.type;
+    const type = normalizeStructTag(objRes.data.content.type);
     let kind: KioskKind;
     let kioskId: string;
 
-    if (type.match(/^0x0*2::kiosk::KioskOwnerCap$/)) {
-        kind = "kiosk";
+    if (type === SUI_KIOSK_CAP_TYPE) {
+        kind = "sui_kiosk";
         kioskId = fields.for;
     }
-    else if (type === "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken") {
+    else if (type === OB_KIOSK_CAP_TYPE) {
         kind = "ob_kiosk";
         kioskId = fields.kiosk;
     }
-    // else if (type === "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap") {
-    //     kind = "personal_kiosk";
-    //     kioskId = fields.for;
-    // }
+    else if (type === PERSONAL_KIOSK_CAP_TYPE) {
+        /*
+        personal_kiosk {
+            "objectId": "0x467d2c53f4c5732ff469cd05ea5703a91ea97e61599f8ac17b377f758b75fd1f",
+            "content": {
+                "type": "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap",
+                "hasPublicTransfer": false,
+                "fields": {
+                "cap": {
+                    "type": "0x2::kiosk::KioskOwnerCap",
+                    "fields": {
+                        "for": "0x42840520d4b81d3848db362a96f99885c099fbf8edd8a114a70c677f82c91b9e",
+                        "id": {
+                            "id": "0x6b2cea6dc1497d7fb58a2c4e01b457de81f35d839890f58815efc13a99f579b1"
+                        }
+                    }
+                },
+                }
+            }
+        }
+        */
+        kind = "personal_kiosk";
+        kioskId = fields.cap.fields.for;
+    }
     else {
         throw Error(`object is not a KioskOwnerCap: ${JSON.stringify(objRes, null, 2)}`);
     }
