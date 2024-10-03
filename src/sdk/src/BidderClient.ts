@@ -482,18 +482,24 @@ export class BidderClient extends SuiClientBase
 
         const tx = new Transaction();
 
-        const { newKioskTx, newKioskCap } = await listAndPurchaseNFT(
+        if (!item.kioskData.kiosk) {
+            throw new Error("Kiosk data is missing the kiosk information");
+        }
+
+        const kioskId = item.kioskData.kiosk.id;
+        const cap = kioskOwnerCaps.find(cap => cap.kioskId === kioskId);
+        if (!cap) {
+            throw new Error("Kiosk cap not found for the given kiosk ID");
+        }
+
+        await listAndPurchaseNFT(
             tx,
             this.kioskClient,
-            kioskOwnerCaps,
+            cap,
             item.id,
             item.type,
-            item.kioskData,
+            recipient,
         );
-
-        tx.transferObjects([newKioskCap], recipient);
-
-        // newKioskTx.finalize();
 
         const resp = await this.signAndExecuteTransaction(tx);
         return resp;
@@ -530,7 +536,8 @@ export class BidderClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: SuiItem[],
-        kioskOwnerCaps: KioskOwnerCap[],
+        kioskOwnerCaps: KioskOwnerCap[], // should come inside of itemsToAuction
+        recipient = "TODO",
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created">;
@@ -554,17 +561,24 @@ export class BidderClient extends SuiClientBase
                 if (!this.kioskClient) {
                     throw new Error("KioskClient is not initialized");
                 }
-
-                const { newKioskTx: _newKioskTx, newKioskCap } = await listAndPurchaseNFT(
+                if (!item.kioskData.kiosk) {
+                    throw new Error("Kiosk data is missing the kiosk information");
+                }
+                const kioskId = item.kioskData.kiosk.id;
+                const cap = kioskOwnerCaps.find(cap => cap.kioskId === kioskId);
+                if (!cap) {
+                    throw new Error("Kiosk cap not found for the given kiosk ID");
+                }
+                const _newKioskTx = await listAndPurchaseNFT(
                     tx,
                     this.kioskClient,
-                    kioskOwnerCaps,
+                    cap,
                     item.id,
                     item.type,
-                    item.kioskData,
+                    recipient,
                 );
                 newKioskTx = _newKioskTx;
-                objectToAdd = newKioskCap;
+                objectToAdd = newKioskTx.getKioskCap();
 
                 itemType = "0x2::kiosk::KioskOwnerCap";
                 const [ _itemId ] = tx.moveCall({
