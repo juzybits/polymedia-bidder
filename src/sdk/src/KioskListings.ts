@@ -20,29 +20,29 @@ export async function listAndPurchaseNFT(
         throw new Error("Kiosk cap not found for the given kiosk ID");
     }
 
-    const kioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
+    // List the NFT for 0 SUI in the seller's kiosk
 
-    // List the NFT for 0 SUI
-    kioskTx.list({
-        itemType: nftType,
-        itemId: nftId,
-        price: 0n
-    });
+    const sellerKioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
 
-    // Purchase the NFT
-    kioskTx.purchaseAndResolve({
+    sellerKioskTx.list({
         itemType: nftType,
         itemId: nftId,
         price: 0n,
-        sellerKiosk: kioskTx.getKiosk()
     });
 
-    // Create a new kiosk
+    sellerKioskTx.finalize();
+
+    // Create a new kiosk for the buyer
     const newKioskTx = new KioskTransaction({ transaction: tx, kioskClient });
     newKioskTx.create();
 
-    // Place the item in the new kiosk
-    newKioskTx.place({ itemType: nftType, item: tx.object(nftId) });
+    // Use purchaseAndResolve on the new kiosk to handle the transfer policy
+    newKioskTx.purchaseAndResolve({
+        itemType: nftType,
+        itemId: nftId,
+        price: 0n,
+        sellerKiosk: sellerKioskTx.getKiosk(),
+    });
 
     // Share the new kiosk
     newKioskTx.share();
@@ -50,8 +50,7 @@ export async function listAndPurchaseNFT(
     // Get the new kiosk cap
     const newKioskCap = newKioskTx.getKioskCap();
 
-    kioskTx.finalize();
-    // newKioskTx.finalize();
+    // We don't finalize newKioskTx here as it needs to be done in the main transaction
 
     return { newKioskTx, newKioskCap };
 }

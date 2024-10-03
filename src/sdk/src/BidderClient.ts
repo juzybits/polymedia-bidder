@@ -518,8 +518,8 @@ export class BidderClient extends SuiClientBase
                     item.kioskData,
                 );
                 newKioskTx = _newKioskTx;
-
                 objectToAdd = newKioskCap;
+
                 itemType = "0x2::kiosk::KioskOwnerCap";
                 const [ _itemId ] = tx.moveCall({
                     target: "0x2::object::id_address",
