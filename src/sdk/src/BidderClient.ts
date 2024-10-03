@@ -1,14 +1,15 @@
-import { KioskClient } from "@mysten/kiosk";
+import { KioskClient, KioskOwnerCap } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
-import { Transaction } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, fetchAllDynamicFields, getCoinOfValue, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
+import { devInspectAndGetReturnValues, getCoinOfValue, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { KioskCap, OB_KIOSK_CAP_TYPE, objResToKioskCap, objResToSuiItem, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, SuiItem } from "./items.js";
+import { listAndPurchaseNFT } from "./KioskListings.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -483,6 +484,7 @@ export class BidderClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: SuiItem[],
+        kioskOwnerCaps: KioskOwnerCap[],
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created">;
@@ -490,18 +492,44 @@ export class BidderClient extends SuiClientBase
     }> {
         const tx = new Transaction();
 
-        // create the item bag and fill it with the items to auction
         const [itemBagArg] = tx.moveCall({
             target: "0x2::object_bag::new",
         });
-        for (const item of itemsToAuction) {
+
+        for (const item of itemsToAuction)
+        {
+            let objectToAdd: TransactionObjectArgument;
+            let itemType: string;
+
+            if (item.kioskData)
+            {
+                if (!this.kioskClient) {
+                    throw new Error("KioskClient is not initialized");
+                }
+
+                const newKioskCap = await listAndPurchaseNFT(
+                    tx,
+                    this.kioskClient,
+                    kioskOwnerCaps,
+                    item.id,
+                    item.type,
+                    item.kioskData,
+                );
+
+                objectToAdd = newKioskCap;
+                itemType = "0x2::kiosk::KioskOwnerCap";
+            } else {
+                objectToAdd = tx.object(item.id);
+                itemType = item.type;
+            }
+
             tx.moveCall({
                 target: "0x2::object_bag::add",
-                typeArguments: [ "address", item.type ],
+                typeArguments: [ "address", itemType ],
                 arguments: [
                     itemBagArg,
-                    tx.pure.address(item.id),
-                    tx.object(item.id),
+                    tx.pure.address("0x49bccb91aa6b1beeac8faf3d520e077ee17ceb0f363f4082871004b82acdb547"), // TODO
+                    objectToAdd,
                 ],
             });
         }
