@@ -1,3 +1,4 @@
+import { KioskData } from "@mysten/kiosk";
 import { SuiObjectResponse } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
 import {
@@ -19,7 +20,8 @@ export type SuiItem = {
     nameFull: string;
     nameShort: string;
     desc: string;
-    kioskCap: null | KioskCap;
+    kioskData: KioskData | null;
+    // kioskCap: null | KioskCap;
 };
 
 export type KioskKind = "sui_kiosk" | "ob_kiosk" | "personal_kiosk";
@@ -46,7 +48,8 @@ export function newItemPlaceholder(addr: string): SuiItem {
         nameFull: addr,
         nameShort: shortenAddress(addr),
         desc: "",
-        kioskCap: null,
+        kioskData: null,
+        // kioskCap: null,
     };
 }
 
@@ -78,8 +81,8 @@ export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
     const nameFull: string = display.name?.trim() ?? fields.name?.trim() ?? desc ??"";
     const nameShort = nameFull.length <= MAX_NAME_LENGTH
         ? nameFull : nameFull.slice(0, MAX_NAME_LENGTH).trim() + " …";
-    const kioskCap = null; // set by BidderClient
-    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskCap };
+    const kioskData = null; // set by BidderClient
+    return { id, type, display, fields, hasPublicTransfer, nameFull, nameShort, desc, kioskData };
 }
 
 export function objResToKioskCap(objRes: SuiObjectResponse): KioskCap

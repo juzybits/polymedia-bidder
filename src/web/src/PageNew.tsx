@@ -301,7 +301,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient, network, setModalContent } = useAppContext();
+    const { bidderClient, kioskClient, network, setModalContent } = useAppContext();
 
     const currAddr = currAcct.address;
     // const currAddr = "0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505" // trevinsbuyingwallet.sui
@@ -317,9 +317,9 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         [bidderClient, currAcct],
     );
 
+    /*
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
         async (cursor) => {
-            // if (!showKiosks || toggleChoice === "nfts") { return []; } // TODO
             const kioskCaps = await bidderClient.fetchOwnedKioskCaps(currAddr, cursor);
             const items: SuiItem[] = [];
             for (const cap of kioskCaps.data) {
@@ -333,6 +333,40 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
             };
         },
         [bidderClient, currAcct],
+    );
+    */
+
+    const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
+        async (_cursor) =>
+        {
+            const { kioskIds, kioskOwnerCaps: _ } = await kioskClient.getOwnedKiosks({ address: currAddr });
+
+            let allItems: SuiItem[] = [];
+            for (const kioskId of kioskIds) {
+                const kioskData = await kioskClient.getKiosk({ id: kioskId });
+
+                const itemsIds = kioskData.itemIds;
+                const items = await bidderClient.fetchItems(itemsIds);
+                for (const item of items) {
+                    item.kioskData = kioskData;
+                }
+
+                allItems.push(...items);
+
+                // if (kioskData.hasNextPage) {
+                //     hasNextPage = true;
+                //     nextCursor = kioskData.nextCursor || null;
+                //     break; // Stop after the first kiosk with more items for pagination
+                // }
+            }
+
+            return {
+                data: allItems,
+                hasNextPage: false,
+                nextCursor: null,
+            };
+        },
+        [bidderClient, currAcct]
     );
 
     // === html ===

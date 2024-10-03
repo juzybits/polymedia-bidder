@@ -475,6 +475,7 @@ const SectionActivity: React.FC<{
                 const suiClient = new SuiClient({ url: "https://mainnet.suiet.app" });
                 const bidderClient = new BidderClient(
                     suiClient,
+                    null,
                     (_tx) => Promise.resolve({ bytes: "", signature: "" }),
                     AUCTION_IDS[network].packageId,
                     AUCTION_IDS[network].registryId,

@@ -21,7 +21,7 @@ export type UserHistoryBoth = Awaited<ReturnType<BidderClient["fetchUserRecentAu
  */
 export class BidderClient extends SuiClientBase
 {
-    public readonly kioskClient: KioskClient;
+    public readonly kioskClient: KioskClient | null;
     public readonly packageId: string;
     public readonly registryId: string;
     public txParser: AuctionTxParser;
@@ -34,7 +34,7 @@ export class BidderClient extends SuiClientBase
 
     constructor(
         suiClient: SuiClient,
-        kioskClient: KioskClient,
+        kioskClient: KioskClient | null,
         signTransaction: SignTransaction,
         packageId: string,
         registryId: string,
@@ -137,6 +137,7 @@ export class BidderClient extends SuiClientBase
         );
     }
 
+    /*
     public async fetchAllKioskItems(
         cap: KioskCap,
         useCache = true,
@@ -160,6 +161,7 @@ export class BidderClient extends SuiClientBase
         }
         return kioskItems;
     }
+    */
 
     public async fetchOwnedItems(
         owner: string,
@@ -480,7 +482,7 @@ export class BidderClient extends SuiClientBase
         minimum_bid: bigint,
         minimum_increase_bps: number,
         extension_period_ms: number,
-        itemsToAuction: { id: string; type: string }[],
+        itemsToAuction: SuiItem[],
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created">;

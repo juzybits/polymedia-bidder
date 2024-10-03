@@ -143,21 +143,22 @@ const App: React.FC<{
     const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
-    const bidderClient = useMemo(() => {
-        return new BidderClient(
-            suiClient,
-            (tx) => walletSignTx({ transaction: tx }),
-            packageId,
-            registryId,
-        );
-    }, [suiClient, packageId, walletSignTx]);
-
     const kioskClient = useMemo(() => {
         return new KioskClient({
             client: suiClient,
             network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
         });
     }, [suiClient, network]);
+
+    const bidderClient = useMemo(() => {
+        return new BidderClient(
+            suiClient,
+            kioskClient,
+            (tx) => walletSignTx({ transaction: tx }),
+            packageId,
+            registryId,
+        );
+    }, [suiClient, kioskClient, packageId, walletSignTx]);
 
     const [ isWorking, setIsWorking ] = useState(false);
     // const [ showMobileNav, setShowMobileNav ] = useState(false);
