@@ -6,6 +6,7 @@ import {
     useSuiClient,
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
+import { KioskClient, Network } from "@mysten/kiosk";
 import { AUCTION_IDS, BidderClient } from "@polymedia/bidder-sdk";
 import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork, loadRpc } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -116,6 +117,7 @@ export type AppContext = {
     setModalContent: ReactSetter<React.ReactNode>;
     header: React.ReactNode;
     bidderClient: BidderClient;
+    kioskClient: KioskClient;
 };
 
 const App: React.FC<{
@@ -150,6 +152,13 @@ const App: React.FC<{
         );
     }, [suiClient, packageId, walletSignTx]);
 
+    const kioskClient = useMemo(() => {
+        return new KioskClient({
+            client: suiClient,
+            network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
+        });
+    }, [suiClient, network]);
+
     const [ isWorking, setIsWorking ] = useState(false);
     // const [ showMobileNav, setShowMobileNav ] = useState(false);
     const [ showConnectModal, setShowConnectModal ] = useState(false);
@@ -168,6 +177,7 @@ const App: React.FC<{
         setModalContent,
         header: <Header />,
         bidderClient,
+        kioskClient,
     };
 
     // === effects ===

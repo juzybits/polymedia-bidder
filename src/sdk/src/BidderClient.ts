@@ -1,3 +1,4 @@
+import { KioskClient } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
@@ -7,7 +8,7 @@ import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { objResToSuiItem, objResToKioskCap, SuiItem, KioskCap, SUI_KIOSK_CAP_TYPE, OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE } from "./items.js";
+import { KioskCap, OB_KIOSK_CAP_TYPE, objResToKioskCap, objResToSuiItem, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, SuiItem } from "./items.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -20,6 +21,7 @@ export type UserHistoryBoth = Awaited<ReturnType<BidderClient["fetchUserRecentAu
  */
 export class BidderClient extends SuiClientBase
 {
+    public readonly kioskClient: KioskClient;
     public readonly packageId: string;
     public readonly registryId: string;
     public txParser: AuctionTxParser;
@@ -32,6 +34,7 @@ export class BidderClient extends SuiClientBase
 
     constructor(
         suiClient: SuiClient,
+        kioskClient: KioskClient,
         signTransaction: SignTransaction,
         packageId: string,
         registryId: string,
@@ -39,6 +42,7 @@ export class BidderClient extends SuiClientBase
         txResponseOptions?: SuiTransactionBlockResponseOptions,
     ) {
         super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
+        this.kioskClient = kioskClient;
         this.packageId = packageId;
         this.registryId = registryId;
         this.txParser = new AuctionTxParser(packageId);
