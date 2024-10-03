@@ -20,7 +20,7 @@ export async function listAndPurchaseNFT(
     newKioskTx.create();
 
     // Use purchaseAndResolve on the new kiosk to handle the transfer policy
-    newKioskTx.purchaseAndResolve({
+    await newKioskTx.purchaseAndResolve({
         itemType,
         itemId,
         price: 0n,
