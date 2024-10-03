@@ -537,7 +537,7 @@ export class BidderClient extends SuiClientBase
         extension_period_ms: number,
         itemsToAuction: SuiItem[],
         kioskOwnerCaps: KioskOwnerCap[], // should come inside of itemsToAuction
-        recipient = "TODO",
+        recipient: string,
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created">;
@@ -550,6 +550,12 @@ export class BidderClient extends SuiClientBase
         });
 
         let newKioskTx: KioskTransaction | null = null;
+
+        const [ vec ] = tx.moveCall({
+            target: "0x1::vector::empty",
+            typeArguments: [ "address" ],
+            arguments: [],
+        });
         for (const item of itemsToAuction)
         {
             let objectToAdd: TransactionObjectArgument;
@@ -587,10 +593,28 @@ export class BidderClient extends SuiClientBase
                     arguments: [ objectToAdd ],
                 });
                 itemId = _itemId;
+
+                const [ _itemId2 ] = tx.moveCall({
+                    target: "0x2::object::id_address",
+                    typeArguments: [ itemType ],
+                    arguments: [ objectToAdd ],
+                });
+                tx.moveCall({
+                    target: "0x1::vector::push_back",
+                    typeArguments: [ "address" ],
+                    arguments: [ vec, _itemId2 ],
+                });
+                // itemAddresses.push(objectToAdd);
             } else {
                 objectToAdd = tx.object(item.id);
                 itemId = item.id;
                 itemType = item.type;
+                // itemAddresses.push(itemId);
+                tx.moveCall({
+                    target: "0x1::vector::push_back",
+                    typeArguments: [ "address" ],
+                    arguments: [ vec, tx.pure.address(itemId) ],
+                });
             }
 
             tx.moveCall({
@@ -617,7 +641,7 @@ export class BidderClient extends SuiClientBase
             reqArg0,
             name,
             description,
-            itemsToAuction.map(item => item.id),
+            vec,
             itemBagArg,
             pay_addr,
             begin_time_ms,

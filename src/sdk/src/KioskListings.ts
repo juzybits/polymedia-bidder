@@ -27,8 +27,9 @@ export async function listAndPurchaseNFT(
         sellerKiosk: sellerKioskTx.getKiosk(),
     });
 
-    newKioskTx.shareAndTransferCap(recipient);
-    newKioskTx.finalize();
+    newKioskTx.share();
+    // newKioskTx.shareAndTransferCap(recipient);
+    // newKioskTx.finalize();
 
     return newKioskTx;
 }
