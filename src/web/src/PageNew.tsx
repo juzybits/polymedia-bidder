@@ -286,7 +286,7 @@ const FormCreateAuction: React.FC<{
 
 const showKioskToggle = isLocalhost();
 
-const ItemGridSelector: React.FC<{
+const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     addOrRemoveItem: (item: SuiItem) => void;
     isChosenItem: (item: SuiItem) => boolean;
     disableAddItem: boolean;

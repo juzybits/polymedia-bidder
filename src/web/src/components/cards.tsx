@@ -57,7 +57,7 @@ export const CardSuiItem: React.FC<{
                     {verbose &&
                     <div className="card-details">
                         {verified &&
-                        <div className="detail">
+                        <div className="detail verified">
                             <span className="label">Verified:</span>
                             <span className="value"><IconVerified className="item-verified icon" />{verified.name}</span>
                         </div>}
@@ -67,14 +67,16 @@ export const CardSuiItem: React.FC<{
                         </div>
                         <div className="detail">
                             <span className="label">Type:</span>
-                            <LinkToExplorer addr={item.type.split("::")[0]} kind="package" explorer={explorer} network={network}>
-                                {shortenAddress(item.type)}
-                            </LinkToExplorer>
+                            <span className="value">
+                                <LinkToExplorer addr={item.type.split("::")[0]} kind="package" explorer={explorer} network={network}>
+                                    {shortenAddress(item.type)}
+                                </LinkToExplorer>
+                            </span>
                         </div>
                         {item.nameFull &&
                         <div className="detail">
                             <span className="label">Name:</span>
-                            {item.nameFull}
+                            <span className="value">{item.nameFull}</span>
                         </div>}
                         {/* {item.nameShort &&
                         <div className="detail">
@@ -84,7 +86,7 @@ export const CardSuiItem: React.FC<{
                         {item.display.description &&
                         <div className="detail">
                             <span className="label">Description:</span>
-                            {item.display.description}
+                            <span className="value">{item.display.description}</span>
                         </div>}
                         {/* {item.display.name &&
                         <div className="detail">
@@ -94,31 +96,35 @@ export const CardSuiItem: React.FC<{
                         {item.display.link &&
                         <div className="detail">
                             <span className="label">Object link:</span>
-                            <LinkExternal href={item.display.link}>
-                                {urlToDomain(item.display.link)}
-                            </LinkExternal>
+                            <span className="value">
+                                <LinkExternal href={item.display.link}>
+                                    {urlToDomain(item.display.link)}
+                                </LinkExternal>
+                            </span>
                         </div>}
                         {item.display.project_name &&
                         <div className="detail">
                             <span className="label">Project name:</span>
-                            {item.display.project_name}
+                            <span className="value">{item.display.project_name}</span>
                         </div>}
                         {item.display.project_url &&
                         <div className="detail">
                             <span className="label">Project URL:</span>
-                            <LinkExternal href={item.display.project_url}>
-                                {urlToDomain(item.display.project_url)}
-                            </LinkExternal>
+                            <span className="value">
+                                <LinkExternal href={item.display.project_url}>
+                                    {urlToDomain(item.display.project_url)}
+                                </LinkExternal>
+                            </span>
                         </div>}
                         {item.display.creator &&
                         <div className="detail">
                             <span className="label">Creator:</span>
-                            {item.display.creator}
+                            <span className="value">{item.display.creator}</span>
                         </div>}
                         {/* {item.hasPublicTransfer &&
                         <div className="detail">
                             <span className="label">Public Transfer:</span>
-                            {item.hasPublicTransfer ? "Yes" : "No"}
+                            <span className="value">{item.hasPublicTransfer ? "Yes" : "No"}</span>
                         </div>} */}
                     </div>}
                 </div>
