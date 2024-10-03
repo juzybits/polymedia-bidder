@@ -8,7 +8,7 @@ export async function listAndPurchaseNFT(
     nftId: string,
     nftType: string,
     kioskData: KioskData
-): Promise<TransactionObjectArgument>
+): Promise<{ newKioskTx: KioskTransaction, newKioskCap: TransactionObjectArgument }>
 {
     if (!kioskData.kiosk) {
         throw new Error("Kiosk data is missing the kiosk information");
@@ -51,7 +51,7 @@ export async function listAndPurchaseNFT(
     const newKioskCap = newKioskTx.getKioskCap();
 
     kioskTx.finalize();
-    newKioskTx.finalize();
+    // newKioskTx.finalize();
 
-    return newKioskCap;
+    return { newKioskTx, newKioskCap };
 }

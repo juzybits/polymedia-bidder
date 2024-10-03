@@ -1,4 +1,4 @@
-import { KioskClient, KioskOwnerCap } from "@mysten/kiosk";
+import { KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
@@ -496,9 +496,11 @@ export class BidderClient extends SuiClientBase
             target: "0x2::object_bag::new",
         });
 
+        let newKioskTx: KioskTransaction | null = null;
         for (const item of itemsToAuction)
         {
             let objectToAdd: TransactionObjectArgument;
+            let itemId: string | TransactionObjectArgument;
             let itemType: string;
 
             if (item.kioskData)
@@ -507,7 +509,7 @@ export class BidderClient extends SuiClientBase
                     throw new Error("KioskClient is not initialized");
                 }
 
-                const newKioskCap = await listAndPurchaseNFT(
+                const { newKioskTx: _newKioskTx, newKioskCap } = await listAndPurchaseNFT(
                     tx,
                     this.kioskClient,
                     kioskOwnerCaps,
@@ -515,11 +517,19 @@ export class BidderClient extends SuiClientBase
                     item.type,
                     item.kioskData,
                 );
+                newKioskTx = _newKioskTx;
 
                 objectToAdd = newKioskCap;
                 itemType = "0x2::kiosk::KioskOwnerCap";
+                const [ _itemId ] = tx.moveCall({
+                    target: "0x2::object::id_address",
+                    typeArguments: [ itemType ],
+                    arguments: [ objectToAdd ],
+                });
+                itemId = _itemId;
             } else {
                 objectToAdd = tx.object(item.id);
+                itemId = item.id;
                 itemType = item.type;
             }
 
@@ -528,7 +538,7 @@ export class BidderClient extends SuiClientBase
                 typeArguments: [ "address", itemType ],
                 arguments: [
                     itemBagArg,
-                    tx.pure.address("0x49bccb91aa6b1beeac8faf3d520e077ee17ceb0f363f4082871004b82acdb547"), // TODO
+                    typeof itemId === "string" ? tx.pure.address(itemId) : itemId,
                     objectToAdd,
                 ],
             });
