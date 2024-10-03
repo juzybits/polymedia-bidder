@@ -38,6 +38,9 @@ importers:
 
   src/sdk:
     dependencies:
+      '@mysten/kiosk':
+        specifier: ^0.9.20
+        version: 0.9.20(typescript@5.6.2)
       '@mysten/sui':
         specifier: ^1.3.1
         version: 1.11.0(typescript@5.6.2)
@@ -54,6 +57,9 @@ importers:
       '@mysten/dapp-kit':
         specifier: ^0.14.24
         version: 0.14.24(@tanstack/react-query@5.56.2(react@18.3.1))(@types/react-dom@18.3.0)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)
+      '@mysten/kiosk':
+        specifier: ^0.9.20
+        version: 0.9.20(typescript@5.6.2)
       '@mysten/sui':
         specifier: ^1.11.0
         version: 1.11.0(typescript@5.6.2)
@@ -560,6 +566,10 @@ packages:
     peerDependencies:
       '@tanstack/react-query': ^5.0.0
       react: '*'
+
+  '@mysten/kiosk@0.9.20':
+    resolution: {integrity: sha512-HI58E7CQv7czw7ZxJLVrNJrMkpuXO8gDCK/AxEr+uNdvXqmamQiO8yv7a5sRr79sg7SmEbJTD9AWK+fJKimjQw==}
+    engines: {node: '>=18'}
 
   '@mysten/sui@1.11.0':
     resolution: {integrity: sha512-+5kSXmoPFrecxUb+fweqqy4eXRpgvv6H51IwRzJbxlolE0AmnM+5IJbLpTlM5RNZEmmocE7p5bUn1OijbuDVkw==}
@@ -2846,6 +2856,14 @@ snapshots:
       - babel-plugin-macros
       - immer
       - react-dom
+      - typescript
+
+  '@mysten/kiosk@0.9.20(typescript@5.6.2)':
+    dependencies:
+      '@mysten/sui': 1.11.0(typescript@5.6.2)
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
       - typescript
 
   '@mysten/sui@1.11.0(typescript@5.6.2)':

@@ -25,6 +25,7 @@
         "typecheck": "tsc -p tsconfig.esm.json"
     },
     "dependencies": {
+        "@mysten/kiosk": "^0.9.20",
         "@polymedia/suitcase-core": "^0.0.30"
     },
     "peerDependencies": {
