@@ -472,6 +472,52 @@ export class BidderClient extends SuiClientBase
 
     // === module interactions ===
 
+    public async transferToNewKiosk(
+        kioskOwnerCaps: KioskOwnerCap[],
+        item: SuiItem,
+        recipient: string,
+    ) {
+        if (!this.kioskClient) { throw new Error("KioskClient is not initialized"); }
+        if (!item.kioskData) { throw new Error("Item is not listed on kiosk"); }
+
+        const tx = new Transaction();
+
+        const { newKioskTx, newKioskCap } = await listAndPurchaseNFT(
+            tx,
+            this.kioskClient,
+            kioskOwnerCaps,
+            item.id,
+            item.type,
+            item.kioskData,
+        );
+
+        tx.transferObjects([newKioskCap], recipient);
+
+        // newKioskTx.finalize();
+
+        const resp = await this.signAndExecuteTransaction(tx);
+        return resp;
+    }
+
+    public async delistFromKiosk(
+        kioskOwnerCaps: KioskOwnerCap[],
+        item: SuiItem,
+    ) {
+        if (!this.kioskClient) { throw new Error("KioskClient is not initialized"); }
+        if (!item.kioskData) { throw new Error("Item is not listed on kiosk"); }
+
+        const tx = new Transaction();
+
+        const cap = kioskOwnerCaps.find(cap => cap.kioskId === item.kioskData?.kiosk?.id);
+
+        const kioskTx = new KioskTransaction({ transaction: tx, kioskClient: this.kioskClient, cap });
+        kioskTx.delist({ itemType: item.type, itemId: item.id });
+        kioskTx.finalize();
+
+        const resp = await this.signAndExecuteTransaction(tx);
+        return resp;
+    }
+
     public async createAndShareAuction(
         type_coin: string,
         userObj: ObjectInput | null,
