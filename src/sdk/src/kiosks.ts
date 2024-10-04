@@ -6,7 +6,7 @@ import { Transaction } from "@mysten/sui/transactions";
  * purchase the item and place it in a new kiosk,
  * and finally make the new kiosk a shared object.
  */
-export async function transferItemToNewKiosk(
+export async function transferItemToNewKiosk( // TODO move to @polymedia/suitcase-core
     tx: Transaction,
     kioskClient: KioskClient,
     cap: KioskOwnerCap,

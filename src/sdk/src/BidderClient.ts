@@ -9,7 +9,7 @@ import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { KioskCap, OB_KIOSK_CAP_TYPE, objResToKioskCap, objResToSuiItem, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, SuiItem } from "./items.js";
-import { transferItemToNewKiosk } from "./kiosk.js";
+import { transferItemToNewKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
