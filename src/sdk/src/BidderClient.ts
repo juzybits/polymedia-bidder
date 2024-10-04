@@ -175,6 +175,7 @@ export class BidderClient extends SuiClientBase
         owner: string,
         cursor: string | null | undefined,
         limit?: number,
+        excludedListed = true,
     ) {
         const kiosks = await this.kioskClient.getOwnedKiosks({
             address: owner,
@@ -193,14 +194,22 @@ export class BidderClient extends SuiClientBase
             });
 
             for (const kioskItem of kioskData.items) {
+                if (kioskItem.listing && excludedListed) {
+                    continue;
+                }
                 const item = objDataToSuiItem(kioskItem.data!);
                 const kiosk = kioskData.kiosk!;
                 item.kiosk = {
-                    id: kiosk.id,
-                    itemCount: kiosk.itemCount,
-                    allowExtensions: kiosk.allowExtensions,
-                    cap: cap,
-                }
+                    cap,
+                    kiosk: {
+                        id: kiosk.id,
+                        itemCount: kiosk.itemCount,
+                        allowExtensions: kiosk.allowExtensions,
+                    },
+                    item: {
+                        isLocked: kioskItem.isLocked,
+                    }
+                };
                 allItems.push(item);
             }
         }

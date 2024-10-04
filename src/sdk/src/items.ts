@@ -6,7 +6,7 @@ import {
     objResToFields,
     shortenAddress,
 } from "@polymedia/suitcase-core";
-import { OwnedKiosk } from "./kiosks";
+import { OwnedKioskItem } from "./kiosks";
 
 const MAX_NAME_LENGTH = 100;
 
@@ -19,7 +19,7 @@ export type SuiItem = {
     nameFull: string;
     nameShort: string;
     desc: string;
-    kiosk: OwnedKiosk | null;
+    kiosk: OwnedKioskItem | null;
 };
 
 export function newItemPlaceholder(addr: string): SuiItem {
