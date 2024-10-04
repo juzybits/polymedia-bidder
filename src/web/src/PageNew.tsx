@@ -1,5 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { AUCTION_CONFIG as cnf, objDataToSuiItem, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { isLocalhost, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
@@ -12,6 +12,7 @@ import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
+import { KioskOwnerCap } from "@mysten/kiosk";
 
 export const PageNew: React.FC = () =>
 {
@@ -170,7 +171,6 @@ const FormCreateAuction: React.FC<{
             setIsWorking(true);
             setSubmitRes({ ok: null });
 
-            const { kioskOwnerCaps } = await bidderClient.kioskClient.getOwnedKiosks({ address: currAcct.address }); // TODO dedup
             const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
@@ -183,7 +183,6 @@ const FormCreateAuction: React.FC<{
                 form.minimum_increase_pct.val! * 100,
                 devMode ? form.extension_period_seconds.val! * 1000 : form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
                 chosenItems,
-                kioskOwnerCaps,
             );
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
@@ -323,29 +322,33 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
         async (_cursor) =>
         {
-            const { kioskIds, kioskOwnerCaps: _ } = await bidderClient.kioskClient.getOwnedKiosks({
+            const { kioskIds: _, kioskOwnerCaps } = await bidderClient.kioskClient.getOwnedKiosks({
                 address: currAddr,
                 // pagination: {}, // TODO
             });
 
             let allItems: SuiItem[] = [];
-            for (const kioskId of kioskIds) {
+            for (const cap of kioskOwnerCaps) {
                 const kioskData = await bidderClient.kioskClient.getKiosk({
-                    id: kioskId,
+                    id: cap.kioskId,
                     options: {
                         withKioskFields: true,
-                        withListingPrices: true,
                         withObjects: true,
+                        objectOptions: { showContent: true, showDisplay: true, showType: true },
                     },
                 });
 
-                const itemsIds = kioskData.itemIds;
-                const items = await bidderClient.fetchItems(itemsIds);
-                for (const item of items) {
-                    item.kioskData = kioskData;
+                for (const kioskItem of kioskData.items) {
+                    const item = objDataToSuiItem(kioskItem.data!);
+                    const kiosk = kioskData.kiosk!;
+                    item.kiosk = {
+                        id: kiosk.id,
+                        itemCount: kiosk.itemCount,
+                        allowExtensions: kiosk.allowExtensions,
+                        cap: cap,
+                    }
+                    allItems.push(item);
                 }
-
-                allItems.push(...items);
 
                 // if (kioskData.hasNextPage) {
                 //     hasNextPage = true;

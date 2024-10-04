@@ -428,7 +428,6 @@ export class BidderClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: SuiItem[],
-        kioskOwnerCaps: KioskOwnerCap[], // should come inside of itemsToAuction
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created">;
@@ -453,16 +452,9 @@ export class BidderClient extends SuiClientBase
             let itemId: string | TransactionObjectArgument;
             let itemType: string;
 
-            if (item.kioskData)
+            if (item.kiosk)
             {
-                if (!item.kioskData.kiosk) {
-                    throw new Error("Kiosk data is missing the kiosk information");
-                }
-                const kioskId = item.kioskData.kiosk.id;
-                const cap = kioskOwnerCaps.find(cap => cap.kioskId === kioskId);
-                if (!cap) {
-                    throw new Error("Kiosk cap not found for the given kiosk ID");
-                }
+                const cap = item.kiosk.cap;
                 const _newKioskTx = await transferItemToNewKiosk( // TODO only do this if the kiosk has > 1 item
                     tx,
                     this.kioskClient,
