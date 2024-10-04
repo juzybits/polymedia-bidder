@@ -320,15 +320,15 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     );
 
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
-        async (_cursor) =>
+        async (cursor) =>
         {
-            const { kioskIds: _, kioskOwnerCaps } = await bidderClient.kioskClient.getOwnedKiosks({
+            const kiosks = await bidderClient.kioskClient.getOwnedKiosks({
                 address: currAddr,
-                // pagination: {}, // TODO
+                pagination: !cursor ? undefined : { cursor },
             });
 
             let allItems: SuiItem[] = [];
-            for (const cap of kioskOwnerCaps) {
+            for (const cap of kiosks.kioskOwnerCaps) {
                 const kioskData = await bidderClient.kioskClient.getKiosk({
                     id: cap.kioskId,
                     options: {
@@ -349,18 +349,12 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                     }
                     allItems.push(item);
                 }
-
-                // if (kioskData.hasNextPage) {
-                //     hasNextPage = true;
-                //     nextCursor = kioskData.nextCursor || null;
-                //     break; // Stop after the first kiosk with more items for pagination
-                // }
             }
 
             return {
                 data: allItems,
-                hasNextPage: false,
-                nextCursor: null,
+                hasNextPage: kiosks.hasNextPage,
+                nextCursor: kiosks.nextCursor,
             };
         },
         [bidderClient, currAcct]
