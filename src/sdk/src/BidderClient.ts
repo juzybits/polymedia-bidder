@@ -22,7 +22,7 @@ export type UserHistoryBoth = Awaited<ReturnType<BidderClient["fetchUserRecentAu
  */
 export class BidderClient extends SuiClientBase
 {
-    public readonly kioskClient: KioskClient | null;
+    public readonly kioskClient: KioskClient;
     public readonly packageId: string;
     public readonly registryId: string;
     public txParser: AuctionTxParser;
@@ -35,7 +35,7 @@ export class BidderClient extends SuiClientBase
 
     constructor(
         suiClient: SuiClient,
-        kioskClient: KioskClient | null,
+        kioskClient: KioskClient,
         signTransaction: SignTransaction,
         packageId: string,
         registryId: string,
@@ -477,7 +477,6 @@ export class BidderClient extends SuiClientBase
         item: SuiItem,
         recipient: string,
     ) {
-        if (!this.kioskClient) { throw new Error("KioskClient is not initialized"); }
         if (!item.kioskData) { throw new Error("Item is not listed on kiosk"); }
 
         const tx = new Transaction();
@@ -509,7 +508,6 @@ export class BidderClient extends SuiClientBase
         kioskOwnerCaps: KioskOwnerCap[],
         item: SuiItem,
     ) {
-        if (!this.kioskClient) { throw new Error("KioskClient is not initialized"); }
         if (!item.kioskData) { throw new Error("Item is not listed on kiosk"); }
 
         const tx = new Transaction();
@@ -564,9 +562,6 @@ export class BidderClient extends SuiClientBase
 
             if (item.kioskData)
             {
-                if (!this.kioskClient) {
-                    throw new Error("KioskClient is not initialized");
-                }
                 if (!item.kioskData.kiosk) {
                     throw new Error("Kiosk data is missing the kiosk information");
                 }

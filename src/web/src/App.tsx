@@ -117,7 +117,6 @@ export type AppContext = {
     setModalContent: ReactSetter<React.ReactNode>;
     header: React.ReactNode;
     bidderClient: BidderClient;
-    kioskClient: KioskClient;
 };
 
 const App: React.FC<{
@@ -143,14 +142,11 @@ const App: React.FC<{
     const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
-    const kioskClient = useMemo(() => {
-        return new KioskClient({
+    const bidderClient = useMemo(() => {
+        const kioskClient = new KioskClient({
             client: suiClient,
             network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
         });
-    }, [suiClient, network]);
-
-    const bidderClient = useMemo(() => {
         return new BidderClient(
             suiClient,
             kioskClient,
@@ -158,7 +154,7 @@ const App: React.FC<{
             packageId,
             registryId,
         );
-    }, [suiClient, kioskClient, packageId, walletSignTx]);
+    }, [suiClient, packageId, walletSignTx]);
 
     const [ isWorking, setIsWorking ] = useState(false);
     // const [ showMobileNav, setShowMobileNav ] = useState(false);
@@ -178,7 +174,6 @@ const App: React.FC<{
         setModalContent,
         header: <Header />,
         bidderClient,
-        kioskClient,
     };
 
     // === effects ===

@@ -1,4 +1,5 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import { KioskClient, Network } from "@mysten/kiosk";
 import { CoinMetadata, SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem } from "@polymedia/bidder-sdk";
@@ -475,7 +476,7 @@ const SectionActivity: React.FC<{
                 const suiClient = new SuiClient({ url: "https://mainnet.suiet.app" });
                 const bidderClient = new BidderClient(
                     suiClient,
-                    null,
+                    new KioskClient({ client: suiClient, network: Network.MAINNET }),
                     (_tx) => Promise.resolve({ bytes: "", signature: "" }),
                     AUCTION_IDS[network].packageId,
                     AUCTION_IDS[network].registryId,

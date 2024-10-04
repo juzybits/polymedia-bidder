@@ -88,7 +88,7 @@ const FormCreateAuction: React.FC<{
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient, kioskClient, isWorking, setIsWorking, setModalContent } = useAppContext();
+    const { bidderClient, isWorking, setIsWorking, setModalContent } = useAppContext();
 
     const { userId, updateUserId } = useFetchUserId(currAcct.address);
 
@@ -170,7 +170,7 @@ const FormCreateAuction: React.FC<{
             setIsWorking(true);
             setSubmitRes({ ok: null });
 
-            const { kioskOwnerCaps } = await kioskClient.getOwnedKiosks({ address: currAcct.address }); // TODO dedup
+            const { kioskOwnerCaps } = await bidderClient.kioskClient.getOwnedKiosks({ address: currAcct.address }); // TODO dedup
             const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuction(
                 form.type_coin.val!,
                 userId,
@@ -305,7 +305,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const currAcct = useCurrentAccount();
     if (!currAcct) { return; }
 
-    const { bidderClient, kioskClient, network, setModalContent } = useAppContext();
+    const { bidderClient, network, setModalContent } = useAppContext();
 
     const currAddr = currAcct.address;
     // const currAddr = "0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505" // trevinsbuyingwallet.sui
@@ -343,14 +343,14 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
         async (_cursor) =>
         {
-            const { kioskIds, kioskOwnerCaps: _ } = await kioskClient.getOwnedKiosks({
+            const { kioskIds, kioskOwnerCaps: _ } = await bidderClient.kioskClient.getOwnedKiosks({
                 address: currAddr,
                 // pagination: {}, // TODO
             });
 
             let allItems: SuiItem[] = [];
             for (const kioskId of kioskIds) {
-                const kioskData = await kioskClient.getKiosk({
+                const kioskData = await bidderClient.kioskClient.getKiosk({
                     id: kioskId,
                     options: {
                         withKioskFields: true,
