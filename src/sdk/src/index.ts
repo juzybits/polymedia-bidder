@@ -7,3 +7,4 @@ export * from "./UserFunctions.js";
 export * from "./UserObjects.js";
 export * from "./config.js";
 export * from "./items.js";
+export * from "./kiosk.js";

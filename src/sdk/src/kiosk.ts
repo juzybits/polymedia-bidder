@@ -1,14 +1,18 @@
 import { KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { Transaction } from "@mysten/sui/transactions";
 
-export async function listAndPurchaseNFT(
+/**
+ * List the item for 0 SUI in the original kiosk,
+ * purchase the item and place it in a new kiosk,
+ * and finally make the new kiosk a shared object.
+ */
+export async function transferItemToNewKiosk(
     tx: Transaction,
     kioskClient: KioskClient,
     cap: KioskOwnerCap,
     itemId: string,
     itemType: string,
-    recipient: string,
-)
+): Promise<KioskTransaction>
 {
     // List the NFT for 0 SUI in the seller's kiosk
     const sellerKioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
@@ -19,7 +23,7 @@ export async function listAndPurchaseNFT(
     const newKioskTx = new KioskTransaction({ transaction: tx, kioskClient });
     newKioskTx.create();
 
-    // Use purchaseAndResolve on the new kiosk to handle the transfer policy
+    // Purchase the item and resolve the TransferPolicy
     await newKioskTx.purchaseAndResolve({
         itemType,
         itemId,
@@ -28,8 +32,6 @@ export async function listAndPurchaseNFT(
     });
 
     newKioskTx.share();
-    // newKioskTx.shareAndTransferCap(recipient);
-    // newKioskTx.finalize();
 
     return newKioskTx;
 }

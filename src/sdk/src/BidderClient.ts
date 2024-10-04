@@ -9,7 +9,7 @@ import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { KioskCap, OB_KIOSK_CAP_TYPE, objResToKioskCap, objResToSuiItem, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, SuiItem } from "./items.js";
-import { listAndPurchaseNFT } from "./KioskListings.js";
+import { transferItemToNewKiosk } from "./kiosk.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -485,7 +485,6 @@ export class BidderClient extends SuiClientBase
         extension_period_ms: number,
         itemsToAuction: SuiItem[],
         kioskOwnerCaps: KioskOwnerCap[], // should come inside of itemsToAuction
-        recipient: string,
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created">;
@@ -520,13 +519,12 @@ export class BidderClient extends SuiClientBase
                 if (!cap) {
                     throw new Error("Kiosk cap not found for the given kiosk ID");
                 }
-                const _newKioskTx = await listAndPurchaseNFT(
+                const _newKioskTx = await transferItemToNewKiosk( // TODO only do this if the kiosk has > 1 item
                     tx,
                     this.kioskClient,
                     cap,
                     item.id,
                     item.type,
-                    recipient,
                 );
                 newKioskTx = _newKioskTx;
                 objectToAdd = newKioskTx.getKioskCap();

@@ -184,7 +184,6 @@ const FormCreateAuction: React.FC<{
                 devMode ? form.extension_period_seconds.val! * 1000 : form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
                 chosenItems,
                 kioskOwnerCaps,
-                currAcct.address,
             );
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
