@@ -1,6 +1,17 @@
 import { KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { Transaction } from "@mysten/sui/transactions";
 
+export const SUI_KIOSK_CAP_TYPE = "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap";
+export const OB_KIOSK_CAP_TYPE = "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken";
+export const PERSONAL_KIOSK_CAP_TYPE = "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap";
+
+export type OwnedKiosk = {
+    id: string;
+    itemCount: number;
+    allowExtensions: boolean;
+    cap: KioskOwnerCap;
+};
+
 /**
  * List the item for 0 SUI in the original kiosk,
  * purchase the item and place it in a new kiosk,

@@ -1,4 +1,4 @@
-import { KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
+import { KioskClient, KioskTransaction } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
@@ -8,8 +8,8 @@ import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { KioskCap, OB_KIOSK_CAP_TYPE, objResToKioskCap, objResToSuiItem, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, SuiItem } from "./items.js";
-import { transferItemToNewKiosk } from "./kiosks.js";
+import { objResToSuiItem, SuiItem } from "./items.js";
+import { OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, transferItemToNewKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -138,32 +138,6 @@ export class BidderClient extends SuiClientBase
         );
     }
 
-    /*
-    public async fetchAllKioskItems(
-        cap: KioskCap,
-        useCache = true,
-    ): Promise<SuiItem[]>
-    {
-        const cachedIds = this.cache.kioskItemIds.get(cap.kioskId);
-        if (cachedIds) {
-            const items = await this.fetchItems(cachedIds, useCache);
-            return items;
-        }
-
-        const dfs = await fetchAllDynamicFields(this.suiClient, cap.kioskId, 0);
-        const kioskItemIds = dfs
-            .filter(df => df.name.type.match(/^0x0*2::kiosk::Item$/))
-            .map(df => df.objectId);
-        this.cache.kioskItemIds.set(cap.kioskId, kioskItemIds);
-
-        const kioskItems = await this.fetchItems(kioskItemIds, useCache);
-        for (const item of kioskItems) {
-            item.kioskCap = cap;
-        }
-        return kioskItems;
-    }
-    */
-
     public async fetchOwnedItems(
         owner: string,
         cursor: string | null | undefined,
@@ -192,36 +166,6 @@ export class BidderClient extends SuiClientBase
         }
         return {
             data: items,
-            hasNextPage: pagObjRes.hasNextPage,
-            nextCursor: pagObjRes.nextCursor,
-        };
-    }
-
-    public async fetchOwnedKioskCaps(
-        owner: string,
-        cursor: string | null | undefined,
-        limit?: number,
-    ) {
-        const pagObjRes = await this.suiClient.getOwnedObjects({
-            owner: owner,
-            filter: { MatchAny: [
-                { StructType: SUI_KIOSK_CAP_TYPE },
-                { StructType: OB_KIOSK_CAP_TYPE },
-                { StructType: PERSONAL_KIOSK_CAP_TYPE },
-            ]},
-            options: { showContent: true },
-            cursor,
-            limit,
-        });
-
-        const caps: KioskCap[] = [];
-        for (const objRes of pagObjRes.data) {
-            const cap = objResToKioskCap(objRes);
-            caps.push(cap);
-        }
-
-        return {
-            data: caps,
             hasNextPage: pagObjRes.hasNextPage,
             nextCursor: pagObjRes.nextCursor,
         };

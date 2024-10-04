@@ -320,25 +320,6 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         [bidderClient, currAcct],
     );
 
-    /*
-    const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
-        async (cursor) => {
-            const kioskCaps = await bidderClient.fetchOwnedKioskCaps(currAddr, cursor);
-            const items: SuiItem[] = [];
-            for (const cap of kioskCaps.data) {
-                const kioskItems = await bidderClient.fetchAllKioskItems(cap, true);
-                items.push(...kioskItems);
-            }
-            return {
-                data: items,
-                hasNextPage: kioskCaps.hasNextPage,
-                nextCursor: kioskCaps.nextCursor,
-            };
-        },
-        [bidderClient, currAcct],
-    );
-    */
-
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
         async (_cursor) =>
         {
