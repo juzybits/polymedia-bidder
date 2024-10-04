@@ -8,7 +8,7 @@ import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
-import { objResToSuiItem, SuiItem } from "./items.js";
+import { objDataToSuiItem, objResToSuiItem, SuiItem } from "./items.js";
 import { OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, transferItemToNewKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
@@ -168,6 +168,47 @@ export class BidderClient extends SuiClientBase
             data: items,
             hasNextPage: pagObjRes.hasNextPage,
             nextCursor: pagObjRes.nextCursor,
+        };
+    }
+
+    public async fetchOwnedKioskItems(
+        owner: string,
+        cursor: string | null | undefined,
+        limit?: number,
+    ) {
+        const kiosks = await this.kioskClient.getOwnedKiosks({
+            address: owner,
+            pagination: !cursor ? undefined : { cursor, limit },
+        });
+
+        let allItems: SuiItem[] = [];
+        for (const cap of kiosks.kioskOwnerCaps) {
+            const kioskData = await this.kioskClient.getKiosk({
+                id: cap.kioskId,
+                options: {
+                    withKioskFields: true,
+                    withObjects: true,
+                    objectOptions: { showContent: true, showDisplay: true, showType: true },
+                },
+            });
+
+            for (const kioskItem of kioskData.items) {
+                const item = objDataToSuiItem(kioskItem.data!);
+                const kiosk = kioskData.kiosk!;
+                item.kiosk = {
+                    id: kiosk.id,
+                    itemCount: kiosk.itemCount,
+                    allowExtensions: kiosk.allowExtensions,
+                    cap: cap,
+                }
+                allItems.push(item);
+            }
+        }
+
+        return {
+            data: allItems,
+            hasNextPage: kiosks.hasNextPage,
+            nextCursor: kiosks.nextCursor,
         };
     }
 

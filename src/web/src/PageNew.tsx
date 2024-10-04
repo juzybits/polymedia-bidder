@@ -320,43 +320,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     );
 
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
-        async (cursor) =>
-        {
-            const kiosks = await bidderClient.kioskClient.getOwnedKiosks({
-                address: currAddr,
-                pagination: !cursor ? undefined : { cursor },
-            });
-
-            let allItems: SuiItem[] = [];
-            for (const cap of kiosks.kioskOwnerCaps) {
-                const kioskData = await bidderClient.kioskClient.getKiosk({
-                    id: cap.kioskId,
-                    options: {
-                        withKioskFields: true,
-                        withObjects: true,
-                        objectOptions: { showContent: true, showDisplay: true, showType: true },
-                    },
-                });
-
-                for (const kioskItem of kioskData.items) {
-                    const item = objDataToSuiItem(kioskItem.data!);
-                    const kiosk = kioskData.kiosk!;
-                    item.kiosk = {
-                        id: kiosk.id,
-                        itemCount: kiosk.itemCount,
-                        allowExtensions: kiosk.allowExtensions,
-                        cap: cap,
-                    }
-                    allItems.push(item);
-                }
-            }
-
-            return {
-                data: allItems,
-                hasNextPage: kiosks.hasNextPage,
-                nextCursor: kiosks.nextCursor,
-            };
-        },
+        async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor),
         [bidderClient, currAcct]
     );
 
