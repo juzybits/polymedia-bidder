@@ -472,56 +472,6 @@ export class BidderClient extends SuiClientBase
 
     // === module interactions ===
 
-    public async transferToNewKiosk(
-        kioskOwnerCaps: KioskOwnerCap[],
-        item: SuiItem,
-        recipient: string,
-    ) {
-        if (!item.kioskData) { throw new Error("Item is not listed on kiosk"); }
-
-        const tx = new Transaction();
-
-        if (!item.kioskData.kiosk) {
-            throw new Error("Kiosk data is missing the kiosk information");
-        }
-
-        const kioskId = item.kioskData.kiosk.id;
-        const cap = kioskOwnerCaps.find(cap => cap.kioskId === kioskId);
-        if (!cap) {
-            throw new Error("Kiosk cap not found for the given kiosk ID");
-        }
-
-        await listAndPurchaseNFT(
-            tx,
-            this.kioskClient,
-            cap,
-            item.id,
-            item.type,
-            recipient,
-        );
-
-        const resp = await this.signAndExecuteTransaction(tx);
-        return resp;
-    }
-
-    public async delistFromKiosk(
-        kioskOwnerCaps: KioskOwnerCap[],
-        item: SuiItem,
-    ) {
-        if (!item.kioskData) { throw new Error("Item is not listed on kiosk"); }
-
-        const tx = new Transaction();
-
-        const cap = kioskOwnerCaps.find(cap => cap.kioskId === item.kioskData?.kiosk?.id);
-
-        const kioskTx = new KioskTransaction({ transaction: tx, kioskClient: this.kioskClient, cap });
-        kioskTx.delist({ itemType: item.type, itemId: item.id });
-        kioskTx.finalize();
-
-        const resp = await this.signAndExecuteTransaction(tx);
-        return resp;
-    }
-
     public async createAndShareAuction(
         type_coin: string,
         userObj: ObjectInput | null,
