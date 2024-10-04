@@ -306,7 +306,6 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const { bidderClient, network, setModalContent } = useAppContext();
 
     const currAddr = currAcct.address;
-    // const currAddr = "0x750efb8f6d1622213402354bfafb986ac5674c2066e961badf83c7ccd2dc5505" // trevinsbuyingwallet.sui
     // const currAddr = "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
     // const currAddr = "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
     // const currAddr = "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
@@ -326,128 +325,98 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
     // === html ===
 
-    return <>
+    const itemSelector = (items: typeof ownedItems | typeof ownedKioskItems, type: "objects" | "kiosks") =>
+    {
+        if (items === false) { return null }; // temporary until we enable kiosks
+
+        if (items.error) {
+            return <CardWithMsg>{items.error}</CardWithMsg>;
+        }
+        if (items.isLoading && items.data.length === 0) {
+            return <CardSpinner />;
+        }
+        if (items.data.length === 0) {
+            if (type === "objects" && (network === "mainnet" || DEV_PACKAGE_IDS[network] === "")) {
+                return <div className="card-description">You don't own any items.</div>;
+            }
+            if (type === "objects") {
+                return <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />;
+            }
+            return <div className="card-description">You don't have any items in kiosks.</div>;
+        }
+        return <>
+            <div className="card-description">
+                Select the items you want to sell.
+            </div>
+
+            <div className="grid-selector">
+                <div className="grid">
+                    {items.data.map(item => {
+                        const isChosen = isChosenItem(item);
+                        return (
+                            <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
+                                onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
+                            >
+                                <CardSuiItem item={item}
+                                    isChosen={isChosen}
+                                    extra={
+                                        <div className="item-button">
+                                            <button
+                                                className={`btn ${isChosen ? "red" : ""}`}
+                                                disabled={!isChosen && disableAddItem}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    (isChosen || !disableAddItem) && addOrRemoveItem(item);
+                                                }}
+                                            >
+                                                {isChosen ? "REMOVE" : "ADD"}
+                                            </button>
+                                        </div>
+                                    }
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {items.hasNextPage &&
+                <div className="center-element">
+                    <Btn
+                        working={items.isLoading}
+                        onClick={items.loadMore}
+                    >
+                        LOAD MORE {type.toUpperCase()}
+                    </Btn>
+                </div>}
+            </div>
+        </>;
+    };
+
+    return (
     <div className="card">
 
         <div className="card-header column-on-small">
             <div className="card-title">Choose items</div>
             {showKioskToggle && <div className="card-toggle">
-                <div className={`header-label ${toggleChoice === "objects" ? "selected" : ""}`} onClick={() => setToggleChoice("objects")}>Objects</div>
-                <div className={`header-label ${toggleChoice === "kiosks" ? "selected" : ""}`} onClick={() => setToggleChoice("kiosks")}>Kiosks</div>
+                <div
+                    className={`header-label ${toggleChoice === "objects" ? "selected" : ""}`}
+                    onClick={() => setToggleChoice("objects")}
+                >
+                    Objects
+                </div>
+                <div
+                    className={`header-label ${toggleChoice === "kiosks" ? "selected" : ""}`}
+                    onClick={() => setToggleChoice("kiosks")}
+                >
+                    Kiosks
+                </div>
             </div>}
         </div>
 
-        {toggleChoice === "objects" &&
-        <>
-            {(() => {
-                if (ownedItems.error) {
-                    return <CardWithMsg>{ownedItems.error}</CardWithMsg>;
-                }
-                if (ownedItems.isLoading && ownedItems.data.length === 0) {
-                    return <CardSpinner />;
-                }
-                if (ownedItems.data.length === 0) {
-                    if (network === "mainnet" || DEV_PACKAGE_IDS[network] === "") {
-                        return <div className="card-description">You don't own any items.</div>;
-                    }
-                    return <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />;
-                }
-                return <>
-                    <div className="card-description">
-                        Select the items you want to sell.
-                    </div>
+        {toggleChoice === "objects" && itemSelector(ownedItems, "objects")}
+        {ownedKioskItems && toggleChoice === "kiosks" && itemSelector(ownedKioskItems, "kiosks")}
 
-                    <div className="grid-selector">
-                        <div className="grid">
-                            {ownedItems.data.map(item =>
-                            {
-                                const isChosen = isChosenItem(item);
-                                return (
-                                <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
-                                    onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
-                                >
-                                    <CardSuiItem item={item}
-                                        isChosen={isChosen}
-                                        extra={
-                                            <div className="item-button">
-                                                <button
-                                                    className={`btn ${isChosen ? "red" : ""}`}
-                                                    disabled={!isChosen && disableAddItem}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        (isChosen || !disableAddItem) && addOrRemoveItem(item);
-                                                    }}
-                                                >
-                                                    {isChosen ? "REMOVE" : "ADD"}
-                                                </button>
-                                            </div>
-                                        }
-                                        />
-                                </div>
-                                );
-                            })}
-                        </div>
-
-                        {ownedItems.hasNextPage &&
-                        <div className="center-element">
-                            <Btn
-                                working={ownedItems.isLoading}
-                                onClick={ownedItems.loadMore}
-                            >
-                                LOAD MORE OBJECTS
-                            </Btn>
-                        </div>}
-                    </div>
-                </>;
-            })()}
-        </>} {/* end of object selector */}
-
-        {toggleChoice === "kiosks" && ownedKioskItems &&
-        <div className="grid-selector">
-            {ownedKioskItems.data.length > 0 &&
-            <div className="grid">
-                {ownedKioskItems.data.map(item =>
-                {
-                    const isChosen = isChosenItem(item);
-                    return (
-                    <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
-                        onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
-                    >
-                        <CardSuiItem item={item}
-                            isChosen={isChosen}
-                            extra={
-                                <div className="item-button">
-                                    <button
-                                        className={`btn ${isChosen ? "red" : ""}`}
-                                        disabled={!isChosen && disableAddItem}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            (isChosen || !disableAddItem) && addOrRemoveItem(item);
-                                        }}
-                                    >
-                                        {isChosen ? "REMOVE" : "ADD"}
-                                    </button>
-                                </div>
-                            }
-                            />
-                    </div>
-                    );
-                })}
-            </div>}
-
-            {ownedKioskItems.hasNextPage &&
-            <div className="center-element">
-                <Btn
-                    working={ownedKioskItems.isLoading}
-                    onClick={ownedKioskItems.loadMore}
-                >
-                    LOAD MORE KIOSKS
-                </Btn>
-            </div>}
-        </div> } {/* end of kiosk selector */}
-
-    </div> {/* end of card */}
-    </>;
+    </div>);
 };
 
 const CardChosenItem: React.FC<{
