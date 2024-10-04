@@ -173,13 +173,13 @@ export class BidderClient extends SuiClientBase
 
     public async fetchOwnedKioskItems(
         owner: string,
-        cursor: string | null | undefined,
+        cursor: string | undefined,
         limit?: number,
         excludedListed = true,
     ) {
         const kiosks = await this.kioskClient.getOwnedKiosks({
             address: owner,
-            pagination: !cursor ? undefined : { cursor, limit },
+            pagination: { cursor, limit },
         });
 
         let allItems: SuiItem[] = [];
@@ -217,7 +217,7 @@ export class BidderClient extends SuiClientBase
         return {
             data: allItems,
             hasNextPage: kiosks.hasNextPage,
-            nextCursor: kiosks.nextCursor,
+            nextCursor: kiosks.nextCursor ?? undefined,
         };
     }
 

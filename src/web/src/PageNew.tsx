@@ -319,8 +319,8 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         [bidderClient, currAcct],
     );
 
-    const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|null|undefined>(
-        async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor),
+    const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|undefined>(
+        async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor, 20),
         [bidderClient, currAcct]
     );
 
@@ -352,8 +352,9 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                 : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />}
         </div>
 
-        {toggleChoice === "nfts" && ownedItems.data.length > 0 &&
+        {toggleChoice === "nfts" &&
         <div className="grid-selector">
+            {ownedItems.data.length > 0 &&
             <div className="grid">
                 {ownedItems.data.map(item =>
                 {
@@ -382,7 +383,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                     </div>
                     );
                 })}
-            </div>
+            </div>}
 
             {ownedItems.hasNextPage &&
             <div className="center-element">
@@ -395,8 +396,9 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
             </div>}
         </div> } {/* end of ownedItems */}
 
-        {toggleChoice === "kiosks" && ownedKioskItems && ownedKioskItems.data.length > 0 &&
+        {toggleChoice === "kiosks" && ownedKioskItems &&
         <div className="grid-selector">
+            {ownedKioskItems.data.length > 0 &&
             <div className="grid">
                 {ownedKioskItems.data.map(item =>
                 {
@@ -425,7 +427,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                     </div>
                     );
                 })}
-            </div>
+            </div>}
 
             {ownedKioskItems.hasNextPage &&
             <div className="center-element">
