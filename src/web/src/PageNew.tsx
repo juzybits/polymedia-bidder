@@ -312,7 +312,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     // const currAddr = "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
     // const currAddr = "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432" // fuddies top holder
 
-    const [ toggleChoice, setToggleChoice ] = useState<"nfts"|"kiosks">("nfts");
+    const [ toggleChoice, setToggleChoice ] = useState<"objects"|"kiosks">("objects");
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         (cursor) => bidderClient.fetchOwnedItems(currAddr, cursor),
@@ -339,7 +339,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         <div className="card-header column-on-small">
             <div className="card-title">Choose items</div>
             {showKioskToggle && <div className="card-toggle">
-                <div className={`header-label ${toggleChoice === "nfts" ? "selected" : ""}`} onClick={() => setToggleChoice("nfts")}>NFTs</div>
+                <div className={`header-label ${toggleChoice === "objects" ? "selected" : ""}`} onClick={() => setToggleChoice("objects")}>Objects</div>
                 <div className={`header-label ${toggleChoice === "kiosks" ? "selected" : ""}`} onClick={() => setToggleChoice("kiosks")}>Kiosks</div>
             </div>}
         </div>
@@ -352,7 +352,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                 : <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />}
         </div>
 
-        {toggleChoice === "nfts" &&
+        {toggleChoice === "objects" &&
         <div className="grid-selector">
             {ownedItems.data.length > 0 &&
             <div className="grid">
@@ -391,7 +391,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                     working={ownedItems.isLoading}
                     onClick={ownedItems.loadMore}
                 >
-                    LOAD MORE ITEMS
+                    LOAD MORE OBJECTS
                 </Btn>
             </div>}
         </div> } {/* end of ownedItems */}
