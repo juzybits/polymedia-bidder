@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, objDataToSuiItem, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { isLocalhost, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { isLocalhost, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -12,7 +12,6 @@ import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
-import { KioskOwnerCap } from "@mysten/kiosk";
 
 export const PageNew: React.FC = () =>
 {
@@ -23,6 +22,18 @@ export const PageNew: React.FC = () =>
     const { header } = useAppContext();
 
     const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
+
+    const blockedTypes = useFetch(() =>
+        fetch('https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/src/object-list.json')
+        .then(response => response.json())
+        .then(data => {
+            const map = new Map<string, boolean>();
+            for (const type of data.blocklist) {
+                map.set(type, true);
+            }
+            return map;
+        })
+    );
 
     // === functions ===
 
@@ -58,11 +69,19 @@ export const PageNew: React.FC = () =>
             ? <div className="card compact"><ConnectToGetStarted /></div>
             : <>
                 <div className="page-section">
-                    <FormCreateAuction chosenItems={chosenItems} addOrRemoveItem={addOrRemoveItem} />
+                    <FormCreateAuction
+                        chosenItems={chosenItems}
+                        addOrRemoveItem={addOrRemoveItem}
+                    />
                 </div>
 
                 <div className="page-section">
-                    <ItemGridSelector addOrRemoveItem={addOrRemoveItem} isChosenItem={isChosenItem} disableAddItem={disableAddItem} />
+                    <ItemGridSelector
+                        addOrRemoveItem={addOrRemoveItem}
+                        isChosenItem={isChosenItem}
+                        disableAddItem={disableAddItem}
+                        blockedTypes={blockedTypes.data ?? new Map()}
+                    />
                 </div>
             </>}
 
@@ -292,10 +311,12 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     addOrRemoveItem: (item: SuiItem) => void;
     isChosenItem: (item: SuiItem) => boolean;
     disableAddItem: boolean;
+    blockedTypes: Map<string, string[]>;
 }> = ({
     addOrRemoveItem,
     isChosenItem,
     disableAddItem,
+    blockedTypes,
 }) =>
 {
     // === state ===
@@ -325,8 +346,10 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
     // === html ===
 
-    const itemSelector = (items: typeof ownedItems | typeof ownedKioskItems, type: "objects" | "kiosks") =>
-    {
+    const itemSelector = (
+        items: typeof ownedItems | typeof ownedKioskItems,
+        type: "objects" | "kiosks",
+    ) => {
         if (items === false) { return null; }; // temporary until we enable kiosks
 
         if (items.error) {
@@ -352,6 +375,9 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
             <div className="grid-selector">
                 <div className="grid">
                     {items.data.map(item => {
+                        if (blockedTypes.has(item.type)) {
+                            return null;
+                        }
                         const isChosen = isChosenItem(item);
                         return (
                             <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
