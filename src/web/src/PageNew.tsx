@@ -13,11 +13,21 @@ import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
+function getCurrAddr(currAcct: ReturnType<typeof useCurrentAccount>): string | null
+{
+    return currAcct ? currAcct.address : null;
+    // return "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
+    // return "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
+    // return "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
+    // return "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432" // fuddies top holder
+}
+
 export const PageNew: React.FC = () =>
 {
     // === state ===
 
     const currAcct = useCurrentAccount();
+    const currAddr = getCurrAddr(currAcct);
 
     const { header } = useAppContext();
 
@@ -65,7 +75,7 @@ export const PageNew: React.FC = () =>
 
             <div className="page-title">NEW AUCTION</div>
 
-            {!currAcct
+            {!currAddr
             ? <div className="card compact"><ConnectToGetStarted /></div>
             : <>
                 <div className="page-section">
@@ -106,11 +116,12 @@ const FormCreateAuction: React.FC<{
     const navigate = useNavigate();
 
     const currAcct = useCurrentAccount();
-    if (!currAcct) { return; }
+    const currAddr = getCurrAddr(currAcct);
+    if (!currAddr) { return; }
 
     const { bidderClient, isWorking, setIsWorking, setModalContent } = useAppContext();
 
-    const { userId, updateUserId } = useFetchUserId(currAcct.address);
+    const { userId, updateUserId } = useFetchUserId(currAddr);
 
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
@@ -150,7 +161,7 @@ const FormCreateAuction: React.FC<{
         }),
         pay_addr: useInputAddress({
             label: "Payment address",
-            html: { value: currAcct.address ?? "", required: true },
+            html: { value: currAddr, required: true },
         }),
         begin_delay_hours: useInputUnsignedInt({
             label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/TimeUnit.ONE_HOUR),
@@ -322,26 +333,21 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     // === state ===
 
     const currAcct = useCurrentAccount();
-    if (!currAcct) { return; }
+    const currAddr = getCurrAddr(currAcct);
+    if (!currAddr) { return; }
 
     const { bidderClient, network, setModalContent } = useAppContext();
-
-    const currAddr = currAcct.address;
-    // const currAddr = "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
-    // const currAddr = "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
-    // const currAddr = "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
-    // const currAddr = "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432" // fuddies top holder
 
     const [ toggleChoice, setToggleChoice ] = useState<"objects"|"kiosks">("objects");
 
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         (cursor) => bidderClient.fetchOwnedItems(currAddr, cursor),
-        [bidderClient, currAcct],
+        [bidderClient, currAddr],
     );
 
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|undefined>(
         async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor, 20),
-        [bidderClient, currAcct]
+        [bidderClient, currAddr]
     );
 
     // === html ===
