@@ -9,20 +9,6 @@ import { IconCheck, IconVerified } from "./icons";
 
 // === cards ===
 
-const CardSuiItemHiddenCount: React.FC<{
-    hiddenItemCount: number;
-}> = ({
-    hiddenItemCount,
-}) => {
-    return <div className="sui-item">
-        <div className="item-img">
-            <div>
-                {hiddenItemCount} more item{hiddenItemCount > 1 ? "s" : ""}…
-            </div>
-        </div>
-    </div>;
-};
-
 export const CardSuiItem: React.FC<{
     item: SuiItem;
     isChosen?: boolean;
@@ -137,7 +123,7 @@ export const CardSuiItem: React.FC<{
 export const CardAuctionItems: React.FC<{
     items: SuiItem[];
     hiddenItemCount: number;
-    className: "grid" | "flex-grid"
+    className: string;
 }> = ({
     items,
     hiddenItemCount,
@@ -159,13 +145,30 @@ export const CardAuctionItems: React.FC<{
                 </div>
             ))}
             {hiddenItemCount > 0 &&
-                <div className="card grid-item">
-                    <CardSuiItemHiddenCount hiddenItemCount={hiddenItemCount} />
+                <div className="more-items">
+                    +{hiddenItemCount} more item{hiddenItemCount > 1 ? "s" : ""}…
                 </div>
+                // <div className="card grid-item">
+                //     <CardSuiItemHiddenCount hiddenItemCount={hiddenItemCount} />
+                // </div>
             }
         </div>
     </>;
 };
+
+// const CardSuiItemHiddenCount: React.FC<{
+//     hiddenItemCount: number;
+// }> = ({
+//     hiddenItemCount,
+// }) => {
+//     return <div className="sui-item">
+//         <div className="item-img">
+//             <div>
+//                 {hiddenItemCount} more item{hiddenItemCount > 1 ? "s" : ""}…
+//             </div>
+//         </div>
+//     </div>;
+// };
 
 // === smaller components ===
 

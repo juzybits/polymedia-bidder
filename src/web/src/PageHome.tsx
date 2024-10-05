@@ -8,8 +8,8 @@ import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 
-const PAGE_SIZE_RECENT = 12;
-const MAX_ITEMS_PER_AUCTION = 3;
+const PAGE_SIZE_RECENT = 24;
+const MAX_ITEMS_PER_AUCTION = 1;
 
 const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[] }[]> = {
     "mainnet": [
@@ -238,7 +238,7 @@ const CardAuctionWithItems: React.FC<{
             {/* {auction.description.length > 0 &&
             <div className="card-description">{auction.description}</div>} */}
 
-            <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} className="flex-grid" />
+            <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} className="card-list" />
         </Link>
     );
 };
