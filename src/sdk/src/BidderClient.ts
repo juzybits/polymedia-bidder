@@ -565,10 +565,12 @@ export class BidderClient extends SuiClientBase
         minimum_increase_bps: number,
         extension_period_ms: number,
         itemsToAuction: SuiItem[],
+        dryRun?: boolean,
+        sender?: string,
     ): Promise<{
         resp: SuiTransactionBlockResponse;
-        auctionObjChange: ObjChangeKind<"created">;
-        userObjChange: ObjChangeKind<"created" | "mutated">;
+        auctionObjChange: ObjChangeKind<"created"> | undefined;
+        userObjChange: ObjChangeKind<"created" | "mutated"> | undefined;
     }> {
         const tx = new Transaction();
 
@@ -677,19 +679,19 @@ export class BidderClient extends SuiClientBase
             auctionArg,
         );
 
-        const resp = await this.signAndExecuteTransaction(tx);
+        const resp = await this.dryRunOrSignAndExecute(tx, dryRun, sender);
 
         if (resp.effects?.status.status !== "success") {
             throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
         }
 
         const auctionObjChange = this.txParser.extractAuctionObjCreated(resp);
-        if (!auctionObjChange) { // should never happen
+        if (!dryRun && !auctionObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
         }
 
         const userObjChange = this.txParser.extractUserObjChange(resp);
-        if (!userObjChange) { // should never happen
+        if (!dryRun && !userObjChange) { // should never happen
             throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
         }
 
@@ -741,7 +743,7 @@ export class BidderClient extends SuiClientBase
         auctionId: string,
         type_coin: string,
         itemsAndTypes: { addr: string; type: string }[],
-        dryRun = false,
+        dryRun?: boolean,
     ): Promise<SuiTransactionBlockResponse>
     {
         AuctionModule.anyone_pays_funds(tx, this.packageId, type_coin, auctionId);

@@ -201,7 +201,8 @@ const FormCreateAuction: React.FC<{
             setIsWorking(true);
             setSubmitRes({ ok: null });
 
-            const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuction(
+            const dryRun = false;
+            const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuctionWithKiosk(
                 form.type_coin.val!,
                 userId,
                 form.name.val!,
@@ -213,15 +214,21 @@ const FormCreateAuction: React.FC<{
                 form.minimum_increase_pct.val! * 100,
                 devMode ? form.extension_period_seconds.val! * 1000 : form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
                 chosenItems,
+                dryRun,
+                currAddr,
             );
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
-            !userId && updateUserId(userObjChange.objectId);
-            setSubmitRes({ ok: true });
-            navigate(`/auction/${auctionObjChange.objectId}/items`, {
-                state: { justCreated: true },
-            });
+            if (!dryRun) {
+                !userId && updateUserId(userObjChange!.objectId);
+                setSubmitRes({ ok: true });
+                navigate(`/auction/${auctionObjChange!.objectId}/items`, {
+                    state: { justCreated: true },
+                });
+            } else {
+                console.debug("dryRun ok:", resp);
+            }
         } catch (err) {
             const errMsg = bidderClient.errCodeToStr(err, "Failed to create auction");
             setSubmitRes({ ok: false, err: errMsg });
