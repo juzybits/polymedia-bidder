@@ -1,5 +1,5 @@
 import { Transaction, TransactionObjectArgument, TransactionResult } from "@mysten/sui/transactions";
-import { ObjectInput, objectArg } from "@polymedia/suitcase-core";
+import { NestedResult, ObjectInput, objectArg } from "@polymedia/suitcase-core";
 
 /**
  * Build transactions for the bidder::auction Sui module.
@@ -13,7 +13,7 @@ export const AuctionModule =
         request: ObjectInput,
         name: string,
         description: string,
-        item_addrs: any,
+        item_addrs: string[] | NestedResult,
         item_bag: ObjectInput,
         pay_addr: string,
         begin_delay_ms: number,
@@ -30,7 +30,7 @@ export const AuctionModule =
                 objectArg(tx, request),
                 tx.pure.string(name),
                 tx.pure.string(description),
-                item_addrs,
+                Array.isArray(item_addrs) ? tx.pure.vector("address", item_addrs) : item_addrs,
                 objectArg(tx, item_bag),
                 tx.pure.address(pay_addr),
                 tx.pure.u64(begin_delay_ms),

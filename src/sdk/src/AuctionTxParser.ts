@@ -44,7 +44,8 @@ export class AuctionTxParser
                 .map(arg => txData.inputs[arg.Input]);
 
             if (tx.MoveCall.function === "admin_creates_auction") {
-                if (txInputs.length !== 10) return null;
+                if (txInputs.length !== 10 && txInputs.length !== 9) return null;
+                const offset = 10 - txInputs.length;
 
                 const auctionObjChange = this.extractAuctionObjCreated(resp);
                 if (!auctionObjChange) { return null; }
@@ -56,13 +57,13 @@ export class AuctionTxParser
                         type_coin: tx.MoveCall.type_arguments[0],
                         name: getArgVal(txInputs[0]),
                         description: getArgVal(txInputs[1]),
-                        item_addrs: getArgVal(txInputs[2]),
-                        pay_addr: getArgVal(txInputs[3]),
-                        begin_delay_ms: getArgVal(txInputs[4]),
-                        duration_ms: getArgVal(txInputs[5]),
-                        minimum_bid: getArgVal(txInputs[6]),
-                        minimum_increase_bps: getArgVal<number>(txInputs[7]),
-                        extension_period_ms: getArgVal(txInputs[8]),
+                        item_addrs: txInputs.length === 10 ? getArgVal(txInputs[2]) : [],
+                        pay_addr: getArgVal(txInputs[3-offset]),
+                        begin_delay_ms: getArgVal(txInputs[4-offset]),
+                        duration_ms: getArgVal(txInputs[5-offset]),
+                        minimum_bid: getArgVal(txInputs[6-offset]),
+                        minimum_increase_bps: getArgVal<number>(txInputs[7-offset]),
+                        extension_period_ms: getArgVal(txInputs[8-offset]),
                     },
                     ...this.getCommonTxProps(resp, txData),
                 };

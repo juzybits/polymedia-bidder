@@ -477,6 +477,93 @@ export class BidderClient extends SuiClientBase
         minimum_bid: bigint,
         minimum_increase_bps: number,
         extension_period_ms: number,
+        itemsToAuction: { id: string; type: string }[],
+    ): Promise<{
+        resp: SuiTransactionBlockResponse;
+        auctionObjChange: ObjChangeKind<"created">;
+        userObjChange: ObjChangeKind<"created" | "mutated">;
+    }> {
+        const tx = new Transaction();
+
+        // create the item bag and fill it with the items to auction
+        const [itemBagArg] = tx.moveCall({
+            target: "0x2::object_bag::new",
+        });
+        for (const item of itemsToAuction) {
+            tx.moveCall({
+                target: "0x2::object_bag::add",
+                typeArguments: [ "address", item.type ],
+                arguments: [
+                    itemBagArg,
+                    tx.pure.address(item.id),
+                    tx.object(item.id),
+                ],
+            });
+        }
+
+        // create the user request
+        const [reqArg0] = !userObj
+            ? UserModule.new_user_request(tx, this.packageId, this.registryId)
+            : UserModule.existing_user_request(tx, this.packageId, userObj);
+
+        // create the auction
+        const [reqArg1, auctionArg] = AuctionModule.admin_creates_auction(
+            tx,
+            this.packageId,
+            type_coin,
+            reqArg0,
+            name,
+            description,
+            itemsToAuction.map(item => item.id),
+            itemBagArg,
+            pay_addr,
+            begin_time_ms,
+            duration_ms,
+            minimum_bid,
+            minimum_increase_bps,
+            extension_period_ms,
+        );
+
+        // destroy the user request
+        UserModule.destroy_user_request(tx, this.packageId, reqArg1);
+
+        // share the auction object
+        TransferModule.public_share_object(
+            tx,
+            `${this.packageId}::auction::Auction<${type_coin}>`,
+            auctionArg,
+        );
+
+        const resp = await this.signAndExecuteTransaction(tx);
+
+        if (resp.effects?.status.status !== "success") {
+            throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        const auctionObjChange = this.txParser.extractAuctionObjCreated(resp);
+        if (!auctionObjChange) { // should never happen
+            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        const userObjChange = this.txParser.extractUserObjChange(resp);
+        if (!userObjChange) { // should never happen
+            throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
+        }
+
+        return { resp, auctionObjChange, userObjChange };
+    }
+
+    public async createAndShareAuctionWithKiosk(
+        type_coin: string,
+        userObj: ObjectInput | null,
+        name: string,
+        description: string,
+        pay_addr: string,
+        begin_time_ms: number,
+        duration_ms: number,
+        minimum_bid: bigint,
+        minimum_increase_bps: number,
+        extension_period_ms: number,
         itemsToAuction: SuiItem[],
     ): Promise<{
         resp: SuiTransactionBlockResponse;
