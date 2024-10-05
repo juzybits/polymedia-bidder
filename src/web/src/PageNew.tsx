@@ -13,13 +13,17 @@ import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
-function getCurrAddr(currAcct: ReturnType<typeof useCurrentAccount>): string | null
-{
-    return currAcct ? currAcct.address : null;
-    // return "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b" // trevin.sui
-    // return "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031" // death.sui
-    // return "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1" // adeniyi.sui
-    // return "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432" // fuddies top holder
+function getCurrAddr(
+    currAcct: ReturnType<typeof useCurrentAccount>,
+): {
+    currAddr: string | null,
+    dryRun: boolean,
+} {
+    return { dryRun: false, currAddr: currAcct ? currAcct.address : null };
+    // return { dryRun: true, currAddr: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b"}; // trevin.sui
+    // return { dryRun: true, currAddr: "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031"}; // death.sui
+    // return { dryRun: true, currAddr: "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1"}; // adeniyi.sui
+    // return { dryRun: true, currAddr: "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432"}; // fuddies top holder
 }
 
 export const PageNew: React.FC = () =>
@@ -27,7 +31,7 @@ export const PageNew: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const currAddr = getCurrAddr(currAcct);
+    const { currAddr } = getCurrAddr(currAcct);
 
     const { header } = useAppContext();
 
@@ -116,7 +120,7 @@ const FormCreateAuction: React.FC<{
     const navigate = useNavigate();
 
     const currAcct = useCurrentAccount();
-    const currAddr = getCurrAddr(currAcct);
+    const { currAddr, dryRun } = getCurrAddr(currAcct);
     if (!currAddr) { return; }
 
     const { bidderClient, isWorking, setIsWorking, setModalContent } = useAppContext();
@@ -201,7 +205,6 @@ const FormCreateAuction: React.FC<{
             setIsWorking(true);
             setSubmitRes({ ok: null });
 
-            const dryRun = false;
             const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuctionWithKiosk(
                 form.type_coin.val!,
                 userId,
@@ -340,7 +343,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const currAddr = getCurrAddr(currAcct);
+    const { currAddr } = getCurrAddr(currAcct);
     if (!currAddr) { return; }
 
     const { bidderClient, network, setModalContent } = useAppContext();
