@@ -370,39 +370,15 @@ footer {
 }
 
 .grid, .flex-grid {
+    gap: 2rem;
     .card.grid-item {
         padding: 1.5rem;
-        @media (max-width: @screen-large) {
+    }
+    @media (max-width: @screen-large) {
+        gap: 1.5rem;
+        .card.grid-item {
             padding: 1rem;
         }
-    }
-}
-
-.flex-grid {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    flex-wrap: wrap;
-    .card {
-        flex: 1 1 300px; // grow, shrink, basis
-    }
-}
-
-.grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-
-    @media (max-width: @screen-large) {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
-    @media (max-width: @screen-medium) {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    @media (max-width: @screen-small) {
-        grid-template-columns: repeat(1, 1fr);
     }
 
     .card.grid-item {
@@ -422,6 +398,31 @@ footer {
                 width: 18%;
             }
         }
+    }
+}
+
+.flex-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    .card {
+        flex: 1 1 300px; // grow, shrink, basis
+    }
+}
+
+.grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: @screen-large) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: @screen-medium) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: @screen-small) {
+        grid-template-columns: repeat(1, 1fr);
     }
 }
 
