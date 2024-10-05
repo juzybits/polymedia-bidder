@@ -119,15 +119,21 @@ const SectionFeaturedAuctions: React.FC = () =>
     }  else if (auctionsWithItems.isLoading || auctionsWithItems.data === undefined) {
         content = <CardSpinner />;
     } else {
-        content = <div className="flex-grid">
-            {auctionsWithItems.data.map((auctionWithItems) => (
-                <CardAuctionWithItems
-                    key={auctionWithItems.id}
-                    auction={auctionWithItems}
-                    items={auctionWithItems.items}
-                />
-            ))}
-        </div>;
+        const fillerItemsCount = 3;
+        content = (
+            <div className="flex-grid">
+                {auctionsWithItems.data.map((auctionWithItems) => (
+                    <CardAuctionWithItems
+                        key={auctionWithItems.id}
+                        auction={auctionWithItems}
+                        items={auctionWithItems.items}
+                    />
+                ))}
+                {[...Array(fillerItemsCount)].map((_, idx) => (
+                    <div key={`filler-${idx}`} className="card filler-card" />
+                ))}
+            </div>
+        );
     }
 
     return (
@@ -183,16 +189,22 @@ const SectionRecentAuctions: React.FC = () =>
     } else if (recent.isLoading && recent.page.length === 0) {
         content = <CardSpinner />;
     } else {
-        content = <div className={`flex-grid ${recent.isLoading ? "loading" : ""}`}>
-            {recent.isLoading && <CardSpinner />}
-            {recent.page.map((auctionWithItems) => (
-                <CardAuctionWithItems
-                    key={auctionWithItems.id}
-                    auction={auctionWithItems}
-                    items={auctionWithItems.items}
-                />
-            ))}
-        </div>;
+        const fillerItemsCount = 3;
+        content = (
+            <div className={`flex-grid ${recent.isLoading ? "loading" : ""}`}>
+                {recent.isLoading && <CardSpinner />}
+                {recent.page.map((auctionWithItems) => (
+                    <CardAuctionWithItems
+                        key={auctionWithItems.id}
+                        auction={auctionWithItems}
+                        items={auctionWithItems.items}
+                    />
+                ))}
+                {[...Array(fillerItemsCount)].map((_, idx) => (
+                    <div key={`filler-${idx}`} className="card filler-card" />
+                ))}
+            </div>
+        );
     }
 
     const sectionRef = React.useRef<HTMLDivElement>(null);

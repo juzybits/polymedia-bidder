@@ -408,12 +408,34 @@ footer {
     flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
+
     .card {
         flex: 1 1 280px; // grow, shrink, basis
         .card-title, .more-items {
             text-align: center;
             align-self: center;
         }
+    }
+
+    .filler-card {
+        height: 0;
+        padding: 0;
+        margin: 0;
+        visibility: hidden;
+    }
+
+    // compensate for the extra gap added by stacked .filler-card's
+    @media (max-width: 599px) {
+        margin-bottom: -4rem;
+    }
+    @media (min-width: 600px) {
+        margin-bottom: -3rem;
+    }
+    @media (min-width: 952px) {
+        margin-bottom: -2rem;
+    }
+    @media (min-width: 1280px) {
+        margin-bottom: -1rem;
     }
 }
 
