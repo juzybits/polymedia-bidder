@@ -18,32 +18,24 @@ const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemId
         {
             auctionId: "0x37e01a21e07ce4804d9c86d7b4dea6411a179710912b5ee41e355d1b1421c7f7",
             itemIds: [
-                "0xdb021aa00d3f31bc8316bdc3bf41b4e0d8522b81df8839be91bb315bfd241536",
-                "0x29c41b9a2fd68a6711a2d290610dcfcb47cb711c961e396510230e89a5c03839",
                 "0x383ece4046ebe066326ae6ca195c2667c1688f1597f55e16d7c92ccd73ffeaba",
             ],
         },
         {
             auctionId: "0xd1bd0af4bd34f675f03fd4cb95f52180369ec966fc65291ad59aa93a389b50ca",
             itemIds: [
-                "0xa20f2084f4b696da6f41a9cadd55a9abd1ef207c7d932bbd963d482e5796c088",
-                "0xc78b25186c4f12f66a1f900f99e86cb499a497936630f9ca2270a857a2f126e8",
                 "0x9cbaf0ea5684a776d974f533c82d1fd3f9ff62adfafc69c6998ad75f757a7a3e",
             ],
         },
         {
             auctionId: "0x37d0ea66363f213f33095d61003b801eb1658f56c848546111b5cd3c04d00882",
             itemIds: [
-                "0x31b6da0e7a549b162942f1a3ad4befa20887be0e1eae6bf35e99de1b61d3c181",
-                "0x91ace86bd64742c700879a633bb66c2a0d735cd8fcdeea0a95607eb6970bc00b",
                 "0xf5009a83ca08337649b310bfcaeae003ea05e8ecb00430ba98d09ded96c985d3",
             ],
         },
         {
             auctionId: "0x47239f026a58e2e2b9be17ed21154630d9336b6ed62b40f1b3b6068a517c18c2",
             itemIds: [
-                "0x1438bb95f899db83de0f6cfbf9b0f275b940a81f62b95c5181ac0ca430a1b205",
-                "0x171003dc0dfc00d2eab7aba453a85758f8db127fb37f7d8035ef540817c70ef0",
                 "0xdec0a064bd855248dc5db10a2d11defb085500f6e0945e8d50c16854a337d0f9",
             ],
         },
@@ -127,7 +119,7 @@ const SectionFeaturedAuctions: React.FC = () =>
     }  else if (auctionsWithItems.isLoading || auctionsWithItems.data === undefined) {
         content = <CardSpinner />;
     } else {
-        content = <div className="card-list">
+        content = <div className="flex-grid">
             {auctionsWithItems.data.map((auctionWithItems) => (
                 <CardAuctionWithItems
                     key={auctionWithItems.id}
