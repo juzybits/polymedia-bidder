@@ -191,7 +191,7 @@ const SectionRecentAuctions: React.FC = () =>
     } else if (recent.isLoading && recent.page.length === 0) {
         content = <CardSpinner />;
     } else {
-        content = <div className={`card-list ${recent.isLoading ? "loading" : ""}`}>
+        content = <div className={`flex-grid ${recent.isLoading ? "loading" : ""}`}>
             {recent.isLoading && <CardSpinner />}
             {recent.page.map((auctionWithItems) => (
                 <CardAuctionWithItems
@@ -235,10 +235,10 @@ const CardAuctionWithItems: React.FC<{
                 </div>
             </div>
 
-            {auction.description.length > 0 &&
-            <div className="card-description">{auction.description}</div>}
+            {/* {auction.description.length > 0 &&
+            <div className="card-description">{auction.description}</div>} */}
 
-            <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} />
+            <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} className="flex-grid" />
         </Link>
     );
 };

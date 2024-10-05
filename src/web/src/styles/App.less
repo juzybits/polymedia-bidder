@@ -219,6 +219,20 @@ footer {
 @color-bg-purple: #623cb9;
 @color-bg-green: #2e982e;
 @color-bg-blue: #2962ff;
+
+.small-screen-header-styles() {
+    flex-direction: column-reverse;
+
+    .auction-header-info, .card-toggle {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .card-toggle {
+        justify-content: center;
+    }
+}
+
 .section-header, .card-header {
     width: 100%;
     display: flex;
@@ -226,21 +240,21 @@ footer {
     justify-content: space-between;
     align-items: start;
     gap: 1.5rem;
+
     &.column-on-small {
         @media (max-width: @screen-small) {
-            flex-direction: column-reverse;
+            .small-screen-header-styles();
         }
+    }
+
+    .flex-grid & {
+        .small-screen-header-styles();
     }
 
     .auction-header-info, .card-toggle {
         display: flex;
         align-items: center;
         gap: 1.5rem;
-
-        @media (max-width: @screen-small) {
-            width: 100%;
-            justify-content: space-between;
-        }
     }
 
     .card-toggle {
@@ -255,9 +269,6 @@ footer {
                 border-color: @color-bg-blue;
                 color: white;
             }
-        }
-        @media (max-width: @screen-small) {
-            justify-content: center;
         }
     }
 
@@ -358,17 +369,34 @@ footer {
     }
 }
 
+.grid, .flex-grid {
+    .card.grid-item {
+        padding: 1.5rem;
+        @media (max-width: @screen-large) {
+            padding: 1rem;
+        }
+    }
+}
+
+.flex-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    flex-wrap: wrap;
+    .card {
+        flex: 1 1 300px; // grow, shrink, basis
+    }
+}
+
 .grid {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
 
-    .card.grid-item { padding: 1.5rem; }
     @media (max-width: @screen-large) {
         grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
-        .card.grid-item { padding: 1rem; }
     }
     @media (max-width: @screen-medium) {
         grid-template-columns: repeat(2, 1fr);

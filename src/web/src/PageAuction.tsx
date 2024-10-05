@@ -29,7 +29,7 @@ const tabs = makeTabs([
     { name: "admin", icon: <IconGears />, tooltip: "Admin" },
 ]);
 
-export const PageAuction: React.FC = () => // TODO show success msg and button to tweet
+export const PageAuction: React.FC = () =>
 {
     // === url validation ===
 
@@ -272,7 +272,7 @@ const SectionItems: React.FC<{
     return (
         <div className="card">
             <div className="card-title">Items ({items.length})</div>
-            <CardAuctionItems items={items} hiddenItemCount={0} />
+            <CardAuctionItems items={items} hiddenItemCount={0} className="grid" />
         </div>
     );
 };

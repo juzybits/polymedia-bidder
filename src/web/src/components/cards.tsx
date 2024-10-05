@@ -137,9 +137,11 @@ export const CardSuiItem: React.FC<{
 export const CardAuctionItems: React.FC<{
     items: SuiItem[];
     hiddenItemCount: number;
+    className: "grid" | "flex-grid"
 }> = ({
     items,
     hiddenItemCount,
+    className,
 }) =>
 {
     const { setModalContent } = useAppContext();
@@ -150,7 +152,7 @@ export const CardAuctionItems: React.FC<{
     };
 
     return <>
-        <div className="grid">
+        <div className={className}>
             {items.map((item, idx) => (
                 <div className="card grid-item" key={idx} onClick={(e) => showItemModal(e, item)}>
                     <CardSuiItem item={item} />
