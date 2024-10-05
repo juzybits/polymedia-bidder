@@ -3,6 +3,7 @@ import { ExplorerRadioSelector, LinkExternal, NetworkRadioSelector, RpcRadioSele
 import React from "react";
 import { supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
+import { RPC_ENDPOINTS } from "./lib/rpcs";
 
 export const PageSettings: React.FC = () =>
 {
@@ -104,6 +105,7 @@ const SectionRpc: React.FC = () =>
         <RpcRadioSelector
             network={network}
             selectedRpc={rpc}
+            supportedRpcs={RPC_ENDPOINTS[network]}
             onSwitch={setRpc}
         />
         {network === "mainnet" &&

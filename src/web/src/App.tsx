@@ -8,13 +8,14 @@ import {
 import "@mysten/dapp-kit/dist/index.css";
 import { KioskClient, Network } from "@mysten/kiosk";
 import { AUCTION_IDS, BidderClient } from "@polymedia/bidder-sdk";
-import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork, loadRpc } from "@polymedia/suitcase-react";
+import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
 import { IconGears, IconHistory, IconNew } from "./components/icons";
 import { Modal } from "./components/Modal";
+import { loadNetworkConfig } from "./lib/rpcs";
 import { PageAuction } from "./PageAuction";
 import { PageDevDisplayAuction, PageDevDisplayDevNft, PageDevDisplayUser, PageDevDisplayUserRegistry } from "./PageDisplay";
 import { PageNotFound } from "./PageFullScreenMsg";
@@ -70,10 +71,10 @@ const AppSuiProviders: React.FC = () =>
     const [ network, setNetwork ] = useState(loadNetwork(supportedNetworks, defaultNetwork));
 
     const [ networkConfig, setNetworkConfig ] = useState({
-        mainnet: { url: loadRpc("mainnet") },
-        testnet: { url: loadRpc("testnet") },
-        devnet: { url: loadRpc("devnet") },
-        localnet: { url: loadRpc("localnet") },
+        mainnet: loadNetworkConfig("mainnet"),
+        testnet: loadNetworkConfig("testnet"),
+        devnet: loadNetworkConfig("devnet"),
+        localnet: loadNetworkConfig("localnet"),
     });
 
     const rpc = networkConfig[network].url;
