@@ -228,7 +228,7 @@ const CardAuctionWithItems: React.FC<{
     return (
         <Link to={`/auction/${auction.id}/items`} className="card link">
             <div className="card-header column-on-small">
-                <div className="card-title">{auction.name}</div>
+                {/* <div className="card-title">{auction.name}</div> */}
                 <div className="auction-header-info">
                     <TopBid auction={auction} />
                     <HeaderLabel auction={auction} />
@@ -239,6 +239,9 @@ const CardAuctionWithItems: React.FC<{
             <div className="card-description">{auction.description}</div>} */}
 
             <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} className="card-list" />
+
+            {/* <div className="card-title">{auction.name}</div> */}
+
         </Link>
     );
 };
