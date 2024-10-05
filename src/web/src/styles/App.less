@@ -377,7 +377,7 @@ footer {
     @media (max-width: @screen-large) {
         gap: 1.5rem;
         .card.grid-item {
-            padding: 1rem;
+            padding: 1.5rem;
         }
     }
 
@@ -396,6 +396,8 @@ footer {
                 right: -4%;
                 height: 18%;
                 width: 18%;
+                max-width: 55px;
+                max-height: 55px;
             }
         }
     }
@@ -407,6 +409,7 @@ footer {
     flex-wrap: wrap;
     .card {
         flex: 1 1 300px; // grow, shrink, basis
+        flex: 1 1 280px; // grow, shrink, basis
         .card-title, .more-items {
             text-align: center;
             align-self: center;
