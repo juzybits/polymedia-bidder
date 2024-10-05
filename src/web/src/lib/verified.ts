@@ -18,6 +18,7 @@ export const VERIFIED_IDS: Record<NetworkName, VerifiedId[]> = {
     mainnet: [
         // manually added:
         {"name": "SuiNS subdomain", "id": "0x00c2f85e07181b90c140b15c5ce27d863f93c4d9159d2a4e7bdaeb40e286d6f5"},
+        {"name": "DoubleUp Citizen", "id": "0x862810efecf0296db2e9df3e075a7af8034ba374e73ff1098e88cc4bb7c15437::doubleup_citizens::DoubleUpCitizen"},
         // from TradePort:
         {"name": "Fuddies", "id": "0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b"},
         {"name": "Prime Machin", "id": "0x034c162f6b594cb5a1805264dd01ca5d80ce3eca6522e6ee37fd9ebfb9d3ddca::factory::PrimeMachin"},
