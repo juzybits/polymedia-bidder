@@ -190,9 +190,9 @@ const SectionRecentAuctions: React.FC = () =>
         content = <CardSpinner />;
     } else {
         const fillerItemsCount = 3;
-        content = (
+        content = <>
+            {recent.isLoading && <CardSpinner />}
             <div className={`flex-grid ${recent.isLoading ? "loading" : ""}`}>
-                {recent.isLoading && <CardSpinner />}
                 {recent.page.map((auctionWithItems) => (
                     <CardAuctionWithItems
                         key={auctionWithItems.id}
@@ -204,7 +204,7 @@ const SectionRecentAuctions: React.FC = () =>
                     <div key={`filler-${idx}`} className="card filler-card" />
                 ))}
             </div>
-        );
+        </>;
     }
 
     const sectionRef = React.useRef<HTMLDivElement>(null);
