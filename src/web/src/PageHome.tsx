@@ -119,7 +119,6 @@ const SectionFeaturedAuctions: React.FC = () =>
     }  else if (auctionsWithItems.isLoading || auctionsWithItems.data === undefined) {
         content = <CardSpinner />;
     } else {
-        const fillerItemsCount = 3;
         content = (
             <div className="flex-grid">
                 {auctionsWithItems.data.map((auctionWithItems) => (
@@ -129,7 +128,7 @@ const SectionFeaturedAuctions: React.FC = () =>
                         items={auctionWithItems.items}
                     />
                 ))}
-                {[...Array(fillerItemsCount)].map((_, idx) => (
+                {Array.from({ length: 3 }, (_, idx) => (
                     <div key={`filler-${idx}`} className="card filler-card" />
                 ))}
             </div>
@@ -189,7 +188,6 @@ const SectionRecentAuctions: React.FC = () =>
     } else if (recent.isLoading && recent.page.length === 0) {
         content = <CardSpinner />;
     } else {
-        const fillerItemsCount = 3;
         content = <>
             {recent.isLoading && <CardSpinner />}
             <div className={`flex-grid ${recent.isLoading ? "loading" : ""}`}>
@@ -200,7 +198,7 @@ const SectionRecentAuctions: React.FC = () =>
                         items={auctionWithItems.items}
                     />
                 ))}
-                {[...Array(fillerItemsCount)].map((_, idx) => (
+                {Array.from({ length: 3 }, (_, idx) => (
                     <div key={`filler-${idx}`} className="card filler-card" />
                 ))}
             </div>

@@ -12,10 +12,10 @@ export type OwnedKioskItem = {
         id: string;
         itemCount: number;
         allowExtensions: boolean;
-    },
+    };
     item: {
         isLocked: boolean;
-    }
+    };
 };
 
 /**

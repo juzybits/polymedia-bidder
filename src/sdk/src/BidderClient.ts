@@ -182,7 +182,7 @@ export class BidderClient extends SuiClientBase
             pagination: { cursor, limit },
         });
 
-        let allItems: SuiItem[] = [];
+        const allItems: SuiItem[] = [];
         for (const cap of kiosks.kioskOwnerCaps) {
             const kioskData = await this.kioskClient.getKiosk({
                 id: cap.kioskId,

@@ -327,7 +327,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
     const itemSelector = (items: typeof ownedItems | typeof ownedKioskItems, type: "objects" | "kiosks") =>
     {
-        if (items === false) { return null }; // temporary until we enable kiosks
+        if (items === false) { return null; }; // temporary until we enable kiosks
 
         if (items.error) {
             return <CardWithMsg>{items.error}</CardWithMsg>;

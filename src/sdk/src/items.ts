@@ -6,7 +6,7 @@ import {
     objResToFields,
     shortenAddress,
 } from "@polymedia/suitcase-core";
-import { OwnedKioskItem } from "./kiosks";
+import { OwnedKioskItem } from "./kiosks.js";
 
 const MAX_NAME_LENGTH = 100;
 

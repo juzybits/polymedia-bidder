@@ -480,7 +480,7 @@ const SectionActivity: React.FC<{
                     (_tx) => Promise.resolve({ bytes: "", signature: "" }),
                     AUCTION_IDS[network].packageId,
                     AUCTION_IDS[network].registryId,
-                )
+                );
                 return bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY);
             } else {
                 return bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY);

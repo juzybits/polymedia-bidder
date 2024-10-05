@@ -7,12 +7,12 @@ import { NetworkName } from "@polymedia/suitcase-core";
 type VerifiedId = {
     name: string;
     id: string;
-}
+};
 
 export const isVerifiedItem = (network: NetworkName, itemType: string): VerifiedId | null => {
     const packageId = itemType.split("::")[0];
     return VERIFIED_IDS[network].find(v => v.id === packageId || v.id === itemType) || null;
-}
+};
 
 export const VERIFIED_IDS: Record<NetworkName, VerifiedId[]> = {
     mainnet: [
