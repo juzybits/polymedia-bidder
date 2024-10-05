@@ -697,7 +697,7 @@ const SectionAdmin: React.FC<{
                     <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
 
                     {cancelAuctionRes.ok === true &&
-                    <div className="success">Auction cancelled!</div>}
+                    <div className="success">Auction canceled!</div>}
 
                     {cancelAuctionRes.ok === false && cancelAuctionRes.err &&
                     <div className="error">{cancelAuctionRes.err}</div>}
@@ -824,8 +824,8 @@ const CardAuctionDetails: React.FC<{
                 <span className="value">{auction.is_live ? "yes": "no"}</span>
             </div>
             <div className="detail">
-                <span className="label">Cancelled</span>
-                <span className="value">{auction.is_cancelled ? "yes": "no"}</span>
+                <span className="label">Canceled</span>
+                <span className="value">{auction.is_canceled ? "yes": "no"}</span>
             </div>
             <div className="detail">
                 <span className="label">Has Leader</span>
@@ -870,7 +870,7 @@ const CardTransaction: React.FC<{
             className = "tx-finalize";
             break;
         case "admin_cancels_auction":
-            title = "CANCELLED";
+            title = "CANCELED";
             className = "tx-cancel";
             break;
         case "admin_sets_pay_addr":
@@ -938,7 +938,7 @@ const LinkToUser: React.FC<{
 //         <div>Has started: {auction.has_started ? "yes" : "no"}</div>
 //         <div>Has ended: {auction.has_ended ? "yes" : "no"}</div>
 //         <div>Is live: {auction.is_live ? "yes" : "no"}</div>
-//         <div>Is cancelled: {auction.is_cancelled ? "yes" : "no"}</div>
+//         <div>Is canceled: {auction.is_canceled ? "yes" : "no"}</div>
 //         <div>Has leader: {auction.has_leader ? "yes" : "no"}</div>
 //         <div>Has balance: {auction.has_balance ? "yes" : "no"}</div>
 //     </>;

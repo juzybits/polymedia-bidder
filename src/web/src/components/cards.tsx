@@ -179,7 +179,7 @@ export const HeaderLabel: React.FC<{
 }) => {
     let text = "";
     let labelClass = "";
-    if (auction.is_cancelled) { text = "CANCELLED"; labelClass = "cancelled"; }
+    if (auction.is_canceled) { text = "CANCELED"; labelClass = "canceled"; }
     else if (!auction.has_started) { text = `⏳ ${formatTimeDiff(auction.begin_time_ms)}`; labelClass = "soon"; }
     else if (auction.has_ended) { text = "ENDED"; labelClass = "ended"; }
     else if (auction.is_live) { text = "LIVE"; labelClass = "live"; }

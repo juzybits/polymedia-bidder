@@ -39,7 +39,7 @@ export type AuctionObj = {
     has_started: boolean;
     has_ended: boolean;
     is_live: boolean;
-    is_cancelled: boolean;
+    is_canceled: boolean;
     has_leader: boolean;
     has_balance: boolean;
     can_anyone_pay_funds: boolean;
@@ -82,7 +82,7 @@ export function parseAuctionObj(
     const is_live = has_started && !has_ended;
     const has_leader = lead_addr !== ZERO_ADDRESS;
     const has_balance = lead_value > 0n;
-    const is_cancelled = has_ended && !has_leader;
+    const is_canceled = has_ended && !has_leader;
     return {
         // struct types
         type_coin,
@@ -108,7 +108,7 @@ export function parseAuctionObj(
         has_started,
         has_ended,
         is_live,
-        is_cancelled,
+        is_canceled,
         has_leader,
         has_balance,
         can_anyone_pay_funds: has_ended && has_balance,

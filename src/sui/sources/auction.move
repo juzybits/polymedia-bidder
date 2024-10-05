@@ -282,7 +282,7 @@ public fun admin_cancels_auction<CoinType>(
 }
 
 /// Admin can reclaim the items if the auction ended without a leader,
-/// either because it was cancelled or because nobody bid.
+/// either because it was canceled or because nobody bid.
 public fun admin_reclaims_item<CoinType, ItemType: key+store>(
     auction: &mut Auction<CoinType>,
     item_addr: address,
@@ -349,7 +349,7 @@ public fun is_live<CoinType>(
     return auction.has_started(clock) && !auction.has_ended(clock)
 }
 
-public fun is_cancelled<CoinType>(
+public fun is_canceled<CoinType>(
     auction: &Auction<CoinType>,
     clock: &Clock,
 ): bool {
