@@ -1,6 +1,36 @@
-import { SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { bcs } from "@mysten/sui/bcs";
+import { SuiClient, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgKind, isTxKind, ObjChangeKind, TxKind, txResToData } from "@polymedia/suitcase-core";
 import { AnyAuctionTx } from "./AuctionTxTypes.js";
+
+export async function parseDevTx(
+    suiClient: SuiClient,
+) {
+    const resp = await suiClient.getTransactionBlock({
+        digest: "7SNCiSyW5G3r7CBZCaLvaEtLNCtK5neiQyZanvwpJFgG",
+        options: { showEffects: true, showObjectChanges: true, showInput: true },
+     });
+    const txData = txResToData(resp);
+    console.log(txData);
+
+    for (const tx of txData.txs)
+    {
+        if (!isTxKind(tx, "MoveCall") ||
+            !tx.MoveCall.arguments ||
+            !tx.MoveCall.type_arguments
+        ) continue;
+
+        const txInputs = tx.MoveCall.arguments
+            .filter(arg => isArgKind(arg, "Input"))
+            .map(arg => txData.inputs[arg.Input]);
+
+        console.log(`${tx.MoveCall.module}::${tx.MoveCall.function} inputs:`, txInputs);
+
+        const val = new Uint8Array(getArgVal<number[]>(txInputs[0]));
+        const parsed = bcs.vector(bcs.Address).parse(val);
+        console.log("parsed:", parsed);
+    }
+}
 
 type TxData = ReturnType<typeof txResToData>;
 
