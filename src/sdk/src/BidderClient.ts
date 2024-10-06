@@ -587,26 +587,28 @@ export class BidderClient extends SuiClientBase
         //     return { resp, auctionObjChange: undefined, userObjChange: undefined };
         // }
 
-        const [ item_bag_arg ] = tx.moveCall({
-            target: "0x2::object_bag::new",
-        });
-
         const [ item_addrs_arg ] = tx.moveCall({
             target: "0x1::vector::empty",
             typeArguments: [ "address" ],
             arguments: [],
         });
 
+        const [ item_bag_arg ] = tx.moveCall({
+            target: "0x2::object_bag::new",
+        });
+
         for (const item of itemsToAuction)
         {
-            let item_arg: TransactionObjectArgument;
-            let itemId: string | TransactionObjectArgument;
             let itemType: string;
+            let item_arg: TransactionObjectArgument;
+            let item_id_arg: TransactionObjectArgument;
 
             if (item.kiosk)
             {
                 if (item.kiosk.item.isLocked)
                 {
+                    itemType = "0x2::kiosk::KioskOwnerCap";
+
                     // transfer the item to a new kiosk and auction the new KioskOwnerCap
                     if (item.kiosk.kiosk.itemCount > 1)
                     {
@@ -620,24 +622,17 @@ export class BidderClient extends SuiClientBase
                         );
 
                         item_arg = newKioskTx.getKioskCap();
-                        itemType = "0x2::kiosk::KioskOwnerCap";
-                        const [ _itemId ] = tx.moveCall({
+                        item_id_arg = tx.moveCall({
                             target: "0x2::object::id_address",
                             typeArguments: [ itemType ],
                             arguments: [ item_arg ],
-                        });
-                        itemId = _itemId;
-
-                        tx.moveCall({
-                            target: "0x1::vector::push_back",
-                            typeArguments: [ "address" ],
-                            arguments: [ item_addrs_arg, itemId ],
-                        });
+                        })[0];
                     }
                     // auction the current KioskOwnerCap
                     else
                     {
-                        throw new Error("TODO support locked items with only one item in kiosk");
+                        item_arg = tx.object(item.kiosk.cap.objectId);
+                        item_id_arg = tx.pure.address(item.kiosk.cap.objectId);
                     }
                 }
                 // take the item out of the kiosk
@@ -651,21 +646,28 @@ export class BidderClient extends SuiClientBase
             {
                 item_arg = tx.object(item.id);
                 itemType = item.type;
-                itemId = item.id;
+                item_id_arg = tx.pure.address(item.id);
                 tx.moveCall({
                     target: "0x1::vector::push_back",
                     typeArguments: [ "address" ],
-                    arguments: [ item_addrs_arg, tx.pure.address(itemId) ],
+                    arguments: [ item_addrs_arg, item_id_arg ],
                 });
             }
 
-            // add the regular object or the KioskOwnerCap to the item bag
+            // add the item address (regular object or kiosk) to the item_addrs vector<address>
+            tx.moveCall({
+                target: "0x1::vector::push_back",
+                typeArguments: [ "address" ],
+                arguments: [ item_addrs_arg, item_id_arg ],
+            });
+
+            // add the item (regular object or kiosk) to the item_bag ObjectBag
             tx.moveCall({
                 target: "0x2::object_bag::add",
                 typeArguments: [ "address", itemType ],
                 arguments: [
                     item_bag_arg,
-                    typeof itemId === "string" ? tx.pure.address(itemId) : itemId,
+                    item_id_arg,
                     item_arg,
                 ],
             });
