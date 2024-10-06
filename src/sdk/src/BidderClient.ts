@@ -599,19 +599,40 @@ export class BidderClient extends SuiClientBase
 
         for (const item of itemsToAuction)
         {
-            let itemType: string;
+            let item_type: string;
             let item_arg: TransactionObjectArgument;
             let item_id_arg: TransactionObjectArgument;
 
-            // kiosk'd objects
-            if (item.kiosk)
+            // regular object
+            if (!item.kiosk)
             {
-                if (item.kiosk.item.isLocked)
+                item_type = item.type;
+                item_arg = tx.object(item.id);
+                item_id_arg = tx.pure.address(item.id);
+            }
+            // kiosk'd objects
+            else
+            {
+                // unlocked kiosk: take the item out of the kiosk and auction it directly
+                if (!item.kiosk.item.isLocked)
                 {
-                    itemType = "0x2::kiosk::KioskOwnerCap";
+                    item_type = item.type;
+                    item_id_arg = tx.pure.address(item.id);
+                    item_arg = takeItemFromKiosk(tx, this.kioskClient, item.kiosk.cap, item.id, item.type);
+                }
+                // locked kiosk: auction a KioskOwnerCap for a single-item kiosk
+                else
+                {
+                    item_type = "0x2::kiosk::KioskOwnerCap";
 
+                    // auction the current KioskOwnerCap
+                    if (item.kiosk.kiosk.itemCount === 1 && !item.kiosk.cap.isPersonal)
+                    {
+                        item_arg = tx.object(item.kiosk.cap.objectId);
+                        item_id_arg = tx.pure.address(item.kiosk.cap.objectId);
+                    }
                     // transfer the item to a new kiosk and auction the new KioskOwnerCap
-                    if (item.kiosk.kiosk.itemCount > 1)
+                    else
                     {
                         const newKioskTx = await transferItemToNewKiosk(
                             tx,
@@ -624,39 +645,14 @@ export class BidderClient extends SuiClientBase
                         item_arg = newKioskTx.getKioskCap();
                         item_id_arg = tx.moveCall({
                             target: "0x2::object::id_address",
-                            typeArguments: [ itemType ],
+                            typeArguments: [ item_type ],
                             arguments: [ item_arg ],
                         })[0];
                     }
-                    // auction the current KioskOwnerCap
-                    else
-                    {
-                        item_arg = tx.object(item.kiosk.cap.objectId);
-                        item_id_arg = tx.pure.address(item.kiosk.cap.objectId);
-                    }
                 }
-                // take the item out of the kiosk
-                else
-                {
-                    itemType = item.type;
-                    item_id_arg = tx.pure.address(item.id);
-                    item_arg = takeItemFromKiosk(tx, this.kioskClient, item.kiosk.cap, item.id, item.type);
-                }
-            }
-            // regular object
-            else
-            {
-                item_arg = tx.object(item.id);
-                itemType = item.type;
-                item_id_arg = tx.pure.address(item.id);
-                tx.moveCall({
-                    target: "0x1::vector::push_back",
-                    typeArguments: [ "address" ],
-                    arguments: [ item_addrs_arg, item_id_arg ],
-                });
             }
 
-            // add the item address (regular object or kiosk) to the item_addrs vector<address>
+            // add the item address (regular object or kiosk cap) to the item_addrs vector<address>
             tx.moveCall({
                 target: "0x1::vector::push_back",
                 typeArguments: [ "address" ],
@@ -666,7 +662,7 @@ export class BidderClient extends SuiClientBase
             // add the item (regular object or kiosk) to the item_bag ObjectBag
             tx.moveCall({
                 target: "0x2::object_bag::add",
-                typeArguments: [ "address", itemType ],
+                typeArguments: [ "address", item_type ],
                 arguments: [
                     item_bag_arg,
                     item_id_arg,
