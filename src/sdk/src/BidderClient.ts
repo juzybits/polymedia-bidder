@@ -574,6 +574,13 @@ export class BidderClient extends SuiClientBase
     }> {
         const tx = new Transaction();
 
+        // we only call this so we can get all item IDs with queryTransactionBlocks() + showInput
+        tx.moveCall({
+            target: "0x1::vector::length",
+            typeArguments: [ "address" ],
+            arguments: [ tx.pure.vector("address", itemsToAuction.map(item => item.id)), ],
+        });
+
         const [itemBagArg] = tx.moveCall({
             target: "0x2::object_bag::new",
         });
