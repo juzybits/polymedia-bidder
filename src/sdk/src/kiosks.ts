@@ -52,3 +52,22 @@ export async function transferItemToNewKiosk( // TODO move to @polymedia/suitcas
 
     return newKioskTx;
 }
+
+/**
+ * Extract an unlocked item from a kiosk and return it.
+ */
+export function takeItemFromKiosk(
+    tx: Transaction,
+    kioskClient: KioskClient,
+    cap: KioskOwnerCap,
+    itemId: string,
+    itemType: string
+) {
+    const kioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
+
+    const item = kioskTx.take({ itemId, itemType });
+
+    kioskTx.finalize();
+
+    return item;
+}

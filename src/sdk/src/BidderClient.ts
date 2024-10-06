@@ -9,7 +9,7 @@ import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objDataToSuiItem, objResToSuiItem, SuiItem } from "./items.js";
-import { OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, transferItemToNewKiosk } from "./kiosks.js";
+import { OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, takeItemFromKiosk, transferItemToNewKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -638,7 +638,9 @@ export class BidderClient extends SuiClientBase
                 // take the item out of the kiosk
                 else
                 {
-                    throw new Error("TODO support unlocked items");
+                    itemType = item.type;
+                    item_id_arg = tx.pure.address(item.id);
+                    item_arg = takeItemFromKiosk(tx, this.kioskClient, item.kiosk.cap, item.id, item.type);
                 }
             }
             // regular objects
