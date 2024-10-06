@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, parseDevTx, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { isLocalhost, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { isLocalhost, LinkToExplorer, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -13,7 +13,8 @@ import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
-const devMode = true;
+const devMode = false;
+const debugKiosk = true;
 
 function getCurrAddr(
     currAcct: ReturnType<typeof useCurrentAccount>,
@@ -357,7 +358,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const { currAddr } = getCurrAddr(currAcct);
     if (!currAddr) { return; }
 
-    const { bidderClient, network, setModalContent } = useAppContext();
+    const { bidderClient, explorer, network, setModalContent } = useAppContext();
 
     const [ toggleChoice, setToggleChoice ] = useState<"objects"|"kiosks">("objects");
 
@@ -408,11 +409,19 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                         const isChosen = isChosenItem(item);
                         return (
                             <div className={`card grid-item ${isChosen ? "chosen" : ""}`} key={item.id}
-                                onClick={() => { setModalContent(<CardSuiItem item={item} verbose={true} />); }}
+                                onClick={() => { !debugKiosk && setModalContent(<CardSuiItem item={item} verbose={true} />); }}
                             >
                                 <CardSuiItem item={item}
                                     isChosen={isChosen}
-                                    extra={
+                                    extra={<>
+                                        {debugKiosk && item.kiosk && <div className="item-info">
+                                            <div>item: <LinkToExplorer addr={item.id} kind="object" explorer={explorer} network={network} /></div>
+                                            <div>cap: <LinkToExplorer addr={item.kiosk.cap.objectId} kind="object" explorer={explorer} network={network} /></div>
+                                            <div>kiosk: <LinkToExplorer addr={item.kiosk.kiosk.id} kind="object" explorer={explorer} network={network} /></div>
+                                            <div>items: {item.kiosk.kiosk.itemCount}</div>
+                                            <div>locked: {item.kiosk.item.isLocked ? "yes" : "no"}</div>
+                                            <div>personal: {item.kiosk.cap.isPersonal ? "yes" : "no"}</div>
+                                        </div>}
                                         <div className="item-button">
                                             <button
                                                 className={`btn ${isChosen ? "red" : ""}`}
@@ -425,7 +434,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                                                 {isChosen ? "REMOVE" : "ADD"}
                                             </button>
                                         </div>
-                                    }
+                                    </>}
                                 />
                             </div>
                         );
