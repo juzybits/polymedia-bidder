@@ -603,6 +603,7 @@ export class BidderClient extends SuiClientBase
             let item_arg: TransactionObjectArgument;
             let item_id_arg: TransactionObjectArgument;
 
+            // kiosk'd objects
             if (item.kiosk)
             {
                 if (item.kiosk.item.isLocked)
@@ -612,11 +613,10 @@ export class BidderClient extends SuiClientBase
                     // transfer the item to a new kiosk and auction the new KioskOwnerCap
                     if (item.kiosk.kiosk.itemCount > 1)
                     {
-                        const cap = item.kiosk.cap;
                         const newKioskTx = await transferItemToNewKiosk(
                             tx,
                             this.kioskClient,
-                            cap,
+                            item.kiosk.cap,
                             item.id,
                             item.type,
                         );
@@ -643,7 +643,7 @@ export class BidderClient extends SuiClientBase
                     item_arg = takeItemFromKiosk(tx, this.kioskClient, item.kiosk.cap, item.id, item.type);
                 }
             }
-            // regular objects
+            // regular object
             else
             {
                 item_arg = tx.object(item.id);

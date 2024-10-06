@@ -23,7 +23,7 @@ export type OwnedKioskItem = {
  * purchase the item and place it in a new kiosk,
  * and finally make the new kiosk a shared object.
  */
-export async function transferItemToNewKiosk( // TODO move to @polymedia/suitcase-core
+export async function transferItemToNewKiosk(
     tx: Transaction,
     kioskClient: KioskClient,
     cap: KioskOwnerCap,
@@ -34,7 +34,6 @@ export async function transferItemToNewKiosk( // TODO move to @polymedia/suitcas
     // List the NFT for 0 SUI in the seller's kiosk
     const sellerKioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
     sellerKioskTx.list({ itemType, itemId, price: 0n });
-    sellerKioskTx.finalize();
 
     // Create a new kiosk for the buyer
     const newKioskTx = new KioskTransaction({ transaction: tx, kioskClient });
@@ -49,6 +48,8 @@ export async function transferItemToNewKiosk( // TODO move to @polymedia/suitcas
     });
 
     newKioskTx.share();
+
+    sellerKioskTx.finalize();
 
     return newKioskTx;
 }
