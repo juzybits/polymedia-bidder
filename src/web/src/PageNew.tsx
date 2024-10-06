@@ -1,8 +1,8 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
+import { AUCTION_CONFIG as cnf, parseDevTx, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { isLocalhost, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
@@ -12,6 +12,8 @@ import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
 import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
+
+const devMode = true;
 
 function getCurrAddr(
     currAcct: ReturnType<typeof useCurrentAccount>,
@@ -33,7 +35,7 @@ export const PageNew: React.FC = () =>
     const currAcct = useCurrentAccount();
     const { currAddr } = getCurrAddr(currAcct);
 
-    const { header } = useAppContext();
+    const { header, bidderClient } = useAppContext();
 
     const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
 
@@ -48,6 +50,12 @@ export const PageNew: React.FC = () =>
             return map;
         })
     );
+
+    useEffect(() => {
+        if (devMode) {
+            parseDevTx(bidderClient.suiClient);
+        }
+    }, [bidderClient]);
 
     // === functions ===
 
@@ -77,7 +85,9 @@ export const PageNew: React.FC = () =>
 
         <div className="page-content">
 
-            <div className="page-title">NEW AUCTION</div>
+            <div className="page-title">
+                {devMode ? "🚨 DEV MODE!" : "NEW AUCTION"}
+            </div>
 
             {!currAddr
             ? <div className="card compact"><ConnectToGetStarted /></div>
@@ -219,6 +229,7 @@ const FormCreateAuction: React.FC<{
                 chosenItems,
                 dryRun,
                 currAddr,
+                devMode,
             );
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);

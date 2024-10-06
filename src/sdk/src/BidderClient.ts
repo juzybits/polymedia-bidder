@@ -567,6 +567,7 @@ export class BidderClient extends SuiClientBase
         itemsToAuction: SuiItem[],
         dryRun?: boolean,
         sender?: string,
+        devMode?: boolean,
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created"> | undefined;
