@@ -582,64 +582,60 @@ export class BidderClient extends SuiClientBase
             arguments: [ tx.pure.vector("address", itemsToAuction.map(item => item.id)), ],
         });
 
-        const [itemBagArg] = tx.moveCall({
+        // if (devMode) {
+        //     const resp = await this.dryRunOrSignAndExecute(tx, dryRun, sender);
+        //     return { resp, auctionObjChange: undefined, userObjChange: undefined };
+        // }
+
+        const [ item_bag_arg ] = tx.moveCall({
             target: "0x2::object_bag::new",
         });
 
-        let newKioskTx: KioskTransaction | null = null;
-
-        const [ vec ] = tx.moveCall({
+        const [ item_addrs_arg ] = tx.moveCall({
             target: "0x1::vector::empty",
             typeArguments: [ "address" ],
             arguments: [],
         });
+
         for (const item of itemsToAuction)
         {
-            let objectToAdd: TransactionObjectArgument;
+            let item_arg: TransactionObjectArgument;
             let itemId: string | TransactionObjectArgument;
             let itemType: string;
 
             if (item.kiosk)
             {
                 const cap = item.kiosk.cap;
-                const _newKioskTx = await transferItemToNewKiosk( // TODO only do this if the kiosk has > 1 item
+                const newKioskTx = await transferItemToNewKiosk( // TODO only do this if the kiosk has > 1 item
                     tx,
                     this.kioskClient,
                     cap,
                     item.id,
                     item.type,
                 );
-                newKioskTx = _newKioskTx;
-                objectToAdd = newKioskTx.getKioskCap();
 
+                item_arg = newKioskTx.getKioskCap();
                 itemType = "0x2::kiosk::KioskOwnerCap";
                 const [ _itemId ] = tx.moveCall({
                     target: "0x2::object::id_address",
                     typeArguments: [ itemType ],
-                    arguments: [ objectToAdd ],
+                    arguments: [ item_arg ],
                 });
                 itemId = _itemId;
 
-                const [ _itemId2 ] = tx.moveCall({
-                    target: "0x2::object::id_address",
-                    typeArguments: [ itemType ],
-                    arguments: [ objectToAdd ],
-                });
                 tx.moveCall({
                     target: "0x1::vector::push_back",
                     typeArguments: [ "address" ],
-                    arguments: [ vec, _itemId2 ],
+                    arguments: [ item_addrs_arg, itemId ],
                 });
-                // itemAddresses.push(objectToAdd);
             } else {
-                objectToAdd = tx.object(item.id);
-                itemId = item.id;
+                item_arg = tx.object(item.id);
                 itemType = item.type;
-                // itemAddresses.push(itemId);
+                itemId = item.id;
                 tx.moveCall({
                     target: "0x1::vector::push_back",
                     typeArguments: [ "address" ],
-                    arguments: [ vec, tx.pure.address(itemId) ],
+                    arguments: [ item_addrs_arg, tx.pure.address(itemId) ],
                 });
             }
 
@@ -647,9 +643,9 @@ export class BidderClient extends SuiClientBase
                 target: "0x2::object_bag::add",
                 typeArguments: [ "address", itemType ],
                 arguments: [
-                    itemBagArg,
+                    item_bag_arg,
                     typeof itemId === "string" ? tx.pure.address(itemId) : itemId,
-                    objectToAdd,
+                    item_arg,
                 ],
             });
         }
@@ -667,8 +663,8 @@ export class BidderClient extends SuiClientBase
             reqArg0,
             name,
             description,
-            vec,
-            itemBagArg,
+            item_addrs_arg,
+            item_bag_arg,
             pay_addr,
             begin_time_ms,
             duration_ms,

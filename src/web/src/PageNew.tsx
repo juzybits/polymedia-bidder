@@ -53,7 +53,7 @@ export const PageNew: React.FC = () =>
 
     useEffect(() => {
         if (devMode) {
-            parseDevTx(bidderClient.suiClient);
+            // parseDevTx(bidderClient.suiClient);
         }
     }, [bidderClient]);
 
