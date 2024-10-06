@@ -2,6 +2,7 @@ import {
     ConnectModal,
     SuiClientProvider,
     WalletProvider,
+    useCurrentAccount,
     useSignTransaction,
     useSuiClient,
 } from "@mysten/dapp-kit";
@@ -36,7 +37,6 @@ export const AppRouter: React.FC = () => {
                 <Route path="*" element={<PageNotFound />} />
                 <Route path="/new" element={<PageNew />} />
                 <Route path="/user/:address/:tabName" element={<PageUser />} />
-                <Route path="/user/:tabName" element={<PageUser />} />
                 <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId/:tabName" element={<PageAuction />} />
                 {/* <Route path="/dev/open-graph" element={<PageDevOpenGraph />} /> */}
@@ -226,6 +226,7 @@ const App: React.FC<{
 const Header: React.FC = () =>
 {
     const { network } = useAppContext();
+    const currAcct = useCurrentAccount();
     return <header>
         <div className="header-item">
             <Link to="/">
@@ -236,9 +237,9 @@ const Header: React.FC = () =>
         <Link to="/new" className="header-item" title="Create Auction">
             <IconNew />
         </Link>
-        <Link to="/user/bids" className="header-item" title="Your History">
+        {currAcct && <Link to={`/user/${currAcct.address}/bids`} className="header-item" title="Your History">
             <IconHistory />
-        </Link>
+        </Link>}
         <Link to="/settings" className="header-item" title="Settings">
             <IconGears />
         </Link>

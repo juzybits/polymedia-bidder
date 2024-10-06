@@ -1,13 +1,12 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
-import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress } from "@polymedia/suitcase-core";
+import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
 import { LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";
 import React, { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
 import { BtnPrevNext } from "./components/BtnPrevNext";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
-import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { PageNotFound } from "./PageFullScreenMsg";
@@ -23,14 +22,14 @@ export const PageUser: React.FC = () =>
 {
     // === external state ===
 
-    const currAcct = useCurrentAccount();
-    const { header, explorer, network, bidderClient } = useAppContext();
+    const { header, explorer, network } = useAppContext();
 
     // === url validation ===
 
-    const { address: addressParam, tabName } = useParams<{ address?: string; tabName?: string }>();
+    const { address, tabName } = useParams();
+    const ownerAddress = address && validateAndNormalizeAddress(address);
 
-    if (!tabs.isTabName(tabName)) {
+    if (!ownerAddress || !tabs.isTabName(tabName)) {
         return <PageNotFound />;
     }
 
@@ -41,15 +40,14 @@ export const PageUser: React.FC = () =>
     const changeTab = (tab: string) => {
         if (tabs.isTabName(tab)) {
             setActiveTab(tab);
-            const url = `/user/${addressParam ? `${addressParam}/` : ""}${tab}`;
+            const url = `/user/${ownerAddress}/${tab}`;
             window.history.replaceState({}, "", url);
         }
     };
 
     // === user address and object ===
 
-    const addressToFetch = addressParam ?? currAcct?.address;
-    const { userId, errorFetchUserId } = useFetchUserId(addressToFetch);
+    const { userId, errorFetchUserId } = useFetchUserId(ownerAddress);
 
     // === html ===
 
@@ -58,8 +56,6 @@ export const PageUser: React.FC = () =>
     let content: React.ReactNode;
     if (errorFetchUserId) {
         content = <CardWithMsg>{errorFetchUserId}</CardWithMsg>;
-    } else if (!addressToFetch) {
-        content = <div className="card compact"><ConnectToGetStarted /></div>;
     } else if (userId === undefined) {
         content = <CardSpinner />;
     } else {
@@ -78,12 +74,11 @@ export const PageUser: React.FC = () =>
             <div className="page-content">
                 <div className="page-title">USER HISTORY</div>
                 <div className="page-section">
-                    {addressToFetch &&
                     <div className="page-description">
-                        <div>This is the BIDDER history for address {<LinkToExplorer addr={addressToFetch} kind="address" explorer={explorer} network={network} />} {userId &&
+                        <div>This is the BIDDER history for address {<LinkToExplorer addr={ownerAddress} kind="address" explorer={explorer} network={network} />} {userId &&
                             <>(user <LinkToExplorer addr={userId} kind="object" explorer={explorer} network={network} />)</>}
                         </div>
-                    </div>}
+                    </div>
                     {content}
                 </div>
             </div>
