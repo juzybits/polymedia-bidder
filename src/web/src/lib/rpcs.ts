@@ -17,8 +17,8 @@ export const RPC_ENDPOINTS: Record<NetworkName, string[]> = {
         "https://rpc-mainnet.suiscan.xyz",
         "https://mainnet.sui.rpcpool.com",
         "https://sui-mainnet.nodeinfra.com",
-        "https://sui-mainnet.public.blastapi.io",
         "https://mainnet-rpc.sui.chainbase.online",
+        "https://sui-mainnet-ca-1.cosmostation.io",
         "https://sui-mainnet-ca-2.cosmostation.io",
         "https://sui-mainnet-us-1.cosmostation.io",
         "https://sui-mainnet-us-2.cosmostation.io",
@@ -31,6 +31,7 @@ export const RPC_ENDPOINTS: Record<NetworkName, string[]> = {
         "https://testnet.suiet.app",
         "https://sui-testnet.nodeinfra.com",
         "https://testnet.sui.rpcpool.com",
+        "https://sui-testnet-rpc.publicnode.com",
     ],
     "devnet": [
         getFullnodeUrl("devnet"),

@@ -364,7 +364,7 @@ const FormBid: React.FC<{
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
     const msgMinimum = `Minimum bid is ${formatBalance(auction.minimum_bid, coinMeta.decimals)} ${coinMeta.symbol}`;
-    const input_amount = useInputUnsignedBalance({
+    const input_amount = useInputUnsignedBalance({ // TODO check user balance
         label: `Amount (${coinMeta.symbol})`,
         decimals: coinMeta.decimals,
         min: auction.minimum_bid,
