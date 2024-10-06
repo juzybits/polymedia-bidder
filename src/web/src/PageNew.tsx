@@ -24,11 +24,11 @@ export const PageNew: React.FC = () =>
     const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
 
     const blockedTypes = useFetch(() =>
-        fetch('https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/src/object-list.json')
+        fetch("https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/src/object-list.json")
         .then(response => response.json())
         .then(data => {
             const map = new Map<string, boolean>();
-            for (const type of data.blocklist) {
+            for (const type of data.blocklist as string[]) { // eslint-disable-line
                 map.set(type, true);
             }
             return map;

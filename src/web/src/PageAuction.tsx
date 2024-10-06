@@ -164,7 +164,7 @@ const CardTweet: React.FC<{
     auction,
 }) => {
     const location = useLocation();
-    const justCreated = location.state?.justCreated === true;
+    const justCreated = location.state?.justCreated === true; // eslint-disable-line
     if (!justCreated) { return null; }
 
     const { bidderClient } = useAppContext();
