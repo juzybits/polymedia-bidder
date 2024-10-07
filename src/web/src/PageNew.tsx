@@ -330,7 +330,8 @@ const FormCreateAuction: React.FC<{
     </>;
 };
 
-const showKioskToggle = isLocalhost();
+const isKioskDomain = "kiosk.polymedia-bidder.pages.dev" === window.location.hostname;
+const showKioskToggle = isLocalhost() || isKioskDomain;
 
 const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     addOrRemoveItem: (item: SuiItem) => void;

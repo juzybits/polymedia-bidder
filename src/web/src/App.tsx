@@ -51,8 +51,8 @@ export const AppRouter: React.FC = () => {
 
 /* Sui providers + network config */
 
-const isDevDomain = ["dev.bidder.polymedia.app", "dev.polymedia-bidder.pages.dev"].includes(window.location.hostname);
-const isTestDomain = ["test.bidder.polymedia.app", "test.polymedia-bidder.pages.dev"].includes(window.location.hostname);
+const isDevDomain = "dev.polymedia-bidder.pages.dev" === window.location.hostname;
+const isTestDomain = "test.polymedia-bidder.pages.dev" === window.location.hostname;
 
 const [ defaultNetwork, supportedNetworks ] =
     isLocalhost()  ? ["localnet" as const, ["mainnet", "testnet", "devnet", "localnet"] as const]
