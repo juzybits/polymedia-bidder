@@ -1,4 +1,4 @@
-import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
+import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction, TransferPolicy } from "@mysten/kiosk";
 import { Transaction } from "@mysten/sui/transactions";
 import { NetworkName } from "@polymedia/suitcase-core";
 
@@ -20,6 +20,37 @@ export type OwnedKioskItem = {
 };
 
 // === functions ===
+
+/**
+ * Check if a `KioskClient` has all the rule resolvers for an item type.
+ */
+export async function hasAllRuleResolvers(
+    kioskClient: KioskClient,
+    itemType: string,
+): Promise<{ hasAll: boolean, missing: TransferPolicy[] }> {
+    const policies = await kioskClient.getTransferPolicies({ type: itemType });
+
+    const missing = policies.filter(
+        (p) => !hasRuleResolver(kioskClient, p.type)
+    );
+
+    return {
+        hasAll: missing.length === 0,
+        missing,
+    };
+}
+
+/**
+ * Check if a `KioskClient` has a rule resolver.
+ */
+export function hasRuleResolver(
+    kioskClient: KioskClient,
+    ruleType: string,
+): boolean {
+    return kioskClient.rules.some(
+        (x) => getNormalizedRuleType(x.rule) === getNormalizedRuleType(ruleType)
+    );
+}
 
 /**
  * Extract an unlocked item from a kiosk and return it.

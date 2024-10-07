@@ -9,7 +9,7 @@ import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objDataToSuiItem, objResToSuiItem, SuiItem } from "./items.js";
-import { KIOSK_CAP_TYPES, sellForZeroIntoNewKiosk, takeItemFromKiosk } from "./kiosks.js";
+import { hasAllRuleResolvers, KIOSK_CAP_TYPES, sellForZeroIntoNewKiosk, takeItemFromKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -191,13 +191,14 @@ export class BidderClient extends SuiClientBase
         cursor: string | undefined,
         limit?: number,
         excludedListed = true,
+        excludedNonResolvable = true,
     ) {
         const kiosks = await this.kioskClient.getOwnedKiosks({
             address: owner,
             pagination: { cursor, limit },
         });
 
-        const allItems: SuiItem[] = [];
+        let allItems: SuiItem[] = [];
         for (const cap of kiosks.kioskOwnerCaps) {
             const kioskData = await this.kioskClient.getKiosk({
                 id: cap.kioskId,
@@ -228,6 +229,33 @@ export class BidderClient extends SuiClientBase
                 };
                 allItems.push(item);
             }
+        }
+
+        if (excludedNonResolvable)
+        {
+            const allItemTypes = new Set<string>();
+            for (const item of allItems) {
+                const k = item.kiosk!;
+                if (k.item.isLocked && (k.kiosk.itemCount > 1 || k.cap.isPersonal)) { // see createAndShareAuctionWithKiosk()
+                    allItemTypes.add(item.type);
+                }
+            }
+
+            const promises = Array.from(allItemTypes).map(
+                async (type) => {
+                    const { hasAll, missing } = await hasAllRuleResolvers(this.kioskClient, type);
+                    console.debug(`=== non-resolvable: ${type} ===`);
+                    for (const policy of missing) {
+                        console.debug(`policy.id: ${policy.id}\npolicy.type: ${policy.type}\npolicy.rules: ${JSON.stringify(policy.rules, null, 2)}`);
+                    }
+                    return hasAll ? null : type;
+                }
+            );
+
+            const nonResolvableTypes = (await Promise.all(promises))
+                .filter((type): type is string => type !== null);
+
+            allItems = allItems.filter(item => !nonResolvableTypes.includes(item.type));
         }
 
         return {
@@ -583,7 +611,6 @@ export class BidderClient extends SuiClientBase
         itemsToAuction: SuiItem[],
         dryRun?: boolean,
         sender?: string,
-        devMode?: boolean,
     ): Promise<{
         resp: SuiTransactionBlockResponse;
         auctionObjChange: ObjChangeKind<"created"> | undefined;
@@ -597,11 +624,6 @@ export class BidderClient extends SuiClientBase
             typeArguments: [ "address" ],
             arguments: [ tx.pure.vector("address", itemsToAuction.map(item => item.id)), ],
         });
-
-        // if (devMode) {
-        //     const resp = await this.dryRunOrSignAndExecute(tx, dryRun, sender);
-        //     return { resp, auctionObjChange: undefined, userObjChange: undefined };
-        // }
 
         const [ item_addrs_arg ] = tx.moveCall({
             target: "0x1::vector::empty",

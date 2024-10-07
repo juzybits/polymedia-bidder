@@ -2,7 +2,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { isLocalhost, LinkToExplorer, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { Btn } from "./components/Btn";
@@ -13,7 +13,6 @@ import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
-const devMode = false;
 const debugKiosk = true;
 
 function getCurrAddr(
@@ -52,12 +51,6 @@ export const PageNew: React.FC = () =>
         })
     );
 
-    useEffect(() => {
-        if (devMode) {
-            // parseDevTx(bidderClient.suiClient);
-        }
-    }, [bidderClient]);
-
     // === functions ===
 
     const addOrRemoveItem = (item: SuiItem): void =>
@@ -87,7 +80,7 @@ export const PageNew: React.FC = () =>
         <div className="page-content">
 
             <div className="page-title">
-                {devMode ? "🚨 DEV MODE!" : "NEW AUCTION"}
+                NEW AUCTION
             </div>
 
             {!currAddr
@@ -230,7 +223,6 @@ const FormCreateAuction: React.FC<{
                 chosenItems,
                 dryRun,
                 currAddr,
-                devMode,
             );
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
