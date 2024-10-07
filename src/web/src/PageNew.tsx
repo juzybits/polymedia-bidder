@@ -361,7 +361,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     );
 
     const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|undefined>(
-        async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor, 20),
+        async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor, 10),
         [bidderClient, currAddr]
     );
 
