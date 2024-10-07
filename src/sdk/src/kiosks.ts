@@ -22,34 +22,37 @@ export type OwnedKioskItem = {
 // === functions ===
 
 /**
- * Check if a `KioskClient` has all the rule resolvers for an item type.
+ * Simulate the behavior of `KioskTransaction.purchaseAndResolve()` to check
+ * if all TransferPolicy rules can be resolved.
  */
 export async function hasAllRuleResolvers(
     kioskClient: KioskClient,
     itemType: string,
-): Promise<{ hasAll: boolean, missing: TransferPolicy[] }> {
+): Promise<{ canResolve: boolean, missingRules: string[] }>
+{
     const policies = await kioskClient.getTransferPolicies({ type: itemType });
 
-    const missing = policies.filter(
-        (p) => !hasRuleResolver(kioskClient, p.type)
-    );
+    if (policies.length === 0) {
+        return { canResolve: false, missingRules: [] };
+    }
+
+    const policy = policies[0]; // only check the first policy, like purchaseAndResolve()
+    const missingRules: string[] = [];
+
+    for (const rule of policy.rules) {
+        const ruleDefinition = kioskClient.rules.find(
+            (x) => getNormalizedRuleType(x.rule) === getNormalizedRuleType(rule)
+        );
+
+        if (!ruleDefinition) {
+            missingRules.push(rule);
+        }
+    }
 
     return {
-        hasAll: missing.length === 0,
-        missing,
+        canResolve: missingRules.length === 0,
+        missingRules,
     };
-}
-
-/**
- * Check if a `KioskClient` has a rule resolver.
- */
-export function hasRuleResolver(
-    kioskClient: KioskClient,
-    ruleType: string,
-): boolean {
-    return kioskClient.rules.some(
-        (x) => getNormalizedRuleType(x.rule) === getNormalizedRuleType(ruleType)
-    );
 }
 
 /**

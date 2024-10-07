@@ -243,12 +243,11 @@ export class BidderClient extends SuiClientBase
 
             const promises = Array.from(allItemTypes).map(
                 async (type) => {
-                    const { hasAll, missing } = await hasAllRuleResolvers(this.kioskClient, type);
-                    console.debug(`=== non-resolvable: ${type} ===`);
-                    for (const policy of missing) {
-                        console.debug(`policy.id: ${policy.id}\npolicy.type: ${policy.type}\npolicy.rules: ${JSON.stringify(policy.rules, null, 2)}`);
+                    const { canResolve, missingRules } = await hasAllRuleResolvers(this.kioskClient, type);
+                    if (!canResolve) {
+                        console.debug(`non-resolvable type: ${type}\nnon-resolvable rules: ${JSON.stringify(missingRules, null, 2)}`);
                     }
-                    return hasAll ? null : type;
+                    return canResolve ? null : type;
                 }
             );
 
