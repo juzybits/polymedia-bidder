@@ -143,63 +143,65 @@ export class BidderClient extends SuiClientBase
         );
 
         const capItems = items.filter(item => item.type === KIOSK_CAP_TYPES[this.network].regular);
-        const underlyingItems = (await Promise.all(
-            capItems.map(async (capItem) =>
-            {
-                const kioskId = capItem.fields.for;
-                if (this.cache.items.has(kioskId)) {
-                    return this.cache.items.get(kioskId)!;
-                }
-                const kioskData = await this.kioskClient.getKiosk({
-                    id: kioskId,
-                    options: {
-                        withKioskFields: true,
-                        withObjects: true,
-                        objectOptions: { showContent: true, showDisplay: true, showType: true },
-                    },
-                });
-                const kioskItems = kioskData.items.map(kioskItem => {
-                    const item = objDataToSuiItem(kioskItem.data!);
-                    const kiosk = kioskData.kiosk!;
-                    item.kiosk = { // TODO: deduplicate
-                        cap: {
-                            isPersonal: false,
-                            objectId: capItem.id,
-                            kioskId,
-                            digest: "",
-                            version: "",
-                        },
-                        kiosk: {
-                            id: kiosk.id,
-                            itemCount: kiosk.itemCount,
-                            allowExtensions: kiosk.allowExtensions,
-                        },
-                        item: {
-                            isLocked: kioskItem.isLocked,
-                            isListed: !!kioskItem.listing,
-                        }
-                    };
-                    return item;
-                });
-                if (kioskItems.length !== 1) {
-                    console.warn(`unexpected number of kiosk items: ${kioskItems.length}`, kioskItems);
-                }
-                return kioskItems[0];
-            })
-        )).flat();
+        const underlyingItems = new Map<string, SuiItem>(); // the item inside the kiosk controlled by the cap
 
-        const resolvedItems: SuiItem[] = [];
-        for (const rawItem of items) {
-            const kioskItem = underlyingItems.find(item => item.kiosk?.cap.objectId === rawItem.id);
-            if (kioskItem) {
-                resolvedItems.push(kioskItem);
-                this.cache.items.set(kioskItem.kiosk!.kiosk.id, kioskItem); // overwrite cached item
-            } else {
-                resolvedItems.push(rawItem);
+        await Promise.all(capItems.map(async (capItem) =>
+        {
+            const capId = capItem.id;
+            const kioskId = capItem.fields.for;
+
+            const cachedCapItem = this.cache.items.get(capId);
+            if (
+                // the cap may be cached, but not resolved
+                cachedCapItem
+                // if we've already resolved this cap, use the cached underlying item
+                && cachedCapItem.type !== KIOSK_CAP_TYPES[this.network].regular
+            ) {
+                underlyingItems.set(capId, cachedCapItem);
+                return;
             }
-        }
 
-        return resolvedItems;
+            const kioskData = await this.kioskClient.getKiosk({ // TODO: deduplicate
+                id: kioskId,
+                options: {
+                    withKioskFields: true,
+                    withObjects: true,
+                    objectOptions: { showContent: true, showDisplay: true, showType: true },
+                },
+            });
+
+            if (kioskData.items.length !== 1) {
+                console.warn(`Unexpected number of kiosk items: ${kioskData.items.length}`, kioskData.items);
+            }
+
+            if (kioskData.items.length > 0) {
+                const underlyingItem = objDataToSuiItem(kioskData.items[0].data!);
+                const kiosk = kioskData.kiosk!;
+                underlyingItem.kiosk = {
+                    cap: {
+                        isPersonal: false,
+                        objectId: capItem.id,
+                        kioskId,
+                        digest: "",
+                        version: "",
+                    },
+                    kiosk: {
+                        id: kiosk.id,
+                        itemCount: kiosk.itemCount,
+                        allowExtensions: kiosk.allowExtensions,
+                    },
+                    item: {
+                        isLocked: kioskData.items[0].isLocked,
+                        isListed: !!kioskData.items[0].listing,
+                    }
+                };
+                underlyingItems.set(capItem.id, underlyingItem);
+                // overwrite the cached item (cap) with the underlying item
+                this.cache.items.set(capItem.id, underlyingItem);
+            }
+        }));
+
+        return items.map(item => underlyingItems.get(item.id) || item);
     }
 
     public async fetchOwnedItems(
