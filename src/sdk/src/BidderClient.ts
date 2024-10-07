@@ -147,6 +147,9 @@ export class BidderClient extends SuiClientBase
             capItems.map(async (capItem) =>
             {
                 const kioskId = capItem.fields.for;
+                if (this.cache.items.has(kioskId)) {
+                    return this.cache.items.get(kioskId)!;
+                }
                 const kioskData = await this.kioskClient.getKiosk({
                     id: kioskId,
                     options: {
@@ -185,13 +188,18 @@ export class BidderClient extends SuiClientBase
             })
         )).flat();
 
-        return items.map(rawItem => {
+        const resolvedItems: SuiItem[] = [];
+        for (const rawItem of items) {
             const kioskItem = underlyingItems.find(item => item.kiosk?.cap.objectId === rawItem.id);
             if (kioskItem) {
-                return kioskItem;
+                resolvedItems.push(kioskItem);
+                this.cache.items.set(kioskItem.kiosk!.kiosk.id, kioskItem); // overwrite cached item
+            } else {
+                resolvedItems.push(rawItem);
             }
-            return rawItem;
-        });
+        }
+
+        return resolvedItems;
     }
 
     public async fetchOwnedItems(
