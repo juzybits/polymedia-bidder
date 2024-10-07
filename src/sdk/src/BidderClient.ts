@@ -190,8 +190,8 @@ export class BidderClient extends SuiClientBase
         owner: string,
         cursor: string | undefined,
         limit?: number,
-        excludedListed = true,
-        excludedNonResolvable = true,
+        excludeListed = true,
+        excludeUnresolvable = true,
     ) {
         const kiosks = await this.kioskClient.getOwnedKiosks({
             address: owner,
@@ -210,7 +210,7 @@ export class BidderClient extends SuiClientBase
             });
 
             for (const kioskItem of kioskData.items) {
-                if (kioskItem.listing && excludedListed) {
+                if (kioskItem.listing && excludeListed) {
                     continue;
                 }
                 const item = objDataToSuiItem(kioskItem.data!);
@@ -231,7 +231,7 @@ export class BidderClient extends SuiClientBase
             }
         }
 
-        if (excludedNonResolvable)
+        if (excludeUnresolvable)
         {
             const allItemTypes = new Set<string>();
             for (const item of allItems) {
@@ -251,10 +251,10 @@ export class BidderClient extends SuiClientBase
                 }
             );
 
-            const nonResolvableTypes = (await Promise.all(promises))
+            const unresolvableTypes = (await Promise.all(promises))
                 .filter((type): type is string => type !== null);
 
-            allItems = allItems.filter(item => !nonResolvableTypes.includes(item.type));
+            allItems = allItems.filter(item => !unresolvableTypes.includes(item.type));
         }
 
         return {

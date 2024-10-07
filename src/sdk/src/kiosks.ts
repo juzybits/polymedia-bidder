@@ -1,4 +1,4 @@
-import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction, TransferPolicy } from "@mysten/kiosk";
+import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { Transaction } from "@mysten/sui/transactions";
 import { NetworkName } from "@polymedia/suitcase-core";
 
@@ -132,3 +132,12 @@ export const KIOSK_CAP_TYPES: Record<NetworkName, Record<KioskKind, string>> = {
         origin_byte: "",
     },
 };
+
+export const KNOWN_UNRESOLVABLE_TYPES = [
+    "0x75cab45b9cba2d0b06a91d1f5fa51a4569da07374cf42c1bd2802846a61efe33::cosmetic::Cosmetic", // "434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879::witness_rule::Rule<75cab45b9cba2d0b06a91d1f5fa51a4569da07374cf42c1bd2802846a61efe33::cosmetic::Equip>"
+    "0x00a1d5e3f98eb588b245a87c02363652436450aedb62ef1a7b018f16e6423059::delorean::DeloreanNFT", // "0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk_rule::Rule"
+    "0x75cab45b9cba2d0b06a91d1f5fa51a4569da07374cf42c1bd2802846a61efe33::weapon::Weapon", // "434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879::witness_rule::Rule<75cab45b9cba2d0b06a91d1f5fa51a4569da07374cf42c1bd2802846a61efe33::weapon::Equip>"
+    "0x1f015c1a000631f2c0afd0258b299c63ffb8e5452e0c0f9be8fc28d2e20ad9b4::collection::HouseCollectionNFT", // "1f015c1a000631f2c0afd0258b299c63ffb8e5452e0c0f9be8fc28d2e20ad9b4::royalty_rule::Rule", "1f015c1a000631f2c0afd0258b299c63ffb8e5452e0c0f9be8fc28d2e20ad9b4::kiosk_lock_rule::Rule"
+    "0x8f74a7d632191e29956df3843404f22d27bd84d92cca1b1abde621d033098769::rootlet::Rootlet", // "0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk_rule::Rule"
+    "0x93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd::collection::DegenRabbit", // "93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd::kiosk_lock_rule::Rule", "93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd::royalty_rule::Rule"
+];
