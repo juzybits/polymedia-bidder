@@ -1,4 +1,5 @@
 import { SuiObjectData, SuiObjectResponse } from "@mysten/sui/client";
+import { normalizeStructTag } from "@mysten/sui/utils";
 import {
     isParsedDataKind,
     newEmptyDisplay,
@@ -63,7 +64,7 @@ export function objDataToSuiItem(data: SuiObjectData): SuiItem
     }
 
     const id = data.objectId;
-    const type = data.content.type;
+    const type = normalizeStructTag(data.content.type);
     const display = {
         ...newEmptyDisplay(),
         ...data.display.data,

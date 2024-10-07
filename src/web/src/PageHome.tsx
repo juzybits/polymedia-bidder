@@ -13,6 +13,12 @@ const MAX_ITEMS_PER_AUCTION = 1;
 
 const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[] }[]> = {
     "mainnet": [
+        // {
+        //     auctionId: "0x5e32648a5b769e1c60660f6673d96abdfb72593e17a9c7d499d510bbacce8c3a",
+        //     itemIds: [
+        //         "0xfa5c21d6a2dfe9f1107bd25a1318d9c8b0fab31899624b71f3557d1e975abd8d",
+        //     ],
+        // },
     ],
     "testnet": [
         {

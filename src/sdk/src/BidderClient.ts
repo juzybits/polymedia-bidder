@@ -132,7 +132,7 @@ export class BidderClient extends SuiClientBase
         useCache = true,
     ): Promise<SuiItem[]>
     {
-        return this.fetchAndParseObjects<SuiItem>(
+        const items = await this.fetchAndParseObjects<SuiItem>(
             itemIds,
             useCache ? this.cache.items : null,
             (ids) => this.suiClient.multiGetObjects({
@@ -141,6 +141,57 @@ export class BidderClient extends SuiClientBase
             }),
             objResToSuiItem,
         );
+
+        const capItems = items.filter(item => item.type === KIOSK_CAP_TYPES[this.network].regular);
+        const underlyingItems = (await Promise.all(
+            capItems.map(async (capItem) =>
+            {
+                const kioskId = capItem.fields.for;
+                const kioskData = await this.kioskClient.getKiosk({
+                    id: kioskId,
+                    options: {
+                        withKioskFields: true,
+                        withObjects: true,
+                        objectOptions: { showContent: true, showDisplay: true, showType: true },
+                    },
+                });
+                const kioskItems = kioskData.items.map(kioskItem => {
+                    const item = objDataToSuiItem(kioskItem.data!);
+                    const kiosk = kioskData.kiosk!;
+                    item.kiosk = { // TODO: deduplicate
+                        cap: {
+                            isPersonal: false,
+                            objectId: capItem.id,
+                            kioskId,
+                            digest: "",
+                            version: "",
+                        },
+                        kiosk: {
+                            id: kiosk.id,
+                            itemCount: kiosk.itemCount,
+                            allowExtensions: kiosk.allowExtensions,
+                        },
+                        item: {
+                            isLocked: kioskItem.isLocked,
+                            isListed: !!kioskItem.listing,
+                        }
+                    };
+                    return item;
+                });
+                if (kioskItems.length !== 1) {
+                    console.warn(`unexpected number of kiosk items: ${kioskItems.length}`, kioskItems);
+                }
+                return kioskItems[0];
+            })
+        )).flat();
+
+        return items.map(rawItem => {
+            const kioskItem = underlyingItems.find(item => item.kiosk?.cap.objectId === rawItem.id);
+            if (kioskItem) {
+                return kioskItem;
+            }
+            return rawItem;
+        });
     }
 
     public async fetchOwnedItems(
