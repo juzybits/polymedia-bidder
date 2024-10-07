@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { CoinMetadata, SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
-import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, SuiItem } from "@polymedia/bidder-sdk";
+import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, KIOSK_CAP_TYPES, SuiItem } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { LinkExternal, LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
@@ -536,8 +536,12 @@ const SectionAdmin: React.FC<{
                 tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id
             );
 
+            const actualItems = items.map(item => ({
+                addr: item.kiosk ? item.kiosk.cap.objectId : item.id,
+                type: item.kiosk ? KIOSK_CAP_TYPES[network].regular : item.type,
+            }));
             const resp = await bidderClient.payFundsAndSendItemsToWinner(
-                tx, auction.id, auction.type_coin, items.map(item => ({ addr: item.id, type: item.type }))
+                tx, auction.id, auction.type_coin, actualItems
             );
 
             if (resp.effects?.status.status !== "success") {
@@ -573,8 +577,10 @@ const SectionAdmin: React.FC<{
             );
 
             for (const item of items) {
+                const actualId = item.kiosk ? item.kiosk.cap.objectId : item.id;
+                const actualType = item.kiosk ? KIOSK_CAP_TYPES[network].regular : item.type;
                 AuctionModule.admin_reclaims_item(
-                    tx, AUCTION_IDS[network].packageId, auction.type_coin, item.type, auction.id, item.id
+                    tx, AUCTION_IDS[network].packageId, auction.type_coin, actualType, auction.id, actualId
                 );
             }
 
@@ -606,8 +612,10 @@ const SectionAdmin: React.FC<{
 
             const tx = new Transaction();
             for (const item of items) {
+                const actualId = item.kiosk ? item.kiosk.cap.objectId : item.id;
+                const actualType = item.kiosk ? KIOSK_CAP_TYPES[network].regular : item.type;
                 AuctionModule.admin_reclaims_item(
-                    tx, AUCTION_IDS[network].packageId, auction.type_coin, item.type, auction.id, item.id
+                    tx, AUCTION_IDS[network].packageId, auction.type_coin, actualType, auction.id, actualId
                 );
             }
 
