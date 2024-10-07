@@ -420,6 +420,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
                                             <div>kiosk: <LinkToExplorer addr={item.kiosk.kiosk.id} kind="object" explorer={explorer} network={network} /></div>
                                             <div>items: {item.kiosk.kiosk.itemCount}</div>
                                             <div>locked: {item.kiosk.item.isLocked ? "yes" : "no"}</div>
+                                            {/* <div>listed: {item.kiosk.item.isListed ? "yes" : "no"}</div> */}
                                             <div>personal: {item.kiosk.cap.isPersonal ? "yes" : "no"}</div>
                                         </div>}
                                         <div className="item-button">

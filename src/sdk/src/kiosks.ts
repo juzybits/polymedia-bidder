@@ -15,6 +15,7 @@ export type OwnedKioskItem = {
     };
     item: {
         isLocked: boolean;
+        isListed: boolean;
     };
 };
 

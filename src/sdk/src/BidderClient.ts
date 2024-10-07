@@ -208,6 +208,7 @@ export class BidderClient extends SuiClientBase
                     },
                     item: {
                         isLocked: kioskItem.isLocked,
+                        isListed: !!kioskItem.listing,
                     }
                 };
                 allItems.push(item);
