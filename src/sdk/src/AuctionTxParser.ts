@@ -1,36 +1,7 @@
 import { bcs } from "@mysten/sui/bcs";
-import { SuiClient, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgKind, isTxKind, ObjChangeKind, TxKind, txResToData } from "@polymedia/suitcase-core";
 import { AnyAuctionTx } from "./AuctionTxTypes.js";
-
-export async function parseDevTx( // TODO remove
-    suiClient: SuiClient,
-) {
-    const resp = await suiClient.getTransactionBlock({
-        digest: "7SNCiSyW5G3r7CBZCaLvaEtLNCtK5neiQyZanvwpJFgG",
-        options: { showEffects: true, showObjectChanges: true, showInput: true },
-     });
-    const txData = txResToData(resp);
-    console.log(txData);
-
-    for (const tx of txData.txs)
-    {
-        if (!isTxKind(tx, "MoveCall") ||
-            !tx.MoveCall.arguments ||
-            !tx.MoveCall.type_arguments
-        ) continue;
-
-        const txInputs = tx.MoveCall.arguments
-            .filter(arg => isArgKind(arg, "Input"))
-            .map(arg => txData.inputs[arg.Input]);
-
-        console.log(`${tx.MoveCall.module}::${tx.MoveCall.function} inputs:`, txInputs);
-
-        const val = new Uint8Array(getArgVal<number[]>(txInputs[0]));
-        const parsed = bcs.vector(bcs.Address).parse(val);
-        console.log("parsed:", parsed);
-    }
-}
 
 type TxData = ReturnType<typeof txResToData>;
 
@@ -54,11 +25,23 @@ export class AuctionTxParser
         if (resp.effects?.status.status !== "success") { return null; }
 
         let splitCoinsTx: TxKind<"SplitCoins"> | undefined;
+        let vecLengthTx: TxKind<"MoveCall"> | undefined;
 
         for (const tx of txData.txs)
         {
             if (isTxKind(tx, "SplitCoins")) {
                 splitCoinsTx = tx;
+                continue;
+            }
+
+            if (isTxKind(tx, "MoveCall") &&
+                tx.MoveCall.package === "0x0000000000000000000000000000000000000000000000000000000000000001" &&
+                tx.MoveCall.module === "vector" &&
+                tx.MoveCall.function === "length" &&
+                tx.MoveCall.arguments?.length === 1 &&
+                tx.MoveCall.type_arguments?.[0] === "address"
+            ) {
+                vecLengthTx = tx;
                 continue;
             }
 
@@ -73,11 +56,33 @@ export class AuctionTxParser
                 .filter(arg => isArgKind(arg, "Input"))
                 .map(arg => txData.inputs[arg.Input]);
 
-            if (tx.MoveCall.function === "admin_creates_auction") { // TODO parse new format
-                if (txInputs.length !== 10) return null;
+            if (tx.MoveCall.function === "admin_creates_auction")
+            {
+                if (txInputs.length !== 10 && txInputs.length !== 9) { return null; }
 
                 const auctionObjChange = this.extractAuctionObjCreated(resp);
                 if (!auctionObjChange) { return null; }
+
+                let item_addrs: string[];
+
+                // original PTBs, without kiosk support, item_addrs is a vector of object ID strings
+                if (txInputs.length === 10) {
+                    item_addrs = getArgVal(txInputs[2]);
+                }
+                // new PTBs, with kiosk support, item_addrs is a vector of TransactionObjectArgument
+                else if (vecLengthTx) {
+                    const vecLengthInputs = vecLengthTx.MoveCall.arguments!
+                        .filter(arg => isArgKind(arg, "Input"))
+                        .map(arg => txData.inputs[arg.Input]);
+                    const rawVector = new Uint8Array(getArgVal<number[]>(vecLengthInputs[0]));
+                    item_addrs = bcs.vector(bcs.Address).parse(rawVector);
+                }
+                // unknown PTB, likely by a 3rd party. Items to be fetched separately by the app.
+                else {
+                    item_addrs = [];
+                }
+
+                const offset = 10 - txInputs.length;
 
                 return {
                     kind: "admin_creates_auction",
@@ -86,13 +91,13 @@ export class AuctionTxParser
                         type_coin: tx.MoveCall.type_arguments[0],
                         name: getArgVal(txInputs[0]),
                         description: getArgVal(txInputs[1]),
-                        item_addrs: getArgVal(txInputs[2]),
-                        pay_addr: getArgVal(txInputs[3]),
-                        begin_delay_ms: getArgVal(txInputs[4]),
-                        duration_ms: getArgVal(txInputs[5]),
-                        minimum_bid: getArgVal(txInputs[6]),
-                        minimum_increase_bps: getArgVal<number>(txInputs[7]),
-                        extension_period_ms: getArgVal(txInputs[8]),
+                        item_addrs,
+                        pay_addr: getArgVal(txInputs[3 - offset]),
+                        begin_delay_ms: getArgVal(txInputs[4 - offset]),
+                        duration_ms: getArgVal(txInputs[5 - offset]),
+                        minimum_bid: getArgVal(txInputs[6 - offset]),
+                        minimum_increase_bps: getArgVal<number>(txInputs[7 - offset]),
+                        extension_period_ms: getArgVal(txInputs[8 - offset]),
                     },
                     ...this.getCommonTxProps(resp, txData),
                 };
