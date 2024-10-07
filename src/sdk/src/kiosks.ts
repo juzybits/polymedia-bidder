@@ -1,10 +1,31 @@
 import { KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { Transaction } from "@mysten/sui/transactions";
+import { NetworkName } from "@polymedia/suitcase-core";
 
-// TODO add testnet types
-export const SUI_KIOSK_CAP_TYPE = "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap";
-export const OB_KIOSK_CAP_TYPE = "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken";
-export const PERSONAL_KIOSK_CAP_TYPE = "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap";
+export type KioskKind = "regular" | "personal" | "origin_byte";
+
+export const KIOSK_CAP_TYPES: Record<NetworkName, Record<KioskKind, string>> = {
+    mainnet: {
+        regular: "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap",
+        personal: "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap",
+        origin_byte: "0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk::OwnerToken",
+    },
+    testnet: {
+        regular: "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap",
+        personal: "0x06f6bdd3f2e2e759d8a4b9c252f379f7a05e72dfe4c0b9311cdac27b8eb791b1::personal_kiosk::PersonalKioskCap",
+        origin_byte: "",
+    },
+    devnet: {
+        regular: "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap",
+        personal: "",
+        origin_byte: "",
+    },
+    localnet: {
+        regular: "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::KioskOwnerCap",
+        personal: "",
+        origin_byte: "",
+    },
+};
 
 export type OwnedKioskItem = {
     cap: KioskOwnerCap;

@@ -23,6 +23,7 @@ export type UserHistoryBoth = Awaited<ReturnType<BidderClient["fetchUserRecentAu
 export class BidderClient extends SuiClientBase
 {
     public readonly kioskClient: KioskClient;
+    public readonly network: NetworkName;
     public readonly packageId: string;
     public readonly registryId: string;
     public txParser: AuctionTxParser;
@@ -143,14 +144,24 @@ export class BidderClient extends SuiClientBase
         cursor: string | null | undefined,
         limit?: number,
     ) {
+        const filter: SuiObjectDataFilter = {
+            MatchNone: [
+                { StructType: "0x2::coin::Coin" },
+            ]
+        };
+        if (KIOSK_CAP_TYPES[this.network].regular) {
+            filter.MatchNone.push({ StructType: KIOSK_CAP_TYPES[this.network].regular });
+        }
+        if (KIOSK_CAP_TYPES[this.network].origin_byte) {
+            filter.MatchNone.push({ StructType: KIOSK_CAP_TYPES[this.network].origin_byte });
+        }
+        if (KIOSK_CAP_TYPES[this.network].personal) {
+            filter.MatchNone.push({ StructType: KIOSK_CAP_TYPES[this.network].personal });
+        }
+
         const pagObjRes = await this.suiClient.getOwnedObjects({
             owner: owner,
-            filter: { MatchNone: [
-                { StructType: "0x2::coin::Coin" },
-                { StructType: SUI_KIOSK_CAP_TYPE },
-                { StructType: OB_KIOSK_CAP_TYPE },
-                { StructType: PERSONAL_KIOSK_CAP_TYPE },
-            ]},
+            filter,
             options: { showContent: true, showDisplay: true, showType: true },
             cursor,
             limit,
