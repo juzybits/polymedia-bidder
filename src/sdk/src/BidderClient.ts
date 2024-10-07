@@ -198,38 +198,39 @@ export class BidderClient extends SuiClientBase
             pagination: { cursor, limit },
         });
 
-        let allItems: SuiItem[] = [];
-        for (const cap of kiosks.kioskOwnerCaps) {
-            const kioskData = await this.kioskClient.getKiosk({
-                id: cap.kioskId,
-                options: {
-                    withKioskFields: true,
-                    withObjects: true,
-                    objectOptions: { showContent: true, showDisplay: true, showType: true },
-                },
-            });
-
-            for (const kioskItem of kioskData.items) {
-                if (kioskItem.listing && excludeListed) {
-                    continue;
-                }
-                const item = objDataToSuiItem(kioskItem.data!);
-                const kiosk = kioskData.kiosk!;
-                item.kiosk = {
-                    cap,
-                    kiosk: {
-                        id: kiosk.id,
-                        itemCount: kiosk.itemCount,
-                        allowExtensions: kiosk.allowExtensions,
+        let allItems = (await Promise.all(
+            kiosks.kioskOwnerCaps.map(async (cap) =>
+            {
+                const kioskData = await this.kioskClient.getKiosk({
+                    id: cap.kioskId,
+                    options: {
+                        withKioskFields: true,
+                        withObjects: true,
+                        objectOptions: { showContent: true, showDisplay: true, showType: true },
                     },
-                    item: {
-                        isLocked: kioskItem.isLocked,
-                        isListed: !!kioskItem.listing,
-                    }
-                };
-                allItems.push(item);
-            }
-        }
+                });
+
+                return kioskData.items
+                    .filter(kioskItem => !(kioskItem.listing && excludeListed))
+                    .map(kioskItem => {
+                        const item = objDataToSuiItem(kioskItem.data!);
+                        const kiosk = kioskData.kiosk!;
+                        item.kiosk = {
+                            cap,
+                            kiosk: {
+                                id: kiosk.id,
+                                itemCount: kiosk.itemCount,
+                                allowExtensions: kiosk.allowExtensions,
+                            },
+                            item: {
+                                isLocked: kioskItem.isLocked,
+                                isListed: !!kioskItem.listing,
+                            }
+                        };
+                        return item;
+                    });
+            })
+        )).flat();
 
         if (excludeUnresolvable)
         {
@@ -241,18 +242,16 @@ export class BidderClient extends SuiClientBase
                 }
             }
 
-            const promises = Array.from(allItemTypes).map(
-                async (type) => {
+            const unresolvableTypes = (await Promise.all(
+                Array.from(allItemTypes).map(async (type) =>
+                {
                     const { canResolve, missingRules } = await hasAllRuleResolvers(this.kioskClient, type);
                     if (!canResolve) {
                         console.debug(`non-resolvable type: ${type}\nnon-resolvable rules: ${JSON.stringify(missingRules, null, 2)}`);
                     }
                     return canResolve ? null : type;
-                }
-            );
-
-            const unresolvableTypes = (await Promise.all(promises))
-                .filter((type): type is string => type !== null);
+                })
+            )).filter((type): type is string => type !== null);
 
             allItems = allItems.filter(item => !unresolvableTypes.includes(item.type));
         }
