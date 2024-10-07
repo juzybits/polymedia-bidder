@@ -12,7 +12,7 @@ export const loadNetworkConfig = (network: NetworkName) => ({
 
 export const RPC_ENDPOINTS: Record<NetworkName, string[]> = {
     "mainnet": [
-        getFullnodeUrl("mainnet"),
+        // getFullnodeUrl("mainnet"),
         "https://mainnet.suiet.app",
         "https://rpc-mainnet.suiscan.xyz",
         "https://mainnet.sui.rpcpool.com",
