@@ -3,7 +3,7 @@ import { SuiClient, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { getArgVal, isArgKind, isTxKind, ObjChangeKind, TxKind, txResToData } from "@polymedia/suitcase-core";
 import { AnyAuctionTx } from "./AuctionTxTypes.js";
 
-export async function parseDevTx(
+export async function parseDevTx( // TODO remove
     suiClient: SuiClient,
 ) {
     const resp = await suiClient.getTransactionBlock({
@@ -73,7 +73,7 @@ export class AuctionTxParser
                 .filter(arg => isArgKind(arg, "Input"))
                 .map(arg => txData.inputs[arg.Input]);
 
-            if (tx.MoveCall.function === "admin_creates_auction") {
+            if (tx.MoveCall.function === "admin_creates_auction") { // TODO parse new format
                 if (txInputs.length !== 10) return null;
 
                 const auctionObjChange = this.extractAuctionObjCreated(resp);

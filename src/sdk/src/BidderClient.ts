@@ -9,7 +9,7 @@ import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objDataToSuiItem, objResToSuiItem, SuiItem } from "./items.js";
-import { KIOSK_CAP_TYPES, takeItemFromKiosk, transferItemToNewKiosk } from "./kiosks.js";
+import { KIOSK_CAP_TYPES, sellForZeroIntoNewKiosk, takeItemFromKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -650,7 +650,7 @@ export class BidderClient extends SuiClientBase
                     // transfer the item to a new kiosk and auction the new KioskOwnerCap
                     else
                     {
-                        const newKioskTx = await transferItemToNewKiosk(
+                        const newKioskTx = await sellForZeroIntoNewKiosk(
                             tx,
                             this.kioskClient,
                             item.kiosk.cap,

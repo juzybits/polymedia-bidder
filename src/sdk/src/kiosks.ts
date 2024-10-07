@@ -1,8 +1,80 @@
-import { KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
+import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { Transaction } from "@mysten/sui/transactions";
 import { NetworkName } from "@polymedia/suitcase-core";
 
+// === types ===
+
 export type KioskKind = "regular" | "personal" | "origin_byte";
+
+export type OwnedKioskItem = {
+    cap: KioskOwnerCap;
+    kiosk: {
+        id: string;
+        itemCount: number;
+        allowExtensions: boolean;
+    };
+    item: {
+        isLocked: boolean;
+        isListed: boolean;
+    };
+};
+
+// === functions ===
+
+/**
+ * Extract an unlocked item from a kiosk and return it.
+ */
+export function takeItemFromKiosk(
+    tx: Transaction,
+    kioskClient: KioskClient,
+    cap: KioskOwnerCap,
+    itemId: string,
+    itemType: string
+) {
+    const kioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
+
+    const item = kioskTx.take({ itemId, itemType });
+
+    kioskTx.finalize();
+
+    return item;
+}
+
+/**
+ * List the item for 0 SUI in the seller's kiosk, purchase the item, and place it into a new kiosk.
+ */
+export async function sellForZeroIntoNewKiosk(
+    tx: Transaction,
+    kioskClient: KioskClient,
+    sellerCap: KioskOwnerCap,
+    itemId: string,
+    itemType: string,
+): Promise<KioskTransaction>
+{
+    // List the NFT for 0 SUI in the seller's kiosk
+    const sellerKioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap: sellerCap });
+    sellerKioskTx.list({ itemType, itemId, price: 0n });
+
+    // Create a new kiosk for the buyer
+    const newKioskTx = new KioskTransaction({ transaction: tx, kioskClient });
+    newKioskTx.create();
+
+    // Purchase the item and resolve the TransferPolicy
+    await newKioskTx.purchaseAndResolve({
+        itemType,
+        itemId,
+        price: 0n,
+        sellerKiosk: sellerKioskTx.getKiosk(),
+    });
+
+    newKioskTx.share();
+
+    sellerKioskTx.finalize();
+
+    return newKioskTx;
+}
+
+// === config ===
 
 export const KIOSK_CAP_TYPES: Record<NetworkName, Record<KioskKind, string>> = {
     mainnet: {
@@ -26,71 +98,3 @@ export const KIOSK_CAP_TYPES: Record<NetworkName, Record<KioskKind, string>> = {
         origin_byte: "",
     },
 };
-
-export type OwnedKioskItem = {
-    cap: KioskOwnerCap;
-    kiosk: {
-        id: string;
-        itemCount: number;
-        allowExtensions: boolean;
-    };
-    item: {
-        isLocked: boolean;
-        isListed: boolean;
-    };
-};
-
-/**
- * List the item for 0 SUI in the original kiosk,
- * purchase the item and place it in a new kiosk,
- * and finally make the new kiosk a shared object.
- */
-export async function transferItemToNewKiosk(
-    tx: Transaction,
-    kioskClient: KioskClient,
-    cap: KioskOwnerCap,
-    itemId: string,
-    itemType: string,
-): Promise<KioskTransaction>
-{
-    // List the NFT for 0 SUI in the seller's kiosk
-    const sellerKioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
-    sellerKioskTx.list({ itemType, itemId, price: 0n });
-
-    // Create a new kiosk for the buyer
-    const newKioskTx = new KioskTransaction({ transaction: tx, kioskClient });
-    newKioskTx.create();
-
-    // Purchase the item and resolve the TransferPolicy
-    await newKioskTx.purchaseAndResolve({
-        itemType,
-        itemId,
-        price: 0n,
-        sellerKiosk: sellerKioskTx.getKiosk(),
-    });
-
-    newKioskTx.share();
-
-    sellerKioskTx.finalize();
-
-    return newKioskTx;
-}
-
-/**
- * Extract an unlocked item from a kiosk and return it.
- */
-export function takeItemFromKiosk(
-    tx: Transaction,
-    kioskClient: KioskClient,
-    cap: KioskOwnerCap,
-    itemId: string,
-    itemType: string
-) {
-    const kioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
-
-    const item = kioskTx.take({ itemId, itemType });
-
-    kioskTx.finalize();
-
-    return item;
-}
