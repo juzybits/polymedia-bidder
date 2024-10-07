@@ -91,7 +91,7 @@ export class BidderClient extends SuiClientBase
         auctionIds: string[],
         itemIds: string[],
     ): Promise<{
-        auctions: AuctionObj[];
+        auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
     }>
     {
@@ -104,11 +104,11 @@ export class BidderClient extends SuiClientBase
             }),
             (resp) => this.parseAuctionOrItemObj(resp),
         );
-        const auctions: AuctionObj[] = [];
+        const auctions = new Map<string, AuctionObj>();
         const items = new Map<string, SuiItem>();
         for (const obj of allObjs) {
             if (isAuctionObj(obj)) {
-                auctions.push(obj);
+                auctions.set(obj.id, obj);
                 this.cache.auctions.set(obj.id, obj);
             } else {
                 items.set(obj.id, obj);

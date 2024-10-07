@@ -101,12 +101,15 @@ const SectionFeaturedAuctions: React.FC = () =>
                 auctionAndItemIds.map(({ auctionId }) => auctionId),
                 auctionAndItemIds.flatMap(({ itemIds }) => itemIds),
             );
-            return auctions.map(auction => ({
-                ...auction,
-                items: auction.item_addrs
-                    .map(id => items.get(id))
-                    .filter((item): item is SuiItem => item !== undefined)
-            }));
+            return auctionAndItemIds.map(({ auctionId, itemIds }) => {
+                const auction = auctions.get(auctionId)!;
+                return {
+                    ...auction,
+                    items: itemIds
+                        .map(id => items.get(id))
+                        .filter((item): item is SuiItem => item !== undefined),
+                };
+            });
         },
         [bidderClient],
     );
@@ -145,7 +148,7 @@ const SectionFeaturedAuctions: React.FC = () =>
     );
 };
 
-const SectionRecentAuctions: React.FC = () =>
+const SectionRecentAuctions: React.FC = () => // TODO option to hide cancelled/ended auctions
 {
     // === state ===
 
@@ -156,23 +159,34 @@ const SectionRecentAuctions: React.FC = () =>
         async (cursor) => {
             // fetch recent "create auction" txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, PAGE_SIZE_RECENT);
-            const auctionIds = recentTxs.data
-                .filter(tx => !featuredAuctionIds.includes(tx.auctionId))
-                .map(tx => tx.auctionId);
-            const itemIds = new Set(
-                recentTxs.data.flatMap(tx => tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION))
-            );
+
+            // exclude featured auctions and extract auction and item IDs
+            const auctionIds: string[] = [];
+            const itemIds = new Set<string>();
+            const filteredTxs = recentTxs.data.filter(tx => {
+                if (!featuredAuctionIds.includes(tx.auctionId)) {
+                    auctionIds.push(tx.auctionId);
+                    tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION).forEach(id => itemIds.add(id));
+                    return true;
+                }
+                return false;
+            });
 
             // fetch all auctions and items with a single RPC call
             const { auctions, items } = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
+
             return {
-                data: auctions.map(auction => ({
-                    ...auction,
-                    items: auction.item_addrs
-                        .slice(0, MAX_ITEMS_PER_AUCTION)
-                        .map(id => items.get(id))
-                        .filter((item): item is SuiItem => item !== undefined)
-                })),
+                data: filteredTxs.map(tx => {
+                    const auction = auctions.get(tx.auctionId)!;
+                    return {
+                        ...auction,
+                        item_addrs: tx.inputs.item_addrs, // `auction` contains kiosk cap IDs, but `tx` contains the underlying item IDs
+                        items: tx.inputs.item_addrs
+                            .slice(0, MAX_ITEMS_PER_AUCTION)
+                            .map(id => items.get(id))
+                            .filter((item): item is SuiItem => item !== undefined)
+                    };
+                }),
                 hasNextPage: recentTxs.hasNextPage,
                 nextCursor: recentTxs.nextCursor,
             };
