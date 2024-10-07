@@ -7,7 +7,6 @@ import {
     useSuiClient,
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
-import { KioskClient, Network } from "@mysten/kiosk";
 import { AUCTION_IDS, BidderClient } from "@polymedia/bidder-sdk";
 import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -137,25 +136,18 @@ const App: React.FC<{
     const suiClient = useSuiClient();
     const { mutateAsync: walletSignTx } = useSignTransaction();
 
-    const packageId = AUCTION_IDS[network].packageId;
-    const registryId = AUCTION_IDS[network].registryId;
-
     const [ explorer, setExplorer ] = useState(loadExplorer("Polymedia"));
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
-        const kioskClient = new KioskClient({
-            client: suiClient,
-            network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
-        });
         return new BidderClient(
+            network,
+            AUCTION_IDS[network].packageId,
+            AUCTION_IDS[network].registryId,
             suiClient,
-            kioskClient,
             (tx) => walletSignTx({ transaction: tx }),
-            packageId,
-            registryId,
         );
-    }, [suiClient, packageId, walletSignTx]);
+    }, [suiClient, walletSignTx]);
 
     const [ isWorking, setIsWorking ] = useState(false);
     // const [ showMobileNav, setShowMobileNav ] = useState(false);

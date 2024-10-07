@@ -1,15 +1,15 @@
-import { KioskClient, KioskTransaction } from "@mysten/kiosk";
+import { KioskClient, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
-import { SuiClient, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
+import { SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, getCoinOfValue, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objDataToSuiItem, objResToSuiItem, SuiItem } from "./items.js";
-import { OB_KIOSK_CAP_TYPE, PERSONAL_KIOSK_CAP_TYPE, SUI_KIOSK_CAP_TYPE, takeItemFromKiosk, transferItemToNewKiosk } from "./kiosks.js";
+import { KIOSK_CAP_TYPES, takeItemFromKiosk, transferItemToNewKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -35,16 +35,20 @@ export class BidderClient extends SuiClientBase
     };
 
     constructor(
-        suiClient: SuiClient,
-        kioskClient: KioskClient,
-        signTransaction: SignTransaction,
+        network: NetworkName,
         packageId: string,
         registryId: string,
+        suiClient: SuiClient,
+        signTransaction: SignTransaction,
         waitForTxOptions?: WaitForTxOptions,
         txResponseOptions?: SuiTransactionBlockResponseOptions,
     ) {
         super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
-        this.kioskClient = kioskClient;
+        this.kioskClient = new KioskClient({
+            client: suiClient,
+            network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
+        });
+        this.network = network;
         this.packageId = packageId;
         this.registryId = registryId;
         this.txParser = new AuctionTxParser(packageId);

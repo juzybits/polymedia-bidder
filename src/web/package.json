@@ -24,7 +24,6 @@
     },
     "dependencies": {
         "@mysten/dapp-kit": "^0.14.24",
-        "@mysten/kiosk": "^0.9.20",
         "@mysten/sui": "^1.11.0",
         "@polymedia/bidder-sdk": "workspace:*",
         "@polymedia/coinmeta-react": "^0.0.11",
