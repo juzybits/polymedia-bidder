@@ -1,6 +1,6 @@
 import { KioskClient, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
-import { SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
+import { getFullnodeUrl, SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
 import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
@@ -45,7 +45,7 @@ export class BidderClient extends SuiClientBase
     ) {
         super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
         this.kioskClient = new KioskClient({
-            client: suiClient,
+            client: new SuiClient({ url: getFullnodeUrl(network) }),
             network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
         });
         this.network = network;
