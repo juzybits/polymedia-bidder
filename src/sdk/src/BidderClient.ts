@@ -9,7 +9,7 @@ import { AuctionTxParser } from "./AuctionTxParser.js";
 import { TxAdminCreatesAuction, TxAnyoneBids } from "./AuctionTxTypes.js";
 import { AUCTION_ERRORS } from "./config.js";
 import { objDataToSuiItem, objResToSuiItem, SuiItem } from "./items.js";
-import { hasAllRuleResolvers, KIOSK_CAP_TYPES, sellForZeroIntoNewKiosk, takeItemFromKiosk } from "./kiosks.js";
+import { hasAllRuleResolvers, isKnownUnresolvable, KIOSK_CAP_TYPES, sellForZeroIntoNewKiosk, takeItemFromKiosk } from "./kiosks.js";
 import { UserModule } from "./UserFunctions.js";
 import { UserAuction, UserAuctionBcs, UserBid, UserBidBcs } from "./UserObjects.js";
 
@@ -211,7 +211,10 @@ export class BidderClient extends SuiClientBase
                 });
 
                 return kioskData.items
-                    .filter(kioskItem => !(kioskItem.listing && excludeListed))
+                    .filter(kioskItem =>
+                        !(excludeListed && kioskItem.listing) &&
+                        !(excludeUnresolvable && isKnownUnresolvable(kioskItem.type))
+                    )
                     .map(kioskItem => {
                         const item = objDataToSuiItem(kioskItem.data!);
                         const kiosk = kioskData.kiosk!;

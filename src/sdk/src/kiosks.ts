@@ -56,6 +56,14 @@ export async function hasAllRuleResolvers(
 }
 
 /**
+ * Check if a type's TransferPolicy rules are known to be unresolvable by the default `KioskClient`.
+ */
+export function isKnownUnresolvable(itemType: string): boolean
+{
+    return KNOWN_UNRESOLVABLE_TYPES.includes(itemType);
+}
+
+/**
  * Extract an unlocked item from a kiosk and return it.
  */
 export function takeItemFromKiosk(
