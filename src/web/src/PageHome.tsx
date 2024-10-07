@@ -166,33 +166,61 @@ const SectionRecentAuctions: React.FC = () => // TODO option to hide cancelled/e
             // fetch recent "create auction" txs
             const recentTxs = await bidderClient.fetchTxsAdminCreatesAuction(cursor, PAGE_SIZE_RECENT);
 
-            // exclude featured auctions and extract auction and item IDs
+            // filter out featured auctions and extract auction and item IDs
+            const filteredTxs: typeof recentTxs.data = [];
             const auctionIds: string[] = [];
             const itemIds = new Set<string>();
-            const filteredTxs = recentTxs.data.filter(tx => {
-                if (!featuredAuctionIds.includes(tx.auctionId)) {
-                    auctionIds.push(tx.auctionId);
-                    tx.inputs.item_addrs.slice(0, MAX_ITEMS_PER_AUCTION).forEach(id => itemIds.add(id));
-                    return true;
+            for (const tx of recentTxs.data) {
+                if (featuredAuctionIds.includes(tx.auctionId)) {
+                    continue;
                 }
-                return false;
-            });
+                filteredTxs.push(tx);
+                auctionIds.push(tx.auctionId);
+                tx.inputs.item_addrs
+                    .slice(0, MAX_ITEMS_PER_AUCTION) // only visible items
+                    .forEach(id => itemIds.add(id));
+            }
 
             // fetch all auctions and items with a single RPC call
             const { auctions, items } = await bidderClient.fetchAuctionsAndItems(auctionIds, [...itemIds]);
 
+            // collect missing item IDs (in case we couldn't get the item_addrs from the tx inputs)
+            const missingItemIds = new Set<string>();
+            for (const tx of filteredTxs) {
+                if (tx.inputs.item_addrs.length > 0) {
+                    continue;
+                }
+                const auction = auctions.get(tx.auctionId)!;
+                auction.item_addrs
+                    .slice(0, MAX_ITEMS_PER_AUCTION) // only visible items
+                    .forEach(id => missingItemIds.add(id));
+            }
+
+            // fetch missing items if any
+            if (missingItemIds.size > 0) {
+                (await bidderClient.fetchItems([...missingItemIds]))
+                    .forEach(item => items.set(item.id, item));
+            }
+
+            // prepare auctions with items
+            const auctionsWithItems = filteredTxs.map(tx => {
+                const auction = auctions.get(tx.auctionId)!;
+                const itemAddresses = tx.inputs.item_addrs.length > 0
+                    ? tx.inputs.item_addrs
+                    : auction.item_addrs;
+
+                return {
+                    ...auction,
+                    item_addrs: itemAddresses,
+                    items: itemAddresses
+                        .slice(0, MAX_ITEMS_PER_AUCTION)
+                        .map(id => items.get(id))
+                        .filter((item): item is SuiItem => item !== undefined)
+                };
+            });
+
             return {
-                data: filteredTxs.map(tx => {
-                    const auction = auctions.get(tx.auctionId)!;
-                    return {
-                        ...auction,
-                        item_addrs: tx.inputs.item_addrs, // `auction` contains kiosk cap IDs, but `tx` contains the underlying item IDs
-                        items: tx.inputs.item_addrs
-                            .slice(0, MAX_ITEMS_PER_AUCTION)
-                            .map(id => items.get(id))
-                            .filter((item): item is SuiItem => item !== undefined)
-                    };
-                }),
+                data: auctionsWithItems,
                 hasNextPage: recentTxs.hasNextPage,
                 nextCursor: recentTxs.nextCursor,
             };
