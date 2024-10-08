@@ -13,7 +13,7 @@ import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
-const debugKiosk = true;
+const debugKiosk = isLocalhost();
 
 function getCurrAddr(
     currAcct: ReturnType<typeof useCurrentAccount>,
@@ -330,9 +330,6 @@ const FormCreateAuction: React.FC<{
     </>;
 };
 
-const isKioskDomain = "kiosk.polymedia-bidder.pages.dev" === window.location.hostname;
-const showKioskToggle = isLocalhost() || isKioskDomain;
-
 const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     addOrRemoveItem: (item: SuiItem) => void;
     isChosenItem: (item: SuiItem) => boolean;
@@ -360,7 +357,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         [bidderClient, currAddr],
     );
 
-    const ownedKioskItems = showKioskToggle && useFetchAndLoadMore<SuiItem, string|undefined>(
+    const ownedKioskItems = useFetchAndLoadMore<SuiItem, string|undefined>(
         async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor, 10),
         [bidderClient, currAddr]
     );
@@ -371,8 +368,6 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         items: typeof ownedItems | typeof ownedKioskItems,
         type: "objects" | "kiosks",
     ) => {
-        if (items === false) { return null; }; // temporary until we enable kiosks
-
         if (items.error) {
             return <CardWithMsg>{items.error}</CardWithMsg>;
         }
@@ -453,7 +448,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
         <div className="card-header column-on-small">
             <div className="card-title">Choose items</div>
-            {showKioskToggle && <div className="card-toggle">
+            {<div className="card-toggle">
                 <div
                     className={`header-label ${toggleChoice === "objects" ? "selected" : ""}`}
                     onClick={() => setToggleChoice("objects")}
@@ -470,7 +465,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         </div>
 
         {toggleChoice === "objects" && itemSelector(ownedItems, "objects")}
-        {ownedKioskItems && toggleChoice === "kiosks" && itemSelector(ownedKioskItems, "kiosks")}
+        {toggleChoice === "kiosks" && itemSelector(ownedKioskItems, "kiosks")}
 
     </div>);
 };
