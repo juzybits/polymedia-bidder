@@ -45,7 +45,8 @@ export class BidderClient extends SuiClientBase
     ) {
         super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
         this.kioskClient = new KioskClient({
-            client: new SuiClient({ url: getFullnodeUrl(network) }),
+            // client: suiClient,
+            client: network === "mainnet" ? new SuiClient({ url: "https://rpc-mainnet.suiscan.xyz/" }) : suiClient,
             network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
         });
         this.network = network;
