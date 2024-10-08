@@ -352,6 +352,8 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
     const [ toggleChoice, setToggleChoice ] = useState<"objects"|"kiosks">("objects");
 
+    const [ acceptedDisclaimer, setAcceptedDisclaimer ] = useState(loadKioskDisclaimer());
+
     const ownedItems = useFetchAndLoadMore<SuiItem, string|null|undefined>(
         (cursor) => bidderClient.fetchOwnedItems(currAddr, cursor),
         [bidderClient, currAddr],
@@ -361,6 +363,11 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         async (cursor) => bidderClient.fetchOwnedKioskItems(currAddr, cursor, 10),
         [bidderClient, currAddr]
     );
+
+    function acceptDisclaimer() {
+        setAcceptedDisclaimer(true);
+        acceptKioskDisclaimer();
+    }
 
     // === html ===
 
@@ -465,7 +472,19 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         </div>
 
         {toggleChoice === "objects" && itemSelector(ownedItems, "objects")}
-        {toggleChoice === "kiosks" && itemSelector(ownedKioskItems, "kiosks")}
+        {toggleChoice === "kiosks" && (
+            acceptedDisclaimer
+            ? itemSelector(ownedKioskItems, "kiosks")
+            : <div className="card compact">
+                <div className="card-title center-element">🚨 DISCLAIMER 🚨</div>
+                <div className="card-description">
+                    This is a beta feature and there could be bugs. Please use with care, and let me know if you encounter any issues.
+                </div>
+                <div className="card-description">
+                    <Btn onClick={() => acceptDisclaimer()}>I UNDERSTAND</Btn>
+                </div>
+            </div>
+        )}
 
     </div>);
 };
@@ -496,3 +515,16 @@ const CardChosenItem: React.FC<{
         </div>
     );
 };
+
+// local storage
+
+const kioskDisclaimerKey = "polymedia.kiosk.disclaimer";
+
+function loadKioskDisclaimer(): boolean {
+    const disclaimer = localStorage.getItem(kioskDisclaimerKey);
+    return disclaimer !== null;
+}
+
+function acceptKioskDisclaimer() {
+    localStorage.setItem(kioskDisclaimerKey, "1");
+}
