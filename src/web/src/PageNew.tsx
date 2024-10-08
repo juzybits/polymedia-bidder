@@ -18,8 +18,8 @@ const debugKiosk = isLocalhost();
 function getCurrAddr(
     currAcct: ReturnType<typeof useCurrentAccount>,
 ): {
-    currAddr: string | null,
-    dryRun: boolean,
+    currAddr: string | null;
+    dryRun: boolean;
 } {
     return { dryRun: false, currAddr: currAcct ? currAcct.address : null };
     // return { dryRun: true, currAddr: "0x10eefc7a3070baa5d72f602a0c89d7b1cb2fcc0b101cf55e6a70e3edb6229f8b"}; // trevin.sui
@@ -372,7 +372,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     // === html ===
 
     const itemSelector = (
-        items: typeof ownedItems | typeof ownedKioskItems,
+        items: typeof ownedItems,
         type: "objects" | "kiosks",
     ) => {
         if (items.error) {

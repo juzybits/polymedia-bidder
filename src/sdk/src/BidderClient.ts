@@ -148,8 +148,8 @@ export class BidderClient extends SuiClientBase
 
         await Promise.all(capItems.map(async (capItem) =>
         {
-            const capId = capItem.id;
-            const kioskId = capItem.fields.for;
+            const capId: string = capItem.id;
+            const kioskId: string = capItem.fields.for; // eslint-disable-line
 
             const cachedCapItem = this.cache.items.get(capId);
             if (

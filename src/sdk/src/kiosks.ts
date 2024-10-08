@@ -28,7 +28,7 @@ export type OwnedKioskItem = {
 export async function hasAllRuleResolvers(
     kioskClient: KioskClient,
     itemType: string,
-): Promise<{ canResolve: boolean, missingRules: string[] }>
+): Promise<{ canResolve: boolean; missingRules: string[] }>
 {
     const policies = await kioskClient.getTransferPolicies({ type: itemType });
 
