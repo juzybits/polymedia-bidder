@@ -299,16 +299,16 @@ export class BidderClient extends SuiClientBase
 
         if (excludeUnresolvable)
         {
-            const allItemTypes = new Set<string>();
+            const typesThatNeedResolution = new Set<string>();
             for (const item of allItems) {
                 const k = item.kiosk!;
                 if (k.item.isLocked && (k.kiosk.itemCount > 1 || k.cap.isPersonal)) { // see createAndShareAuctionWithKiosk()
-                    allItemTypes.add(item.type);
+                    typesThatNeedResolution.add(item.type);
                 }
             }
 
             const unresolvableTypes = (await Promise.all(
-                Array.from(allItemTypes).map(async (type) =>
+                Array.from(typesThatNeedResolution).map(async (type) =>
                 {
                     const { canResolve, missingRules } = await hasAllRuleResolvers(this.kioskClient, type);
                     if (!canResolve) {

@@ -26,6 +26,8 @@ function getCurrAddr(
     // return { dryRun: true, currAddr: "0xb871a42470b59c7184033a688f883cf24eb5e66eae1db62319bab27adb30d031"}; // death.sui
     // return { dryRun: true, currAddr: "0x1eb7c57e3f2bd0fc6cb9dcffd143ea957e4d98f805c358733f76dee0667fe0b1"}; // adeniyi.sui
     // return { dryRun: true, currAddr: "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432"}; // fuddies top holder
+    // return { dryRun: true, currAddr: "0x97b0b2ac25594a8d69e1c25144b6ec70e63dd02897ab379ee2618cf13e0a6641"}; // suirock.sui
+    // return { dryRun: true, currAddr: "0x3b682c626e8448530b67240a4ad2b2fb89d4caaf4e503e40039eca29ff814f21"}; // hello.sui
 }
 
 export const PageNew: React.FC = () =>
