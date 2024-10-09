@@ -1,4 +1,3 @@
-import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
 import { LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";

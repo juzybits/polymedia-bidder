@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { getNftTitleLine2, NFT_TITLE_LINE_1 } from "./components/DevNftCreator";
 import { DisplaySvgProps, getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
 

@@ -1,4 +1,4 @@
-import { Transaction, TransactionObjectArgument, TransactionResult } from "@mysten/sui/transactions";
+import { Transaction, TransactionResult } from "@mysten/sui/transactions";
 import { NestedResult, ObjectInput, objectArg } from "@polymedia/suitcase-core";
 
 /**
