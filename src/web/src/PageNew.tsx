@@ -1,7 +1,7 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { NetworkName, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { isLocalhost, LinkToExplorer, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
@@ -163,7 +163,8 @@ const FormCreateAuction: React.FC<{
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
-    const [selectedCoin, setSelectedCoin] = useState<SupportedCoin>(SUPPORTED_COINS[network][0]);
+    const supportedCoins = SUPPORTED_COINS[network];
+    const [selectedCoin, setSelectedCoin] = useState<SupportedCoin>(supportedCoins[0]);
     const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO
 
     const [devMode, setDevMode] = useState(false);
@@ -336,24 +337,21 @@ const FormCreateAuction: React.FC<{
                 <IconInfo onClick={showInfoModal} />
             </div>}
             {showAdvancedForm && <>
-                <div className="poly-radio-selector poly-coin-radio-selector">
-                    {SUPPORTED_COINS[network as NetworkName].map((coin) => (
-                        <div key={coin.type}>
-                            <label className="selector-label">
-                                <input
-                                    className="selector-radio"
-                                    type="radio"
-                                    value={coin.type}
-                                    checked={selectedCoin.type === coin.type}
-                                    onChange={() => onCoinChange(coin)}
-                                />
-                                <span className="selector-text">
-                                    {coin.symbol}
-                                </span>
-                            </label>
-                        </div>
-                    ))}
-                </div>
+                <RadioSelector
+                    options={supportedCoins.map(coin => ({
+                        value: coin.type,
+                        label: <>
+                            <img src={coin.iconUrl} alt={coin.symbol} style={{ width: '20px', marginRight: '5px' }} />
+                            {coin.symbol}
+                        </>
+                    }))}
+                    selectedValue={selectedCoin.type}
+                    onSelect={newCoinType => {
+                        const newCoin = supportedCoins.find(coin => coin.type === newCoinType);
+                        if (newCoin) onCoinChange(newCoin);
+                    }}
+                    className="poly-coin-radio-selector"
+                />
                 {form.pay_addr.input}
                 {devMode ? form.begin_delay_seconds.input : form.begin_delay_hours.input}
                 {form.minimum_increase_pct.input}
