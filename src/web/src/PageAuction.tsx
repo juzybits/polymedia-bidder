@@ -473,13 +473,13 @@ const SectionActivity: React.FC<{
              */
             if (network === "mainnet" && rpc === "https://fullnode.mainnet.sui.io:443") {
                 const suiClient = new SuiClient({ url: "https://mainnet.suiet.app" });
-                const bidderClient = new BidderClient(
+                const bidderClient = new BidderClient({
                     network,
-                    AUCTION_IDS[network].packageId,
-                    AUCTION_IDS[network].registryId,
+                    packageId: AUCTION_IDS[network].packageId,
+                    registryId: AUCTION_IDS[network].registryId,
                     suiClient,
-                    (_tx) => Promise.resolve({ bytes: "", signature: "" }),
-                );
+                    signTransaction: (_tx) => Promise.resolve({ bytes: "", signature: "" }),
+                });
                 return bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY);
             } else {
                 return bidderClient.fetchTxsByAuctionId(auction.id, cursor, PAGE_SIZE_ACTIVITY);

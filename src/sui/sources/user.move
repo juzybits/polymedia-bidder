@@ -31,6 +31,7 @@ public struct User has key {
     owner: address,
     created: TableVec<UserAuction>,
     bids: TableVec<UserBid>,
+    // data: String, // v2: optional user profile
 }
 
 /// an auction and its creation time

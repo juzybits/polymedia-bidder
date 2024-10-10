@@ -195,14 +195,19 @@ export const TopBid: React.FC<{
     balance?: bigint;
 }> = ({
     auction,
-    balance = (auction.has_ended && auction.has_balance) ? auction.lead_value : auction.minimum_bid,
+    balance = !auction.has_ended ? auction.minimum_bid : undefined,
 }) => {
-    return <div className="header-label top-bid">
-        <Balance
-            balance={balance}
-            coinType={auction.type_coin}
-        />
-    </div>;
+    return <>
+        {balance === undefined
+        ? <div className="header-label empty" />
+        : <div className="header-label top-bid">
+            <Balance
+                balance={balance}
+                coinType={auction.type_coin}
+            />
+            </div>
+        }
+    </>;
 };
 
 export const Balance: React.FC<{

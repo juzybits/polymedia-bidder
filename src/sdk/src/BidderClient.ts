@@ -168,7 +168,7 @@ export class BidderClient extends SuiClientBase
                 return;
             }
 
-            const kioskData = await this.kioskClient.getKiosk({ // TODO: deduplicate
+            const kioskData = await this.kioskClient.getKiosk({
                 id: kioskId,
                 options: {
                     withKioskFields: true,

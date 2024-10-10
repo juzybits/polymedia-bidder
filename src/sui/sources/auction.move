@@ -78,6 +78,7 @@ public struct Auction<phantom CoinType> has store, key {
     lead_addr: address,
     // value of the highest bid so far
     lead_bal: Balance<CoinType>,
+    // lead_val: u64, // v2: preserve lead_bal.value() for posterity
     // when the auction starts (timestamp in milliseconds)
     begin_time_ms: u64,
     // when the auction ends (timestamp in milliseconds)
