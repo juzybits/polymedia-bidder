@@ -762,6 +762,7 @@ a.card, .card.link {
     width: 100%;
 }
 
+@input-bg: rgb(58, 61, 69);
 .poly-input {
     display: flex;
     flex-direction: column;
@@ -775,7 +776,7 @@ a.card, .card.link {
     }
     .input {
         .rounded;
-        background-color: rgb(58, 61, 69);
+        background-color: @input-bg;
         color: @color-text;
         &:focus {
             outline: 2px solid rgb(55 115 245);
@@ -803,6 +804,67 @@ a.card, .card.link {
     &.poly-network-radio-selector {
         text-transform: uppercase;
         text-transform: capitalize;
+    }
+}
+
+.poly-coin-radio-selector {
+    .rounded;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2rem;
+    border-color: @input-bg;
+
+    .selector-label {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75em;
+        .selector-text {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            img, svg {
+                border-radius: 50%;
+            }
+        }
+        &:hover {
+            .selector-text {
+                color: lightgreen;
+            }
+        }
+    }
+
+    .selector-radio {
+        appearance: none;
+        width: 1.25em;
+        height: 1.25em;
+        border: 0.125em solid @color-border-gray;
+        border-radius: 50%;
+        cursor: pointer;
+        position: relative;
+
+        &:checked {
+            border-color: lightgreen;
+
+            &::after {
+                content: '';
+                width: 0.75em;
+                height: 0.75em;
+                background-color: lightgreen;
+                border-radius: 50%;
+                position: absolute;
+                inset: 0;
+                margin: auto;
+            }
+
+            & + .selector-text {
+                color: lightgreen;
+            }
+        }
+
+        &:hover {
+            border-color: lightgreen;
+        }
     }
 }
 

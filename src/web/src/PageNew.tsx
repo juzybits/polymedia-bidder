@@ -350,21 +350,24 @@ const FormCreateAuction: React.FC<{
                 <IconInfo onClick={showInfoModal} />
             </div>}
             {showAdvancedForm && <>
-                <RadioSelector
-                    options={supportedCoins.map(coin => ({
-                        value: coin.type,
-                        label: <>
-                            <img src={coin.iconUrl} alt={coin.symbol} style={{ width: '20px', marginRight: '5px' }} />
-                            {coin.symbol}
-                        </>
-                    }))}
-                    selectedValue={selectedCoin.type}
-                    onSelect={newCoinType => {
-                        const newCoin = supportedCoins.find(coin => coin.type === newCoinType);
-                        if (newCoin) onCoinChange(newCoin);
-                    }}
-                    className="poly-coin-radio-selector"
-                />
+                <div className="poly-input">
+                    <div className="input-label">Currency:</div>
+                    <RadioSelector
+                        options={supportedCoins.map(coin => ({
+                            value: coin.type,
+                            label: <>
+                                <img src={coin.iconUrl} alt={coin.symbol} style={{ width: '20px', marginRight: '5px' }} />
+                                {coin.symbol}
+                            </>
+                        }))}
+                        selectedValue={selectedCoin.type}
+                        onSelect={newCoinType => {
+                            const newCoin = supportedCoins.find(coin => coin.type === newCoinType);
+                            if (newCoin) onCoinChange(newCoin);
+                        }}
+                        className="poly-coin-radio-selector"
+                    />
+                </div>
                 {pay_addr.input}
                 {devMode ? begin_delay_seconds.input : begin_delay_hours.input}
                 {minimum_increase_pct.input}
