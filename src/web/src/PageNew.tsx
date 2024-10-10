@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
-import { shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
+import { NetworkName, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { isLocalhost, LinkToExplorer, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,33 @@ function getCurrAddr(
     // return { dryRun: true, currAddr: "0x21283b1f04359b2f84e28c05962efc00ef33a40f23e9ab9f655c327fd6efc432"}; // fuddies top holder
     // return { dryRun: true, currAddr: "0x97b0b2ac25594a8d69e1c25144b6ec70e63dd02897ab379ee2618cf13e0a6641"}; // suirock.sui
     // return { dryRun: true, currAddr: "0x3b682c626e8448530b67240a4ad2b2fb89d4caaf4e503e40039eca29ff814f21"}; // hello.sui
+}
+
+type SupportedCoin = {
+    symbol: string;
+    decimals: number;
+    type: string;
+    iconUrl: string;
+}
+
+const suiCoin: SupportedCoin = {
+    symbol: "SUI",
+    decimals: 9,
+    type: "0x2::sui::SUI",
+    iconUrl: "https://coinmeta.polymedia.app/img/coins/0x0000000000000000000000000000000000000000000000000000000000000002-sui-SUI.svg",
+}
+
+const spamCoin: Omit<SupportedCoin, "type"> = {
+    symbol: "SPAM",
+    decimals: 4,
+    iconUrl: "https://coinmeta.polymedia.app/img/coins/0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a-spam-SPAM.webp",
+}
+
+const SUPPORTED_COINS: Record<NetworkName, SupportedCoin[]> = {
+    mainnet: [ suiCoin, { ...spamCoin, type: "0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a::spam::SPAM" } ],
+    testnet: [ suiCoin, { ...spamCoin, type: "0xb0783634bd4aeb2c97d3e707fce338c94d135d72e1cb701ca220b34f7b18b877::spam::SPAM" } ],
+    devnet: [ suiCoin ],
+    localnet: [ suiCoin ],
 }
 
 export const PageNew: React.FC = () =>
@@ -129,17 +156,19 @@ const FormCreateAuction: React.FC<{
     const { currAddr, dryRun } = getCurrAddr(currAcct);
     if (!currAddr) { return; }
 
-    const { bidderClient, isWorking, setIsWorking, setModalContent } = useAppContext();
+    const { bidderClient, isWorking, setIsWorking, setModalContent, network } = useAppContext();
 
     const { userId, updateUserId } = useFetchUserId(currAddr);
 
     const [ showAdvancedForm, setShowAdvancedForm ] = useState(false);
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
-    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO @polymedia/coinmeta and support other coins
+    const [selectedCoin, setSelectedCoin] = useState<SupportedCoin>(SUPPORTED_COINS[network][0]);
+    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO
 
     const [devMode, setDevMode] = useState(false);
     const showDevModeToggle = window.location.hostname !== "bidder.polymedia.app";
+
 
     const form = {
         // basic options
@@ -165,10 +194,10 @@ const FormCreateAuction: React.FC<{
             html: { value: "15", required: true },
         }),
         // advanced options
-        type_coin: useInputString({
-            label: "Coin type",
-            html: { value: coinType, required: true, disabled: true },
-        }),
+        // type_coin: useInputString({
+        //     label: "Coin type",
+        //     html: { value: coinType, required: true, disabled: true },
+        // }),
         pay_addr: useInputAddress({
             label: "Payment address",
             html: { value: currAddr, required: true },
@@ -202,6 +231,10 @@ const FormCreateAuction: React.FC<{
 
     // === functions ===
 
+    const onCoinChange = (coin: SupportedCoin) => {
+        setSelectedCoin(coin);
+    };
+
     const onSubmit = async () =>
     {
         if (disableSubmit) {
@@ -212,7 +245,8 @@ const FormCreateAuction: React.FC<{
             setSubmitRes({ ok: null });
 
             const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuctionWithKiosk(
-                form.type_coin.val!,
+                // form.type_coin.val!,
+                selectedCoin.type,
                 userId,
                 form.name.val!,
                 form.description.val ?? "",
@@ -302,7 +336,24 @@ const FormCreateAuction: React.FC<{
                 <IconInfo onClick={showInfoModal} />
             </div>}
             {showAdvancedForm && <>
-                {form.type_coin.input}
+                <div className="poly-radio-selector poly-coin-radio-selector">
+                    {SUPPORTED_COINS[network as NetworkName].map((coin) => (
+                        <div key={coin.type}>
+                            <label className="selector-label">
+                                <input
+                                    className="selector-radio"
+                                    type="radio"
+                                    value={coin.type}
+                                    checked={selectedCoin.type === coin.type}
+                                    onChange={() => onCoinChange(coin)}
+                                />
+                                <span className="selector-text">
+                                    {coin.symbol}
+                                </span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
                 {form.pay_addr.input}
                 {devMode ? form.begin_delay_seconds.input : form.begin_delay_hours.input}
                 {form.minimum_increase_pct.input}

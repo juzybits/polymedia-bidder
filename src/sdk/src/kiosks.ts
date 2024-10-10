@@ -150,4 +150,5 @@ export const KNOWN_UNRESOLVABLE_TYPES = [
     "0x93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd::collection::DegenRabbit", // "93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd::kiosk_lock_rule::Rule", "93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd::royalty_rule::Rule"
     "0x34db0e1c931a35abf2cf30d28b4dbf97ea4a98e199a8bc228d1e095bfdc688da::dare_dragon_eggs::DareDragonEgg", // "801d62e2937916fca8cdb25e9248fa958c9094c529943528cb602f4f1a114129::warehouse_pseudorandom_rule::WithdrawRule", "d8036c369aac5f19303f8d87a18a6933974be30a5c962c6f42c396ad47ae8889::airdrop_lock_rule::Rule"
     "0xe7e651e4974fe367aa2837712d68081efb299c470242a15e2b9c26ea326159ec::card::SudoCard", // "e7e651e4974fe367aa2837712d68081efb299c470242a15e2b9c26ea326159ec::kiosk_lock_rule::Rule", "e7e651e4974fe367aa2837712d68081efb299c470242a15e2b9c26ea326159ec::kiosk_royalty_rule::Rule"
+    "0x34f9e32641795c57d936b3e387b9c7c941fd99b5a8a90e86b61e966e9da1d1f0::unbound_nft::UnboundNFT", // "34f9e32641795c57d936b3e387b9c7c941fd99b5a8a90e86b61e966e9da1d1f0::royalty_rule::Rule"
 ];
