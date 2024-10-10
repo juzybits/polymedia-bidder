@@ -165,67 +165,77 @@ const FormCreateAuction: React.FC<{
 
     const supportedCoins = SUPPORTED_COINS[network];
     const [selectedCoin, setSelectedCoin] = useState<SupportedCoin>(supportedCoins[0]);
-    const coinDecimals = 9; const coinType = "0x2::sui::SUI"; const coinSymbol = "SUI"; // TODO
 
     const [devMode, setDevMode] = useState(false);
     const showDevModeToggle = window.location.hostname !== "bidder.polymedia.app";
 
+    // basic options
+    const name = useInputString({
+        label: "Title", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
+        msgRequired: "Choose a title for your auction",
+        html: { value: "Test", required: true },
+    });
+    const description = useInputString({
+        label: "Description (optional)", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH,
+        html: { value: "" },
+    });
+    const minimum_bid = useInputUnsignedBalance({
+        label: `Minimum bid (${selectedCoin.symbol})`, decimals: selectedCoin.decimals,
+        html: { value: "1", required: true },
+        deps: [selectedCoin.type],
+    });
+    const duration_hours = useInputUnsignedInt({
+        label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/TimeUnit.ONE_HOUR), max: Math.floor(cnf.MAX_DURATION_MS/TimeUnit.ONE_HOUR),
+        html: { value: "24", required: true },
+    });
+    const duration_seconds = useInputUnsignedInt({ // dev only
+        label: "Duration (seconds)", min: Math.floor(cnf.MIN_DURATION_MS/1000), max: Math.floor(cnf.MAX_DURATION_MS/1000),
+        html: { value: "15", required: true },
+    });
+    // advanced options
+    // const type_coin = useInputString({
+    //     label: "Coin type",
+    //     html: { value: selectedCoin.type, required: true, disabled: true },
+    // });
+    const pay_addr = useInputAddress({
+        label: "Payment address",
+        html: { value: currAddr, required: true },
+    });
+    const begin_delay_hours = useInputUnsignedInt({
+        label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/TimeUnit.ONE_HOUR),
+        html: { value: "0", required: true },
+    });
+    const begin_delay_seconds = useInputUnsignedInt({ // dev only
+        label: "Begin delay (seconds)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/1000),
+        html: { value: "0", required: true },
+    });
+    const minimum_increase_pct = useInputUnsignedInt({
+        label: "Minimum bid increase (%)", min: Math.max(1, Math.floor(cnf.MIN_MINIMUM_INCREASE_BPS/100)), max: Math.floor(cnf.MAX_MINIMUM_INCREASE_BPS/100),
+        html: { value: "5", required: true },
+    });
+    const extension_period_minutes = useInputUnsignedInt({
+        label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE),
+        html: { value: "15", required: true },
+    });
+    const extension_period_seconds = useInputUnsignedInt({ // dev only
+        label: "Extension period (seconds)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/1000)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/1000),
+        html: { value: "1", required: true },
+    });
 
-    const form = {
-        // basic options
-        name: useInputString({
-            label: "Title", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
-            msgRequired: "Choose a title for your auction",
-            html: { value: "", required: true },
-        }),
-        description: useInputString({
-            label: "Description (optional)", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH,
-            html: { value: "" },
-        }),
-        minimum_bid: useInputUnsignedBalance({
-            label: `Minimum bid (${coinSymbol})`, decimals: coinDecimals,
-            html: { value: "1", required: true },
-        }),
-        duration_hours: useInputUnsignedInt({
-            label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/TimeUnit.ONE_HOUR), max: Math.floor(cnf.MAX_DURATION_MS/TimeUnit.ONE_HOUR),
-            html: { value: "24", required: true },
-        }),
-        duration_seconds: useInputUnsignedInt({ // dev only
-            label: "Duration (seconds)", min: Math.floor(cnf.MIN_DURATION_MS/1000), max: Math.floor(cnf.MAX_DURATION_MS/1000),
-            html: { value: "15", required: true },
-        }),
-        // advanced options
-        // type_coin: useInputString({
-        //     label: "Coin type",
-        //     html: { value: coinType, required: true, disabled: true },
-        // }),
-        pay_addr: useInputAddress({
-            label: "Payment address",
-            html: { value: currAddr, required: true },
-        }),
-        begin_delay_hours: useInputUnsignedInt({
-            label: "Begin delay (hours)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/TimeUnit.ONE_HOUR),
-            html: { value: "0", required: true },
-        }),
-        begin_delay_seconds: useInputUnsignedInt({ // dev only
-            label: "Begin delay (seconds)", max: Math.floor(cnf.MAX_BEGIN_DELAY_MS/1000),
-            html: { value: "0", required: true },
-        }),
-        minimum_increase_pct: useInputUnsignedInt({
-            label: "Minimum bid increase (%)", min: Math.max(1, Math.floor(cnf.MIN_MINIMUM_INCREASE_BPS/100)), max: Math.floor(cnf.MAX_MINIMUM_INCREASE_BPS/100),
-            html: { value: "5", required: true },
-        }),
-        extension_period_minutes: useInputUnsignedInt({
-            label: "Extension period (minutes)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/TimeUnit.ONE_MINUTE),
-            html: { value: "15", required: true },
-        }),
-        extension_period_seconds: useInputUnsignedInt({ // dev only
-            label: "Extension period (seconds)", min: Math.max(1, Math.floor(cnf.MIN_EXTENSION_PERIOD_MS/1000)), max: Math.floor(cnf.MAX_EXTENSION_PERIOD_MS/1000),
-            html: { value: "1", required: true },
-        }),
-    };
+    const hasErrors = [
+        name,
+        description,
+        minimum_bid,
+        duration_hours,
+        duration_seconds,
+        pay_addr,
+        begin_delay_hours,
+        begin_delay_seconds,
+        minimum_increase_pct,
+        extension_period_minutes,
+        extension_period_seconds,
+    ].some(input => input.err !== undefined);
 
-    const hasErrors = Object.values(form).some(input => input.err !== undefined);
     const disableSubmit = chosenItems.length === 0 || hasErrors || isWorking || userId === undefined;
 
     // === effects ===
@@ -241,22 +251,23 @@ const FormCreateAuction: React.FC<{
         if (disableSubmit) {
             return;
         }
+
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
 
             const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuctionWithKiosk(
-                // form.type_coin.val!,
+                // type_coin.val!,
                 selectedCoin.type,
                 userId,
-                form.name.val!,
-                form.description.val ?? "",
-                form.pay_addr.val!,
-                devMode ? form.begin_delay_seconds.val! * 1000 : form.begin_delay_hours.val! * TimeUnit.ONE_HOUR,
-                devMode ? form.duration_seconds.val! * 1000 : form.duration_hours.val! * TimeUnit.ONE_HOUR,
-                form.minimum_bid.val!,
-                form.minimum_increase_pct.val! * 100,
-                devMode ? form.extension_period_seconds.val! * 1000 : form.extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
+                name.val!,
+                description.val ?? "",
+                pay_addr.val!,
+                devMode ? begin_delay_seconds.val! * 1000 : begin_delay_hours.val! * TimeUnit.ONE_HOUR,
+                devMode ? duration_seconds.val! * 1000 : duration_hours.val! * TimeUnit.ONE_HOUR,
+                minimum_bid.val!,
+                minimum_increase_pct.val! * 100,
+                devMode ? extension_period_seconds.val! * 1000 : extension_period_minutes.val! * TimeUnit.ONE_MINUTE,
                 chosenItems,
                 dryRun,
                 currAddr,
@@ -317,13 +328,15 @@ const FormCreateAuction: React.FC<{
     <div className="card compact">
     <div className="card-title">Auction settings</div>
     <div className="form">
+        {/* basic options */}
         <div className="form-section">
-            {form.name.input}
-            {form.description.input}
-            {form.minimum_bid.input}
-            {devMode ? form.duration_seconds.input : form.duration_hours.input}
+            {name.input}
+            {description.input}
+            {minimum_bid.input}
+            {devMode ? duration_seconds.input : duration_hours.input}
             {showDevModeToggle && <DevModeToggle />}
         </div>
+        {/* advanced options */}
         <div className="form-section">
             {!showAdvancedForm &&
             <div className="section-toggle" onClick={() => setShowAdvancedForm(true)}>
@@ -352,10 +365,10 @@ const FormCreateAuction: React.FC<{
                     }}
                     className="poly-coin-radio-selector"
                 />
-                {form.pay_addr.input}
-                {devMode ? form.begin_delay_seconds.input : form.begin_delay_hours.input}
-                {form.minimum_increase_pct.input}
-                {devMode ? form.extension_period_seconds.input : form.extension_period_minutes.input}
+                {pay_addr.input}
+                {devMode ? begin_delay_seconds.input : begin_delay_hours.input}
+                {minimum_increase_pct.input}
+                {devMode ? extension_period_seconds.input : extension_period_minutes.input}
             </>}
         </div>
 
