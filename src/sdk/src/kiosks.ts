@@ -19,6 +19,9 @@ export type OwnedKioskItem = {
     };
 };
 
+export type { KioskClientOptions } from "@mysten/kiosk";
+export { Network as KioskNetwork } from "@mysten/kiosk";
+
 // === functions ===
 
 /**

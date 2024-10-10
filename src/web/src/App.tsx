@@ -7,7 +7,8 @@ import {
     useSuiClient,
 } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
-import { AUCTION_IDS, BidderClient } from "@polymedia/bidder-sdk";
+import { SuiClient } from "@mysten/sui/client";
+import { AUCTION_IDS, BidderClient, KioskNetwork } from "@polymedia/bidder-sdk";
 import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -140,13 +141,17 @@ const App: React.FC<{
     const [ modalContent, setModalContent ] = useState<React.ReactNode>(null);
 
     const bidderClient = useMemo(() => {
-        return new BidderClient(
+        return new BidderClient({
             network,
-            AUCTION_IDS[network].packageId,
-            AUCTION_IDS[network].registryId,
+            packageId: AUCTION_IDS[network].packageId,
+            registryId: AUCTION_IDS[network].registryId,
+            signTransaction: (tx) => walletSignTx({ transaction: tx }),
             suiClient,
-            (tx) => walletSignTx({ transaction: tx }),
-        );
+            kioskClientOptions: {
+                client: network === "mainnet" ? new SuiClient({ url: "https://rpc-mainnet.suiscan.xyz/" }) : suiClient,
+                network: network === "mainnet" ? KioskNetwork.MAINNET : network === "testnet" ? KioskNetwork.TESTNET : KioskNetwork.CUSTOM,
+            },
+        });
     }, [suiClient, walletSignTx]);
 
     const [ isWorking, setIsWorking ] = useState(false);

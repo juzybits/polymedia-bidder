@@ -173,7 +173,7 @@ const FormCreateAuction: React.FC<{
     const name = useInputString({
         label: "Title", minBytes: cnf.MIN_NAME_LENGTH, maxBytes: cnf.MAX_NAME_LENGTH,
         msgRequired: "Choose a title for your auction",
-        html: { value: "Test", required: true },
+        html: { value: "", required: true },
     });
     const description = useInputString({
         label: "Description (optional)", minBytes: cnf.MIN_DESCRIPTION_LENGTH, maxBytes: cnf.MAX_DESCRIPTION_LENGTH,

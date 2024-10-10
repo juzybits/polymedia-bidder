@@ -1,6 +1,6 @@
-import { KioskClient, Network } from "@mysten/kiosk";
+import { KioskClient, KioskClientOptions, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
-import { SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
+import { getFullnodeUrl, SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
 import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
@@ -34,25 +34,31 @@ export class BidderClient extends SuiClientBase
         kioskItemIds: Map<string, string[]>;
     };
 
-    constructor(
-        network: NetworkName,
-        packageId: string,
-        registryId: string,
-        suiClient: SuiClient,
+    constructor(args: {
+        network: NetworkName;
+        packageId: string;
+        registryId: string;
         signTransaction: SignTransaction,
+        suiClient?: SuiClient;
+        kioskClientOptions?: KioskClientOptions;
         waitForTxOptions?: WaitForTxOptions,
         txResponseOptions?: SuiTransactionBlockResponseOptions,
-    ) {
-        super(suiClient, signTransaction, waitForTxOptions, txResponseOptions);
-        this.kioskClient = new KioskClient({
-            // client: suiClient,
-            client: network === "mainnet" ? new SuiClient({ url: "https://rpc-mainnet.suiscan.xyz/" }) : suiClient,
-            network: network === "mainnet" ? Network.MAINNET : network === "testnet" ? Network.TESTNET : Network.CUSTOM,
+    }) {
+        const suiClient = args.suiClient ?? new SuiClient({ url: getFullnodeUrl(args.network) });
+        super({
+            suiClient,
+            signTransaction: args.signTransaction,
+            waitForTxOptions: args.waitForTxOptions,
+            txResponseOptions: args.txResponseOptions,
         });
-        this.network = network;
-        this.packageId = packageId;
-        this.registryId = registryId;
-        this.txParser = new AuctionTxParser(packageId);
+        this.kioskClient = new KioskClient(args.kioskClientOptions ?? {
+            client: suiClient,
+            network: args.network === "mainnet" ? Network.MAINNET : args.network === "testnet" ? Network.TESTNET : Network.CUSTOM,
+        });
+        this.network = args.network;
+        this.packageId = args.packageId;
+        this.registryId = args.registryId;
+        this.txParser = new AuctionTxParser(args.packageId);
         this.cache = {
             auctions: new Map(),
             items: new Map(),
