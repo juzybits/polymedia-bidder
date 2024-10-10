@@ -13,38 +13,16 @@ const MAX_ITEMS_PER_AUCTION = 1;
 
 const featuredAuctionAndItemIds: Record<NetworkName, { auctionId: string; itemIds: string[] }[]> = {
     "mainnet": [
-        // {
-        //     auctionId: "0x5e32648a5b769e1c60660f6673d96abdfb72593e17a9c7d499d510bbacce8c3a",
-        //     itemIds: [
-        //         "0xfa5c21d6a2dfe9f1107bd25a1318d9c8b0fab31899624b71f3557d1e975abd8d",
-        //     ],
-        // },
     ],
     "testnet": [
-        {
-            auctionId: "0x37e01a21e07ce4804d9c86d7b4dea6411a179710912b5ee41e355d1b1421c7f7",
-            itemIds: [
-                "0x383ece4046ebe066326ae6ca195c2667c1688f1597f55e16d7c92ccd73ffeaba",
-            ],
-        },
-        {
-            auctionId: "0xd1bd0af4bd34f675f03fd4cb95f52180369ec966fc65291ad59aa93a389b50ca",
-            itemIds: [
-                "0x9cbaf0ea5684a776d974f533c82d1fd3f9ff62adfafc69c6998ad75f757a7a3e",
-            ],
-        },
-        {
-            auctionId: "0x37d0ea66363f213f33095d61003b801eb1658f56c848546111b5cd3c04d00882",
-            itemIds: [
-                "0xf5009a83ca08337649b310bfcaeae003ea05e8ecb00430ba98d09ded96c985d3",
-            ],
-        },
-        {
-            auctionId: "0x47239f026a58e2e2b9be17ed21154630d9336b6ed62b40f1b3b6068a517c18c2",
-            itemIds: [
-                "0xdec0a064bd855248dc5db10a2d11defb085500f6e0945e8d50c16854a337d0f9",
-            ],
-        },
+        // { auctionId: "0x37e01a21e07ce4804d9c86d7b4dea6411a179710912b5ee41e355d1b1421c7f7",
+        //     itemIds: [ "0x383ece4046ebe066326ae6ca195c2667c1688f1597f55e16d7c92ccd73ffeaba" ] },
+        // { auctionId: "0xd1bd0af4bd34f675f03fd4cb95f52180369ec966fc65291ad59aa93a389b50ca",
+        //     itemIds: [ "0x9cbaf0ea5684a776d974f533c82d1fd3f9ff62adfafc69c6998ad75f757a7a3e" ] },
+        // { auctionId: "0x37d0ea66363f213f33095d61003b801eb1658f56c848546111b5cd3c04d00882",
+        //     itemIds: [ "0xf5009a83ca08337649b310bfcaeae003ea05e8ecb00430ba98d09ded96c985d3" ] },
+        // { auctionId: "0x47239f026a58e2e2b9be17ed21154630d9336b6ed62b40f1b3b6068a517c18c2",
+        //     itemIds: [ "0xdec0a064bd855248dc5db10a2d11defb085500f6e0945e8d50c16854a337d0f9" ] },
     ],
     "devnet": [],
     "localnet": [],

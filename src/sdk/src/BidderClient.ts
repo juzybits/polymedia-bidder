@@ -242,7 +242,7 @@ export class BidderClient extends SuiClientBase
         const items: SuiItem[] = [];
         for (const objRes of pagObjRes.data) {
             const item = objResToSuiItem(objRes);
-            if (item.hasPublicTransfer) {
+            if (item && item.hasPublicTransfer) {
                 items.push(item);
                 this.cache.items.set(item.id, item);
             }

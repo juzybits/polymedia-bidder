@@ -40,15 +40,15 @@ export function newItemPlaceholder(addr: string): SuiItem {
 }
 
 /* eslint-disable */
-export function objResToSuiItem(objRes: SuiObjectResponse): SuiItem
+export function objResToSuiItem(resp: SuiObjectResponse): SuiItem | null
 {
-    if (objRes.error) {
-        throw Error(`response error: ${JSON.stringify(objRes, null, 2)}`);
+    if (resp.error) {
+        return null;
     }
-    if (!objRes.data) {
-        throw Error(`response has no data: ${JSON.stringify(objRes, null, 2)}`);
+    if (!resp.data) {
+        throw Error(`response has no data: ${JSON.stringify(resp, null, 2)}`);
     }
-    return objDataToSuiItem(objRes.data);
+    return objDataToSuiItem(resp.data);
 }
 
 export function objDataToSuiItem(data: SuiObjectData): SuiItem
