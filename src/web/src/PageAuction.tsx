@@ -174,7 +174,7 @@ const CardTweet: React.FC<{
     const tweetText = encodeURIComponent(
         "I just created a new auction!\n\n" +
         `🏆 Up for grabs: ${auction.name}\n\n` +
-        `💰 Starting bid: ${formatBalance(auction.minimum_bid, coinMeta.decimals)} ${coinMeta.symbol}\n\n` +
+        `💰 Starting bid: ${formatBalance(auction.minimum_bid, coinMeta.decimals, "compact")} ${coinMeta.symbol}\n\n` +
         `⏰ Don't miss out! Bid now:\nhttps://bidder.polymedia.app/auction/${auction.id}/items`
     );
     return <div className="card">

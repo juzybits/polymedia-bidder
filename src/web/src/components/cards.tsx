@@ -227,7 +227,7 @@ export const Balance: React.FC<{
         : (
             (!coinMeta || errorCoinMeta)
             ? "Unknown"
-            : `${formatBalance(balance, coinMeta.decimals)} ${coinMeta.symbol}`
+            : `${formatBalance(balance, coinMeta.decimals, "compact")} ${coinMeta.symbol}`
         );
 };
 
