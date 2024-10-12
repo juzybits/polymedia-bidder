@@ -1,7 +1,6 @@
 .DS_Store
 
 # JavaScript
-.auth.ts
 .env*
 *.tsbuildinfo
 .turbo
