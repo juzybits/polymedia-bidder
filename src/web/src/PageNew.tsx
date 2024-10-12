@@ -256,7 +256,7 @@ const FormCreateAuction: React.FC<{
             setIsWorking(true);
             setSubmitRes({ ok: null });
 
-            const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuctionWithKiosk(
+            const { resp, auctionObjChange, userObjChange } = await bidderClient.createAndShareAuction(
                 // type_coin.val!,
                 selectedCoin.type,
                 userId,

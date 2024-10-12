@@ -31,7 +31,6 @@ export class BidderClient extends SuiClientBase
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
         userIds: Map<string, string>;
-        kioskItemIds: Map<string, string[]>;
     };
 
     constructor(args: {
@@ -63,7 +62,6 @@ export class BidderClient extends SuiClientBase
             auctions: new Map(),
             items: new Map(),
             userIds: new Map(),
-            kioskItemIds: new Map(),
         };
     }
 
@@ -308,7 +306,7 @@ export class BidderClient extends SuiClientBase
             const typesThatNeedResolution = new Set<string>();
             for (const item of allItems) {
                 const k = item.kiosk!;
-                if (k.item.isLocked && (k.kiosk.itemCount > 1 || k.cap.isPersonal)) { // see createAndShareAuctionWithKiosk()
+                if (k.item.isLocked && (k.kiosk.itemCount > 1 || k.cap.isPersonal)) { // see createAndShareAuction()
                     typesThatNeedResolution.add(item.type);
                 }
             }
@@ -389,25 +387,6 @@ export class BidderClient extends SuiClientBase
             },
         );
     }
-
-    // public async fetchConfig()
-    // {
-    //     const tx = new Transaction();
-
-    //     const fun_names = Object.keys(AUCTION_CONFIG).map(key => key.toLowerCase());
-    //     for (const fun_name of fun_names) {
-    //         tx.moveCall({ target: `${this.packageId}::auction::${fun_name}` });
-    //     }
-
-    //     const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx,
-    //         Object.keys(AUCTION_CONFIG).map(() => [bcs.U64])
-    //     );
-    //     const values = blockReturns.map(val => val[0]); // eslint-disable-line @typescript-eslint/no-unsafe-return
-
-    //     return Object.fromEntries(
-    //         fun_names.map( (key, idx) => [key, Number(values[idx])] )
-    //     );
-    // }
 
     public async fetchUserId(
         owner: string,
@@ -590,93 +569,6 @@ export class BidderClient extends SuiClientBase
         minimum_bid: bigint,
         minimum_increase_bps: number,
         extension_period_ms: number,
-        itemsToAuction: { id: string; type: string }[],
-    ): Promise<{
-        resp: SuiTransactionBlockResponse;
-        auctionObjChange: ObjChangeKind<"created">;
-        userObjChange: ObjChangeKind<"created" | "mutated">;
-    }> {
-        const tx = new Transaction();
-
-        // create the item bag and fill it with the items to auction
-        const [itemBagArg] = tx.moveCall({
-            target: "0x2::object_bag::new",
-        });
-        for (const item of itemsToAuction) {
-            tx.moveCall({
-                target: "0x2::object_bag::add",
-                typeArguments: [ "address", item.type ],
-                arguments: [
-                    itemBagArg,
-                    tx.pure.address(item.id),
-                    tx.object(item.id),
-                ],
-            });
-        }
-
-        // create the user request
-        const [reqArg0] = !userObj
-            ? UserModule.new_user_request(tx, this.packageId, this.registryId)
-            : UserModule.existing_user_request(tx, this.packageId, userObj);
-
-        // create the auction
-        const [reqArg1, auctionArg] = AuctionModule.admin_creates_auction(
-            tx,
-            this.packageId,
-            type_coin,
-            reqArg0,
-            name,
-            description,
-            itemsToAuction.map(item => item.id),
-            itemBagArg,
-            pay_addr,
-            begin_time_ms,
-            duration_ms,
-            minimum_bid,
-            minimum_increase_bps,
-            extension_period_ms,
-        );
-
-        // destroy the user request
-        UserModule.destroy_user_request(tx, this.packageId, reqArg1);
-
-        // share the auction object
-        TransferModule.public_share_object(
-            tx,
-            `${this.packageId}::auction::Auction<${type_coin}>`,
-            auctionArg,
-        );
-
-        const resp = await this.signAndExecuteTransaction(tx);
-
-        if (resp.effects?.status.status !== "success") {
-            throw new Error(`Transaction failed: ${JSON.stringify(resp, null, 2)}`);
-        }
-
-        const auctionObjChange = this.txParser.extractAuctionObjCreated(resp);
-        if (!auctionObjChange) { // should never happen
-            throw new Error(`Transaction succeeded but no auction object was found: ${JSON.stringify(resp, null, 2)}`);
-        }
-
-        const userObjChange = this.txParser.extractUserObjChange(resp);
-        if (!userObjChange) { // should never happen
-            throw new Error(`Transaction succeeded but no user object was found: ${JSON.stringify(resp, null, 2)}`);
-        }
-
-        return { resp, auctionObjChange, userObjChange };
-    }
-
-    public async createAndShareAuctionWithKiosk(
-        type_coin: string,
-        userObj: ObjectInput | null,
-        name: string,
-        description: string,
-        pay_addr: string,
-        begin_time_ms: number,
-        duration_ms: number,
-        minimum_bid: bigint,
-        minimum_increase_bps: number,
-        extension_period_ms: number,
         itemsToAuction: SuiItem[],
         dryRun?: boolean,
         sender?: string,
@@ -691,7 +583,11 @@ export class BidderClient extends SuiClientBase
         tx.moveCall({
             target: "0x1::vector::length",
             typeArguments: [ "address" ],
-            arguments: [ tx.pure.vector("address", itemsToAuction.map(item => item.id)), ],
+            arguments: [ tx.pure.vector(
+                "address",
+                // for kiosk'd items, this is the ID of the underlying item, not the kiosk cap
+                itemsToAuction.map(item => item.id),
+            )],
         });
 
         const [ item_addrs_arg ] = tx.moveCall({
@@ -727,7 +623,7 @@ export class BidderClient extends SuiClientBase
                     item_id_arg = tx.pure.address(item.id);
                     item_arg = takeItemFromKiosk(tx, this.kioskClient, item.kiosk.cap, item.id, item.type);
                 }
-                // locked kiosk: auction a KioskOwnerCap for a single-item kiosk
+                // locked kiosk: auction a KioskOwnerCap that controls a single-item kiosk
                 else
                 {
                     item_type = "0x2::kiosk::KioskOwnerCap";
@@ -763,7 +659,11 @@ export class BidderClient extends SuiClientBase
             tx.moveCall({
                 target: "0x1::vector::push_back",
                 typeArguments: [ "address" ],
-                arguments: [ item_addrs_arg, item_id_arg ],
+                arguments: [
+                    item_addrs_arg,
+                    // for kiosk'd items, this is the ID of the kiosk cap, not the underlying item
+                    item_id_arg,
+                ],
             });
 
             // add the item (regular object or kiosk) to the item_bag ObjectBag
@@ -941,72 +841,21 @@ export class BidderClient extends SuiClientBase
     }
 }
 
-    // /**
-    //  * A simpler but less correct approach as it makes more assumptions about the tx block.
-    //  */
-    // public parseTxAdminCreatesAuctionSimpler(
-    //     resp: SuiTransactionBlockResponse,
-    // ): TxAdminCreatesAuction | null
+    // public async fetchConfig()
     // {
-    //     const auctionObjChange = this.extractAuctionObjChange(resp);
-    //     if (!auctionObjChange) { return null; }
+    //     const tx = new Transaction();
 
-    //     let txData: ReturnType<typeof txResToData>;
-    //     try { txData = txResToData(resp); }
-    //     catch (_err) { return null; }
-    //     const inputs = txData.inputs;
+    //     const fun_names = Object.keys(AUCTION_CONFIG).map(key => key.toLowerCase());
+    //     for (const fun_name of fun_names) {
+    //         tx.moveCall({ target: `${this.packageId}::auction::${fun_name}` });
+    //     }
 
-    //     const tx = txData.txs[1]; // see BidderClient.createAndShareAuction()
-    //     if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
-    //     const type_coin = tx.MoveCall.type_arguments[0];
+    //     const blockReturns = await devInspectAndGetReturnValues(this.suiClient, tx,
+    //         Object.keys(AUCTION_CONFIG).map(() => [bcs.U64])
+    //     );
+    //     const values = blockReturns.map(val => val[0]); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
-    //     return {
-    //         kind: "admin_creates_auction",
-    //         digest: resp.digest,
-    //         timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-    //         sender: txData.sender,
-    //         auctionId: auctionObjChange.objectId,
-    //         inputs: {
-    //             type_coin,
-    //             name: getArgVal(inputs[1]),
-    //             description: getArgVal(inputs[2]),
-    //             pay_addr: getArgVal(inputs[3]),
-    //             begin_delay_ms: getArgVal(inputs[4]),
-    //             duration_ms: getArgVal(inputs[5]),
-    //             minimum_bid: getArgVal(inputs[6]),
-    //             minimum_increase_bps: getArgVal(inputs[7]),
-    //             extension_period_ms: getArgVal(inputs[8]),
-    //             // clock: getArgVal(inputs[9]),
-    //             item_addrs: inputs.slice(10).map(input => getArgVal(input)),
-    //         },
-    //     };
-    // }
-
-    // /**
-    //  * A simpler but less correct approach as it makes more assumptions about the tx block.
-    //  */
-    // public parseTxAnyoneBidsSimpler(
-    //     resp: SuiTransactionBlockResponse,
-    // ): TxAnyoneBids | null
-    // {
-    //     let txData: ReturnType<typeof txResToData>;
-    //     try { txData = txResToData(resp); }
-    //     catch (_err) { return null; }
-    //     const inputs = txData.inputs;
-
-    //     const tx = txData.txs[2]; // see BidderClient.bid()
-    //     if (!isTxMoveCall(tx) || !tx.MoveCall.type_arguments) { return null; }
-    //     const type_coin = tx.MoveCall.type_arguments[0];
-
-    //     return {
-    //         kind: "anyone_bids",
-    //         digest: resp.digest,
-    //         timestamp: resp.timestampMs ? parseInt(resp.timestampMs) : 0,
-    //         sender: txData.sender,
-    //         inputs: {
-    //             type_coin,
-    //             auction_addr: getArgVal(inputs[2]),
-    //             amount: getArgVal(inputs[0]),
-    //         },
-    //     };
+    //     return Object.fromEntries(
+    //         fun_names.map( (key, idx) => [key, Number(values[idx])] )
+    //     );
     // }

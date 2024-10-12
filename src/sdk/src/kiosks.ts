@@ -1,5 +1,5 @@
 import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
-import { Transaction } from "@mysten/sui/transactions";
+import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
 import { NetworkName } from "@polymedia/suitcase-core";
 
 // === types ===
@@ -61,8 +61,9 @@ export async function hasAllRuleResolvers(
 /**
  * Check if a type's TransferPolicy rules are known to be unresolvable by the default `KioskClient`.
  */
-export function isKnownUnresolvable(itemType: string): boolean
-{
+export function isKnownUnresolvable(
+    itemType: string,
+): boolean {
     return KNOWN_UNRESOLVABLE_TYPES.includes(itemType);
 }
 
@@ -74,14 +75,12 @@ export function takeItemFromKiosk(
     kioskClient: KioskClient,
     cap: KioskOwnerCap,
     itemId: string,
-    itemType: string
-) {
+    itemType: string,
+): TransactionObjectArgument
+{
     const kioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap });
-
     const item = kioskTx.take({ itemId, itemType });
-
     kioskTx.finalize();
-
     return item;
 }
 
@@ -96,15 +95,15 @@ export async function sellForZeroIntoNewKiosk(
     itemType: string,
 ): Promise<KioskTransaction>
 {
-    // List the NFT for 0 SUI in the seller's kiosk
+    // list the NFT for 0 SUI in the seller's kiosk
     const sellerKioskTx = new KioskTransaction({ transaction: tx, kioskClient, cap: sellerCap });
     sellerKioskTx.list({ itemType, itemId, price: 0n });
 
-    // Create a new kiosk for the buyer
+    // create a new kiosk for the buyer
     const newKioskTx = new KioskTransaction({ transaction: tx, kioskClient });
     newKioskTx.create();
 
-    // Purchase the item and resolve the TransferPolicy
+    // purchase the item and resolve the TransferPolicy
     await newKioskTx.purchaseAndResolve({
         itemType,
         itemId,
