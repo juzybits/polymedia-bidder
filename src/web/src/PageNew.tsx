@@ -35,27 +35,27 @@ type SupportedCoin = {
     decimals: number;
     type: string;
     iconUrl: string;
-}
+};
 
 const suiCoin: SupportedCoin = {
     symbol: "SUI",
     decimals: 9,
     type: "0x2::sui::SUI",
     iconUrl: "https://coinmeta.polymedia.app/img/coins/0x0000000000000000000000000000000000000000000000000000000000000002-sui-SUI.svg",
-}
+};
 
 const spamCoin: Omit<SupportedCoin, "type"> = {
     symbol: "SPAM",
     decimals: 4,
     iconUrl: "https://coinmeta.polymedia.app/img/coins/0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a-spam-SPAM.webp",
-}
+};
 
 const SUPPORTED_COINS: Record<NetworkName, SupportedCoin[]> = {
     mainnet: [ suiCoin, { ...spamCoin, type: "0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a::spam::SPAM" } ],
     testnet: [ suiCoin, { ...spamCoin, type: "0xb0783634bd4aeb2c97d3e707fce338c94d135d72e1cb701ca220b34f7b18b877::spam::SPAM" } ],
     devnet: [ suiCoin ],
     localnet: [ suiCoin ],
-}
+};
 
 export const PageNew: React.FC = () => // TODO hide expired SuiNS
 {
@@ -356,7 +356,7 @@ const FormCreateAuction: React.FC<{
                         options={supportedCoins.map(coin => ({
                             value: coin.type,
                             label: <>
-                                <img src={coin.iconUrl} alt={coin.symbol} style={{ width: '20px', marginRight: '5px' }} />
+                                <img src={coin.iconUrl} alt={coin.symbol} style={{ width: "20px", marginRight: "5px" }} />
                                 {coin.symbol}
                             </>
                         }))}

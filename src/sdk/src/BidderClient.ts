@@ -37,11 +37,11 @@ export class BidderClient extends SuiClientBase
         network: NetworkName;
         packageId: string;
         registryId: string;
-        signTransaction: SignTransaction,
+        signTransaction: SignTransaction;
         suiClient?: SuiClient;
         kioskClientOptions?: KioskClientOptions;
-        waitForTxOptions?: WaitForTxOptions,
-        txResponseOptions?: SuiTransactionBlockResponseOptions,
+        waitForTxOptions?: WaitForTxOptions;
+        txResponseOptions?: SuiTransactionBlockResponseOptions;
     }) {
         const suiClient = args.suiClient ?? new SuiClient({ url: getFullnodeUrl(args.network) });
         super({
@@ -240,7 +240,7 @@ export class BidderClient extends SuiClientBase
         const items: SuiItem[] = [];
         for (const objRes of pagObjRes.data) {
             const item = objResToSuiItem(objRes);
-            if (item && item.hasPublicTransfer) {
+            if (item?.hasPublicTransfer) {
                 items.push(item);
                 this.cache.items.set(item.id, item);
             }
