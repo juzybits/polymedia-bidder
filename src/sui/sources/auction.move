@@ -76,7 +76,7 @@ public struct Auction<phantom CoinType> has store, key {
     pay_addr: address,
     // address that submitted the highest bid so far
     lead_addr: address,
-    // value of the highest bid so far
+    // the highest bid so far
     lead_bal: Balance<CoinType>,
     // lead_val: u64, // v2: preserve lead_bal.value() for posterity
     // when the auction starts (timestamp in milliseconds)
@@ -138,9 +138,9 @@ public fun admin_creates_auction<CoinType>(
     assert!( item_addrs.length() == item_bag.length(), E_ITEM_LENGTH_MISMATCH );
     item_addrs.length().do!(|i| {
         // check that the item address is in item_bag
-        assert!( item_bag.contains(item_addrs[i]), E_MISSING_ITEM );
-        // check that there are no duplicates in item_addrs
         let item_addr = item_addrs[i];
+        assert!( item_bag.contains(item_addr), E_MISSING_ITEM );
+        // check that there are no duplicates in item_addrs
         let mut j = i + 1;
         while (j < item_addrs.length()) {
             assert!( item_addrs[j] != item_addr, E_DUPLICATE_ITEM_ADDRESSES );
@@ -168,7 +168,7 @@ public fun admin_creates_auction<CoinType>(
     // update user history
     user_req.add_created(
         auction.id.to_address(),
-        clock.timestamp_ms(),
+        current_time_ms,
     );
 
     return (user_req, auction)

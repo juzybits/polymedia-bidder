@@ -57,7 +57,7 @@ const SUPPORTED_COINS: Record<NetworkName, SupportedCoin[]> = {
     localnet: [ suiCoin ],
 }
 
-export const PageNew: React.FC = () =>
+export const PageNew: React.FC = () => // TODO hide expired SuiNS
 {
     // === state ===
 
