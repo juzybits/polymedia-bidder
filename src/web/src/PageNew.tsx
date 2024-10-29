@@ -70,6 +70,7 @@ export const PageNew: React.FC = () => // TODO hide expired SuiNS
 
     const blockedTypes = useFetch(() =>
         fetch("https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/src/object-list.json")
+        // fetch("https://apps-backend.sui.io/guardian/object-list")
         .then(response => response.json())
         .then(data => {
             const map = new Map<string, boolean>();

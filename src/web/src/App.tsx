@@ -18,7 +18,6 @@ import { IconGears, IconHistory, IconNew } from "./components/icons";
 import { Modal } from "./components/Modal";
 import { loadNetworkConfig } from "./lib/rpcs";
 import { PageAuction } from "./PageAuction";
-import { PageDevDisplayAuction, PageDevDisplayDevNft, PageDevDisplayUser, PageDevDisplayUserRegistry } from "./PageDisplay";
 import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHome } from "./PageHome";
 import { PageNew } from "./PageNew";
@@ -39,11 +38,11 @@ export const AppRouter: React.FC = () => {
                 <Route path="/user/:address/:tabName" element={<PageUser />} />
                 <Route path="/settings" element={<PageSettings />} />
                 <Route path="/auction/:auctionId/:tabName" element={<PageAuction />} />
-                {/* <Route path="/dev/open-graph" element={<PageDevOpenGraph />} /> */}
+                {/* <Route path="/dev/open-graph" element={<PageDevOpenGraph />} />
                 <Route path="/dev/display/auction" element={<PageDevDisplayAuction />} />
                 <Route path="/dev/display/user" element={<PageDevDisplayUser />} />
                 <Route path="/dev/display/registry" element={<PageDevDisplayUserRegistry />} />
-                <Route path="/dev/display/nft" element={<PageDevDisplayDevNft />} />
+                <Route path="/dev/display/nft" element={<PageDevDisplayDevNft />} /> */}
             </Route>
         </Routes>
     </BrowserRouter>
