@@ -827,7 +827,9 @@ export class BidderClient extends SuiClientBase
     {
         if (!err) { return defaultMessage; }
 
-        const str = err instanceof Error ? err.message : String(err);
+        const str = err instanceof Error ? err.message
+            : typeof err === "string" ? err
+            : JSON.stringify(err);
         if (str.includes("Rejected from user")) { return null; }
         if (str.includes("InsufficientCoinBalance")) { return "You don't have enough balance"; }
 
