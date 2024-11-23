@@ -202,7 +202,7 @@ const CardFinalize: React.FC<{
 
     const currAcct = useCurrentAccount();
 
-    const { bidderClient, setIsWorking } = useAppContext();
+    const { bidderClient, network, setIsWorking } = useAppContext();
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
@@ -213,12 +213,15 @@ const CardFinalize: React.FC<{
         try {
             setIsWorking(true);
             setSubmitRes({ ok: null });
-            const itemsAndTypes = items.map(item => ({ addr: item.id, type: item.type }));
+            const actualItems = items.map(item => ({
+                addr: item.kiosk ? item.kiosk.cap.objectId : item.id,
+                type: item.kiosk ? KIOSK_CAP_TYPES[network].regular : item.type,
+            }));
             for (const dryRun of [true, false])
             {
                 const tx = new Transaction();
                 const resp = await bidderClient.payFundsAndSendItemsToWinner(
-                    tx, auction.id, auction.type_coin, itemsAndTypes, dryRun,
+                    tx, auction.id, auction.type_coin, actualItems, dryRun,
                 );
                 if (resp.effects?.status.status !== "success") {
                     throw new Error(resp.effects?.status.error);

@@ -789,7 +789,7 @@ export class BidderClient extends SuiClientBase
         return await this.dryRunOrSignAndExecute(tx, dryRun);
     }
 
-    protected async dryRunOrSignAndExecute(
+    protected async dryRunOrSignAndExecute( // TODO move to @polymedia/suitcase-core
         tx: Transaction,
         dryRun?: boolean,
         sender: string = "0x7777777777777777777777777777777777777777777777777777777777777777",
@@ -806,7 +806,7 @@ export class BidderClient extends SuiClientBase
         }
     }
 
-    // === errors ===
+    // === errors === TODO move to @polymedia/suitcase-core
 
     protected parseErrorCode(
         err: string,
