@@ -1,12 +1,6 @@
 import { SuiObjectData, SuiObjectResponse } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
-import {
-    isParsedDataKind,
-    newEmptyDisplay,
-    objResToDisplay,
-    objResToFields,
-    shortenAddress,
-} from "@polymedia/suitcase-core";
+import { isParsedDataKind, newEmptyDisplay, objResToDisplay, objResToFields } from "@polymedia/suitcase-core";
 import { OwnedKioskItem } from "./kiosks.js";
 
 const MAX_NAME_LENGTH = 100;
@@ -22,22 +16,6 @@ export type SuiItem = {
     desc: string;
     kiosk: OwnedKioskItem | null;
 };
-
-export function newItemPlaceholder(addr: string): SuiItem {
-    const display = newEmptyDisplay();
-    display.image_url = svgNoImage;
-    return {
-        id: addr,
-        type: "_placeholder_",
-        display,
-        fields: {},
-        hasPublicTransfer: true,
-        nameFull: addr,
-        nameShort: shortenAddress(addr),
-        desc: "",
-        kiosk: null,
-    };
-}
 
 /* eslint-disable */
 export function objResToSuiItem(resp: SuiObjectResponse): SuiItem | null
