@@ -183,14 +183,19 @@ const FormCreateAuction: React.FC<{
     const minimum_bid = useInputUnsignedBalance({
         label: `Minimum bid (${selectedCoin.symbol})`, decimals: selectedCoin.decimals,
         html: { value: "1", required: true },
+        min: 1n,
         deps: [selectedCoin.type],
     });
     const duration_hours = useInputUnsignedInt({
-        label: "Duration (hours)", min: Math.floor(cnf.MIN_DURATION_MS/TimeUnit.ONE_HOUR), max: Math.floor(cnf.MAX_DURATION_MS/TimeUnit.ONE_HOUR),
+        label: "Duration (hours)",
+        min: Math.max(1, Math.floor(cnf.MIN_DURATION_MS/TimeUnit.ONE_HOUR)),
+        max: Math.floor(cnf.MAX_DURATION_MS/TimeUnit.ONE_HOUR),
         html: { value: "24", required: true },
     });
     const duration_seconds = useInputUnsignedInt({ // dev only
-        label: "Duration (seconds)", min: Math.floor(cnf.MIN_DURATION_MS/1000), max: Math.floor(cnf.MAX_DURATION_MS/1000),
+        label: "Duration (seconds)",
+        min: Math.max(1, Math.floor(cnf.MIN_DURATION_MS/1000)),
+        max: Math.floor(cnf.MAX_DURATION_MS/1000),
         html: { value: "15", required: true },
     });
     // advanced options
