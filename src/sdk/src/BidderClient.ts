@@ -83,12 +83,12 @@ export class BidderClient extends SuiClientBase
     {
         return this.fetchAndParseObjects<AuctionObj>(
             auctionIds,
-            useCache ? this.cache.auctions : null,
             (ids) => this.suiClient.multiGetObjects({
                 ids,
                 options: { showContent: true },
             }),
             (resp) => parseAuctionObj(resp),
+            useCache ? this.cache.auctions : undefined,
         );
     }
 
@@ -102,7 +102,6 @@ export class BidderClient extends SuiClientBase
     {
         const allObjs = await this.fetchAndParseObjects<AuctionObj | SuiItem>(
             [...auctionIds, ...itemIds],
-            null,
             (ids) => this.suiClient.multiGetObjects({
                 ids,
                 options: { showContent: true, showDisplay: true, showType: true },
@@ -139,12 +138,12 @@ export class BidderClient extends SuiClientBase
     {
         const items = await this.fetchAndParseObjects<SuiItem>(
             itemIds,
-            useCache ? this.cache.items : null,
             (ids) => this.suiClient.multiGetObjects({
                 ids,
                 options: { showContent: true, showDisplay: true, showType: true },
             }),
             objResToSuiItem,
+            useCache ? this.cache.items : undefined,
         );
 
         const capItems = items.filter(item => item.type === KIOSK_CAP_TYPES[this.network].regular);

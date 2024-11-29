@@ -25,14 +25,14 @@
         "typecheck": "tsc -p tsconfig.esm.json"
     },
     "dependencies": {
-        "@mysten/kiosk": "^0.9.25",
-        "@polymedia/suitcase-core": "^0.0.35"
+        "@mysten/kiosk": "^0.9.29",
+        "@polymedia/suitcase-core": "^0.0.36"
     },
     "peerDependencies": {
-        "@mysten/sui": "^1.14.2"
+        "@mysten/sui": "^1.15.1"
     },
     "devDependencies": {
-        "typescript": "^5.6.3"
+        "typescript": "^5.7.2"
     },
     "type": "module",
     "sideEffects": false,
