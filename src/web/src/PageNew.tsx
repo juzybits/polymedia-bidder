@@ -50,8 +50,14 @@ const spamCoin: Omit<SupportedCoin, "type"> = {
     iconUrl: "https://coinmeta.polymedia.app/img/coins/0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a-spam-SPAM.webp",
 };
 
+const primeCoin: Omit<SupportedCoin, "type"> = {
+    symbol: "PRIME",
+    decimals: 6,
+    iconUrl: "https://coinmeta.polymedia.app/img/coins/0xf4b9d3ef9ead021579c8afd6e530df6ae79a5d73e2bac1ea05cb4d713ee7637d-prime-PRIME.webp",
+};
+
 const SUPPORTED_COINS: Record<NetworkName, SupportedCoin[]> = {
-    mainnet: [ suiCoin, { ...spamCoin, type: "0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a::spam::SPAM" } ],
+    mainnet: [ suiCoin, { ...spamCoin, type: "0x30a644c3485ee9b604f52165668895092191fcaf5489a846afa7fc11cdb9b24a::spam::SPAM" }, { ...primeCoin, type: "0xf4b9d3ef9ead021579c8afd6e530df6ae79a5d73e2bac1ea05cb4d713ee7637d::prime::PRIME" } ],
     testnet: [ suiCoin, { ...spamCoin, type: "0xb0783634bd4aeb2c97d3e707fce338c94d135d72e1cb701ca220b34f7b18b877::spam::SPAM" } ],
     devnet: [ suiCoin ],
     localnet: [ suiCoin ],
