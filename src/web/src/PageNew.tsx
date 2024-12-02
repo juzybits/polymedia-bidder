@@ -69,8 +69,8 @@ export const PageNew: React.FC = () => // TODO hide expired SuiNS
     const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
 
     const blockedTypes = useFetch(() =>
-        fetch("https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/src/object-list.json")
-        // fetch("https://apps-backend.sui.io/guardian/object-list")
+        fetch("https://apps-backend.sui.io/guardian/object-list")
+        // fetch("https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/dist/object-list.json")
         .then(response => response.json())
         .then(data => {
             const map = new Map<string, boolean>();

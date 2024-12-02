@@ -46,7 +46,7 @@ importers:
         version: 1.15.1(typescript@5.7.2)
       '@polymedia/suitcase-core':
         specifier: ^0.0.36
-        version: link:../../../polymedia-suitcase/src/core
+        version: 0.0.36(@mysten/sui@1.15.1(typescript@5.7.2))
     devDependencies:
       typescript:
         specifier: ^5.7.2
@@ -68,10 +68,10 @@ importers:
         version: 0.0.18(@mysten/sui@1.15.1(typescript@5.7.2))(react@18.3.1)
       '@polymedia/suitcase-core':
         specifier: ^0.0.36
-        version: link:../../../polymedia-suitcase/src/core
+        version: 0.0.36(@mysten/sui@1.15.1(typescript@5.7.2))
       '@polymedia/suitcase-react':
         specifier: ^0.0.36
-        version: link:../../../polymedia-suitcase/src/react
+        version: 0.0.36(@mysten/sui@1.15.1(typescript@5.7.2))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.61.5
         version: 5.61.5(react@18.3.1)
@@ -635,6 +635,16 @@ packages:
     resolution: {integrity: sha512-H2IXi5uUxlv3RRDGhIpC7tBYu44LtJVyQr0b3MyT43fLeqez2Qss1iqftS1QPCd0wX9wVxdKqg9usuEghmVNow==}
     peerDependencies:
       '@mysten/sui': ^1.15.1
+
+  '@polymedia/suitcase-core@0.0.36':
+    resolution: {integrity: sha512-iLwY3i/cUnkKARS8eQFuXYKxxpVjVE6iWZyde36AhWsyfX8VhwL43IoVwdr/kTsLk/QOlqEpimEP/QiHQ+v58Q==}
+    peerDependencies:
+      '@mysten/sui': ^1.15.1
+
+  '@polymedia/suitcase-react@0.0.36':
+    resolution: {integrity: sha512-TG6JX6rY1S4banrzlArMljMSAfcudYCLiNpWrpZWU8ZsZ0aPbPa0A6Zd3D66coYqE3T93bXseH2v9KBbiHaD/Q==}
+    peerDependencies:
+      react: ^18.0.0
 
   '@radix-ui/primitive@1.1.0':
     resolution: {integrity: sha512-4Z8dn6Upk0qk4P74xBhZ6Hd/w0mPEzOOLxy4xiPXOXqjF7jZS0VAKk7/x/H6FyY2zCkYJqePf1G5KmkmNJ4RBA==}
@@ -2997,6 +3007,17 @@ snapshots:
   '@polymedia/coinmeta@0.0.18(@mysten/sui@1.15.1(typescript@5.7.2))':
     dependencies:
       '@mysten/sui': 1.15.1(typescript@5.7.2)
+
+  '@polymedia/suitcase-core@0.0.36(@mysten/sui@1.15.1(typescript@5.7.2))':
+    dependencies:
+      '@mysten/sui': 1.15.1(typescript@5.7.2)
+
+  '@polymedia/suitcase-react@0.0.36(@mysten/sui@1.15.1(typescript@5.7.2))(react@18.3.1)':
+    dependencies:
+      '@polymedia/suitcase-core': 0.0.36(@mysten/sui@1.15.1(typescript@5.7.2))
+      react: 18.3.1
+    transitivePeerDependencies:
+      - '@mysten/sui'
 
   '@radix-ui/primitive@1.1.0': {}
 
