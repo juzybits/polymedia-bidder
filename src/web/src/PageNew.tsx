@@ -69,8 +69,8 @@ export const PageNew: React.FC = () => // TODO hide expired SuiNS
     const [ chosenItems, setChosenItems ] = useState<SuiItem[]>([]);
 
     const blockedTypes = useFetch(() =>
-        fetch("https://apps-backend.sui.io/guardian/object-list")
-        // fetch("https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/dist/object-list.json")
+        // fetch("https://apps-backend.sui.io/guardian/object-list")
+        fetch("https://raw.githubusercontent.com/suiet/guardians/refs/heads/main/dist/object-list.json")
         .then(response => response.json())
         .then(data => {
             const map = new Map<string, boolean>();
@@ -184,7 +184,6 @@ const FormCreateAuction: React.FC<{
         label: `Minimum bid (${selectedCoin.symbol})`, decimals: selectedCoin.decimals,
         html: { value: "1", required: true },
         min: 1n,
-        deps: [selectedCoin.type],
     });
     const duration_hours = useInputUnsignedInt({
         label: "Duration (hours)",
@@ -240,7 +239,7 @@ const FormCreateAuction: React.FC<{
         minimum_increase_pct,
         extension_period_minutes,
         extension_period_seconds,
-    ].some(input => input.err !== undefined);
+    ].some(input => input.err !== null);
 
     const disableSubmit = chosenItems.length === 0 || hasErrors || isWorking || userId === undefined;
 

@@ -375,7 +375,7 @@ const FormBid: React.FC<{
         html: { required: true, disabled: !currAcct },
     });
 
-    const hasInputError = input_amount.err !== undefined;
+    const hasInputError = input_amount.err !== null;
     const disableSubmit = hasInputError || isWorking || !currAcct;
 
     // === effects ===
@@ -649,7 +649,7 @@ const SectionAdmin: React.FC<{
         label: "New payment address",
         html: { value: auction.pay_addr, required: true },
     });
-    const disableSubmitSetPayAddr = input_pay_addr.err !== undefined || input_pay_addr.val === auction.pay_addr;
+    const disableSubmitSetPayAddr = input_pay_addr.err !== null || input_pay_addr.val === auction.pay_addr;
 
     const setPayAddr = async () =>
     {
