@@ -357,7 +357,7 @@ const FormCreateAuction: React.FC<{
             </div>}
             {showAdvancedForm && <>
                 <div className="poly-input">
-                    <div className="input-label">Currency:</div>
+                    <div className="input-label">Currency</div>
                     <RadioSelector
                         options={supportedCoins.map(coin => ({
                             value: coin.type,
