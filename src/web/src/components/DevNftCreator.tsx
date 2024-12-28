@@ -1,11 +1,11 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { NestedResult, NetworkName } from "@polymedia/suitcase-core";
+import { Btn } from "@polymedia/suitcase-react";
 import { useState } from "react";
 import { useAppContext } from "../App";
 import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
 import { SubmitRes } from "../lib/types";
-import { Btn } from "./Btn";
 
 export const DEV_PACKAGE_IDS: Record<NetworkName, string> = {
     mainnet: "",
@@ -47,7 +47,7 @@ export const DevNftCreator: React.FC<{
 
     const currAcc = useCurrentAccount();
 
-    const { bidderClient, network, setIsWorking } = useAppContext();
+    const { bidderClient, network, isWorking, setIsWorking } = useAppContext();
     const [ createRes, setCreateRes ] = useState<SubmitRes>({ ok: null });
 
     const packageId = DEV_PACKAGE_IDS[network];
@@ -81,7 +81,7 @@ export const DevNftCreator: React.FC<{
             }
             tx.transferObjects(nfts, currAcc.address);
 
-            const resp = await bidderClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTx(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
@@ -105,7 +105,7 @@ export const DevNftCreator: React.FC<{
             <div className="card-title">No items? No problem!</div>
             <div className="card-description">You can create free NFTs to test the BIDDER app.</div>
             <div className="btn-submit">
-                <Btn onClick={createNft}>Create NFTs</Btn>
+                <Btn working={isWorking} onClick={createNft}>Create NFTs</Btn>
 
                 {createRes.ok === true &&
                 <div className="success">NFTs created!</div>}

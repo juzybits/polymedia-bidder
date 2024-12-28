@@ -1,10 +1,9 @@
 import { AuctionObj, AuctionWithItems, SuiItem } from "@polymedia/bidder-sdk";
 import { NetworkName } from "@polymedia/suitcase-core";
-import { useFetch, useFetchAndPaginate } from "@polymedia/suitcase-react";
+import { BtnPrevNext, useFetch, useFetchAndPaginate } from "@polymedia/suitcase-react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
-import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Glitch } from "./components/Glitch";
 import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 
@@ -103,8 +102,8 @@ const SectionFeaturedAuctions: React.FC = () =>
     // === html ===
 
     let content: React.ReactNode;
-    if (auctionsWithItems.error) {
-        content = <CardWithMsg>{auctionsWithItems.error}</CardWithMsg>;
+    if (auctionsWithItems.err) {
+        content = <CardWithMsg>{auctionsWithItems.err}</CardWithMsg>;
     }  else if (auctionsWithItems.isLoading || auctionsWithItems.data === undefined) {
         content = <CardSpinner />;
     } else {
@@ -211,8 +210,8 @@ const SectionRecentAuctions: React.FC = () => // TODO option to hide cancelled/e
     // === html ===
 
     let content: React.ReactNode;
-    if (recent.error) {
-        content = <CardWithMsg>{recent.error}</CardWithMsg>;
+    if (recent.err) {
+        content = <CardWithMsg>{recent.err}</CardWithMsg>;
     } else if (recent.isLoading && recent.page.length === 0) {
         content = <CardSpinner />;
     } else {

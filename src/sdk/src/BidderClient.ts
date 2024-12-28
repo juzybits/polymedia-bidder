@@ -2,7 +2,7 @@ import { KioskClient, KioskClientOptions, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { getFullnodeUrl, SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseTxError, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseMoveAbort, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
@@ -46,7 +46,7 @@ export class BidderClient extends SuiClientBase
         const suiClient = args.suiClient ?? new SuiClient({ url: getFullnodeUrl(args.network) });
         super({
             suiClient,
-            signTransaction: args.signTransaction,
+            signTx: args.signTransaction,
             waitForTxOptions: args.waitForTxOptions,
             txResponseOptions: args.txResponseOptions,
         });
@@ -81,7 +81,7 @@ export class BidderClient extends SuiClientBase
         useCache = true,
     ): Promise<AuctionObj[]>
     {
-        return this.fetchAndParseObjects<AuctionObj>(
+        return this.fetchAndParseObjs<AuctionObj>(
             auctionIds,
             (ids) => this.suiClient.multiGetObjects({
                 ids,
@@ -100,7 +100,7 @@ export class BidderClient extends SuiClientBase
         items: Map<string, SuiItem>;
     }>
     {
-        const allObjs = await this.fetchAndParseObjects<AuctionObj | SuiItem>(
+        const allObjs = await this.fetchAndParseObjs<AuctionObj | SuiItem>(
             [...auctionIds, ...itemIds],
             (ids) => this.suiClient.multiGetObjects({
                 ids,
@@ -136,7 +136,7 @@ export class BidderClient extends SuiClientBase
         useCache = true,
     ): Promise<SuiItem[]>
     {
-        const items = await this.fetchAndParseObjects<SuiItem>(
+        const items = await this.fetchAndParseObjs<SuiItem>(
             itemIds,
             (ids) => this.suiClient.multiGetObjects({
                 ids,
@@ -801,7 +801,7 @@ export class BidderClient extends SuiClientBase
             });
             return { digest: "", ...results };
         } else {
-            return await this.signAndExecuteTransaction(tx);
+            return await this.signAndExecuteTx(tx);
         }
     }
 
@@ -811,7 +811,7 @@ export class BidderClient extends SuiClientBase
         err: string,
     ): string
     {
-        const error = parseTxError(err);
+        const error = parseMoveAbort(err);
         if (!error || error.packageId !== this.packageId || !(error.code in AUCTION_ERRORS)) {
             return err;
         }
@@ -829,6 +829,7 @@ export class BidderClient extends SuiClientBase
         const str = err instanceof Error ? err.message
             : typeof err === "string" ? err
             : JSON.stringify(err);
+
         if (str.includes("Rejected from user")) { return null; }
         if (str.includes("InsufficientCoinBalance")) { return "You don't have enough balance"; }
 

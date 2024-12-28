@@ -4,12 +4,10 @@ import { Transaction } from "@mysten/sui/transactions";
 import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, KIOSK_CAP_TYPES, SuiItem } from "@polymedia/bidder-sdk";
 import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
-import { LinkExternal, LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
+import { Btn, BtnPrevNext, LinkExternal, LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
-import { Btn } from "./components/Btn";
-import { BtnPrevNext } from "./components/BtnPrevNext";
 import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { BtnConnect } from "./components/ConnectToGetStarted";
 import { IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems } from "./components/icons";
@@ -202,7 +200,7 @@ const CardFinalize: React.FC<{
 
     const currAcct = useCurrentAccount();
 
-    const { bidderClient, network, setIsWorking } = useAppContext();
+    const { bidderClient, network, isWorking, setIsWorking } = useAppContext();
 
     const [ submitRes, setSubmitRes ] = useState<SubmitRes>({ ok: null });
 
@@ -255,7 +253,7 @@ const CardFinalize: React.FC<{
         <div>
             {!currAcct
             ? <BtnConnect />
-            : <Btn onClick={finalizeAuction}>FINALIZE</Btn>}
+            : <Btn working={isWorking} onClick={finalizeAuction}>FINALIZE</Btn>}
         </div>
 
         {submitRes.ok === true &&
@@ -432,7 +430,7 @@ const FormBid: React.FC<{
             <div className="btn-submit">
                 {!currAcct
                 ? <BtnConnect />
-                : <Btn disabled={disableSubmit} onClick={placeBid}>BID</Btn>}
+                : <Btn disabled={disableSubmit} working={isWorking} onClick={placeBid}>BID</Btn>}
 
                 {submitRes.ok === true &&
                 <div className="success">Bid submitted!</div>}
@@ -493,8 +491,8 @@ const SectionActivity: React.FC<{
 
     // === html ===
 
-    if (activity.error) {
-        return <CardWithMsg className="compact">{activity.error}</CardWithMsg>;
+    if (activity.err) {
+        return <CardWithMsg className="compact">{activity.err}</CardWithMsg>;
     } else if (activity.isLoading && activity.page.length === 0) {
         return <CardSpinner />;
     }
@@ -524,7 +522,7 @@ const SectionAdmin: React.FC<{
 {
     // === state ===
 
-    const { bidderClient, network, setIsWorking } = useAppContext();
+    const { bidderClient, network, isWorking, setIsWorking } = useAppContext();
 
     // === "accept bid": admin_accepts_bid + anyone_pays_funds + anyone_sends_item_to_winner ===
 
@@ -587,7 +585,7 @@ const SectionAdmin: React.FC<{
                 );
             }
 
-            const resp = await bidderClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTx(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
@@ -622,7 +620,7 @@ const SectionAdmin: React.FC<{
                 );
             }
 
-            const resp = await bidderClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTx(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
@@ -662,7 +660,7 @@ const SectionAdmin: React.FC<{
                 tx, AUCTION_IDS[network].packageId, auction.type_coin, auction.id, input_pay_addr.val!
             );
 
-            const resp = await bidderClient.signAndExecuteTransaction(tx);
+            const resp = await bidderClient.signAndExecuteTx(tx);
             if (resp.effects?.status.status !== "success") {
                 throw new Error(resp.effects?.status.error);
             }
@@ -687,7 +685,7 @@ const SectionAdmin: React.FC<{
             <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={acceptBid}>ACCEPT BID</Btn>
+                    <Btn working={isWorking} onClick={acceptBid}>ACCEPT BID</Btn>
 
                     {acceptBidRes.ok === true &&
                     <div className="success">Bid accepted!</div>}
@@ -704,7 +702,7 @@ const SectionAdmin: React.FC<{
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
+                    <Btn working={isWorking} onClick={cancelAuction}>CANCEL AUCTION</Btn>
 
                     {cancelAuctionRes.ok === true &&
                     <div className="success">Auction canceled!</div>}
@@ -721,7 +719,7 @@ const SectionAdmin: React.FC<{
             <div>You can reclaim the items because there were no bids.</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={reclaimItems}>RECLAIM ITEMS</Btn>
+                    <Btn working={isWorking} onClick={reclaimItems}>RECLAIM ITEMS</Btn>
 
                     {reclaimItemsRes.ok === true &&
                     <div className="success">Items reclaimed!</div>}
@@ -740,7 +738,7 @@ const SectionAdmin: React.FC<{
                 {input_pay_addr.input}
 
                 <div className="btn-submit">
-                    <Btn onClick={setPayAddr} disabled={disableSubmitSetPayAddr}>SET ADDRESS</Btn>
+                    <Btn disabled={disableSubmitSetPayAddr} working={isWorking} onClick={setPayAddr}>SET ADDRESS</Btn>
 
                     {setPayAddrRes.ok === true &&
                     <div className="success">Address set!</div>}

@@ -1,11 +1,10 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { NetworkName, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { Btn, isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
-import { Btn } from "./components/Btn";
 import { CardSpinner, CardSuiItem, CardWithMsg } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
@@ -380,7 +379,7 @@ const FormCreateAuction: React.FC<{
             </>}
         </div>
 
-        <Btn onClick={onSubmit} disabled={disableSubmit}>
+        <Btn disabled={disableSubmit} working={isWorking} onClick={onSubmit}>
             CREATE AUCTION
         </Btn>
 
@@ -440,8 +439,8 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         items: typeof ownedItems,
         type: "objects" | "kiosks",
     ) => {
-        if (items.error) {
-            return <CardWithMsg>{items.error}</CardWithMsg>;
+        if (items.err) {
+            return <CardWithMsg>{items.err}</CardWithMsg>;
         }
         if (items.isLoading && items.data.length === 0) {
             return <CardSpinner />;

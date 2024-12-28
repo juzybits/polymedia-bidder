@@ -1,10 +1,9 @@
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
-import { LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";
+import { BtnPrevNext, LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";
 import React, { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
-import { BtnPrevNext } from "./components/BtnPrevNext";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
 import { HeaderTabs, makeTabs } from "./components/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
@@ -117,8 +116,8 @@ const SectionUserBids: React.FC<{
         [userId, bidderClient],
     );
 
-    if (history.error) {
-        return <CardWithMsg>{history.error}</CardWithMsg>;
+    if (history.err) {
+        return <CardWithMsg>{history.err}</CardWithMsg>;
     }
     if (history.isLoading && history.page.length === 0) {
         return <CardSpinner />;
@@ -169,8 +168,8 @@ const SectionUserAuctions: React.FC<{
         [userId, bidderClient],
     );
 
-    if (history.error) {
-        return <CardWithMsg>{history.error}</CardWithMsg>;
+    if (history.err) {
+        return <CardWithMsg>{history.err}</CardWithMsg>;
     }
     if (history.isLoading && history.page.length === 0) {
         return <CardSpinner />;
