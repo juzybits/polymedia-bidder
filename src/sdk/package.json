@@ -26,7 +26,7 @@
     },
     "dependencies": {
         "@mysten/kiosk": "^0.9.34",
-        "@polymedia/suitcase-core": "^0.0.37"
+        "@polymedia/suitcase-core": "^0.0.38"
     },
     "peerDependencies": {
         "@mysten/sui": "^1.18.0"

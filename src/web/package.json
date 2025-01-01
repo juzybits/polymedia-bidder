@@ -27,14 +27,14 @@
         "@mysten/dapp-kit": "^0.14.44",
         "@mysten/sui": "^1.18.0",
         "@polymedia/bidder-sdk": "workspace:*",
-        "@polymedia/coinmeta-react": "^0.0.19",
-        "@polymedia/suitcase-core": "^0.0.37",
-        "@polymedia/suitcase-react": "^0.0.37",
-        "@tanstack/react-query": "^5.62.8",
+        "@polymedia/coinmeta-react": "^0.0.20",
+        "@polymedia/suitcase-core": "^0.0.38",
+        "@polymedia/suitcase-react": "^0.0.38",
+        "@tanstack/react-query": "^5.62.11",
         "normalize.css": "^8.0.1",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-router-dom": "^7.1.0"
+        "react-router-dom": "^7.1.1"
     },
     "devDependencies": {
         "@types/react": "^18.3.18",
@@ -42,7 +42,7 @@
         "@vitejs/plugin-react-swc": "^3.7.2",
         "less": "^4.2.1",
         "typescript": "^5.7.2",
-        "vite": "^6.0.5",
+        "vite": "^6.0.6",
         "wrangler": "^3.99.0"
     },
     "type": "module",
