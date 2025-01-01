@@ -25,10 +25,12 @@ export const HeaderTabs: React.FC<{
     tabs: Tab[];
     activeTab: string;
     onChangeTab: (tab: string) => void;
+    disabled?: boolean;
 }> = ({
     tabs,
     activeTab,
     onChangeTab,
+    disabled,
 }) => {
     return (
         <div className="tabs-header">
@@ -37,7 +39,7 @@ export const HeaderTabs: React.FC<{
                     key={tab.name}
                     tab={tab}
                     activeTab={activeTab}
-                    onChangeTab={onChangeTab}
+                    onChangeTab={() => !disabled && onChangeTab(tab.name)}
                 />
             ))}
         </div>

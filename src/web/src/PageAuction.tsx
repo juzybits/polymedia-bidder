@@ -37,7 +37,7 @@ export const PageAuction: React.FC = () =>
     // === state ===
 
     const currAcct = useCurrentAccount();
-    const { bidderClient, header } = useAppContext();
+    const { bidderClient, header, isWorking } = useAppContext();
 
     const [ auction, setAuction ] = useState<AuctionObj | null | undefined>();
     const [ items, setItems ] = useState<SuiItem[] | null | undefined>();
@@ -137,7 +137,7 @@ export const PageAuction: React.FC = () =>
                 <CardFinalize auction={auction} items={items} fetchAuction={fetchAuction} />
 
                 <div className="tabs-container" ref={tabsContainerRef}>
-                    <HeaderTabs tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} />
+                    <HeaderTabs tabs={visibleTabs} activeTab={activeTab} onChangeTab={changeTab} disabled={isWorking} />
                     <div className="tabs-content">
                         {activeTab === "items" && <SectionItems items={items} />}
                         {activeTab === "bid" && auction.is_live && <SectionBid auction={auction} fetchAuction={fetchAuction} />}
