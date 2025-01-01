@@ -419,7 +419,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
     const { currAddr } = getCurrAddr(currAcct);
     if (!currAddr) { return; }
 
-    const { bidderClient, explorer, network, setModalContent } = useAppContext();
+    const { bidderClient, explorer, network, isWorking, setModalContent } = useAppContext();
 
     const [ toggleChoice, setToggleChoice ] = useState<"objects"|"kiosks">("objects");
 
@@ -503,7 +503,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
                 {items.hasNextPage &&
                 <div className="center-element">
-                    <Btn onClick={items.loadMore}>
+                    <Btn disabled={isWorking} onClick={items.loadMore}>
                         LOAD MORE {type.toUpperCase()}
                     </Btn>
                 </div>}

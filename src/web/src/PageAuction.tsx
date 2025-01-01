@@ -253,7 +253,7 @@ const CardFinalize: React.FC<{
         <div>
             {!currAcct
             ? <BtnConnect />
-            : <Btn onClick={finalizeAuction}>FINALIZE</Btn>}
+            : <Btn disabled={isWorking} onClick={finalizeAuction}>FINALIZE</Btn>}
         </div>
 
         {submitRes.ok === true &&
@@ -374,7 +374,7 @@ const FormBid: React.FC<{
     });
 
     const hasInputError = input_amount.err !== null;
-    const disableSubmit = hasInputError || isWorking || !currAcct;
+    const disableSubmit = !currAcct || isWorking || hasInputError;
 
     // === effects ===
 
@@ -647,7 +647,6 @@ const SectionAdmin: React.FC<{
         label: "New payment address",
         html: { value: auction.pay_addr, required: true },
     });
-    const disableSubmitSetPayAddr = input_pay_addr.err !== null || input_pay_addr.val === auction.pay_addr;
 
     const setPayAddr = async () =>
     {
@@ -685,7 +684,7 @@ const SectionAdmin: React.FC<{
             <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={acceptBid}>ACCEPT BID</Btn>
+                    <Btn disabled={isWorking} onClick={acceptBid}>ACCEPT BID</Btn>
 
                     {acceptBidRes.ok === true &&
                     <div className="success">Bid accepted!</div>}
@@ -702,7 +701,7 @@ const SectionAdmin: React.FC<{
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
+                    <Btn disabled={isWorking} onClick={cancelAuction}>CANCEL AUCTION</Btn>
 
                     {cancelAuctionRes.ok === true &&
                     <div className="success">Auction canceled!</div>}
@@ -719,7 +718,7 @@ const SectionAdmin: React.FC<{
             <div>You can reclaim the items because there were no bids.</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn onClick={reclaimItems}>RECLAIM ITEMS</Btn>
+                    <Btn disabled={isWorking} onClick={reclaimItems}>RECLAIM ITEMS</Btn>
 
                     {reclaimItemsRes.ok === true &&
                     <div className="success">Items reclaimed!</div>}
@@ -738,7 +737,8 @@ const SectionAdmin: React.FC<{
                 {input_pay_addr.input}
 
                 <div className="btn-submit">
-                    <Btn disabled={disableSubmitSetPayAddr} onClick={setPayAddr}>SET ADDRESS</Btn>
+                    <Btn disabled={isWorking || input_pay_addr.err !== null || input_pay_addr.val === auction.pay_addr}
+                        onClick={setPayAddr}>SET ADDRESS</Btn>
 
                     {setPayAddrRes.ok === true &&
                     <div className="success">Address set!</div>}
