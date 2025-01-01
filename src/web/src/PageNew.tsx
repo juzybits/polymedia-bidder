@@ -379,7 +379,7 @@ const FormCreateAuction: React.FC<{
             </>}
         </div>
 
-        <Btn disabled={disableSubmit} working={isWorking} onClick={onSubmit}>
+        <Btn disabled={disableSubmit} onClick={onSubmit}>
             CREATE AUCTION
         </Btn>
 
@@ -503,10 +503,7 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
 
                 {items.hasNextPage &&
                 <div className="center-element">
-                    <Btn
-                        working={items.isLoading}
-                        onClick={items.loadMore}
-                    >
+                    <Btn onClick={items.loadMore}>
                         LOAD MORE {type.toUpperCase()}
                     </Btn>
                 </div>}

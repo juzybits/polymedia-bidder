@@ -253,7 +253,7 @@ const CardFinalize: React.FC<{
         <div>
             {!currAcct
             ? <BtnConnect />
-            : <Btn working={isWorking} onClick={finalizeAuction}>FINALIZE</Btn>}
+            : <Btn onClick={finalizeAuction}>FINALIZE</Btn>}
         </div>
 
         {submitRes.ok === true &&
@@ -430,7 +430,7 @@ const FormBid: React.FC<{
             <div className="btn-submit">
                 {!currAcct
                 ? <BtnConnect />
-                : <Btn disabled={disableSubmit} working={isWorking} onClick={placeBid}>BID</Btn>}
+                : <Btn disabled={disableSubmit} onClick={placeBid}>BID</Btn>}
 
                 {submitRes.ok === true &&
                 <div className="success">Bid submitted!</div>}
@@ -685,7 +685,7 @@ const SectionAdmin: React.FC<{
             <div>You can accept the current bid ({<Balance balance={auction.lead_value} coinType={auction.type_coin} />}) and send the items to the leader ({shortenAddress(auction.lead_addr)}).</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn working={isWorking} onClick={acceptBid}>ACCEPT BID</Btn>
+                    <Btn onClick={acceptBid}>ACCEPT BID</Btn>
 
                     {acceptBidRes.ok === true &&
                     <div className="success">Bid accepted!</div>}
@@ -702,7 +702,7 @@ const SectionAdmin: React.FC<{
             <div>You can cancel the auction and reclaim the items. Leader will be refunded.</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn working={isWorking} onClick={cancelAuction}>CANCEL AUCTION</Btn>
+                    <Btn onClick={cancelAuction}>CANCEL AUCTION</Btn>
 
                     {cancelAuctionRes.ok === true &&
                     <div className="success">Auction canceled!</div>}
@@ -719,7 +719,7 @@ const SectionAdmin: React.FC<{
             <div>You can reclaim the items because there were no bids.</div>
             <div className="form">
                 <div className="btn-submit">
-                    <Btn working={isWorking} onClick={reclaimItems}>RECLAIM ITEMS</Btn>
+                    <Btn onClick={reclaimItems}>RECLAIM ITEMS</Btn>
 
                     {reclaimItemsRes.ok === true &&
                     <div className="success">Items reclaimed!</div>}
@@ -738,7 +738,7 @@ const SectionAdmin: React.FC<{
                 {input_pay_addr.input}
 
                 <div className="btn-submit">
-                    <Btn disabled={disableSubmitSetPayAddr} working={isWorking} onClick={setPayAddr}>SET ADDRESS</Btn>
+                    <Btn disabled={disableSubmitSetPayAddr} onClick={setPayAddr}>SET ADDRESS</Btn>
 
                     {setPayAddrRes.ok === true &&
                     <div className="success">Address set!</div>}
