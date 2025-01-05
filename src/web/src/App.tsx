@@ -9,13 +9,11 @@ import {
 import "@mysten/dapp-kit/dist/index.css";
 import { SuiClient } from "@mysten/sui/client";
 import { AUCTION_IDS, BidderClient, KioskNetwork } from "@polymedia/bidder-sdk";
-import { ExplorerName, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
+import { ExplorerName, IconGears, IconHistory, IconNew, Modal, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
-import { IconGears, IconHistory, IconNew } from "./components/icons";
-import { Modal } from "./components/Modal";
 import { loadNetworkConfig } from "./lib/network";
 import { PageAuction } from "./PageAuction";
 import { PageNotFound } from "./PageFullScreenMsg";

@@ -1,14 +1,13 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { NetworkName, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
-import { Btn, isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
+import { Btn, IconCheck, IconInfo, isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
 import { CardSpinner, CardSuiItem, CardWithMsg } from "./components/cards";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
 import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
-import { IconCheck, IconInfo } from "./components/icons";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 
