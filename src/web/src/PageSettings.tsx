@@ -3,7 +3,7 @@ import { ExplorerRadioSelector, LinkExternal, NetworkRadioSelector, RpcRadioSele
 import React from "react";
 import { supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { RPC_ENDPOINTS } from "./lib/rpcs";
+import { RPC_ENDPOINTS } from "./lib/network";
 
 export const PageSettings: React.FC = () =>
 {

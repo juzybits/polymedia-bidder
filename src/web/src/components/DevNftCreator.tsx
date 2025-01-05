@@ -10,7 +10,7 @@ import { SubmitRes } from "../lib/types";
 export const DEV_PACKAGE_IDS: Record<NetworkName, string> = {
     mainnet: "",
     testnet: "0xf9e40ed85cca663faf8ce37ca63e3565194d1e2e1a9fda8a913ef025226c9ef1",
-    devnet: "",
+    devnet: "0xf8d8c9cbbfcb5d277321069d0693f577d5ff8d2b76c2efe2e73a6145402929bb",
     localnet: "",
 };
 

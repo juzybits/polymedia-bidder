@@ -16,7 +16,7 @@ import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { Glitch } from "./components/Glitch";
 import { IconGears, IconHistory, IconNew } from "./components/icons";
 import { Modal } from "./components/Modal";
-import { loadNetworkConfig } from "./lib/rpcs";
+import { loadNetworkConfig } from "./lib/network";
 import { PageAuction } from "./PageAuction";
 import { PageNotFound } from "./PageFullScreenMsg";
 import { PageHome } from "./PageHome";
