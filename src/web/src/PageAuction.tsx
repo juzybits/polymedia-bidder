@@ -8,9 +8,9 @@ import { Btn, BtnPrevNext, IconCart, IconDetails, IconGears, IconHistory, IconIn
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
-import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
-import { BtnConnect } from "./components/ConnectToGetStarted";
-import { HeaderTabs, makeTabs } from "./components/tabs";
+import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
+import { BtnConnect } from "./comp/ConnectToGetStarted";
+import { HeaderTabs, makeTabs } from "./comp/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";

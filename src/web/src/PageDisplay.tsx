@@ -1,5 +1,5 @@
 import React from "react";
-import { getNftTitleLine2, NFT_TITLE_LINE_1 } from "./components/DevNftCreator";
+import { getNftTitleLine2, NFT_TITLE_LINE_1 } from "./comp/DevNftCreator";
 import { DisplaySvgProps, getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "./lib/svg";
 
 const PageDisplay: React.FC<DisplaySvgProps> = (displayProps) =>

@@ -5,9 +5,9 @@ import { Btn, IconCheck, IconInfo, isLocalhost, LinkToExplorer, RadioSelector, u
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./App";
-import { CardSpinner, CardSuiItem, CardWithMsg } from "./components/cards";
-import { ConnectToGetStarted } from "./components/ConnectToGetStarted";
-import { DEV_PACKAGE_IDS, DevNftCreator } from "./components/DevNftCreator";
+import { CardSpinner, CardSuiItem, CardWithMsg } from "./comp/cards";
+import { ConnectToGetStarted } from "./comp/ConnectToGetStarted";
+import { DEV_PACKAGE_IDS, DevNftCreator } from "./comp/DevNftCreator";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { SubmitRes } from "./lib/types";
 

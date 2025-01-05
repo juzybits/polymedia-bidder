@@ -4,8 +4,8 @@ import { BtnPrevNext, LinkToExplorer, useFetchAndPaginate } from "@polymedia/sui
 import React, { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppContext } from "./App";
-import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
-import { HeaderTabs, makeTabs } from "./components/tabs";
+import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
+import { HeaderTabs, makeTabs } from "./comp/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";
 import { PageNotFound } from "./PageFullScreenMsg";
 

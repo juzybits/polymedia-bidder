@@ -4,8 +4,8 @@ import { BtnPrevNext, useFetch, useFetchAndPaginate } from "@polymedia/suitcase-
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "./App";
-import { Glitch } from "./components/Glitch";
-import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./components/cards";
+import { Glitch } from "./comp/Glitch";
+import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 
 const PAGE_SIZE_RECENT = 24;
 const MAX_ITEMS_PER_AUCTION = 1;

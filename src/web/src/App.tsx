@@ -13,7 +13,7 @@ import { ExplorerName, IconGears, IconHistory, IconNew, Modal, ReactSetter, isLo
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
-import { Glitch } from "./components/Glitch";
+import { Glitch } from "./comp/Glitch";
 import { loadNetworkConfig } from "./lib/network";
 import { PageAuction } from "./PageAuction";
 import { PageNotFound } from "./PageFullScreenMsg";
