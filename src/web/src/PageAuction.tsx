@@ -228,7 +228,7 @@ const CardFinalize: React.FC<{
                 }
             }
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to finalize auction", {
+            const errMsg = bidderClient.errToStr(err, "Failed to finalize auction", {
                 "E_WRONG_TIME": "The auction has not ended yet",
                 "E_WRONG_ADDRESS": "The auction has no leader",
             });
@@ -407,7 +407,7 @@ const FormBid: React.FC<{
                 }
             }
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to submit bid", {
+            const errMsg = bidderClient.errToStr(err, "Failed to submit bid", {
                 "E_WRONG_TIME": "The auction is not live",
                 "E_WRONG_COIN_VALUE": "Someone placed a higher bid",
             });
@@ -550,7 +550,7 @@ const SectionAdmin: React.FC<{
 
             setAcceptBidRes({ ok: true });
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to accept bid", {
+            const errMsg = bidderClient.errToStr(err, "Failed to accept bid", {
                 "E_WRONG_TIME": "The auction is not live",
                 "E_WRONG_ADMIN": "You are not the admin",
                 "E_CANT_END_WITHOUT_BIDS": "The auction has no bids",
@@ -591,7 +591,7 @@ const SectionAdmin: React.FC<{
 
             setCancelAuctionRes({ ok: true });
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to cancel auction", {
+            const errMsg = bidderClient.errToStr(err, "Failed to cancel auction", {
                 "E_WRONG_TIME": "The auction has already ended",
             });
             setCancelAuctionRes({ ok: false, err: errMsg });
@@ -626,7 +626,7 @@ const SectionAdmin: React.FC<{
 
             setReclaimItemsRes({ ok: true });
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to reclaim items", {
+            const errMsg = bidderClient.errToStr(err, "Failed to reclaim items", {
                 "E_WRONG_TIME": "The auction has already ended",
                 "E_CANT_RECLAIM_WITH_BIDS": "Can't reclaim items because the auction has bids",
             });
@@ -665,7 +665,7 @@ const SectionAdmin: React.FC<{
 
             setSetPayAddrRes({ ok: true });
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to set pay address");
+            const errMsg = bidderClient.errToStr(err, "Failed to set pay address");
             setSetPayAddrRes({ ok: false, err: errMsg });
             console.warn("[setPayAddr]", err);
         } finally {

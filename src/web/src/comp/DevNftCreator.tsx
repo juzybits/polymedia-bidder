@@ -89,7 +89,7 @@ export const DevNftCreator: React.FC<{
             setCreateRes({ ok: true });
             setTimeout(onNftCreated, 750);
         } catch (err) {
-            setCreateRes({ ok: false, err: bidderClient.errCodeToStr(err, "Failed to create NFTs") });
+            setCreateRes({ ok: false, err: bidderClient.errToStr(err, "Failed to create NFTs") });
             console.warn("[createNft]", err);
         } finally {
             setIsWorking(false);

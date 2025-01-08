@@ -288,7 +288,7 @@ const FormCreateAuction: React.FC<{
                 console.debug("dryRun ok:", resp);
             }
         } catch (err) {
-            const errMsg = bidderClient.errCodeToStr(err, "Failed to create auction");
+            const errMsg = bidderClient.errToStr(err, "Failed to create auction");
             setSubmitRes({ ok: false, err: errMsg });
             console.warn("[onSubmit]", err);
         } finally {

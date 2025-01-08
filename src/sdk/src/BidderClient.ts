@@ -2,7 +2,7 @@ import { KioskClient, KioskClientOptions, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { getFullnodeUrl, SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseMoveAbort, SignTransaction, SuiClientBase, TransferModule, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseMoveAbort, SignTransaction, SuiClientBase, TransferModule, TxErrorParser, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
@@ -26,7 +26,8 @@ export class BidderClient extends SuiClientBase
     public readonly network: NetworkName;
     public readonly packageId: string;
     public readonly registryId: string;
-    public txParser: AuctionTxParser;
+    public readonly txParser: AuctionTxParser;
+    public readonly errParser: TxErrorParser;
     protected readonly cache: {
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
@@ -58,6 +59,7 @@ export class BidderClient extends SuiClientBase
         this.packageId = args.packageId;
         this.registryId = args.registryId;
         this.txParser = new AuctionTxParser(args.packageId);
+        this.errParser = new TxErrorParser(args.packageId, AUCTION_ERRORS);
         this.cache = {
             auctions: new Map(),
             items: new Map(),
@@ -807,39 +809,13 @@ export class BidderClient extends SuiClientBase
 
     // === errors === TODO move to @polymedia/suitcase-core
 
-    protected parseErrorCode(
-        err: string,
-    ): string
-    {
-        const error = parseMoveAbort(err);
-        if (!error || error.packageId !== this.packageId || !(error.code in AUCTION_ERRORS)) {
-            return err;
-        }
-        return AUCTION_ERRORS[error.code];
-    }
-
-    public errCodeToStr(
+    public errToStr(
         err: unknown,
         defaultMessage: string,
-        errorMessages?: Record<string, string>
+        errMessages?: Record<string, string>
     ): string | null
     {
-        if (!err) { return defaultMessage; }
-
-        const str = err instanceof Error ? err.message
-            : typeof err === "string" ? err
-            : JSON.stringify(err);
-
-        if (str.includes("Rejected from user")) { return null; }
-        if (str.includes("InsufficientCoinBalance")) { return "You don't have enough balance"; }
-
-        const code = this.parseErrorCode(str);
-
-        if (errorMessages && code in errorMessages) {
-            return errorMessages[code];
-        }
-
-        return code || defaultMessage;
+        return this.errParser.errToStr(err, defaultMessage, errMessages);
     }
 }
 
