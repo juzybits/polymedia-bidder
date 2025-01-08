@@ -27,7 +27,7 @@ export class BidderClient extends SuiClientBase
     public readonly packageId: string;
     public readonly registryId: string;
     public readonly txParser: AuctionTxParser;
-    public readonly errParser: TxErrorParser;
+    public readonly errToStr: typeof TxErrorParser.prototype.errToStr;
     protected readonly cache: {
         auctions: Map<string, AuctionObj>;
         items: Map<string, SuiItem>;
@@ -59,7 +59,8 @@ export class BidderClient extends SuiClientBase
         this.packageId = args.packageId;
         this.registryId = args.registryId;
         this.txParser = new AuctionTxParser(args.packageId);
-        this.errParser = new TxErrorParser(args.packageId, AUCTION_ERRORS);
+        const errParser = new TxErrorParser(args.packageId, AUCTION_ERRORS);
+        this.errToStr = errParser.errToStr.bind(errParser);
         this.cache = {
             auctions: new Map(),
             items: new Map(),
@@ -807,16 +808,6 @@ export class BidderClient extends SuiClientBase
         }
     }
 
-    // === errors === TODO move to @polymedia/suitcase-core
-
-    public errToStr(
-        err: unknown,
-        defaultMessage: string,
-        errMessages?: Record<string, string>
-    ): string | null
-    {
-        return this.errParser.errToStr(err, defaultMessage, errMessages);
-    }
 }
 
     // public async fetchConfig()
