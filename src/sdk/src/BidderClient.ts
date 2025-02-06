@@ -2,7 +2,7 @@ import { KioskClient, KioskClientOptions, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { getFullnodeUrl, SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
-import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, parseMoveAbort, SignTransaction, SuiClientBase, TransferModule, TxErrorParser, WaitForTxOptions } from "@polymedia/suitcase-core";
+import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, SignTx, SuiClientBase, TransferModule, TxErrorParser, WaitForTxOptions } from "@polymedia/suitcase-core";
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
@@ -38,18 +38,18 @@ export class BidderClient extends SuiClientBase
         network: NetworkName;
         packageId: string;
         registryId: string;
-        signTransaction: SignTransaction;
+        signTransaction: SignTx;
         suiClient?: SuiClient;
         kioskClientOptions?: KioskClientOptions;
         waitForTxOptions?: WaitForTxOptions;
-        txResponseOptions?: SuiTransactionBlockResponseOptions;
+        txRespOptions?: SuiTransactionBlockResponseOptions;
     }) {
         const suiClient = args.suiClient ?? new SuiClient({ url: getFullnodeUrl(args.network) });
         super({
             suiClient,
             signTx: args.signTransaction,
             waitForTxOptions: args.waitForTxOptions,
-            txResponseOptions: args.txResponseOptions,
+            txRespOptions: args.txRespOptions,
         });
         this.kioskClient = new KioskClient(args.kioskClientOptions ?? {
             client: suiClient,

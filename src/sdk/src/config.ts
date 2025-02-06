@@ -1,6 +1,6 @@
 // === network ===
 
-import { NetworkName } from "@polymedia/suitcase-core";
+import { NetworkName, ErrorInfos } from "@polymedia/suitcase-core";
 
 export type NetworkConfig = {
     packageId: string;
@@ -31,26 +31,26 @@ export const AUCTION_CONFIG = {
     MAX_DESCRIPTION_LENGTH: 2000,
 };
 
-export const AUCTION_ERRORS: Record<number, string> = {
-    5000: "E_WRONG_NAME",
-    5001: "E_WRONG_TIME",
-    5002: "E_WRONG_ADMIN",
-    5003: "E_WRONG_ADDRESS",
-    5004: "E_WRONG_DURATION",
-    5005: "E_WRONG_COIN_VALUE",
-    5006: "E_WRONG_DESCRIPTION",
-    5007: "E_WRONG_MINIMUM_BID",
-    5008: "E_WRONG_MINIMUM_INCREASE",
-    5009: "E_WRONG_EXTENSION_PERIOD",
-    5010: "E_CANT_RECLAIM_WITH_BIDS",
-    5011: "E_POINTLESS_PAY_ADDR_CHANGE",
-    5012: "E_DUPLICATE_ITEM_ADDRESSES",
-    5013: "E_ITEM_LENGTH_MISMATCH",
-    5014: "E_NOT_ENOUGH_ITEMS",
-    5015: "E_TOO_MANY_ITEMS",
-    5016: "E_MISSING_ITEM",
-    5017: "E_NO_BIDS",
-    6000: "E_USER_ALREADY_EXISTS",
+export const AUCTION_ERRORS: ErrorInfos = {
+    5000: { symbol: "E_WRONG_NAME" },
+    5001: { symbol: "E_WRONG_TIME" },
+    5002: { symbol: "E_WRONG_ADMIN" },
+    5003: { symbol: "E_WRONG_ADDRESS" },
+    5004: { symbol: "E_WRONG_DURATION" },
+    5005: { symbol: "E_WRONG_COIN_VALUE" },
+    5006: { symbol: "E_WRONG_DESCRIPTION" },
+    5007: { symbol: "E_WRONG_MINIMUM_BID" },
+    5008: { symbol: "E_WRONG_MINIMUM_INCREASE" },
+    5009: { symbol: "E_WRONG_EXTENSION_PERIOD" },
+    5010: { symbol: "E_CANT_RECLAIM_WITH_BIDS" },
+    5011: { symbol: "E_POINTLESS_PAY_ADDR_CHANGE" },
+    5012: { symbol: "E_DUPLICATE_ITEM_ADDRESSES" },
+    5013: { symbol: "E_ITEM_LENGTH_MISMATCH" },
+    5014: { symbol: "E_NOT_ENOUGH_ITEMS" },
+    5015: { symbol: "E_TOO_MANY_ITEMS" },
+    5016: { symbol: "E_MISSING_ITEM" },
+    5017: { symbol: "E_NO_BIDS" },
+    6000: { symbol: "E_USER_ALREADY_EXISTS" },
 };
 
 export const AUCTION_IDS: Record<NetworkName, NetworkConfig> = {
