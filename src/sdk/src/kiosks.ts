@@ -1,5 +1,6 @@
 import { getNormalizedRuleType, KioskClient, KioskOwnerCap, KioskTransaction } from "@mysten/kiosk";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
+
 import { NetworkName } from "@polymedia/suitcase-core";
 
 // === types ===

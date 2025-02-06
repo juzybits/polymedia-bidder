@@ -1,6 +1,8 @@
 import { SuiObjectResponse } from "@mysten/sui/client";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
+
 import { objResToFields, objResToType, ZERO_ADDRESS } from "@polymedia/suitcase-core";
+
 import { SuiItem } from "./items.js";
 
 /**

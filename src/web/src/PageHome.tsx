@@ -1,11 +1,13 @@
+import React from "react";
+import { Link } from "react-router-dom";
+
 import { AuctionObj, AuctionWithItems, SuiItem } from "@polymedia/bidder-sdk";
 import { NetworkName } from "@polymedia/suitcase-core";
 import { BtnPrevNext, useFetch, useFetchAndPaginate } from "@polymedia/suitcase-react";
-import React from "react";
-import { Link } from "react-router-dom";
+
 import { useAppContext } from "./App";
-import { Glitch } from "./comp/Glitch";
 import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
+import { Glitch } from "./comp/Glitch";
 
 const PAGE_SIZE_RECENT = 24;
 const MAX_ITEMS_PER_AUCTION = 1;

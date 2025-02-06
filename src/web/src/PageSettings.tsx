@@ -1,6 +1,8 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { ExplorerRadioSelector, LinkExternal, NetworkRadioSelector, RpcRadioSelector } from "@polymedia/suitcase-react";
 import React from "react";
+
+import { ExplorerRadioSelector, LinkExternal, NetworkRadioSelector, RpcRadioSelector } from "@polymedia/suitcase-react";
+
 import { supportedNetworks, useAppContext } from "./App";
 import { ConnectToGetStarted } from "./comp/ConnectToGetStarted";
 import { RPC_ENDPOINTS } from "./lib/network";

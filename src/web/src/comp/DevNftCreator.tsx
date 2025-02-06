@@ -1,8 +1,10 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
+import { useState } from "react";
+
 import { NestedResult, NetworkName } from "@polymedia/suitcase-core";
 import { Btn } from "@polymedia/suitcase-react";
-import { useState } from "react";
+
 import { useAppContext } from "../App";
 import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
 import { SubmitRes } from "../lib/types";

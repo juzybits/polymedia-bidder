@@ -1,8 +1,10 @@
+import React, { useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+
 import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
 import { BtnPrevNext, LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";
-import React, { useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+
 import { useAppContext } from "./App";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 import { HeaderTabs, makeTabs } from "./comp/tabs";

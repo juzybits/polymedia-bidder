@@ -1,9 +1,11 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { NetworkName, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { Btn, IconCheck, IconInfo, isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { useAppContext } from "./App";
 import { CardSpinner, CardSuiItem, CardWithMsg } from "./comp/cards";
 import { ConnectToGetStarted } from "./comp/ConnectToGetStarted";

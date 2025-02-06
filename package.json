@@ -13,7 +13,7 @@
     "keywords": [],
     "scripts": {
         "build": "turbo run build",
-        "clean": "turbo run clean && rm -rf dist/ node_modules/ .turbo/ src/sui*/build/ src/sui*/Move.lock src/sui*/.coverage_map.mvcov src/sui*/.trace",
+        "clean": "turbo run clean && rm -rf dist/ node_modules/ .turbo/ src/sui*/build/ src/sui*/.coverage_map.mvcov src/sui*/.trace",
         "dev": "turbo run dev",
         "lint": "turbo run lint",
         "typecheck": "turbo run typecheck"

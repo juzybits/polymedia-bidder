@@ -2,7 +2,9 @@ import { KioskClient, KioskClientOptions, Network } from "@mysten/kiosk";
 import { bcs } from "@mysten/sui/bcs";
 import { getFullnodeUrl, SuiClient, SuiObjectDataFilter, SuiObjectResponse, SuiTransactionBlockResponse, SuiTransactionBlockResponseOptions } from "@mysten/sui/client";
 import { Transaction, TransactionObjectArgument } from "@mysten/sui/transactions";
+
 import { devInspectAndGetReturnValues, getCoinOfValue, NetworkName, ObjChangeKind, ObjectInput, objResToId, SignTx, SuiClientBase, TransferModule, TxErrorParser, WaitForTxOptions } from "@polymedia/suitcase-core";
+
 import { AuctionModule } from "./AuctionFunctions.js";
 import { AuctionObj, isAuctionObj, parseAuctionObj } from "./AuctionObjects.js";
 import { AuctionTxParser } from "./AuctionTxParser.js";
@@ -745,6 +747,7 @@ export class BidderClient extends SuiClientBase
     }> {
         const tx = new Transaction();
 
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         const [pay_coin] = await getCoinOfValue(this.suiClient, tx, sender, type_coin, amount);
 
         const [reqArg0] = !userObj
