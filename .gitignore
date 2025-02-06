@@ -1,10 +1,10 @@
 .DS_Store
 
 # JavaScript
-.env*
-*.tsbuildinfo
+.env.development.local
 .turbo
 .wrangler
+*.tsbuildinfo
 dist
 node_modules
 
@@ -12,5 +12,4 @@ node_modules
 .coverage_map.mvcov
 .trace
 build
-Move.lock
 traces
