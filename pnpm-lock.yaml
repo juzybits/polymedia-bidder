@@ -66,9 +66,6 @@ importers:
       '@polymedia/bidder-sdk':
         specifier: workspace:*
         version: link:../sdk
-      '@polymedia/coinmeta-react':
-        specifier: ^0.0.24
-        version: 0.0.24(@mysten/sui@1.21.2(typescript@5.7.3))(react@18.3.1)
       '@polymedia/suitcase-core':
         specifier: ^0.0.45
         version: 0.0.45(@mysten/sui@1.21.2(typescript@5.7.3))
@@ -629,17 +626,6 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
-
-  '@polymedia/coinmeta-react@0.0.24':
-    resolution: {integrity: sha512-qyicvcVzv/0glojmR1xOLIZBDGTO160bN2wwvLgWuKQFJBhqFSoHc7QimjhFznIH9rSMhTSLBmrNL8b2qIl3OQ==}
-    peerDependencies:
-      '@mysten/sui': ^1.21.1
-      react: '18'
-
-  '@polymedia/coinmeta@0.0.24':
-    resolution: {integrity: sha512-4kqjPlR6aft+jsVuEj1H+M8EKdffE8S4DjDdcmwkt7e3jp6cOIF79ewZwSsxWa2BUVQjgctSGUIQPu5ZBIEHXw==}
-    peerDependencies:
-      '@mysten/sui': ^1.21.1
 
   '@polymedia/suitcase-core@0.0.45':
     resolution: {integrity: sha512-OHj3AQKUfMt2rju9xj9a7v3yI++CVBdjytvI/TN4sQa9aPY1EpQBzUa04zZ7JhcQugne21tapUYvV0wKLSZgYg==}
@@ -3039,16 +3025,6 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.0
-
-  '@polymedia/coinmeta-react@0.0.24(@mysten/sui@1.21.2(typescript@5.7.3))(react@18.3.1)':
-    dependencies:
-      '@mysten/sui': 1.21.2(typescript@5.7.3)
-      '@polymedia/coinmeta': 0.0.24(@mysten/sui@1.21.2(typescript@5.7.3))
-      react: 18.3.1
-
-  '@polymedia/coinmeta@0.0.24(@mysten/sui@1.21.2(typescript@5.7.3))':
-    dependencies:
-      '@mysten/sui': 1.21.2(typescript@5.7.3)
 
   '@polymedia/suitcase-core@0.0.45(@mysten/sui@1.21.2(typescript@5.7.3))':
     dependencies:

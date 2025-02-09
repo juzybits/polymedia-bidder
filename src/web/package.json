@@ -27,7 +27,6 @@
         "@mysten/dapp-kit": "^0.14.50",
         "@mysten/sui": "^1.21.2",
         "@polymedia/bidder-sdk": "workspace:*",
-        "@polymedia/coinmeta-react": "^0.0.24",
         "@polymedia/suitcase-core": "^0.0.45",
         "@polymedia/suitcase-react": "^0.0.45",
         "@tanstack/react-query": "^5.66.0",
