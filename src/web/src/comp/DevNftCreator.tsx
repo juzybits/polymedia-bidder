@@ -105,7 +105,7 @@ export const DevNftCreator: React.FC<{
     return <>
         <div className="card compact">
             <div className="card-title">No items? No problem!</div>
-            <div className="card-description">You can create free NFTs to test the BIDDER app.</div>
+            <div className="card-desc">You can create free NFTs to test the BIDDER app.</div>
             <div className="btn-submit">
                 <Btn onClick={createNft}>Create NFTs</Btn>
 

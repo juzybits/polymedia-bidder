@@ -448,15 +448,15 @@ const ItemGridSelector: React.FC<{ // TODO add filter by type, ID
         }
         if (items.data.length === 0) {
             if (type === "objects" && (network === "mainnet" || DEV_PACKAGE_IDS[network] === "")) {
-                return <div className="card-description">You don't own any items.</div>;
+                return <div className="card-desc">You don't own any items.</div>;
             }
             if (type === "objects") {
                 return <DevNftCreator onNftCreated={() => bidderClient.fetchOwnedItems(currAddr, null)} />;
             }
-            return <div className="card-description">You don't have any items in kiosks.</div>;
+            return <div className="card-desc">You don't have any items in kiosks.</div>;
         }
         return <>
-            <div className="card-description">
+            <div className="card-desc">
                 Select the items you want to sell.
             </div>
 

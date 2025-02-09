@@ -267,7 +267,7 @@ const CardAuctionWithItems: React.FC<{
             </div>
 
             {/* {auction.description.length > 0 &&
-            <div className="card-description">{auction.description}</div>} */}
+            <div className="card-desc">{auction.description}</div>} */}
 
             <CardAuctionItems items={items} hiddenItemCount={hiddenItemCount} className="card-list" />
 

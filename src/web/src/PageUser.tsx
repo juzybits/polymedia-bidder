@@ -200,7 +200,7 @@ const CardUserAuctionOrBid: React.FC<{
     const isBid = "amount" in history;
 
     return (
-        <Link to={`/auction/${history.auction_addr}/items`} className="card tx">
+        <Link to={`/auction/${history.auction_addr}/items`} className="card slim">
             <div className="card-header column-on-small">
 
                 <div className="card-title">

@@ -505,7 +505,7 @@ const SectionActivity: React.FC<{
     return (
         <div className="card compact">
             <div className="card-title">Activity</div>
-            <div className={`card-list tx-list ${activity.isLoading ? "loading" : ""}`}>
+            <div className={`card-list slim-list ${activity.isLoading ? "loading" : ""}`}>
                 {activity.isLoading && <CardSpinner />}
                 {activity.page.map(tx =>
                     <CardTransaction tx={tx} key={tx.digest} />
@@ -898,7 +898,7 @@ const CardTransaction: React.FC<{
     }
 
     return (
-        <div className={`card tx ${className}`}>
+        <div className={`card slim ${className}`}>
             <div className="card-header">
                 <div className="card-title">
                     {title}

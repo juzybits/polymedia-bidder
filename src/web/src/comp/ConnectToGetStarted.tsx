@@ -7,7 +7,7 @@ export const ConnectToGetStarted: React.FC = () =>
 {
     return (
         <>
-            <div className="card-description">
+            <div className="card-desc">
                 Connect your Sui wallet to get started.
             </div>
             <BtnConnect />
