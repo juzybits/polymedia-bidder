@@ -8,7 +8,7 @@ import { BtnPrevNext, LinkToExplorer, useFetchAndPaginate } from "@polymedia/sui
 import { useAppContext } from "./app/context";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 import { HeaderTabs, makeTabs } from "./comp/tabs";
-import { useFetchUserId } from "./hooks/useFetchUserId";
+import { useFetchUserId } from "./lib/hooks";
 import { PageNotFound } from "./PageFullScreenMsg";
 
 const PAGE_SIZE = 25;

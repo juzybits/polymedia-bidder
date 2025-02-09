@@ -10,7 +10,7 @@ import { useAppContext } from "./app/context";
 import { CardSpinner, CardSuiItem, CardWithMsg } from "./comp/cards";
 import { ConnectToGetStarted } from "./comp/ConnectToGetStarted";
 import { DEV_PACKAGE_IDS, DevNftCreator } from "./comp/DevNftCreator";
-import { useFetchUserId } from "./hooks/useFetchUserId";
+import { useFetchUserId } from "./lib/hooks";
 import { SubmitRes } from "./lib/types";
 
 const debugKiosk = isLocalhost();

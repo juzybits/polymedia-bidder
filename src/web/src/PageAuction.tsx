@@ -12,7 +12,7 @@ import { useAppContext } from "./app/context";
 import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 import { BtnConnect } from "./comp/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./comp/tabs";
-import { useFetchUserId } from "./hooks/useFetchUserId";
+import { useFetchUserId } from "./lib/hooks";
 import { SubmitRes } from "./lib/types";
 import { PageFullScreenMsg, PageNotFound } from "./PageFullScreenMsg";
 
