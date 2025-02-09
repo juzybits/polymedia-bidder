@@ -1,9 +1,8 @@
 import React from "react";
 
 import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
-import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@polymedia/suitcase-core";
-import { IconCheck, IconVerified, LinkExternal, LinkToExplorer } from "@polymedia/suitcase-react";
+import { IconCheck, IconVerified, LinkExternal, LinkToExplorer, useFetch } from "@polymedia/suitcase-react";
 
 import { useAppContext } from "../App";
 import { isVerifiedItem } from "../lib/verified";
@@ -219,14 +218,17 @@ export const Balance: React.FC<{
     coinType,
 }) =>
 {
-    const { bidderClient } = useAppContext();
+    const { coinMetaFetcher } = useAppContext();
 
-    const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, coinType);
+    const { data: coinMeta, err: coinMetaErr, isLoading: coinMetaLoading } = useFetch(
+        async () => await coinMetaFetcher.getCoinMeta(coinType),
+        [coinMetaFetcher, coinType],
+    );
 
-    return coinMeta === undefined
+    return (coinMetaLoading || coinMeta === undefined)
         ? "Loading..."
         : (
-            (!coinMeta || errorCoinMeta)
+            (!coinMeta || coinMetaErr)
             ? "Unknown"
             : `${formatBalance(balance, coinMeta.decimals, "compact")} ${coinMeta.symbol}`
         );

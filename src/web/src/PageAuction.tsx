@@ -5,9 +5,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 
 import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, KIOSK_CAP_TYPES, SuiItem } from "@polymedia/bidder-sdk";
-import { useCoinMeta } from "@polymedia/coinmeta-react";
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
-import { Btn, BtnPrevNext, IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems, LinkExternal, LinkToExplorer, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
+import { Btn, BtnPrevNext, IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems, LinkExternal, LinkToExplorer, useFetch, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
 
 import { useAppContext } from "./App";
 import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
@@ -165,8 +164,11 @@ const CardTweet: React.FC<{
     const justCreated = location.state?.justCreated === true; // eslint-disable-line
     if (!justCreated) { return null; }
 
-    const { bidderClient } = useAppContext();
-    const { coinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
+    const { coinMetaFetcher } = useAppContext();
+    const { data: coinMeta } = useFetch(
+        async () => await coinMetaFetcher.getCoinMeta(auction.type_coin),
+        [coinMetaFetcher, auction.type_coin],
+    );
 
     if (!coinMeta) { return null; }
 
@@ -288,9 +290,12 @@ const SectionBid: React.FC<{
 {
     const currAcct = useCurrentAccount();
 
-    const { bidderClient, setModalContent } = useAppContext();
+    const { coinMetaFetcher, setModalContent } = useAppContext();
 
-    const { coinMeta, errorCoinMeta } = useCoinMeta(bidderClient.suiClient, auction.type_coin);
+    const { data: coinMeta, err: coinMetaErr, isLoading: coinMetaLoading } = useFetch(
+        async () => await coinMetaFetcher.getCoinMeta(auction.type_coin),
+        [coinMetaFetcher, auction.type_coin],
+    );
 
     const { userId, updateUserId, errorFetchUserId } = useFetchUserId(currAcct?.address);
 
@@ -309,10 +314,10 @@ const SectionBid: React.FC<{
 
     // === html ===
 
-    const isLoading = coinMeta === undefined || userId === undefined;
+    const isLoading = coinMetaLoading || coinMeta === undefined || userId === undefined;
 
     let content: React.ReactNode;
-    if (errorCoinMeta || coinMeta === null) {
+    if (coinMetaErr || coinMeta === null) {
         content = <CardWithMsg className="compact">Failed to fetch coin metadata</CardWithMsg>;
     } else if (errorFetchUserId) { // userId may be null for new users
         content = <CardWithMsg className="compact">{errorFetchUserId}</CardWithMsg>;

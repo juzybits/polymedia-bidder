@@ -13,6 +13,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 
 import { AUCTION_IDS, BidderClient, KioskNetwork } from "@polymedia/bidder-sdk";
+import { CoinMetaFetcher } from "@polymedia/suitcase-core";
 import { ExplorerName, IconGears, IconHistory, IconNew, Modal, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 
 import { Glitch } from "./comp/Glitch";
@@ -117,6 +118,7 @@ export type AppContext = {
     setModalContent: ReactSetter<React.ReactNode>;
     header: React.ReactNode;
     bidderClient: BidderClient;
+    coinMetaFetcher: CoinMetaFetcher;
 };
 
 const App: React.FC<{
@@ -153,6 +155,10 @@ const App: React.FC<{
         });
     }, [suiClient, walletSignTx]);
 
+    const coinMetaFetcher = useMemo(() => {
+        return new CoinMetaFetcher({ client: suiClient });
+    }, [suiClient]);
+
     const [ isWorking, setIsWorking ] = useState(false);
     // const [ showMobileNav, setShowMobileNav ] = useState(false);
     const [ showConnectModal, setShowConnectModal ] = useState(false);
@@ -171,6 +177,7 @@ const App: React.FC<{
         setModalContent,
         header: <Header />,
         bidderClient,
+        coinMetaFetcher,
     };
 
     // === effects ===
