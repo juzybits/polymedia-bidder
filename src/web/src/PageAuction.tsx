@@ -8,7 +8,7 @@ import { AnyAuctionTx, AUCTION_IDS, AuctionModule, AuctionObj, BidderClient, KIO
 import { formatBalance, formatBps, formatDate, formatDuration, formatTimeDiff, shortenAddress, shortenDigest } from "@polymedia/suitcase-core";
 import { Btn, BtnPrevNext, IconCart, IconDetails, IconGears, IconHistory, IconInfo, IconItems, LinkExternal, LinkToExplorer, useFetch, useFetchAndPaginate, useInputAddress, useInputUnsignedBalance } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "./app/App";
+import { useAppContext } from "./app/context";
 import { Balance, CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 import { BtnConnect } from "./comp/ConnectToGetStarted";
 import { HeaderTabs, makeTabs } from "./comp/tabs";

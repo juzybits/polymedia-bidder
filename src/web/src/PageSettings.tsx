@@ -3,8 +3,8 @@ import React from "react";
 
 import { ExplorerRadioSelector, LinkExternal, NetworkRadioSelector, RpcRadioSelector } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "./app/App";
 import { RPC_ENDPOINTS, supportedNetworks } from "./app/config";
+import { useAppContext } from "./app/context";
 import { ConnectToGetStarted } from "./comp/ConnectToGetStarted";
 
 export const PageSettings: React.FC = () =>

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { NestedResult, NetworkName } from "@polymedia/suitcase-core";
 import { Btn } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "../app/App";
+import { useAppContext } from "../app/context";
 import { getRandomDarkColor, getRandomLightColor, makeDisplaySvg, svgToDataUrl, trimSvg } from "../lib/svg";
 import { SubmitRes } from "../lib/types";
 

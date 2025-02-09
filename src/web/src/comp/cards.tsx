@@ -4,7 +4,7 @@ import { AuctionObj, SuiItem, svgNoImage } from "@polymedia/bidder-sdk";
 import { formatBalance, formatTimeDiff, shortenAddress, urlToDomain } from "@polymedia/suitcase-core";
 import { IconCheck, IconVerified, LinkExternal, LinkToExplorer, useFetch } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "../app/App";
+import { useAppContext } from "../app/context";
 import { isVerifiedItem } from "../lib/verified";
 
 // === cards ===

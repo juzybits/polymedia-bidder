@@ -9,15 +9,15 @@ import {
 import "@mysten/dapp-kit/dist/index.css";
 import { SuiClient } from "@mysten/sui/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 
 import { AUCTION_IDS, BidderClient, KioskNetwork } from "@polymedia/bidder-sdk";
 import { CoinMetaFetcher } from "@polymedia/suitcase-core";
 import { ExplorerName, IconGears, IconHistory, IconNew, Modal, ReactSetter, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 
-import { Glitch } from "../comp/Glitch";
 import { defaultNetwork, loadNetworkConfig, SupportedNetwork, supportedNetworks } from "./config";
+import { Glitch } from "../comp/Glitch";
 import { PageAuction } from "../PageAuction";
 import { PageNotFound } from "../PageFullScreenMsg";
 import { PageHome } from "../PageHome";
@@ -25,6 +25,7 @@ import { PageNew } from "../PageNew";
 import { PageSettings } from "../PageSettings";
 import { PageUser } from "../PageUser";
 import "../styles/App.less";
+import { AppContext, useAppContext } from "./context";
 
 /* App router */
 
@@ -85,17 +86,7 @@ const AppSuiProviders: React.FC = () =>
 
 /* App */
 
-const AppContext = createContext<AppContext | null>(null);
-
-export const useAppContext = () => {
-    const context = useContext(AppContext);
-    if (!context) {
-        throw new Error("useAppContext must be used within an AppContextProvider");
-    }
-    return context;
-};
-
-export type AppContext = {
+export type AppContextType = {
     explorer: ExplorerName; setExplorer: ReactSetter<ExplorerName>;
     network: SupportedNetwork; setNetwork: ReactSetter<SupportedNetwork>;
     rpc: string; setRpc: (rpc: string) => void;
@@ -154,7 +145,7 @@ const App: React.FC<{
         setShowConnectModal(true);
     };
 
-    const appContext: AppContext = {
+    const appContext: AppContextType = {
         explorer, setExplorer,
         network, setNetwork,
         rpc, setRpc,

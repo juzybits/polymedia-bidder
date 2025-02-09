@@ -6,7 +6,7 @@ import { AUCTION_CONFIG as cnf, SuiItem, svgNoImage } from "@polymedia/bidder-sd
 import { NetworkName, shortenAddress, TimeUnit } from "@polymedia/suitcase-core";
 import { Btn, IconCheck, IconInfo, isLocalhost, LinkToExplorer, RadioSelector, useFetch, useFetchAndLoadMore, useInputAddress, useInputString, useInputUnsignedBalance, useInputUnsignedInt } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "./app/App";
+import { useAppContext } from "./app/context";
 import { CardSpinner, CardSuiItem, CardWithMsg } from "./comp/cards";
 import { ConnectToGetStarted } from "./comp/ConnectToGetStarted";
 import { DEV_PACKAGE_IDS, DevNftCreator } from "./comp/DevNftCreator";
