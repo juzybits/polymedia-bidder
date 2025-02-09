@@ -14,17 +14,17 @@ import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 
 import { AUCTION_IDS, BidderClient, KioskNetwork } from "@polymedia/bidder-sdk";
 import { CoinMetaFetcher } from "@polymedia/suitcase-core";
-import { ExplorerName, IconGears, IconHistory, IconNew, Modal, ReactSetter, isLocalhost, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
+import { ExplorerName, IconGears, IconHistory, IconNew, Modal, ReactSetter, loadExplorer, loadNetwork } from "@polymedia/suitcase-react";
 
-import { Glitch } from "./comp/Glitch";
-import { loadNetworkConfig } from "./lib/network";
-import { PageAuction } from "./PageAuction";
-import { PageNotFound } from "./PageFullScreenMsg";
-import { PageHome } from "./PageHome";
-import { PageNew } from "./PageNew";
-import { PageSettings } from "./PageSettings";
-import { PageUser } from "./PageUser";
-import "./styles/App.less";
+import { Glitch } from "../comp/Glitch";
+import { defaultNetwork, loadNetworkConfig, SupportedNetwork, supportedNetworks } from "./config";
+import { PageAuction } from "../PageAuction";
+import { PageNotFound } from "../PageFullScreenMsg";
+import { PageHome } from "../PageHome";
+import { PageNew } from "../PageNew";
+import { PageSettings } from "../PageSettings";
+import { PageUser } from "../PageUser";
+import "../styles/App.less";
 
 /* App router */
 
@@ -51,19 +51,6 @@ export const AppRouter: React.FC = () => {
 };
 
 /* Sui providers + network config */
-
-const isDevDomain = "dev.polymedia-bidder.pages.dev" === window.location.hostname;
-const isTestDomain = "test.polymedia-bidder.pages.dev" === window.location.hostname;
-
-const [ defaultNetwork, supportedNetworks ] =
-    isLocalhost()  ? ["localnet" as const, ["mainnet", "testnet", "devnet", "localnet"] as const]
-    : isDevDomain  ? ["devnet"   as const, ["devnet"] as const]
-    : isTestDomain ? ["testnet"  as const, ["testnet"] as const]
-    : /* prod */     ["mainnet"  as const, ["mainnet", "testnet"] as const];
-
-export { supportedNetworks };
-
-export type NetworkName = typeof supportedNetworks[number];
 
 const queryClient = new QueryClient();
 const AppSuiProviders: React.FC = () =>
@@ -110,7 +97,7 @@ export const useAppContext = () => {
 
 export type AppContext = {
     explorer: ExplorerName; setExplorer: ReactSetter<ExplorerName>;
-    network: NetworkName; setNetwork: ReactSetter<NetworkName>;
+    network: SupportedNetwork; setNetwork: ReactSetter<SupportedNetwork>;
     rpc: string; setRpc: (rpc: string) => void;
     isWorking: boolean; setIsWorking: ReactSetter<boolean>;
     // showMobileNav: boolean; setShowMobileNav: ReactSetter<boolean>;
@@ -122,8 +109,8 @@ export type AppContext = {
 };
 
 const App: React.FC<{
-    network: NetworkName;
-    setNetwork: ReactSetter<NetworkName>;
+    network: SupportedNetwork;
+    setNetwork: ReactSetter<SupportedNetwork>;
     rpc: string;
     setRpc: (rpc: string) => void;
 }> = ({

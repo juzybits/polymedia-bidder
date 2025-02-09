@@ -1,7 +1,24 @@
 import { getFullnodeUrl } from "@mysten/sui/client";
 
 import { NetworkName } from "@polymedia/suitcase-core";
-import { loadRpc } from "@polymedia/suitcase-react";
+import { isLocalhost, loadRpc } from "@polymedia/suitcase-react";
+
+// === domains ===
+
+const isDevDomain = "dev.polymedia-bidder.pages.dev" === window.location.hostname;
+const isTestDomain = "test.polymedia-bidder.pages.dev" === window.location.hostname;
+
+// === sui networks ===
+
+export const [ defaultNetwork, supportedNetworks ] =
+    isLocalhost()  ? ["localnet" as const, ["mainnet", "testnet", "devnet", "localnet"] as const]
+    : isDevDomain  ? ["devnet"   as const, ["devnet"] as const]
+    : isTestDomain ? ["testnet"  as const, ["testnet"] as const]
+    : /* prod */     ["mainnet"  as const, ["mainnet", "testnet"] as const];
+
+export type SupportedNetwork = typeof supportedNetworks[number];
+
+// === json rpc ===
 
 export const loadNetworkConfig = (network: NetworkName) => ({
     url: loadRpc({

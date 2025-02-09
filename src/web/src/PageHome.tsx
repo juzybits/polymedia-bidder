@@ -5,7 +5,7 @@ import { AuctionObj, AuctionWithItems, SuiItem } from "@polymedia/bidder-sdk";
 import { NetworkName } from "@polymedia/suitcase-core";
 import { BtnPrevNext, useFetch, useFetchAndPaginate } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "./App";
+import { useAppContext } from "./app/App";
 import { CardAuctionItems, CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 import { Glitch } from "./comp/Glitch";
 

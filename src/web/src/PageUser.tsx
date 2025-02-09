@@ -5,7 +5,7 @@ import { AuctionObj, UserAuction, UserBid } from "@polymedia/bidder-sdk";
 import { EmptyPaginatedResponse, formatTimeDiff, shortenAddress, validateAndNormalizeAddress } from "@polymedia/suitcase-core";
 import { BtnPrevNext, LinkToExplorer, useFetchAndPaginate } from "@polymedia/suitcase-react";
 
-import { useAppContext } from "./App";
+import { useAppContext } from "./app/App";
 import { CardSpinner, CardWithMsg, HeaderLabel, TopBid } from "./comp/cards";
 import { HeaderTabs, makeTabs } from "./comp/tabs";
 import { useFetchUserId } from "./hooks/useFetchUserId";

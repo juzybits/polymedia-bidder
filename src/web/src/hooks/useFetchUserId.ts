@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { useAppContext } from "../App";
+import { useAppContext } from "../app/App";
 
 export const useFetchUserId = (
     address: string | undefined,
